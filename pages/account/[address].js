@@ -1,7 +1,7 @@
 import { useRouter } from 'next/router'
 
 import CoinInfo from '../../components/coin-info'
-import Transaction from '../../components/transactions/transaction'
+import Account from '../../components/account'
 import SectionTitle from '../../components/section-title'
 import Copy from '../../components/copy'
 
@@ -14,15 +14,15 @@ export default function Validators() {
   return (
     <>
       <SectionTitle
-        title="Details for Transaction"
+        title="Details for Account"
         subtitle={<div className="flex items-center space-x-2">
-          <span className="uppercase">{ellipseAddress(query.tx, 6)}</span>
-          <Copy size={20} text={query.tx} />
+          <span className="uppercase">{ellipseAddress(query.address, 6)}</span>
+          <Copy size={20} text={query.address} />
         </div>}
         right={<CoinInfo />}
         className="flex-col sm:flex-row items-start sm:items-center"
       />
-      <Transaction tx={query.tx} />
+      <Account address={query.address} />
     </>
   )
 }
