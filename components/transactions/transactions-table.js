@@ -10,7 +10,7 @@ import Copy from '../copy'
 import { getTransactions } from '../../lib/api/query'
 import { numberFormat, ellipseAddress } from '../../lib/utils'
 
-export default function TransactionsTable({ data, noLoad }) {
+export default function TransactionsTable({ data, noLoad, page }) {
   const [transactions, setTransactions] = useState(null)
 
   useEffect(() => {
@@ -166,7 +166,7 @@ export default function TransactionsTable({ data, noLoad }) {
           ),
           headerClassName: 'justify-end text-right',
         },
-      ].filter(column => data ? !(['height'].includes(column.accessor)) : true)}
+      ].filter(column => page === 'blocks' ? !(['height'].includes(column.accessor)) : true)}
       data={transactions ?
         transactions.data.map((transaction, i) => { return { ...transaction, i } })
         :
