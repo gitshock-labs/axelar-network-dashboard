@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
 
-import { FaCheckCircle, FaTimesCircle } from 'react-icons/fa'
+import { FaCheckCircle, FaClock, FaTimesCircle } from 'react-icons/fa'
 import moment from 'moment'
 
 import Datatable from '../datatable'
@@ -70,22 +70,29 @@ export default function TransactionsTable({ data, noLoad }) {
           ),
         },
         {
-          Header: 'Result',
-          accessor: 'result',
+          Header: 'Status',
+          accessor: 'status',
           disableSortBy: true,
           Cell: props => (
             !props.row.original.skeleton ?
               <div className="flex items-center space-x-1">
-                {props.value ? <FaCheckCircle size={16} className="text-green-500" /> : <FaTimesCircle size={16} className="text-red-500" />}
-                <span className="capitalize">{props.value ? 'success' : 'failed'}</span>
+                {props.value === 'success' ?
+                  <FaCheckCircle size={16} className="text-green-500" />
+                  :
+                  props.value === 'pending' ?
+                    <FaClock size={16} className="text-gray-500" />
+                    :
+                    <FaTimesCircle size={16} className="text-red-500" />
+                }
+                <span className="capitalize">{props.value}</span>
               </div>
               :
               <div className="skeleton w-16 h-4" />
           ),
         },
         {
-          Header: 'Amount',
-          accessor: 'amount',
+          Header: 'Value',
+          accessor: 'value',
           disableSortBy: true,
           Cell: props => (
             !props.row.original.skeleton ?

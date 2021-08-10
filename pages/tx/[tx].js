@@ -22,7 +22,7 @@ export default function Validators() {
         right={<CoinInfo />}
         className="flex-col sm:flex-row items-start sm:items-center"
       />
-      <Transaction height={query.tx} />
+      <Transaction tx={query.tx} />
     </>
   )
 }

@@ -156,7 +156,23 @@ export default function ValidatorsTable({ status }) {
             ),
             headerClassName: 'justify-end text-right',
           },
-        ]}
+          {
+            Header: 'Deregistering State',
+            accessor: 'deregistering_state',
+            sortType: (rowA, rowB) => rowA.original.commission_percenteage > rowB.original.commission_percenteage ? 1 : -1,
+            Cell: props => (
+              !props.row.original.skeleton ?
+                <div className="text-right">
+                  <span className="bg-gray-100 dark:bg-gray-800 rounded capitalize text-gray-900 dark:text-gray-100 font-semibold px-2 py-1">
+                    {props.value}
+                  </span>
+                </div>
+                :
+                <div className="skeleton w-24 h-4 ml-auto" />
+            ),
+            headerClassName: 'justify-end text-right',
+          },
+        ].filter(column => status === 'deregistering' ? true : !(['deregistering_state'].includes(column.accessor)))}
         data={validators && validators.status === status ?
           validators.data.filter(validator => validator.status === status).map((validator, i) => { return { ...validator, i } })
           :

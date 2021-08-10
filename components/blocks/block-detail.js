@@ -11,7 +11,7 @@ export default function BlockDetail({ data }) {
     <Widget>
       <div className="w-full grid grid-flow-row grid-cols-1 sm:grid-cols-2 gap-2 lg:gap-4">
         <div className="flex flex-col lg:flex-row items-start space-x-0 lg:space-x-2">
-          <span className="font-semibold">Height:</span>          
+          <span className="font-semibold">Height:</span>
           {data ?
             <span>{data.height}</span>
             :

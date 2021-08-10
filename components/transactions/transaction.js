@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import moment from 'moment'
 
 import TransactionDetail from './transaction-detail'
-// import TransactionLogs from './transaction-logs'
+import TransactionLogs from './transaction-logs'
 import Widget from '../widget'
 
 import { getTransaction } from '../../lib/api/query'
@@ -18,7 +18,7 @@ export default function Transaction({ tx }) {
       const response = await getTransaction(tx)
 
       if (response) {
-        setBlock({ data: response.data || {}, tx })
+        setTransaction({ data: response.data || {}, tx })
       }
     }
 
@@ -36,14 +36,14 @@ export default function Transaction({ tx }) {
       <Widget
         title={<div className="flex items-center text-gray-900 dark:text-white text-lg font-semibold space-x-1 mt-3">
           <span>Logs</span>
-          {transaction && transaction.tx === tx && (
-            <span>({transaction.data.length})</span>
+          {transaction && transaction.tx === tx && transaction.data.logs && (
+            <span>({transaction.data.logs.length})</span>
           )}
         </div>}
-        className="mt-4"
+        className="bg-transparent border-0 mt-4 p-0 md:p-8"
       >
         <div className="mt-3">
-          {/*<TransactionLogs data={transaction && transaction.tx === tx && transaction.data} />*/}
+          <TransactionLogs data={transaction && transaction.tx === tx && transaction.data} />
         </div>
       </Widget>
     </div>
