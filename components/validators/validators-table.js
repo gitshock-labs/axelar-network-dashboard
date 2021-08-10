@@ -1,14 +1,12 @@
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
 
-import _ from 'lodash'
-
-import Datatable from '../../components/datatable'
-import { ProgressBarWithText } from '../../components/progress-bars'
-import Copy from '../../components/copy'
+import Datatable from '../datatable'
+import { ProgressBarWithText } from '../progress-bars'
+import Copy from '../copy'
 
 import { getValidators } from '../../lib/api/query'
-import { generateUrl, numberFormat, ellipseAddress } from '../../lib/utils'
+import { numberFormat, ellipseAddress } from '../../lib/utils'
 
 export default function ValidatorsTable({ status }) {
   const [validators, setValidators] = useState(null)
@@ -98,7 +96,7 @@ export default function ValidatorsTable({ status }) {
             Cell: props => (
               !props.row.original.skeleton ?
                 <div className="flex flex-col justify-center text-left sm:text-right">
-                  {props.value > -1 ?
+                  {props.value > 0 ?
                     <>
                       <span className="font-medium">{numberFormat(props.value, '0,0')}</span>
                       <span className="text-gray-400 dark:text-gray-600">{numberFormat(props.row.original.voting_power_percentage, `0,0.000${Math.abs(props.row.original.voting_power_percentage) < 0.001 ? '000' : ''}`)}%</span>
@@ -122,7 +120,7 @@ export default function ValidatorsTable({ status }) {
             Cell: props => (
               !props.row.original.skeleton ?
                 <div className="text-right">
-                  {props.value > -1 ?
+                  {props.value > 0 ?
                     <span>{numberFormat(props.value, '0,0.00')}%</span>
                     :
                     '-'
@@ -139,7 +137,7 @@ export default function ValidatorsTable({ status }) {
             sortType: (rowA, rowB) => rowA.original.uptime > rowB.original.uptime ? 1 : -1,
             Cell: props => (
               !props.row.original.skeleton ?
-                props.value > -1 ?
+                props.value > 0 ?
                   <div className="w-56 mt-0.5 ml-auto">
                     <ProgressBarWithText
                       width={props.value}

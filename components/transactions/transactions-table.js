@@ -1,0 +1,171 @@
+import Link from 'next/link'
+import { useState, useEffect } from 'react'
+
+import { FaCheckCircle, FaTimesCircle } from 'react-icons/fa'
+import moment from 'moment'
+
+import Datatable from '../datatable'
+import Copy from '../copy'
+
+import { getTransactions } from '../../lib/api/query'
+import { numberFormat, ellipseAddress } from '../../lib/utils'
+
+export default function TransactionsTable({ data, noLoad }) {
+  const [transactions, setTransactions] = useState(null)
+
+  useEffect(() => {
+    const getData = async () => {
+      const response = await getTransactions()
+
+      if (response) {
+        setTransactions({ data: response.data || [] })
+      }
+    }
+
+    if (data) {
+      setTransactions(data)
+    }
+    else if (!noLoad) {
+      getData()
+    }
+
+    if (!noLoad) {
+      const interval = setInterval(() => getData(), 1 * 60 * 1000)
+      return () => clearInterval(interval)
+    }
+  }, [data])
+
+  return (
+    <Datatable
+      columns={[
+        {
+          Header: 'Tx Hash',
+          accessor: 'tx',
+          disableSortBy: true,
+          Cell: props => (
+            !props.row.original.skeleton ?
+              <div className="flex items-center space-x-1">
+                <Link href={`/tx/${props.value}`}>
+                  <a className="uppercase text-blue-600 dark:text-blue-400 font-medium">
+                    {ellipseAddress(props.value)}
+                  </a>
+                </Link>
+                <Copy text={props.value} />
+              </div>
+              :
+              <div className="skeleton w-48 h-4" />
+          ),
+        },
+        {
+          Header: 'Type',
+          accessor: 'type',
+          disableSortBy: true,
+          Cell: props => (
+            !props.row.original.skeleton ?
+              <span className="bg-gray-100 dark:bg-gray-800 rounded capitalize text-gray-900 dark:text-gray-100 font-semibold px-2 py-1">
+                {props.value}
+              </span>
+              :
+              <div className="skeleton w-12 h-4" />
+          ),
+        },
+        {
+          Header: 'Result',
+          accessor: 'result',
+          disableSortBy: true,
+          Cell: props => (
+            !props.row.original.skeleton ?
+              <div className="flex items-center space-x-1">
+                {props.value ? <FaCheckCircle size={16} className="text-green-500" /> : <FaTimesCircle size={16} className="text-red-500" />}
+                <span className="capitalize">{props.value ? 'success' : 'failed'}</span>
+              </div>
+              :
+              <div className="skeleton w-16 h-4" />
+          ),
+        },
+        {
+          Header: 'Amount',
+          accessor: 'amount',
+          disableSortBy: true,
+          Cell: props => (
+            !props.row.original.skeleton ?
+              <div className="text-right">
+                {typeof props.value === 'number' ?
+                  <span className="flex items-center justify-end space-x-1">
+                    <span>{numberFormat(props.value, '0,0.00000000')}</span>
+                    <span className="uppercase font-medium">{props.row.original.symbol}</span>
+                  </span>
+                  :
+                  '-'
+                }
+              </div>
+              :
+              <div className="skeleton w-16 h-4 ml-auto" />
+          ),
+          headerClassName: 'justify-end text-right',
+        },
+        {
+          Header: 'Fee',
+          accessor: 'fee',
+          disableSortBy: true,
+          Cell: props => (
+            !props.row.original.skeleton ?
+              <div className="text-right">
+                {typeof props.value === 'number' ?
+                  <span className="flex items-center justify-end space-x-1">
+                    <span>{numberFormat(props.value, '0,0.00000000')}</span>
+                    <span className="uppercase font-medium">{props.row.original.symbol}</span>
+                  </span>
+                  :
+                  '-'
+                }
+              </div>
+              :
+              <div className="skeleton w-16 h-4 ml-auto" />
+          ),
+          headerClassName: 'justify-end text-right',
+        },
+        {
+          Header: 'Height',
+          accessor: 'height',
+          disableSortBy: true,
+          Cell: props => (
+            !props.row.original.skeleton ?
+              <div className="text-right">
+                <Link href={`/blocks/${props.value}`}>
+                  <a className="text-blue-600 dark:text-blue-400">
+                    {props.value}
+                  </a>
+                </Link>
+              </div>
+              :
+              <div className="skeleton w-16 h-4 ml-auto" />
+          ),
+          headerClassName: 'justify-end text-right',
+        },
+        {
+          Header: 'Time',
+          accessor: 'time',
+          disableSortBy: true,
+          Cell: props => (
+            !props.row.original.skeleton ?
+              <div className="text-right">
+                <span className="text-gray-400 dark:text-gray-600">
+                  {moment(props.value).fromNow()}
+                </span>
+              </div>
+              :
+              <div className="skeleton w-32 h-4 ml-auto" />
+          ),
+          headerClassName: 'justify-end text-right',
+        },
+      ].filter(column => data ? !(['height'].includes(column.accessor)) : true)}
+      data={transactions ?
+        transactions.data.map((transaction, i) => { return { ...transaction, i } })
+        :
+        [...Array(10).keys()].map(i => { return { i, skeleton: true } })
+      }
+      defaultPageSize={10}
+    />
+  )
+}
