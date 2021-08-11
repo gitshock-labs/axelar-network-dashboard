@@ -7,7 +7,7 @@ import Copy from '../../components/copy'
 
 import { ellipseAddress } from '../../lib/utils'
 
-export default function Validators() {
+export default function AccountIndex() {
   const router = useRouter()
   const { query } = { ...router }
 

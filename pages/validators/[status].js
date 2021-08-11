@@ -4,7 +4,7 @@ import CoinInfo from '../../components/coin-info'
 import ValidatorsTable from '../../components/validators/validators-table'
 import SectionTitle from '../../components/section-title'
 
-export default function Validators() {
+export default function ValidatorsStatus() {
   const router = useRouter()
   const { query } = { ...router }
 

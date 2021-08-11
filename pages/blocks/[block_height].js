@@ -4,7 +4,7 @@ import CoinInfo from '../../components/coin-info'
 import Block from '../../components/blocks/block'
 import SectionTitle from '../../components/section-title'
 
-export default function Validators() {
+export default function BlockHeight() {
   const router = useRouter()
   const { query } = { ...router }
 

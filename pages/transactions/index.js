@@ -2,7 +2,7 @@ import CoinInfo from '../../components/coin-info'
 import TransactionsTable from '../../components/transactions/transactions-table'
 import SectionTitle from '../../components/section-title'
 
-export default function Validators() {
+export default function Transactions() {
   return (
     <>
       <SectionTitle
