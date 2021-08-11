@@ -44,7 +44,7 @@ export default function TransactionsTable({ data, noLoad, page }) {
           disableSortBy: true,
           Cell: props => (
             !props.row.original.skeleton ?
-              <div className="flex items-center space-x-1">
+              <div className="flex items-center space-x-1 mb-4">
                 <Link href={`/tx/${props.value}`}>
                   <a className="uppercase text-blue-600 dark:text-blue-400 font-medium">
                     {ellipseAddress(props.value)}
@@ -53,7 +53,7 @@ export default function TransactionsTable({ data, noLoad, page }) {
                 <Copy text={props.value} />
               </div>
               :
-              <div className="skeleton w-48 h-4" />
+              <div className="skeleton w-48 h-4 mb-4" />
           ),
         },
         {

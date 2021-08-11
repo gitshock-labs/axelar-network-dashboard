@@ -9,7 +9,7 @@ import Copy from '../copy'
 import { getBlocks } from '../../lib/api/query'
 import { numberFormat, ellipseAddress } from '../../lib/utils'
 
-export default function BlocksTable() {
+export default function BlocksTable({ n }) {
   const [blocks, setBlocks] = useState(null)
 
   useEffect(() => {
@@ -99,7 +99,7 @@ export default function BlocksTable() {
           ),
         },
         {
-          Header: 'No. Txs',
+          Header: 'Txs',
           accessor: 'txs',
           disableSortBy: true,
           Cell: props => (
@@ -138,9 +138,9 @@ export default function BlocksTable() {
         },
       ]}
       data={blocks ?
-        blocks.data.map((block, i) => { return { ...block, i } })
+        blocks.data.filter((block, i) => !n || i < n).map((block, i) => { return { ...block, i } })
         :
-        [...Array(25).keys()].map(i => { return { i, skeleton: true } })
+        [...Array(n || 25).keys()].map(i => { return { i, skeleton: true } })
       }
       noPagination={true}
       defaultPageSize={100}
