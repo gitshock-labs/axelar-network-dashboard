@@ -158,7 +158,11 @@ export default function TransactionsTable({ data, noLoad, page }) {
             !props.row.original.skeleton ?
               <div className="text-right">
                 <span className="text-gray-400 dark:text-gray-600">
-                  {moment(props.value).fromNow()}
+                  {Number(moment().diff(moment(props.value), 'second')) > 59 ?
+                    moment(props.value).fromNow()
+                    :
+                    <>{moment().diff(moment(props.value), 'second')}s ago</>
+                  }
                 </span>
               </div>
               :
@@ -166,7 +170,7 @@ export default function TransactionsTable({ data, noLoad, page }) {
           ),
           headerClassName: 'justify-end text-right',
         },
-      ].filter(column => page === 'blocks' ? !(['height'].includes(column.accessor)) : true)}
+      ].filter(column => page === 'blocks' ? !(['height'].includes(column.accessor)) : page === 'index' ? !(['height', 'fee'].includes(column.accessor)) : true)}
       data={transactions ?
         transactions.data.map((transaction, i) => { return { ...transaction, i } })
         :

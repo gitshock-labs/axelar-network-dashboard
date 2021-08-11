@@ -116,7 +116,7 @@ export default function Datatable({ columns, data, rowSelectEnable = false, noPa
         </tbody>
       </table>
       {!noPagination && data && data.length > 0 && (
-        <div className="flex flex-col sm:flex-row items-center justify-between my-4">
+        <div className="flex flex-col sm:flex-row items-center justify-between my-4 mx-3">
           <select
             disabled={loading}
             value={pageSize}

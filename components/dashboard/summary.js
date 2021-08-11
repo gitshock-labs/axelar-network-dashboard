@@ -4,7 +4,7 @@ import Widget from '../widget'
 
 import { numberFormat } from '../../lib/utils'
 
-const KeygenSummary = ({ data }) => {
+const Summary = ({ data }) => {
   return (
     <div className="w-full grid grid-flow-row grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 my-2 md:my-4">
       <Widget
@@ -55,8 +55,8 @@ const KeygenSummary = ({ data }) => {
   )
 }
 
-KeygenSummary.propTypes = {
+Summary.propTypes = {
   data: PropTypes.any,
 }
 
-export default KeygenSummary
+export default Summary

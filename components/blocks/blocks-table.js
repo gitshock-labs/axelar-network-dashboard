@@ -28,124 +28,122 @@ export default function BlocksTable() {
   }, [])
 
   return (
-    <div className="max-w-6xl my-4 xl:my-6 mx-auto">
-      <Datatable
-        columns={[
-          {
-            Header: 'Height',
-            accessor: 'height',
-            disableSortBy: true,
-            Cell: props => (
-              !props.row.original.skeleton ?
-                <Link href={`/blocks/${props.value}`}>
-                  <a className="text-blue-600 dark:text-blue-400 font-medium">
-                    {props.value}
+    <Datatable
+      columns={[
+        {
+          Header: 'Height',
+          accessor: 'height',
+          disableSortBy: true,
+          Cell: props => (
+            !props.row.original.skeleton ?
+              <Link href={`/blocks/${props.value}`}>
+                <a className="text-blue-600 dark:text-blue-400 font-medium">
+                  {props.value}
+                </a>
+              </Link>
+              :
+              <div className="skeleton w-16 h-4" />
+          ),
+        },
+        {
+          Header: 'Block Hash',
+          accessor: 'hash',
+          disableSortBy: true,
+          Cell: props => (
+            !props.row.original.skeleton ?
+              <Link href={`/blocks/${props.row.original.height}`}>
+                <a className="uppercase font-medium">
+                  {ellipseAddress(props.value)}
+                </a>
+              </Link>
+              :
+              <div className="skeleton w-48 h-4" />
+          ),
+        },
+        {
+          Header: 'Proposer',
+          accessor: 'proposer.name',
+          disableSortBy: true,
+          Cell: props => (
+            !props.row.original.skeleton ?
+              <div className="min-w-max flex items-start space-x-2">
+                <Link href={`/validator/${props.row.original.proposer.key}`}>
+                  <a>
+                    <img
+                      src={props.row.original.proposer.image}
+                      alt=""
+                      className="w-6 h-6 rounded-full"
+                    />
                   </a>
                 </Link>
-                :
-                <div className="skeleton w-16 h-4" />
-            ),
-          },
-          {
-            Header: 'Block Hash',
-            accessor: 'hash',
-            disableSortBy: true,
-            Cell: props => (
-              !props.row.original.skeleton ?
-                <Link href={`/blocks/${props.row.original.height}`}>
-                  <a className="uppercase font-medium">
-                    {ellipseAddress(props.value)}
-                  </a>
-                </Link>
-                :
-                <div className="skeleton w-48 h-4" />
-            ),
-          },
-          {
-            Header: 'Proposer',
-            accessor: 'proposer.name',
-            disableSortBy: true,
-            Cell: props => (
-              !props.row.original.skeleton ?
-                <div className="min-w-max flex items-start space-x-2">
+                <div className="flex flex-col">
                   <Link href={`/validator/${props.row.original.proposer.key}`}>
-                    <a>
-                      <img
-                        src={props.row.original.proposer.image}
-                        alt=""
-                        className="w-6 h-6 rounded-full"
-                      />
+                    <a className="text-blue-600 dark:text-blue-400 font-medium">
+                      {props.value || props.row.original.proposer.key}
                     </a>
                   </Link>
-                  <div className="flex flex-col">
-                    <Link href={`/validator/${props.row.original.proposer.key}`}>
-                      <a className="text-blue-600 dark:text-blue-400 font-medium">
-                        {props.value || props.row.original.proposer.key}
-                      </a>
-                    </Link>
-                    <span className="flex items-center space-x-1">
-                      <span className="font-light">{ellipseAddress(props.row.original.proposer.key)}</span>
-                      <Copy text={props.row.original.proposer.key} />
-                    </span>
-                  </div>
-                </div>
-                :
-                <div className="flex items-start space-x-2">
-                  <div className="skeleton w-6 h-6 rounded-full" />
-                  <div className="flex flex-col space-y-1.5">
-                    <div className="skeleton w-24 h-4" />
-                    <div className="skeleton w-32 h-3" />
-                  </div>
-                </div>
-            ),
-          },
-          {
-            Header: 'No. Txs',
-            accessor: 'txs',
-            disableSortBy: true,
-            Cell: props => (
-              !props.row.original.skeleton ?
-                <div className="text-right">
-                  {props.value > -1 ?
-                    <span>{numberFormat(props.value, '0,0.00')}</span>
-                    :
-                    '-'
-                  }
-                </div>
-                :
-                <div className="skeleton w-8 h-4 ml-auto" />
-            ),
-            headerClassName: 'justify-end text-right',
-          },
-          {
-            Header: 'Time',
-            accessor: 'time',
-            disableSortBy: true,
-            Cell: props => (
-              !props.row.original.skeleton ?
-                <div className="text-right">
-                  <span className="text-gray-400 dark:text-gray-600">
-                    {Number(moment().diff(moment(props.value), 'second')) > 59 ?
-                      moment(props.value).fromNow()
-                      :
-                      <>{moment().diff(moment(props.value), 'second')}s ago</>
-                    }
+                  <span className="flex items-center space-x-1">
+                    <span className="font-light">{ellipseAddress(props.row.original.proposer.key)}</span>
+                    <Copy text={props.row.original.proposer.key} />
                   </span>
                 </div>
-                :
-                <div className="skeleton w-12 h-4 ml-auto" />
-            ),
-            headerClassName: 'justify-end text-right',
-          },
-        ]}
-        data={blocks ?
-          blocks.data.map((block, i) => { return { ...block, i } })
-          :
-          [...Array(25).keys()].map(i => { return { i, skeleton: true } })
-        }
-        noPagination={true}
-        defaultPageSize={100}
-      />
-    </div>
+              </div>
+              :
+              <div className="flex items-start space-x-2">
+                <div className="skeleton w-6 h-6 rounded-full" />
+                <div className="flex flex-col space-y-1.5">
+                  <div className="skeleton w-24 h-4" />
+                  <div className="skeleton w-32 h-3" />
+                </div>
+              </div>
+          ),
+        },
+        {
+          Header: 'No. Txs',
+          accessor: 'txs',
+          disableSortBy: true,
+          Cell: props => (
+            !props.row.original.skeleton ?
+              <div className="text-right">
+                {props.value > -1 ?
+                  <span>{numberFormat(props.value, '0,0.00')}</span>
+                  :
+                  '-'
+                }
+              </div>
+              :
+              <div className="skeleton w-8 h-4 ml-auto" />
+          ),
+          headerClassName: 'justify-end text-right',
+        },
+        {
+          Header: 'Time',
+          accessor: 'time',
+          disableSortBy: true,
+          Cell: props => (
+            !props.row.original.skeleton ?
+              <div className="text-right">
+                <span className="text-gray-400 dark:text-gray-600">
+                  {Number(moment().diff(moment(props.value), 'second')) > 59 ?
+                    moment(props.value).fromNow()
+                    :
+                    <>{moment().diff(moment(props.value), 'second')}s ago</>
+                  }
+                </span>
+              </div>
+              :
+              <div className="skeleton w-12 h-4 ml-auto" />
+          ),
+          headerClassName: 'justify-end text-right',
+        },
+      ]}
+      data={blocks ?
+        blocks.data.map((block, i) => { return { ...block, i } })
+        :
+        [...Array(25).keys()].map(i => { return { i, skeleton: true } })
+      }
+      noPagination={true}
+      defaultPageSize={100}
+    />
   )
 }

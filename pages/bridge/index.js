@@ -1,19 +1,17 @@
 import CoinInfo from '../../components/coin-info'
-import BlocksTable from '../../components/blocks/blocks-table'
+import BridgeTable from '../../components/bridge/bridge-table'
 import SectionTitle from '../../components/section-title'
 
-export default function Blocks() {
+export default function Bridge() {
   return (
     <>
       <SectionTitle
-        title="Latest blocks"
-        subtitle="Blocks"
+        title="List of Bridge Accounts"
+        subtitle="Bridge Accounts"
         right={<CoinInfo />}
         className="flex-col sm:flex-row items-start sm:items-center"
       />
-      <div className="max-w-6xl my-4 xl:my-6 mx-auto">
-        <BlocksTable />
-      </div>
+      <BridgeTable />
     </>
   )
 }
