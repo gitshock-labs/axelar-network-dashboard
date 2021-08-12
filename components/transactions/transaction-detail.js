@@ -16,7 +16,7 @@ export default function TransactionDetail({ data }) {
           <span className="w-40 lg:w-64 text-xs lg:text-base font-semibold">Tx Hash:</span>
           {data ?
             <div className="flex flex-wrap items-center text-xs lg:text-base space-x-1">
-              <span className="uppercase">{data.tx}</span>
+              <span className="break-all uppercase">{data.tx}</span>
               <Copy text={data.tx} />
             </div>
             :

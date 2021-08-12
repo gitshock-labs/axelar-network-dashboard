@@ -8,7 +8,7 @@ import Copy from '../copy'
 
 import { numberFormat, ellipseAddress } from '../../lib/utils'
 
-export default function KeysTable({ data }) {
+export default function KeysTable({ data, address, page }) {
   return (
     <Datatable
       columns={[
@@ -71,7 +71,9 @@ export default function KeysTable({ data }) {
                 {props.value && props.value.length > 0 ?
                   props.value.map((validator, i) => (
                     <div key={i} className="flex items-center text-xs space-x-1">
-                      <span className="text-gray-600 dark:text-gray-400 font-medium">{validator.key}</span>
+                      <Link href={`/validator/${validator.key}`}>
+                        <a className="text-blue-600 dark:text-blue-400 font-medium">{validator.key}</a>
+                      </Link>
                       <span>[{validator.share}]</span>
                     </div>
                   ))
@@ -87,7 +89,23 @@ export default function KeysTable({ data }) {
               </div>
           ),
         },
-      ]}
+        {
+          Header: 'Share',
+          accessor: 'share',
+          disableSortBy: true,
+          Cell: props => (
+            !props.row.original.skeleton ?
+              props.row.original.validators && props.row.original.validators.length > 0 ?
+                props.row.original.validators.filter(validator => validator.key === address).map((validator, i) => (
+                  <span key={i}>{validator.share}</span>
+                ))
+                :
+                '-'
+              :
+              <div className="skeleton w-12 h-4" />
+          ),
+        },
+      ].filter(column => ['validator'].includes(page) ? !(['time', 'block', 'validators'].includes(column.accessor)) : !(['share'].includes(column.accessor)))}
       data={data ?
         data.data.map((key, i) => { return { ...key, i } })
         :

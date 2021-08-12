@@ -1,5 +1,5 @@
 .table {
-  @apply block md:table overflow-x-scroll;
+  @apply block xl:table overflow-x-scroll;
   @apply w-full table-auto;
   &.no-border thead tr th,
   &.no-border tbody tr td {

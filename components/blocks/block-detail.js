@@ -3,8 +3,9 @@ import Link from 'next/link'
 import moment from 'moment'
 
 import Widget from '../widget'
+import Copy from '../copy'
 
-import { numberFormat } from '../../lib/utils'
+import { numberFormat, ellipseAddress } from '../../lib/utils'
 
 export default function BlockDetail({ data }) {
   return (
@@ -21,9 +22,12 @@ export default function BlockDetail({ data }) {
         <div className="flex flex-col lg:flex-row items-start space-x-0 lg:space-x-2">
           <span className="font-semibold">Block Hash:</span>
           {data ?
-            <span className="uppercase">{data.hash}</span>
+            <span className="flex items-center space-x-1">
+              <span>{ellipseAddress(data.hash)}</span>
+              <Copy text={data.hash} />
+            </span>
             :
-            <div className="skeleton w-48 h-4" />
+            <div className="skeleton w-60 h-4" />
           }
         </div>
         <div className="flex flex-col lg:flex-row items-start space-x-0 lg:space-x-2">

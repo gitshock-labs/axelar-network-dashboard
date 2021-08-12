@@ -138,7 +138,7 @@ export default function TransactionsTable({ data, noLoad, page }) {
           disableSortBy: true,
           Cell: props => (
             !props.row.original.skeleton ?
-              <div className="text-right">
+              <div className={`${page !== 'validator' ? 'text-right' : ''}`}>
                 <Link href={`/blocks/${props.value}`}>
                   <a className="text-blue-600 dark:text-blue-400">
                     {props.value}
@@ -146,9 +146,22 @@ export default function TransactionsTable({ data, noLoad, page }) {
                 </Link>
               </div>
               :
-              <div className="skeleton w-16 h-4 ml-auto" />
+              <div className={`skeleton w-16 h-4 ml-${page !== 'validator' ? 'auto' : 0}`} />
           ),
-          headerClassName: 'justify-end text-right',
+          headerClassName: page !== 'validator' ? 'justify-end text-right' : '',
+        },
+        {
+          Header: 'Vote',
+          accessor: 'vote',
+          disableSortBy: true,
+          Cell: props => (
+            !props.row.original.skeleton ?
+              <span className={`${props.value === 'approved' ? 'bg-green-500' : 'bg-red-500'} rounded capitalize text-white font-semibold px-2 py-1`}>
+                {props.value}
+              </span>
+              :
+              <div className="skeleton w-12 h-4" />
+          ),
         },
         {
           Header: 'Time',
@@ -170,7 +183,7 @@ export default function TransactionsTable({ data, noLoad, page }) {
           ),
           headerClassName: 'justify-end text-right',
         },
-      ].filter(column => page === 'blocks' ? !(['height'].includes(column.accessor)) : page === 'index' ? !(['height', 'fee'].includes(column.accessor)) : true)}
+      ].filter(column => ['blocks'].includes(page) ? !(['height', 'vote'].includes(column.accessor)) : ['index'].includes(page) ? !(['height', 'fee', 'vote'].includes(column.accessor)) : ['validator'].includes(page) ? !(['type', 'status', 'value', 'fee'].includes(column.accessor)) : !(['vote'].includes(column.accessor)))}
       data={transactions ?
         transactions.data.map((transaction, i) => { return { ...transaction, i } })
         :
