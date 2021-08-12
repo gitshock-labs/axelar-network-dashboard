@@ -54,8 +54,8 @@ export default function ValidatorDetail({ data }) {
         :
         <div className="flex items-start space-x-2 mb-7">
           <div className="skeleton w-6 md:w-10 h-6 md:h-10 rounded-full" />
-          <div className="flex flex-col space-y-3">
-            <div className="skeleton w-32 h-5 my-2" />
+          <div className="flex flex-col space-y-2.5">
+            <div className="skeleton w-32 h-6 mb-1.5" />
             <div className="skeleton w-60 h-4" />
             <div className="skeleton w-40 h-4" />
             <div className="skeleton w-48 h-4" />

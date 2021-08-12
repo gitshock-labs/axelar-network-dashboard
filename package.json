@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "next dev",
     "start": "next start",
-    "build": "next build && next export"
+    "build": "next build && next export",
+    "deploy": "aws s3 sync out/ s3://dashboard.axelar.network --acl public-read"
   },
   "dependencies": {
     "html-react-parser": "^1.2.7",
@@ -26,6 +27,7 @@
     "react-icons": "^4.2.0",
     "react-linkify": "*",
     "react-page-visibility": "^6.4.0",
+    "react-popper": "^2.2.5",
     "react-redux": "^7.2.4",
     "react-stack-grid": "^0.7.1",
     "react-table": "^7.7.0",

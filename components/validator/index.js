@@ -11,7 +11,7 @@ import KeysTable from '../keygen/keys-table'
 import Widget from '../widget'
 
 import { getValidator, getUptime, getDelegations, getTransactions, getKeys } from '../../lib/api/query'
-import { getName, numberFormat } from '../../lib/utils'
+import { getName } from '../../lib/utils'
 
 export default function Validator({ address }) {
   const [validator, setValidator] = useState(null)
@@ -27,6 +27,12 @@ export default function Validator({ address }) {
 
       if (response) {
         setValidator({ data: response.data || {}, address })
+      }
+
+      response = await getUptime(address)
+
+      if (response) {
+        setUptime({ data: response.data || [], address })
       }
 
       response = await getDelegations({ address })
