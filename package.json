@@ -9,7 +9,6 @@
     "deploy": "aws s3 sync out/ s3://dashboard.axelar.network --acl public-read"
   },
   "dependencies": {
-    "html-react-parser": "^1.2.7",
     "lodash": "^4.17.21",
     "moment": "^2.29.1",
     "next": "^11.0.0",
@@ -20,18 +19,13 @@
     "postcss-preset-env": "^6.7.0",
     "prop-types": "^15.7.2",
     "react": "17.0.2",
-    "react-circle": "^1.1.1",
     "react-copy-to-clipboard": "^5.0.3",
     "react-dom": "17.0.2",
     "react-hook-form": "^7.12.2",
     "react-icons": "^4.2.0",
-    "react-linkify": "*",
-    "react-page-visibility": "^6.4.0",
     "react-popper": "^2.2.5",
     "react-redux": "^7.2.4",
-    "react-stack-grid": "^0.7.1",
     "react-table": "^7.7.0",
-    "react-ticker": "^1.2.2",
     "redux": "^4.1.0",
     "redux-devtools-extension": "^2.13.9"
   },
