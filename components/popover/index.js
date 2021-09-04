@@ -26,7 +26,7 @@ export default function Popover({ placement, title, content, className = '', chi
   )
 
   useEffect(() => {
-    const handleClickOutside = (event) => {
+    const handleClickOutside = event => {
       if (
         hidden ||
         buttonRef.current.contains(event.target) ||
