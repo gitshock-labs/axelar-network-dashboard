@@ -84,7 +84,7 @@ export default function Datatable({ columns, data, rowSelectEnable = false, noPa
           {headerGroups.map(headerGroup => (
             <tr { ...headerGroup.getHeaderGroupProps() }>
               {headerGroup.headers.map(column => (
-                <th { ...column.getHeaderProps(column.getSortByToggleProps()) }>
+                <th { ...column.getHeaderProps(column.getSortByToggleProps()) } className={column.className}>
                   <div className={`flex flex-row items-center ${column.headerClassName && column.headerClassName.includes('justify-') ? '' : 'justify-start'} ${column.headerClassName || ''}`}>
                     <span>{column.render('Header')}</span>
                     <span className={`ml-${column.isSorted ? 2 : 0}`}>
@@ -109,7 +109,7 @@ export default function Datatable({ columns, data, rowSelectEnable = false, noPa
             prepareRow(row)
             return (
               <tr { ...row.getRowProps() }>
-                {row.cells.map(cell => (<td { ...cell.getCellProps() }>{cell.render('Cell')}</td>))}
+                {row.cells.map((cell, j) => (<td { ...cell.getCellProps() } className={headerGroups[0] && headerGroups[0].headers[j] && headerGroups[0].headers[j].className}>{cell.render('Cell')}</td>))}
               </tr>
             )
           })}

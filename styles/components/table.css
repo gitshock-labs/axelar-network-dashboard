@@ -1,5 +1,8 @@
 .table {
-  @apply block xl:table overflow-x-scroll;
+  @apply block lg:inline-table overflow-x-scroll;
+  &.inline-table {
+    display: inline-table;
+  }
   @apply w-full table-auto;
   &.no-border thead tr th,
   &.no-border tbody tr td {
@@ -26,6 +29,12 @@
     tbody tr td {
       @apply px-6 py-3;
     }
+  }
+  .nopadding-column {
+    @apply px-0;
+  }
+  .nopadding-right-column {
+    @apply pr-0;
   }
 }
 
