@@ -68,6 +68,21 @@ export default function TransactionLogs({ data }) {
                   }
                 </div>
               )}
+              {activity.module && (
+                <div className="flex flex-col">
+                  {!activity.skeleton ?
+                    <>
+                      <span className="h-6 text-xs pt-1 mt-0.5">Module</span>
+                      <span className="uppercase font-semibold mt-1.5">{activity.module}</span>
+                    </>
+                    :
+                    <>
+                      <div className="skeleton w-16 h-4" />
+                      <div className="skeleton w-18 h-6 mt-2" />
+                    </>
+                  }
+                </div>
+              )}
               {(activity.skeleton || activity.action) && (
                 <div className="flex flex-col items-center space-y-1">
                   {!activity.skeleton ?
@@ -85,13 +100,16 @@ export default function TransactionLogs({ data }) {
                           <span>{numberFormat(activity.market_price, '0,0.00000000')}</span>
                         </>
                         :
-                        typeof activity.amount === 'number' ?
-                          <span className="flex items-center justify-end space-x-1">
-                            <span>{numberFormat(activity.amount, '0,0.00000000')}</span>
-                            <span className="uppercase font-medium">{activity.symbol}</span>
-                          </span>
+                        activity.value ?
+                          <span className="capitalize">{activity.value}</span>
                           :
-                          '-'
+                          typeof activity.amount === 'number' ?
+                            <span className="flex items-center justify-end space-x-1">
+                              <span>{numberFormat(activity.amount, '0,0.00000000')}</span>
+                              <span className="uppercase font-medium">{activity.symbol}</span>
+                            </span>
+                            :
+                            null
                       }
                     </>
                     :

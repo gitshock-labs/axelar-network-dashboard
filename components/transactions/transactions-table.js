@@ -90,27 +90,27 @@ export default function TransactionsTable({ data, noLoad, page }) {
               <div className="skeleton w-16 h-4" />
           ),
         },
-        {
-          Header: 'Value',
-          accessor: 'value',
-          disableSortBy: true,
-          Cell: props => (
-            !props.row.original.skeleton ?
-              <div className="text-right">
-                {typeof props.value === 'number' ?
-                  <span className="flex items-center justify-end space-x-1">
-                    <span>{numberFormat(props.value, '0,0.00000000')}</span>
-                    <span className="uppercase font-medium">{props.row.original.symbol}</span>
-                  </span>
-                  :
-                  '-'
-                }
-              </div>
-              :
-              <div className="skeleton w-16 h-4 ml-auto" />
-          ),
-          headerClassName: 'justify-end text-right',
-        },
+        // {
+        //   Header: 'Value',
+        //   accessor: 'value',
+        //   disableSortBy: true,
+        //   Cell: props => (
+        //     !props.row.original.skeleton ?
+        //       <div className="text-right">
+        //         {typeof props.value === 'number' ?
+        //           <span className="flex items-center justify-end space-x-1">
+        //             <span>{numberFormat(props.value, '0,0.00000000')}</span>
+        //             <span className="uppercase font-medium">{props.row.original.symbol}</span>
+        //           </span>
+        //           :
+        //           '-'
+        //         }
+        //       </div>
+        //       :
+        //       <div className="skeleton w-16 h-4 ml-auto" />
+        //   ),
+        //   headerClassName: 'justify-end text-right',
+        // },
         {
           Header: 'Fee',
           accessor: 'fee',

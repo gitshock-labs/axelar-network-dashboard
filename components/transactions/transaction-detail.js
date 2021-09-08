@@ -17,7 +17,7 @@ export default function TransactionDetail({ data }) {
           {data ?
             <div className="flex flex-wrap items-center text-xs lg:text-base space-x-1">
               <span className="break-all uppercase">{data.txhash}</span>
-              <Copy text={data.txhash} />
+              {data.txhash && (<Copy text={data.txhash} />)}
             </div>
             :
             <div className="skeleton w-60 h-6 mt-1" />
@@ -26,17 +26,19 @@ export default function TransactionDetail({ data }) {
         <div className="flex flex-col md:flex-row items-start space-y-2 md:space-y-0 space-x-0 md:space-x-2">
           <span className="w-40 lg:w-64 text-xs lg:text-base font-semibold">Status:</span>
           {data ?
-            <div className="flex flex-wrap items-center text-xs lg:text-base space-x-1">
-              {data.status === 'success' ?
-                <FaCheckCircle size={18} className="text-green-500" />
-                :
-                data.status === 'pending' ?
-                  <FaClock size={18} className="text-gray-500" />
+            data.status && (
+              <div className="flex flex-wrap items-center text-xs lg:text-base space-x-1">
+                {data.status === 'success' ?
+                  <FaCheckCircle size={18} className="text-green-500" />
                   :
-                  <FaTimesCircle size={18} className="text-red-500" />
-              }
-              <span className="capitalize">{data.status}</span>
-            </div>
+                  data.status === 'pending' ?
+                    <FaClock size={18} className="text-gray-500" />
+                    :
+                    <FaTimesCircle size={18} className="text-red-500" />
+                }
+                <span className="capitalize">{data.status}</span>
+              </div>
+            )
             :
             <div className="skeleton w-24 h-6 mt-1" />
           }
@@ -58,10 +60,12 @@ export default function TransactionDetail({ data }) {
         <div className="flex flex-col md:flex-row items-start space-y-2 md:space-y-0 space-x-0 md:space-x-2">
           <span className="w-40 lg:w-64 text-xs lg:text-base font-semibold">Time:</span>
           {data ?
-            <div className="flex flex-wrap text-xs lg:text-base space-x-1">
-              <span className="text-gray-500 dark:text-gray-400">{moment(data.timestamp).fromNow()}</span>
-              <span>({moment(data.timestamp).format('MMM D, YYYY h:mm:ss A')})</span>
-            </div>
+            data.timestamp && (
+              <div className="flex flex-wrap text-xs lg:text-base space-x-1">
+                <span className="text-gray-500 dark:text-gray-400">{moment(data.timestamp).fromNow()}</span>
+                <span>({moment(data.timestamp).format('MMM D, YYYY h:mm:ss A')})</span>
+              </div>
+            )
             :
             <div className="skeleton w-60 h-6 mt-1" />
           }
