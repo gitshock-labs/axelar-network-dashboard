@@ -21,7 +21,7 @@ export default function TransactionLogs({ data }) {
         :
         [...Array(1).keys()].map(i => { return { i, skeleton: true } })
       ).map((activity, i) => (
-        <div key={i} className="max-w-2xl bg-white dark:bg-gray-800 rounded shadow-lg flex items-center space-x-4 p-4">
+        <div key={i} className="min-w-max max-w-3xl bg-white dark:bg-gray-800 rounded shadow-lg flex items-center space-x-4 p-4">
           {activity.skeleton || activity.type !== 'update_client' ?
             <>
               {(activity.skeleton || (activity.sender && !activity.depositor)) && (
@@ -168,7 +168,9 @@ export default function TransactionLogs({ data }) {
             </>
             :
             data && data.tx ?
-              <ReactJson src={data.tx} theme={theme === 'dark' ? 'harmonic' : 'rjv-default'} />
+              <div className="max-w-3xl">
+                <ReactJson src={data.tx} theme={theme === 'dark' ? 'harmonic' : 'rjv-default'} />
+              </div>
               :
               <></>
           }
