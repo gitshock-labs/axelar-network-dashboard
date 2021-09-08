@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react'
 
-import { FaRegCopy, FaCheckCircle } from 'react-icons/fa'
 import PropTypes from 'prop-types'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
+import { FaRegCopy, FaCheckCircle } from 'react-icons/fa'
 
 const Copy = ({ text, copyTitle, size = 16, onCopy, className = '' }) => {
   const [copied, setCopied] = useState(false)

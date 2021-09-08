@@ -129,3 +129,7 @@ body {
 .z-2 {
   z-index: 2;
 }
+
+.string-value {
+  @apply break-all;
+}

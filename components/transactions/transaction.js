@@ -4,9 +4,10 @@ import moment from 'moment'
 
 import TransactionDetail from './transaction-detail'
 import TransactionLogs from './transaction-logs'
+import TransactionRawLogs from './transaction-raw-logs'
 import Widget from '../widget'
 
-import { getTransaction } from '../../lib/api/query'
+import { transaction as getTransaction } from '../../lib/api/cosmos'
 import { numberFormat } from '../../lib/utils'
 
 export default function Transaction({ tx }) {
@@ -17,7 +18,7 @@ export default function Transaction({ tx }) {
       const response = await getTransaction(tx)
 
       if (response) {
-        setTransaction({ data: response.data || {}, tx })
+        setTransaction({ data: response.tx_response || {}, tx })
       }
     }
 
@@ -25,7 +26,7 @@ export default function Transaction({ tx }) {
       getData()
     }
 
-    const interval = setInterval(() => getData(), 30 * 1000)
+    const interval = setInterval(() => getData(), 5 * 60 * 1000)
     return () => clearInterval(interval)
   }, [tx])
 
@@ -34,16 +35,15 @@ export default function Transaction({ tx }) {
       <TransactionDetail data={transaction && transaction.tx === tx && transaction.data} />
       <Widget
         title={<div className="flex items-center text-gray-900 dark:text-white text-lg font-semibold space-x-1 mt-3">
-          <span>Logs</span>
+          <span>Activities</span>
           {transaction && transaction.tx === tx && transaction.data.logs && (
             <span>({transaction.data.logs.length})</span>
           )}
         </div>}
-        className="bg-transparent border-0 mt-4 p-0 md:p-8"
+        className="bg-transparent border-0 p-0 md:pt-4 md:pb-8 md:px-8"
       >
-        <div className="mt-3">
-          <TransactionLogs data={transaction && transaction.tx === tx && transaction.data} />
-        </div>
+        <TransactionLogs data={transaction && transaction.tx === tx && transaction.data} />
+        <TransactionRawLogs data={transaction && transaction.tx === tx && transaction.data} />
       </Widget>
     </div>
   )

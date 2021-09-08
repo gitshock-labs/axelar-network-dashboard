@@ -1,12 +1,12 @@
 import Link from 'next/link'
 
-import { FaCheckCircle, FaClock, FaTimesCircle } from 'react-icons/fa'
 import moment from 'moment'
+import { FaCheckCircle, FaClock, FaTimesCircle } from 'react-icons/fa'
 
 import Widget from '../widget'
 import Copy from '../copy'
 
-import { numberFormat, ellipseAddress } from '../../lib/utils'
+import { numberFormat, getName, ellipseAddress } from '../../lib/utils'
 
 export default function TransactionDetail({ data }) {
   return (
@@ -16,8 +16,8 @@ export default function TransactionDetail({ data }) {
           <span className="w-40 lg:w-64 text-xs lg:text-base font-semibold">Tx Hash:</span>
           {data ?
             <div className="flex flex-wrap items-center text-xs lg:text-base space-x-1">
-              <span className="break-all uppercase">{data.tx}</span>
-              <Copy text={data.tx} />
+              <span className="break-all uppercase">{data.txhash}</span>
+              <Copy text={data.txhash} />
             </div>
             :
             <div className="skeleton w-60 h-6 mt-1" />
@@ -59,26 +59,28 @@ export default function TransactionDetail({ data }) {
           <span className="w-40 lg:w-64 text-xs lg:text-base font-semibold">Time:</span>
           {data ?
             <div className="flex flex-wrap text-xs lg:text-base space-x-1">
-              <span className="text-gray-500 dark:text-gray-400">{moment(data.time).fromNow()}</span>
-              <span>({moment(data.time).format('MMM D, YYYY h:mm:ss A')})</span>
+              <span className="text-gray-500 dark:text-gray-400">{moment(data.timestamp).fromNow()}</span>
+              <span>({moment(data.timestamp).format('MMM D, YYYY h:mm:ss A')})</span>
             </div>
             :
             <div className="skeleton w-60 h-6 mt-1" />
           }
         </div>
-        <div className="flex flex-col md:flex-row items-start space-y-2 md:space-y-0 space-x-0 md:space-x-2">
-          <span className="w-40 lg:w-64 text-xs lg:text-base font-semibold">Action:</span>
-          {data ?
-            <div className="text-xs lg:text-base">
-              <span className="bg-gray-100 dark:bg-gray-800 rounded capitalize text-gray-900 dark:text-gray-100 font-semibold px-2 py-1">
-                {data.type}
-              </span>
-            </div>
-            :
-            <div className="skeleton w-24 h-6 mt-1" />
-          }
-        </div>
-        <div className="flex flex-col md:flex-row items-start space-y-2 md:space-y-0 space-x-0 md:space-x-2">
+        {(!data || data.type) && (
+          <div className="flex flex-col md:flex-row items-start space-y-2 md:space-y-0 space-x-0 md:space-x-2">
+            <span className="w-40 lg:w-64 text-xs lg:text-base font-semibold">Action:</span>
+            {data ?
+              <div className="text-xs lg:text-base">
+                <span className="bg-gray-100 dark:bg-gray-800 rounded capitalize text-gray-900 dark:text-gray-100 font-semibold px-2 py-1">
+                  {getName(data.type)}
+                </span>
+              </div>
+              :
+              <div className="skeleton w-24 h-6 mt-1" />
+            }
+          </div>
+        )}
+        {/*<div className="flex flex-col md:flex-row items-start space-y-2 md:space-y-0 space-x-0 md:space-x-2">
           <span className="w-40 lg:w-64 text-xs lg:text-base font-semibold">From:</span>
           {data ?
             <div className="flex flex-col">
@@ -134,25 +136,27 @@ export default function TransactionDetail({ data }) {
             :
             <div className="skeleton w-32 h-6 mt-1" />
           }
-        </div>
+        </div>*/}
         <div className="flex flex-col md:flex-row items-start space-y-2 md:space-y-0 space-x-0 md:space-x-2">
           <span className="w-40 lg:w-64 text-xs lg:text-base font-semibold">Transaction Fee:</span>
           {data ?
             <div className="flex flex-wrap items-center text-xs lg:text-base space-x-1">
               {typeof data.fee === 'number' ?
                 <span className="flex items-center justify-end space-x-1">
-                  <span>{numberFormat(data.fee, '0,0.00000000')}</span>
-                  <span className="uppercase font-medium">{data.symbol}</span>
+                  <span>{data.fee ? numberFormat(data.fee, '0,0.00000000') : 'No Fee'}</span>
+                  {data.fee > 0 && (
+                    <span className="uppercase font-medium">{data.symbol}</span>
+                  )}
                 </span>
                 :
                 '-'
               }
             </div>
             :
-            <div className="skeleton w-32 h-6 mt-1" />
+            <div className="skeleton w-24 h-6 mt-1" />
           }
         </div>
-        <div className="flex flex-col md:flex-row items-start space-y-2 md:space-y-0 space-x-0 md:space-x-2">
+        {/*<div className="flex flex-col md:flex-row items-start space-y-2 md:space-y-0 space-x-0 md:space-x-2">
           <span className="w-40 lg:w-64 text-xs lg:text-base font-semibold">Gas Price:</span>
           {data ?
             <div className="flex flex-wrap items-center text-xs lg:text-base space-x-1">
@@ -168,22 +172,19 @@ export default function TransactionDetail({ data }) {
             :
             <div className="skeleton w-32 h-6 mt-1" />
           }
-        </div>
+        </div>*/}
         <div className="flex flex-col md:flex-row items-start space-y-2 md:space-y-0 space-x-0 md:space-x-2">
           <span className="w-40 lg:w-64 text-xs lg:text-base font-semibold">Gas Used:</span>
           {data ?
             <div className="flex flex-wrap items-center text-xs lg:text-base space-x-1">
               {typeof data.gas_used === 'number' ?
-                <span className="flex items-center justify-end space-x-1">
-                  <span>{numberFormat(data.gas_used, '0,0.00000000')}</span>
-                  <span className="uppercase font-medium">{data.symbol}</span>
-                </span>
+                <span>{numberFormat(data.gas_used, '0,0.00000000')}</span>
                 :
                 '-'
               }
             </div>
             :
-            <div className="skeleton w-32 h-6 mt-1" />
+            <div className="skeleton w-24 h-6 mt-1" />
           }
         </div>
         <div className="flex flex-col md:flex-row items-start space-y-2 md:space-y-0 space-x-0 md:space-x-2">
@@ -191,18 +192,25 @@ export default function TransactionDetail({ data }) {
           {data ?
             <div className="flex flex-wrap items-center text-xs lg:text-base space-x-1">
               {typeof data.gas_limit === 'number' ?
-                <span className="flex items-center justify-end space-x-1">
-                  <span>{numberFormat(data.gas_limit, '0,0.00000000')}</span>
-                  <span className="uppercase font-medium">{data.symbol}</span>
-                </span>
+                <span>{numberFormat(data.gas_limit, '0,0.00000000')}</span>
                 :
                 '-'
               }
             </div>
             :
-            <div className="skeleton w-32 h-6 mt-1" />
+            <div className="skeleton w-24 h-6 mt-1" />
           }
         </div>
+        {data && data.memo && (
+          <div className="flex flex-col md:flex-row items-start space-y-2 md:space-y-0 space-x-0 md:space-x-2">
+            <span className="w-40 lg:w-64 text-xs lg:text-base font-semibold">Memo:</span>
+            {data ?
+              <span className="break-all text-xs lg:text-base">{data.memo}</span>
+              :
+              <div className="skeleton w-60 h-6 mt-1" />
+            }
+          </div>
+        )}
       </div>
     </Widget>
   )

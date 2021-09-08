@@ -1,8 +1,8 @@
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
 
-import { FaCheckCircle, FaClock, FaTimesCircle } from 'react-icons/fa'
 import moment from 'moment'
+import { FaCheckCircle, FaClock, FaTimesCircle } from 'react-icons/fa'
 
 import Datatable from '../datatable'
 import Copy from '../copy'

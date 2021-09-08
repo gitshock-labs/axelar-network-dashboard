@@ -1,7 +1,7 @@
 import Link from 'next/link'
 
-import { FiKey } from 'react-icons/fi'
 import moment from 'moment'
+import { FiKey } from 'react-icons/fi'
 
 import Datatable from '../datatable'
 import Copy from '../copy'

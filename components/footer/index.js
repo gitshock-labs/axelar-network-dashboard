@@ -1,7 +1,7 @@
 import { useSelector, shallowEqual } from 'react-redux'
 
-import { FaHeart } from 'react-icons/fa'
 import moment from 'moment'
+import { FaHeart } from 'react-icons/fa'
 
 export default function Footer() {
   const { preferences } = useSelector(state => ({ preferences: state.preferences }), shallowEqual)
