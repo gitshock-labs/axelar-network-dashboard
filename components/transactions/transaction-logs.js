@@ -72,7 +72,7 @@ export default function TransactionLogs({ data }) {
                 <div className="flex flex-col">
                   {!activity.skeleton ?
                     <>
-                      <span className="h-6 text-xs pt-1 mt-0.5">Module</span>
+                      <span className="h-6 text-xs pt-1">Module</span>
                       <span className="uppercase font-semibold mt-1.5">{activity.module}</span>
                     </>
                     :
@@ -109,7 +109,7 @@ export default function TransactionLogs({ data }) {
                               <span className="uppercase font-medium">{activity.symbol || activity.denom}</span>
                             </span>
                             :
-                            null
+                            <span className="h-5" />
                       }
                     </>
                     :
@@ -117,6 +117,39 @@ export default function TransactionLogs({ data }) {
                       <div className="skeleton w-12 h-6" />
                       <div />
                       <div className="skeleton w-12 h-4" />
+                    </>
+                  }
+                </div>
+              )}
+              {activity.outPointInfo && JSON.parse(activity.outPointInfo) && (
+                <div className="flex flex-col space-y-1">
+                  {!activity.skeleton ?
+                    <>
+                      {JSON.parse(activity.outPointInfo).out_point && (
+                        <div className="flex flex-wrap items-center text-xs space-x-1">
+                          <span className="font-semibold">Out Point:</span>
+                          <span className="text-gray-400 dark:text-gray-600">{ellipseAddress(JSON.parse(activity.outPointInfo).out_point)}</span>
+                          <Copy text={JSON.parse(activity.outPointInfo).out_point} />
+                        </div>
+                      )}
+                      {JSON.parse(activity.outPointInfo).amount && (
+                        <div className="flex flex-wrap items-center text-xs space-x-1">
+                          <span className="font-semibold">Amount:</span>
+                          <span className="text-gray-400 dark:text-gray-600">{JSON.parse(activity.outPointInfo).amount}</span>
+                        </div>
+                      )}
+                      {JSON.parse(activity.outPointInfo).address && (
+                        <div className="flex flex-wrap items-center text-xs space-x-1">
+                          <span className="font-semibold">Address:</span>
+                          <span className="text-gray-400 dark:text-gray-600">{ellipseAddress(JSON.parse(activity.outPointInfo).address)}</span>
+                          <Copy text={JSON.parse(activity.outPointInfo).address} />
+                        </div>
+                      )}
+                    </>
+                    :
+                    <>
+                      <div className="skeleton w-60 h-6" />
+                      <div className="skeleton w-24 h-4 mt-2" />
                     </>
                   }
                 </div>
