@@ -6,7 +6,7 @@ import { BsArrowRight } from 'react-icons/bs'
 
 import Copy from '../copy'
 
-import { numberFormat, getName, ellipseAddress } from '../../lib/utils'
+import { numberFormat, getName, ellipseAddress, convertToJson } from '../../lib/utils'
 
 export default function TransactionLogs({ data }) {
   const { preferences } = useSelector(state => ({ preferences: state.preferences }), shallowEqual)
@@ -17,7 +17,7 @@ export default function TransactionLogs({ data }) {
   return (
     <div className="flex flex-col space-y-4 mt-3">
       {(data ?
-        (data.activities || []).map((activity, i) => { return { ...activity, i } })
+        (data.activities || []).map((activity, i) => { return { ...activity, i, outPointInfo: convertToJson(activity.outPointInfo) } })
         :
         [...Array(1).keys()].map(i => { return { i, skeleton: true } })
       ).map((activity, i) => (
@@ -121,28 +121,28 @@ export default function TransactionLogs({ data }) {
                   }
                 </div>
               )}
-              {activity.outPointInfo && JSON.parse(activity.outPointInfo) && (
+              {activity.outPointInfo && (
                 <div className="flex flex-col space-y-1">
                   {!activity.skeleton ?
                     <>
-                      {JSON.parse(activity.outPointInfo).out_point && (
+                      {activity.outPointInfo.out_point && (
                         <div className="flex flex-wrap items-center text-xs space-x-1">
                           <span className="font-semibold">Out Point:</span>
-                          <span className="text-gray-400 dark:text-gray-600">{ellipseAddress(JSON.parse(activity.outPointInfo).out_point)}</span>
-                          <Copy text={JSON.parse(activity.outPointInfo).out_point} />
+                          <span className="text-gray-400 dark:text-gray-600">{ellipseAddress(activity.outPointInfo.out_point)}</span>
+                          <Copy text={activity.outPointInfo.out_point} />
                         </div>
                       )}
-                      {JSON.parse(activity.outPointInfo).amount && (
+                      {activity.outPointInfo.amount && (
                         <div className="flex flex-wrap items-center text-xs space-x-1">
                           <span className="font-semibold">Amount:</span>
-                          <span className="text-gray-400 dark:text-gray-600">{JSON.parse(activity.outPointInfo).amount}</span>
+                          <span className="text-gray-400 dark:text-gray-600">{activity.outPointInfo.amount}</span>
                         </div>
                       )}
-                      {JSON.parse(activity.outPointInfo).address && (
+                      {activity.outPointInfo.address && (
                         <div className="flex flex-wrap items-center text-xs space-x-1">
                           <span className="font-semibold">Address:</span>
-                          <span className="text-gray-400 dark:text-gray-600">{ellipseAddress(JSON.parse(activity.outPointInfo).address)}</span>
-                          <Copy text={JSON.parse(activity.outPointInfo).address} />
+                          <span className="text-gray-400 dark:text-gray-600">{ellipseAddress(activity.outPointInfo.address)}</span>
+                          <Copy text={activity.outPointInfo.address} />
                         </div>
                       )}
                     </>
@@ -205,7 +205,7 @@ export default function TransactionLogs({ data }) {
                 <ReactJson src={data.tx} theme={theme === 'dark' ? 'harmonic' : 'rjv-default'} />
               </div>
               :
-              <></>
+              <>{data.tx}</>
           }
         </div>
       ))}

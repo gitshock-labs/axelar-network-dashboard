@@ -8,6 +8,7 @@ import Datatable from '../datatable'
 import Copy from '../copy'
 
 import { getTransactions } from '../../lib/api/query'
+import { transactions as getTxs } from '../../lib/api/cosmos'
 import { numberFormat, ellipseAddress } from '../../lib/utils'
 
 export default function TransactionsTable({ data, noLoad, page }) {
@@ -20,6 +21,8 @@ export default function TransactionsTable({ data, noLoad, page }) {
       if (response) {
         setTransactions({ data: response.data || [] })
       }
+      // const res = await getTxs({ events: `message.action='send'` })
+      // console.log(res && res.data)
     }
 
     if (data) {
