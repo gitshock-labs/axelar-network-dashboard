@@ -75,9 +75,13 @@ export default function TransactionDetail({ data }) {
             <span className="w-40 lg:w-64 text-xs lg:text-base font-semibold">Action:</span>
             {data ?
               <div className="text-xs lg:text-base">
-                <span className="bg-gray-100 dark:bg-gray-800 rounded capitalize text-gray-900 dark:text-gray-100 font-semibold px-2 py-1">
-                  {getName(data.type)}
-                </span>
+                {data.type ?
+                  <span className="bg-gray-100 dark:bg-gray-800 rounded capitalize text-gray-900 dark:text-gray-100 font-semibold px-2 py-1">
+                    {getName(data.type)}
+                  </span>
+                  :
+                  '-'
+                }
               </div>
               :
               <div className="skeleton w-24 h-6 mt-1" />

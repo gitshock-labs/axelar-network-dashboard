@@ -7,22 +7,19 @@ import { FaCheckCircle, FaClock, FaTimesCircle } from 'react-icons/fa'
 import Datatable from '../datatable'
 import Copy from '../copy'
 
-import { getTransactions } from '../../lib/api/query'
-import { transactions as getTxs } from '../../lib/api/cosmos'
-import { numberFormat, ellipseAddress } from '../../lib/utils'
+import { transactions as getTransactions } from '../../lib/api/opensearch'
+import { numberFormat, getName, ellipseAddress } from '../../lib/utils'
 
 export default function TransactionsTable({ data, noLoad, page }) {
   const [transactions, setTransactions] = useState(null)
 
   useEffect(() => {
     const getData = async () => {
-      const response = await getTransactions()
+      const response = await getTransactions({ size: 100, sort: [{ timestamp: 'desc' }] })
 
       if (response) {
         setTransactions({ data: response.data || [] })
       }
-      // const res = await getTxs({ events: `message.action='send'` })
-      // console.log(res && res.data)
     }
 
     if (data) {
@@ -43,7 +40,7 @@ export default function TransactionsTable({ data, noLoad, page }) {
       columns={[
         {
           Header: 'Tx Hash',
-          accessor: 'tx',
+          accessor: 'txhash',
           disableSortBy: true,
           Cell: props => (
             !props.row.original.skeleton ?
@@ -60,14 +57,32 @@ export default function TransactionsTable({ data, noLoad, page }) {
           ),
         },
         {
-          Header: 'Type',
+          Header: 'Height',
+          accessor: 'height',
+          disableSortBy: true,
+          Cell: props => (
+            !props.row.original.skeleton ?
+              <Link href={`/blocks/${props.value}`}>
+                <a className="text-blue-600 dark:text-blue-400">
+                  {props.value}
+                </a>
+              </Link>
+              :
+              <div className="skeleton w-16 h-4" />
+          ),
+        },
+        {
+          Header: 'Action',
           accessor: 'type',
           disableSortBy: true,
           Cell: props => (
             !props.row.original.skeleton ?
-              <span className="bg-gray-100 dark:bg-gray-800 rounded capitalize text-gray-900 dark:text-gray-100 font-semibold px-2 py-1">
-                {props.value}
-              </span>
+              props.value ?
+                <span className="bg-gray-100 dark:bg-gray-800 rounded capitalize text-gray-900 dark:text-gray-100 font-semibold px-2 py-1">
+                  {getName(props.value)}
+                </span>
+                :
+                '-'
               :
               <div className="skeleton w-12 h-4" />
           ),
@@ -123,8 +138,10 @@ export default function TransactionsTable({ data, noLoad, page }) {
               <div className="text-right">
                 {typeof props.value === 'number' ?
                   <span className="flex items-center justify-end space-x-1">
-                    <span>{numberFormat(props.value, '0,0.00000000')}</span>
-                    <span className="uppercase font-medium">{props.row.original.symbol}</span>
+                    <span>{props.value ? numberFormat(props.value, '0,0.00000000') : 'No Fee'}</span>
+                    {props.value > 0 && (
+                      <span className="uppercase font-medium">{props.row.original.symbol}</span>
+                    )}
                   </span>
                   :
                   '-'
@@ -134,24 +151,6 @@ export default function TransactionsTable({ data, noLoad, page }) {
               <div className="skeleton w-16 h-4 ml-auto" />
           ),
           headerClassName: 'justify-end text-right',
-        },
-        {
-          Header: 'Height',
-          accessor: 'height',
-          disableSortBy: true,
-          Cell: props => (
-            !props.row.original.skeleton ?
-              <div className={`${page !== 'validator' ? 'text-right' : ''}`}>
-                <Link href={`/blocks/${props.value}`}>
-                  <a className="text-blue-600 dark:text-blue-400">
-                    {props.value}
-                  </a>
-                </Link>
-              </div>
-              :
-              <div className={`skeleton w-16 h-4 ml-${page !== 'validator' ? 'auto' : 0}`} />
-          ),
-          headerClassName: page !== 'validator' ? 'justify-end text-right' : '',
         },
         {
           Header: 'Vote',
@@ -168,7 +167,7 @@ export default function TransactionsTable({ data, noLoad, page }) {
         },
         {
           Header: 'Time',
-          accessor: 'time',
+          accessor: 'timestamp',
           disableSortBy: true,
           Cell: props => (
             !props.row.original.skeleton ?
@@ -192,7 +191,7 @@ export default function TransactionsTable({ data, noLoad, page }) {
         :
         [...Array(10).keys()].map(i => { return { i, skeleton: true } })
       }
-      defaultPageSize={10}
+      defaultPageSize={!page ? 25 : 10}
     />
   )
 }

@@ -18,7 +18,7 @@ export default function Transaction({ tx }) {
       const response = await getTransaction(tx)
 
       if (response) {
-        setTransaction({ data: response.tx_response || {}, tx })
+        setTransaction({ data: response.data || {}, tx })
       }
     }
 
