@@ -12,9 +12,15 @@ export default function Search() {
   const { handleSubmit } = useForm()
 
   const onSubmit = () => {
-    const type = 'validator'
+    if (inputSearch) {
+      const hashRegEx = new RegExp(/[0-9A-F]{64}$/, 'igm')
+      const validatorRegEx = new RegExp(`${process.env.NEXT_PUBLIC_PREFIX_VALIDATOR}.*$`, 'igm')
+      const accountRegEx = new RegExp(`${process.env.NEXT_PUBLIC_PREFIX_ACCOUNT}.*$`, 'igm')
 
-    router.push(`/${type}/${inputSearch}`)
+      const type = !isNaN(inputSearch) ? 'blocks' : inputSearch.match(validatorRegEx) ? 'validator' : inputSearch.match(accountRegEx) ? 'account' : 'tx'
+
+      router.push(`/${type}/${inputSearch}`)
+    }
   }
 
   return (
