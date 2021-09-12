@@ -21,7 +21,7 @@ export default function TransactionLogs({ data }) {
         :
         [...Array(1).keys()].map(i => { return { i, skeleton: true } })
       ).map((activity, i) => (
-        <div key={i} className="min-w-max max-w-3xl bg-white dark:bg-gray-800 rounded shadow-lg flex items-center space-x-4 p-4">
+        <div key={i} className="md:min-w-max max-w-3xl bg-white dark:bg-gray-800 rounded shadow-lg flex items-center space-x-4 p-4">
           {activity.skeleton || activity.type !== 'update_client' ?
             <>
               {(activity.skeleton || (activity.sender && !activity.depositor)) && (
@@ -84,7 +84,7 @@ export default function TransactionLogs({ data }) {
                 </div>
               )}
               {(activity.skeleton || activity.action) && (
-                <div className="flex flex-col items-center space-y-1">
+                <div className="flex flex-col items-start space-y-1">
                   {!activity.skeleton ?
                     <>
                       {activity.action ?
@@ -109,7 +109,10 @@ export default function TransactionLogs({ data }) {
                               <span className="uppercase font-medium">{activity.symbol || activity.denom}</span>
                             </span>
                             :
-                            <span className="h-5" />
+                            activity.log ?
+                              <span className="text-gray-400 dark:text-gray-600 text-xs">{activity.log}</span>
+                              :
+                              <span className="h-5" />
                       }
                     </>
                     :
