@@ -189,7 +189,7 @@ export default function TransactionsTable({ data, noLoad, page }) {
       data={transactions ?
         transactions.data.map((transaction, i) => { return { ...transaction, i } })
         :
-        [...Array(10).keys()].map(i => { return { i, skeleton: true } })
+        [...Array(!page ? 25 : 10).keys()].map(i => { return { i, skeleton: true } })
       }
       defaultPageSize={!page ? 25 : 10}
     />
