@@ -36,8 +36,8 @@ export default function Transaction({ tx }) {
       <Widget
         title={<div className="flex items-center text-gray-900 dark:text-white text-lg font-semibold space-x-1 mt-3">
           <span>Activities</span>
-          {transaction && transaction.tx === tx && transaction.data.logs && (
-            <span>({transaction.data.logs.length})</span>
+          {transaction && transaction.tx === tx && transaction.data.activities && (
+            <span>({transaction.data.activities.length})</span>
           )}
         </div>}
         className="bg-transparent border-0 p-0 md:pt-4 md:pb-8 md:px-8"
