@@ -4,6 +4,8 @@ import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { FiSearch } from 'react-icons/fi'
 
+import { type } from '../../../lib/object/id'
+
 export default function Search() {
   const router = useRouter()
 
@@ -12,16 +14,8 @@ export default function Search() {
   const { handleSubmit } = useForm()
 
   const onSubmit = () => {
-    if (inputSearch) {
-      const hashRegEx = new RegExp(/[0-9A-F]{64}$/, 'igm')
-      const validatorRegEx = new RegExp(`${process.env.NEXT_PUBLIC_PREFIX_VALIDATOR}.*$`, 'igm')
-      const validatorATOMRegEx = new RegExp(`${process.env.NEXT_PUBLIC_PREFIX_VALIDATOR.replace('axelar', 'cosmos')}.*$`, 'igm')
-      const accountRegEx = new RegExp(`${process.env.NEXT_PUBLIC_PREFIX_ACCOUNT}.*$`, 'igm')
-      const accountATOMRegEx = new RegExp(`${process.env.NEXT_PUBLIC_PREFIX_ACCOUNT.replace('axelar', 'cosmos')}.*$`, 'igm')
-
-      const type = !isNaN(inputSearch) ? 'blocks' : inputSearch.match(validatorRegEx) || inputSearch.match(validatorATOMRegEx) ? 'validator' : inputSearch.match(accountRegEx) || inputSearch.match(accountATOMRegEx) ? 'account' : 'tx'
-
-      router.push(`/${type}/${inputSearch}`)
+    if (type(inputSearch)) {
+      router.push(`/${type(inputSearch)}/${inputSearch}`)
 
       setInputSearch('')
     }

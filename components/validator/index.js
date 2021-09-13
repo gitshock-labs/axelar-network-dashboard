@@ -10,7 +10,8 @@ import TransactionsTable from '../transactions/transactions-table'
 import KeysTable from '../keygen/keys-table'
 import Widget from '../widget'
 
-import { getValidator, getUptime, getDelegations, getTransactions, getKeys } from '../../lib/api/query'
+import { getValidator, getUptime, getDelegations, getKeys } from '../../lib/api/query'
+import { transactionsByEvents } from '../../lib/api/cosmos'
 import { getName } from '../../lib/utils'
 
 export default function Validator({ address }) {
@@ -35,16 +36,20 @@ export default function Validator({ address }) {
         setUptime({ data: response.data || [], address })
       }
 
+      let data = []
+
+      // data = await transactionsByEvents(`message.sender='${address}'`, data)
+      // data = await transactionsByEvents(`sign.sender='${address}'`, data)
+      data = await transactionsByEvents(`sign.action='decided'`, data, address)
+
+      data = _.slice(data, 0, 100)
+
+      setTransactions({ data, total: response && response.total, address })
+
       response = await getDelegations({ address })
 
       if (response) {
         setDelegations({ data: response.data || [], address })
-      }
-
-      response = await getTransactions({ address })
-
-      if (response) {
-        setTransactions({ data: response.data || [], address })
       }
 
       response = await getKeys({ address })

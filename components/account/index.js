@@ -7,7 +7,7 @@ import TransactionsTable from '../transactions/transactions-table'
 import Widget from '../widget'
 
 import { getAccount } from '../../lib/api/query'
-import { transactions as getTransactions } from '../../lib/api/cosmos'
+import { transactionsByEvents } from '../../lib/api/cosmos'
 import { numberFormat } from '../../lib/utils'
 
 export default function Account({ address }) {
@@ -24,30 +24,18 @@ export default function Account({ address }) {
 
       let data = []
 
-      const getTransactionsByEvents = async events => {
-        let pageKey = true
-
-        let txsData = []
-
-        while (pageKey && txsData.length < 100) {
-          const response = await getTransactions({ events, 'pagination.key': pageKey && typeof pageKey === 'string' ? pageKey : undefined })
-
-          txsData = _.uniqBy(_.concat(txsData, (response && response.data) || []), 'txhash')
-
-          pageKey = response && response.pagination && response.pagination.next_key
-        }
-
-        data = _.orderBy(_.uniqBy(_.concat(data, txsData), 'txhash'), ['timestamp', 'height'], ['desc', 'desc'])
-      }
-
       if (address.startsWith('cosmos')) {
-        await getTransactionsByEvents(`ibc_transfer.sender='${address}'`)
-        await getTransactionsByEvents(`ibc_transfer.receiver='${address}'`)
+        data = await transactionsByEvents(`ibc_transfer.sender='${address}'`, data)
+        data = await transactionsByEvents(`ibc_transfer.receiver='${address}'`, data)
       }
       else {
-        await getTransactionsByEvents(`message.sender='${address}'`)
-        await getTransactionsByEvents(`transfer.sender='${address}'`)
-        await getTransactionsByEvents(`transfer.recipient='${address}'`)
+        data = await transactionsByEvents(`message.sender='${address}'`, data)
+        data = await transactionsByEvents(`message.address='${address}'`, data)
+        data = await transactionsByEvents(`message.destinationAddress='${address}'`, data)
+        data = await transactionsByEvents(`transfer.sender='${address}'`, data)
+        data = await transactionsByEvents(`transfer.recipient='${address}'`, data)
+        data = await transactionsByEvents(`outpointConfirmation.destinationAddress='${address}'`, data)
+        data = await transactionsByEvents(`depositConfirmation.destinationAddress='${address}'`, data)
       }
 
       data = _.slice(data, 0, 100)

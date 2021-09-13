@@ -6,6 +6,7 @@ import { BsArrowRight } from 'react-icons/bs'
 
 import Copy from '../copy'
 
+import { type } from '../../lib/object/id'
 import { numberFormat, getName, ellipseAddress, convertToJson } from '../../lib/utils'
 
 export default function TransactionLogs({ data }) {
@@ -22,14 +23,14 @@ export default function TransactionLogs({ data }) {
         [...Array(1).keys()].map(i => { return { i, skeleton: true } })
       ).map((activity, i) => (
         <div key={i} className="md:min-w-max max-w-3xl bg-white dark:bg-gray-800 rounded shadow-lg flex items-center space-x-4 p-4">
-          {activity.skeleton || (!activity.failed && !(['update_client'].includes(activity.type)) && !(['KeygenTraffic', 'SignPendingTransfers', 'VoteConfirmDeposit'].includes(activity.action))) ?
+          {activity.skeleton || (!activity.failed && !(['update_client'].includes(activity.type)) && !(['KeygenTraffic', 'SignPendingTransfers', 'ExecutePendingTransfers', 'VoteConfirmDeposit', 'VoteSig'].includes(activity.action))) ?
             <>
               {(activity.skeleton || (activity.sender && !activity.depositor)) && (
                 <div className="flex flex-col">
                   {!activity.skeleton ?
                     <>
                       <div className="flex flex-wrap items-center text-xs lg:text-base space-x-1">
-                        <Link href={`/account/${activity.sender}`}>
+                        <Link href={`/${type(activity.sender)}/${activity.sender}`}>
                           <a className="uppercase text-blue-600 dark:text-blue-400 font-medium">
                             {ellipseAddress(activity.sender)}
                           </a>
@@ -51,7 +52,7 @@ export default function TransactionLogs({ data }) {
                   {!activity.skeleton ?
                     <>
                       <div className="flex flex-wrap items-center text-xs lg:text-base space-x-1">
-                        <Link href={`/account/${activity.depositor}`}>
+                        <Link href={`/${type(activity.depositor)}/${activity.depositor}`}>
                           <a className="uppercase text-blue-600 dark:text-blue-400 font-medium">
                             {ellipseAddress(activity.depositor)}
                           </a>
@@ -162,7 +163,7 @@ export default function TransactionLogs({ data }) {
                   {!activity.skeleton ?
                     <>
                       <div className="flex flex-wrap items-center text-xs lg:text-base space-x-1">
-                        <Link href={`/account/${activity.recipient}`}>
+                        <Link href={`/${type(activity.recipient)}/${activity.recipient}`}>
                           <a className="uppercase text-blue-600 dark:text-blue-400 font-medium">
                             {ellipseAddress(activity.recipient)}
                           </a>
@@ -184,7 +185,7 @@ export default function TransactionLogs({ data }) {
                   {!activity.skeleton ?
                     <>
                       <div className="flex flex-wrap items-center text-xs lg:text-base space-x-1">
-                        <Link href={`/validator/${activity.validator}`}>
+                        <Link href={`/${type(activity.validator)}/${activity.validator}`}>
                           <a className="uppercase text-blue-600 dark:text-blue-400 font-medium">
                             {ellipseAddress(activity.validator)}
                           </a>

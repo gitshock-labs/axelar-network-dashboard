@@ -10,12 +10,14 @@ import Copy from '../copy'
 import { transactions as getTransactions } from '../../lib/api/opensearch'
 import { numberFormat, getName, ellipseAddress } from '../../lib/utils'
 
+const LATEST_SIZE = 250
+
 export default function TransactionsTable({ data, noLoad, page }) {
   const [transactions, setTransactions] = useState(null)
 
   useEffect(() => {
     const getData = async () => {
-      const response = await getTransactions({ size: 250, sort: [{ timestamp: 'desc' }] })
+      const response = await getTransactions({ size: LATEST_SIZE, sort: [{ timestamp: 'desc' }] })
 
       if (response) {
         setTransactions({ data: response.data || [] })
@@ -158,9 +160,12 @@ export default function TransactionsTable({ data, noLoad, page }) {
           disableSortBy: true,
           Cell: props => (
             !props.row.original.skeleton ?
-              <span className={`${props.value === 'approved' ? 'bg-green-500' : 'bg-red-500'} rounded capitalize text-white font-semibold px-2 py-1`}>
-                {props.value}
-              </span>
+              props.value ?
+                <span className={`${props.value === 'approved' ? 'bg-green-500' : 'bg-red-500'} rounded capitalize text-white font-semibold px-2 py-1`}>
+                  {props.value}
+                </span>
+                :
+                '-'
               :
               <div className="skeleton w-12 h-4" />
           ),
@@ -185,13 +190,13 @@ export default function TransactionsTable({ data, noLoad, page }) {
           ),
           headerClassName: 'justify-end text-right',
         },
-      ].filter(column => ['blocks'].includes(page) ? !(['height', 'vote'].includes(column.accessor)) : ['index'].includes(page) ? !(['height', 'fee', 'vote'].includes(column.accessor)) : ['validator'].includes(page) ? !(['type', 'status', 'value', 'fee'].includes(column.accessor)) : !(['vote'].includes(column.accessor)))}
+      ].filter(column => ['blocks'].includes(page) ? !(['height', 'vote'].includes(column.accessor)) : ['index'].includes(page) ? !(['height', 'fee', 'vote'].includes(column.accessor)) : ['validator'].includes(page) ? !([/*'type', 'status', */'value', 'fee'].includes(column.accessor)) : !(['vote'].includes(column.accessor)))}
       data={transactions ?
         transactions.data.map((transaction, i) => { return { ...transaction, i } })
         :
         [...Array(!page ? 25 : 10).keys()].map(i => { return { i, skeleton: true } })
       }
-      defaultPageSize={!page ? 50 : 10}
+      defaultPageSize={!page ? LATEST_SIZE > 100 ? 50 : 25 : 10}
     />
   )
 }
