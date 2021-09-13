@@ -15,7 +15,7 @@ export default function TransactionsTable({ data, noLoad, page }) {
 
   useEffect(() => {
     const getData = async () => {
-      const response = await getTransactions({ size: 100, sort: [{ timestamp: 'desc' }] })
+      const response = await getTransactions({ size: 250, sort: [{ timestamp: 'desc' }] })
 
       if (response) {
         setTransactions({ data: response.data || [] })
@@ -191,7 +191,7 @@ export default function TransactionsTable({ data, noLoad, page }) {
         :
         [...Array(!page ? 25 : 10).keys()].map(i => { return { i, skeleton: true } })
       }
-      defaultPageSize={!page ? 25 : 10}
+      defaultPageSize={!page ? 50 : 10}
     />
   )
 }

@@ -6,7 +6,8 @@ import AccountDetail from './account-detail'
 import TransactionsTable from '../transactions/transactions-table'
 import Widget from '../widget'
 
-import { getAccount, getTransactions } from '../../lib/api/query'
+import { getAccount } from '../../lib/api/query'
+import { transactions as getTransactions } from '../../lib/api/cosmos'
 import { numberFormat } from '../../lib/utils'
 
 export default function Account({ address }) {
@@ -21,11 +22,37 @@ export default function Account({ address }) {
         setAccount({ data: response.data || {}, address })
       }
 
-      response = await getTransactions({ address })
+      let data = []
 
-      if (response) {
-        setTransactions({ data: response.data || [], address })
+      const getTransactionsByEvents = async events => {
+        let pageKey = true
+
+        let txsData = []
+
+        while (pageKey && txsData.length < 100) {
+          const response = await getTransactions({ events, 'pagination.key': pageKey && typeof pageKey === 'string' ? pageKey : undefined })
+
+          txsData = _.uniqBy(_.concat(txsData, (response && response.data) || []), 'txhash')
+
+          pageKey = response && response.pagination && response.pagination.next_key
+        }
+
+        data = _.orderBy(_.uniqBy(_.concat(data, txsData), 'txhash'), ['timestamp', 'height'], ['desc', 'desc'])
       }
+
+      if (address.startsWith('cosmos')) {
+        await getTransactionsByEvents(`ibc_transfer.sender='${address}'`)
+        await getTransactionsByEvents(`ibc_transfer.receiver='${address}'`)
+      }
+      else {
+        await getTransactionsByEvents(`message.sender='${address}'`)
+        await getTransactionsByEvents(`transfer.sender='${address}'`)
+        await getTransactionsByEvents(`transfer.recipient='${address}'`)
+      }
+
+      data = _.slice(data, 0, 100)
+
+      setTransactions({ data, total: response && response.total, address })
     }
 
     if (address) {
