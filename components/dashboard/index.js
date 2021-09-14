@@ -8,7 +8,7 @@ import Widget from '../widget'
 
 import { getSummary } from '../../lib/api/query'
 
-export default function Keygen() {
+export default function Dashboard() {
   const [data, setData] = useState(null)
 
   useEffect(() => {
@@ -36,19 +36,15 @@ export default function Keygen() {
           </Link>}
           className="py-4 px-0"
         >
-          <div className="mt-3">
-            <BlocksTable n={10} />
-          </div>
+          <BlocksTable n={10} className="mt-3" />
         </Widget>
         <Widget
           title={<Link href="/transactions">
-            <a className="text-gray-900 dark:text-gray-100 text-base font-semibold mx-3">Transactions</a>
+            <a className="text-gray-900 dark:text-gray-100 text-base font-semibold mx-3">Latest Transactions</a>
           </Link>}
           className="py-4 px-0"
         >
-          <div className="mt-3">
-            <TransactionsTable page="index" />
-          </div>
+          <TransactionsTable page="index" className="mt-3" />
         </Widget>
       </div>
     </div>

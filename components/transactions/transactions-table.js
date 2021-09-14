@@ -12,12 +12,12 @@ import { numberFormat, getName, ellipseAddress } from '../../lib/utils'
 
 const LATEST_SIZE = 100
 
-export default function TransactionsTable({ data, noLoad, page }) {
+export default function TransactionsTable({ data, noLoad, page, className = '' }) {
   const [transactions, setTransactions] = useState(null)
 
   useEffect(() => {
     const getData = async () => {
-      const response = await getTransactions({ size: LATEST_SIZE, sort: [{ timestamp: 'desc' }] })
+      const response = await getTransactions({ size: page === 'index' ? 10 : LATEST_SIZE, sort: [{ timestamp: 'desc' }] })
 
       if (response) {
         setTransactions({ data: response.data || [] })
@@ -196,8 +196,9 @@ export default function TransactionsTable({ data, noLoad, page }) {
         :
         [...Array(!page ? 25 : 10).keys()].map(i => { return { i, skeleton: true } })
       }
-      noPagination={!page}
+      noPagination={!page || ['index'].includes(page)}
       defaultPageSize={!page ? LATEST_SIZE > 100 ? 50 : 25 : 10}
+      className={`${!page || ['index'].includes(page) ? 'min-h-full' : ''} ${className}`}
     />
   )
 }

@@ -1,18 +1,44 @@
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
+import { useSelector, useDispatch, shallowEqual } from 'react-redux'
 
 import moment from 'moment'
 
 import Datatable from '../datatable'
 import Copy from '../copy'
 
+import { validators } from '../../lib/api/cosmos'
 import { blocks as getBlocks } from '../../lib/api/opensearch'
 import { numberFormat, ellipseAddress } from '../../lib/utils'
 
+import { VALIDATORS_DATA } from '../../reducers/types'
+
 const LATEST_SIZE = 100
 
-export default function BlocksTable({ n }) {
+export default function BlocksTable({ n, className = '' }) {
+  const dispatch = useDispatch()
+  const { data } = useSelector(state => ({ data: state.data }), shallowEqual)
+  const { validators_data } = { ...data }
+
   const [blocks, setBlocks] = useState(null)
+
+  useEffect(() => {
+    const getValidators = async () => {
+      const response = await validators()
+
+      if (response) {
+        dispatch({
+          type: VALIDATORS_DATA,
+          value: response.data
+        })
+      }
+    }
+
+    getValidators()
+
+    const interval = setInterval(() => getValidators(), 10 * 60 * 1000)
+    return () => clearInterval(interval)
+  }, [])
 
   useEffect(() => {
     const getData = async () => {
@@ -25,7 +51,7 @@ export default function BlocksTable({ n }) {
 
     getData()
 
-    const interval = setInterval(() => getData(), 3 * 1000)
+    const interval = setInterval(() => getData(), 10 * 1000)
     return () => clearInterval(interval)
   }, [])
 
@@ -69,15 +95,17 @@ export default function BlocksTable({ n }) {
           Cell: props => (
             !props.row.original.skeleton ?
               <div className={`min-w-max flex items-${props.row.original.proposer_name ? 'start' : 'center'} space-x-2`}>
-                <Link href={`/validator/${props.value}`}>
-                  <a>
-                    <img
-                      src={props.row.original.proposer_image}
-                      alt=""
-                      className="w-6 h-6 rounded-full"
-                    />
-                  </a>
-                </Link>
+                {props.row.original.proposer_image && (
+                  <Link href={`/validator/${props.value}`}>
+                    <a>
+                      <img
+                        src={props.row.original.proposer_image}
+                        alt=""
+                        className="w-6 h-6 rounded-full"
+                      />
+                    </a>
+                  </Link>
+                )}
                 <div className="flex flex-col">
                   {props.row.original.proposer_name && (
                     <Link href={`/validator/${props.value}`}>
@@ -88,8 +116,8 @@ export default function BlocksTable({ n }) {
                   )}
                   <span className="flex items-center space-x-1">
                     <Link href={`/validator/${props.value}`}>
-                      <a>
-                        <span className="font-light">{ellipseAddress(props.value)}</span>
+                      <a className="text-gray-500 font-light">
+                        {ellipseAddress(props.value)}
                       </a>
                     </Link>
                     <Copy text={props.value} />
@@ -146,12 +174,26 @@ export default function BlocksTable({ n }) {
         },
       ]}
       data={blocks ?
-        blocks.data.filter((block, i) => !n || i < n).map((block, i) => { return { ...block, i } })
+        blocks.data.filter((block, i) => !n || i < n).map((block, i) => {
+          let proposer_name, proposer_image
+
+          if (block && block.proposer_address && validators_data && validators_data.findIndex(validator_data => validator_data.operator_address === block.proposer_address) > -1) {
+            const validator_data = validators_data[validators_data.findIndex(validator_data => validator_data.operator_address === block.proposer_address)]
+
+            if (validator_data.description) {
+              proposer_name = validator_data.description.moniker
+              proposer_image = validator_data.description.image
+            }
+          }
+
+          return { ...block, i, proposer_name, proposer_image }
+        })
         :
         [...Array(n || 25).keys()].map(i => { return { i, skeleton: true } })
       }
       noPagination={true}
       defaultPageSize={100}
+      className={`min-h-full ${className}`}
     />
   )
 }
