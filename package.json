@@ -9,6 +9,7 @@
     "deploy": "aws s3 sync out/ s3://dashboard.axelar.network --acl public-read"
   },
   "dependencies": {
+    "bech32": "^2.0.0",
     "lodash": "^4.17.21",
     "moment": "^2.29.1",
     "next": "^11.0.0",

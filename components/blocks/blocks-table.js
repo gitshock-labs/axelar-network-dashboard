@@ -6,15 +6,17 @@ import moment from 'moment'
 import Datatable from '../datatable'
 import Copy from '../copy'
 
-import { getBlocks } from '../../lib/api/query'
+import { blocks as getBlocks } from '../../lib/api/opensearch'
 import { numberFormat, ellipseAddress } from '../../lib/utils'
+
+const LATEST_SIZE = 100
 
 export default function BlocksTable({ n }) {
   const [blocks, setBlocks] = useState(null)
 
   useEffect(() => {
     const getData = async () => {
-      const response = await getBlocks()
+      const response = await getBlocks({ size: n || LATEST_SIZE, sort: [{ height: 'desc' }] })
 
       if (response) {
         setBlocks({ data: response.data || [] })
@@ -62,29 +64,35 @@ export default function BlocksTable({ n }) {
         },
         {
           Header: 'Proposer',
-          accessor: 'proposer.name',
+          accessor: 'proposer_address',
           disableSortBy: true,
           Cell: props => (
             !props.row.original.skeleton ?
-              <div className="min-w-max flex items-start space-x-2">
-                <Link href={`/validator/${props.row.original.proposer.key}`}>
+              <div className={`min-w-max flex items-${props.row.original.proposer_name ? 'start' : 'center'} space-x-2`}>
+                <Link href={`/validator/${props.value}`}>
                   <a>
                     <img
-                      src={props.row.original.proposer.image}
+                      src={props.row.original.proposer_image}
                       alt=""
                       className="w-6 h-6 rounded-full"
                     />
                   </a>
                 </Link>
                 <div className="flex flex-col">
-                  <Link href={`/validator/${props.row.original.proposer.key}`}>
-                    <a className="text-blue-600 dark:text-blue-400 font-medium">
-                      {props.value || props.row.original.proposer.key}
-                    </a>
-                  </Link>
+                  {props.row.original.proposer_name && (
+                    <Link href={`/validator/${props.value}`}>
+                      <a className="text-blue-600 dark:text-blue-400 font-medium">
+                        {props.row.original.proposer_name || props.value}
+                      </a>
+                    </Link>
+                  )}
                   <span className="flex items-center space-x-1">
-                    <span className="font-light">{ellipseAddress(props.row.original.proposer.key)}</span>
-                    <Copy text={props.row.original.proposer.key} />
+                    <Link href={`/validator/${props.value}`}>
+                      <a>
+                        <span className="font-light">{ellipseAddress(props.value)}</span>
+                      </a>
+                    </Link>
+                    <Copy text={props.value} />
                   </span>
                 </div>
               </div>

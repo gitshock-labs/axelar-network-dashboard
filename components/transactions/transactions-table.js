@@ -10,7 +10,7 @@ import Copy from '../copy'
 import { transactions as getTransactions } from '../../lib/api/opensearch'
 import { numberFormat, getName, ellipseAddress } from '../../lib/utils'
 
-const LATEST_SIZE = 250
+const LATEST_SIZE = 100
 
 export default function TransactionsTable({ data, noLoad, page }) {
   const [transactions, setTransactions] = useState(null)
@@ -32,7 +32,7 @@ export default function TransactionsTable({ data, noLoad, page }) {
     }
 
     if (!noLoad) {
-      const interval = setInterval(() => getData(), 1 * 60 * 1000)
+      const interval = setInterval(() => getData(), 10 * 1000)
       return () => clearInterval(interval)
     }
   }, [data])
@@ -196,6 +196,7 @@ export default function TransactionsTable({ data, noLoad, page }) {
         :
         [...Array(!page ? 25 : 10).keys()].map(i => { return { i, skeleton: true } })
       }
+      noPagination={!page}
       defaultPageSize={!page ? LATEST_SIZE > 100 ? 50 : 25 : 10}
     />
   )
