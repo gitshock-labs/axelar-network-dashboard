@@ -27,25 +27,27 @@ export default function Dashboard() {
   }, [])
 
   return (
-    <div className="my-4 mx-auto">
+    <div className="my-4 mx-auto pb-2">
       <Summary data={data && data.data} />
-      <div className="w-full grid grid-flow-row grid-cols-1 lg:grid-cols-2 gap-4 my-2 md:my-4">
-        <Widget
-          title={<Link href="/blocks">
+      <div className="w-full grid grid-flow-row grid-cols-1 lg:grid-cols-2 gap-5 my-4">
+        <div className="mt-3">
+          <Link href="/blocks">
             <a className="text-gray-900 dark:text-gray-100 text-base font-semibold mx-3">Latest Blocks</a>
-          </Link>}
-          className="py-4 px-0"
-        >
-          <BlocksTable n={10} className="mt-3" />
-        </Widget>
-        <Widget
-          title={<Link href="/transactions">
+          </Link>
+          <div className="h-1" />
+          <Widget className="min-h-full contents p-0">
+            <BlocksTable n={10} className="bg-white dark:bg-gray-900" />
+          </Widget>
+        </div>
+        <div className="mt-8 md:mt-3">
+          <Link href="/transactions">
             <a className="text-gray-900 dark:text-gray-100 text-base font-semibold mx-3">Latest Transactions</a>
-          </Link>}
-          className="py-4 px-0"
-        >
-          <TransactionsTable page="index" className="mt-3" />
-        </Widget>
+          </Link>
+          <div className="h-1" />
+          <Widget className="min-h-full contents p-0">
+            <TransactionsTable page="index" className="bg-white dark:bg-gray-900" />
+          </Widget>
+        </div>
       </div>
     </div>
   )
