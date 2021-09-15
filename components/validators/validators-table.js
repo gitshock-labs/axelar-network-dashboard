@@ -39,11 +39,11 @@ export default function ValidatorsTable({ status }) {
   return (
     <div className="max-w-6xl my-4 xl:my-6 mx-auto">
       <div className="flex flex-row items-center space-x-1 my-2">
-        {['active', 'inactive'/*, 'jailed'*/].map((_status, i) => (
+        {['active', 'inactive', 'deregistering'].map((_status, i) => (
           <Link key={i} href={`/validators${i > 0 ? `/${_status}` : ''}`}>
             <a className={`btn btn-default btn-rounded ${_status === status ? 'bg-gray-700 dark:bg-gray-800 text-white' : 'bg-trasparent hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 hover:text-gray-700 dark:hover:text-gray-100'}`}>
               {_status}
-              {validators_data && _status === status ? ` (${validators_data.filter(validator => status === 'inactive' ? !(['BOND_STATUS_BONDED'].includes(validator.status)) : status === 'jailed' ? validator.jailed : !validator.jailed && ['BOND_STATUS_BONDED'].includes(validator.status)).length})` : ''}
+              {validators_data && _status === status ? ` (${validators_data.filter(validator => status === 'inactive' ? !(['BOND_STATUS_BONDED'].includes(validator.status)) : status === 'deregistering' ? false : !validator.jailed && ['BOND_STATUS_BONDED'].includes(validator.status)).length})` : ''}
             </a>
           </Link>
         ))}
@@ -238,12 +238,13 @@ export default function ValidatorsTable({ status }) {
             ),
             headerClassName: 'justify-end text-right',
           },
-        ].filter(column => ['inactive', 'jailed'].includes(status) ? !(['uptime'].includes(column.accessor)) : !(['jailed'].includes(column.accessor)))}
+        ].filter(column => ['inactive', 'deregistering'].includes(status) ? !(['uptime'].includes(column.accessor)) : !(['jailed'].includes(column.accessor)))}
         data={validators_data ?
-          validators_data.filter(validator => status === 'inactive' ? !(['BOND_STATUS_BONDED'].includes(validator.status)) : status === 'jailed' ? validator.jailed : !validator.jailed && ['BOND_STATUS_BONDED'].includes(validator.status)).map((validator, i) => { return { ...validator, i } })
+          validators_data.filter(validator => status === 'inactive' ? !(['BOND_STATUS_BONDED'].includes(validator.status)) : status === 'deregistering' ? false : !validator.jailed && ['BOND_STATUS_BONDED'].includes(validator.status)).map((validator, i) => { return { ...validator, i } })
           :
           [...Array(25).keys()].map(i => { return { i, skeleton: true } })
         }
+        noPagination={validators_data ? validators_data.filter(validator => status === 'inactive' ? !(['BOND_STATUS_BONDED'].includes(validator.status)) : status === 'deregistering' ? false : !validator.jailed && ['BOND_STATUS_BONDED'].includes(validator.status)).length <= 10 : true}
         defaultPageSize={100}
       />
     </div>
