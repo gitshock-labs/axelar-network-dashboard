@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useSelector, useDispatch, shallowEqual } from 'react-redux'
 
 import moment from 'moment'
 
@@ -11,16 +12,40 @@ import KeysTable from '../keygen/keys-table'
 import Widget from '../widget'
 
 import { getValidator, getUptime, getDelegations, getKeys } from '../../lib/api/query'
-import { transactionsByEvents } from '../../lib/api/cosmos'
+import { allValidators, transactionsByEvents } from '../../lib/api/cosmos'
 import { getName } from '../../lib/utils'
 
+import { VALIDATORS_DATA } from '../../reducers/types'
+
 export default function Validator({ address }) {
+  const dispatch = useDispatch()
+  const { data } = useSelector(state => ({ data: state.data }), shallowEqual)
+  const { validators_data } = { ...data }
+
   const [validator, setValidator] = useState(null)
   const [uptime, setUptime] = useState(null)
   const [delegations, setDelegations] = useState(null)
   const [transactions, setTransactions] = useState(null)
   const [keygens, setKeygens] = useState(null)
   const [table, setTable] = useState('voting_events')
+
+  useEffect(() => {
+    const getValidators = async () => {
+      const response = await allValidators({}, validators_data, null, address)
+
+      if (response) {
+        dispatch({
+          type: VALIDATORS_DATA,
+          value: response.data
+        })
+      }
+    }
+
+    getValidators()
+
+    const interval = setInterval(() => getValidators(), 10 * 60 * 1000)
+    return () => clearInterval(interval)
+  }, [address])
 
   useEffect(() => {
     const getData = async () => {

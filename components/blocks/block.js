@@ -7,7 +7,7 @@ import BlockDetail from './block-detail'
 import TransactionsTable from '../transactions/transactions-table'
 import Widget from '../widget'
 
-import { validators, block as getBlock, transactions as getTransactions } from '../../lib/api/cosmos'
+import { allValidators, block as getBlock, transactions as getTransactions } from '../../lib/api/cosmos'
 import { numberFormat } from '../../lib/utils'
 
 import { VALIDATORS_DATA } from '../../reducers/types'
@@ -22,7 +22,7 @@ export default function Block({ height }) {
 
   useEffect(() => {
     const getValidators = async () => {
-      const response = await validators()
+      const response = await allValidators({}, validators_data)
 
       if (response) {
         dispatch({

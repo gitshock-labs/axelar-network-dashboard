@@ -7,7 +7,7 @@ import moment from 'moment'
 import Datatable from '../datatable'
 import Copy from '../copy'
 
-import { validators } from '../../lib/api/cosmos'
+import { allValidators } from '../../lib/api/cosmos'
 import { blocks as getBlocks } from '../../lib/api/opensearch'
 import { numberFormat, ellipseAddress } from '../../lib/utils'
 
@@ -24,7 +24,7 @@ export default function BlocksTable({ n, className = '' }) {
 
   useEffect(() => {
     const getValidators = async () => {
-      const response = await validators()
+      const response = await allValidators({}, validators_data)
 
       if (response) {
         dispatch({

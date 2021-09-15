@@ -16,7 +16,7 @@ const Summary = ({ data }) => {
         <Widget title="Consensus State">
           <div className="flex flex-wrap items-start mt-3">
             <div className="flex flex-col space-y-1 mr-8 lg:mr-32">
-              <span className="text-gray-600 dark:text-gray-400 text-sm" font-medium>Height</span>
+              <span className="text-gray-600 dark:text-gray-400 text-sm font-medium">Height</span>
               {data ?
                 <Link href={`/blocks/${data.latest_block.height}`}>
                   <a className="text-blue-600 dark:text-blue-400 text-lg">
@@ -28,7 +28,7 @@ const Summary = ({ data }) => {
               }
             </div>
             <div className="flex flex-col space-y-1 mr-8 lg:mr-32">
-              <span className="text-gray-600 dark:text-gray-400 text-sm" font-medium>Round</span>
+              <span className="text-gray-600 dark:text-gray-400 text-sm font-medium">Round</span>
               {data ?
                 <span className="text-lg">
                   {data.latest_block.round || 0}
@@ -38,7 +38,7 @@ const Summary = ({ data }) => {
               }
             </div>
             <div className="flex flex-col space-y-1 mr-8 lg:mr-32">
-              <span className="text-gray-600 dark:text-gray-400 text-sm" font-medium>Step</span>
+              <span className="text-gray-600 dark:text-gray-400 text-sm font-medium">Step</span>
               {data ?
                 <span className="text-lg">
                   {data.latest_block.step || 1}
@@ -48,7 +48,7 @@ const Summary = ({ data }) => {
               }
             </div>
             <div className="flex flex-col space-y-1 my-3 sm:my-0 mr-8 lg:mr-32">
-              <span className="text-gray-600 dark:text-gray-400 text-sm" font-medium>Proposer</span>
+              <span className="text-gray-600 dark:text-gray-400 text-sm font-medium">Proposer</span>
               {data ?
                 <div className="min-w-max flex items-start space-x-2">
                   <Link href={`/validator/${data.latest_block.proposer.key}`}>
@@ -83,7 +83,7 @@ const Summary = ({ data }) => {
               }
             </div>
             <div className="flex flex-col space-y-1 my-3 sm:my-0 mr-8 lg:mr-32">
-              <span className="text-gray-600 dark:text-gray-400 text-sm" font-medium>Voting Power</span>
+              <span className="text-gray-600 dark:text-gray-400 text-sm font-medium">Voting Power</span>
               {data ?
                 <div className="w-64 flex flex-col">
                   <span className="text-base font-medium">

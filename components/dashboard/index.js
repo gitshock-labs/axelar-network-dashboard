@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
+import { useSelector, useDispatch, shallowEqual } from 'react-redux'
 
 import Summary from './summary'
 import BlocksTable from '../blocks/blocks-table'
@@ -7,16 +8,41 @@ import TransactionsTable from '../transactions/transactions-table'
 import Widget from '../widget'
 
 import { getSummary } from '../../lib/api/query'
+import { allValidators } from '../../lib/api/cosmos'
+
+import { VALIDATORS_DATA } from '../../reducers/types'
 
 export default function Dashboard() {
-  const [data, setData] = useState(null)
+  const dispatch = useDispatch()
+  const { data } = useSelector(state => ({ data: state.data }), shallowEqual)
+  const { validators_data } = { ...data }
+
+  const [summaryData, setSummaryData] = useState(null)
+
+  useEffect(() => {
+    const getValidators = async () => {
+      const response = await allValidators({}, validators_data)
+
+      if (response) {
+        dispatch({
+          type: VALIDATORS_DATA,
+          value: response.data
+        })
+      }
+    }
+
+    getValidators()
+
+    const interval = setInterval(() => getValidators(), 10 * 60 * 1000)
+    return () => clearInterval(interval)
+  }, [])
 
   useEffect(() => {
     const getData = async () => {
       const response = await getSummary()
 
       if (response) {
-        setData({ data: response.data || {} })
+        setSummaryData({ data: response.data || {} })
       }
     }
 
@@ -28,7 +54,7 @@ export default function Dashboard() {
 
   return (
     <div className="my-4 mx-auto pb-2">
-      <Summary data={data && data.data} />
+      <Summary data={summaryData && summaryData.data} />
       <div className="w-full grid grid-flow-row grid-cols-1 lg:grid-cols-2 gap-5 my-4">
         <div className="mt-3">
           <Link href="/blocks">

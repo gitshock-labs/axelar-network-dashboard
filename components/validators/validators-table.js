@@ -1,39 +1,49 @@
 import Link from 'next/link'
-import { useState, useEffect } from 'react'
+import { useEffect } from 'react'
+import { useSelector, useDispatch, shallowEqual } from 'react-redux'
+
+import _ from 'lodash'
 
 import Datatable from '../datatable'
 import { ProgressBarWithText } from '../progress-bars'
 import Copy from '../copy'
 
-import { getValidators } from '../../lib/api/query'
+import { allValidators } from '../../lib/api/cosmos'
 import { numberFormat, ellipseAddress } from '../../lib/utils'
 
+import { VALIDATORS_DATA } from '../../reducers/types'
+
 export default function ValidatorsTable({ status }) {
-  const [validators, setValidators] = useState(null)
+  const dispatch = useDispatch()
+  const { data } = useSelector(state => ({ data: state.data }), shallowEqual)
+  const { validators_data } = { ...data }
 
   useEffect(() => {
-    const getData = async () => {
-      const response = await getValidators()
+    const getValidators = async () => {
+      const response = await allValidators({}, validators_data, status)
 
       if (response) {
-        setValidators({ data: response.data || [], status })
+        dispatch({
+          type: VALIDATORS_DATA,
+          value: response.data
+        })
       }
     }
 
-    getData()
+    getValidators()
 
-    const interval = setInterval(() => getData(), 3 * 60 * 1000)
+    const interval = setInterval(() => getValidators(), 10 * 60 * 1000)
     return () => clearInterval(interval)
   }, [status])
 
   return (
     <div className="max-w-6xl my-4 xl:my-6 mx-auto">
       <div className="flex flex-row items-center space-x-1 my-2">
-        {['active', 'inactive', 'deregistering'].map((_status, i) => (
+        {['active', 'inactive'/*, 'jailed'*/].map((_status, i) => (
           <Link key={i} href={`/validators${i > 0 ? `/${_status}` : ''}`}>
             <a className={`btn btn-default btn-rounded ${_status === status ? 'bg-gray-700 dark:bg-gray-800 text-white' : 'bg-trasparent hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 hover:text-gray-700 dark:hover:text-gray-100'}`}>
               {_status}
-              {validators && _status === status ? ` (${validators.data.filter(validator => validator.status === status).length})` : ''}
+              {validators_data && _status === status ? ` (${validators_data.filter(validator => status === 'inactive' ? !(['BOND_STATUS_BONDED'].includes(validator.status)) : status === 'jailed' ? validator.jailed : !validator.jailed && ['BOND_STATUS_BONDED'].includes(validator.status)).length})` : ''}
             </a>
           </Link>
         ))}
@@ -53,29 +63,37 @@ export default function ValidatorsTable({ status }) {
           },
           {
             Header: 'Validator',
-            accessor: 'name',
-            sortType: (rowA, rowB) => (rowA.original.name || rowA.original.key) > (rowB.original.name || rowB.original.key) ? 1 : -1,
+            accessor: 'description.moniker',
+            sortType: (rowA, rowB) => (rowA.original.description.moniker || rowA.original.description.i) > (rowB.original.description.moniker || rowB.original.description.i) ? 1 : -1,
             Cell: props => (
               !props.row.original.skeleton ?
-                <div className="min-w-max flex items-start space-x-2">
-                  <Link href={`/validator/${props.row.original.key}`}>
-                    <a>
-                      <img
-                        src={props.row.original.image}
-                        alt=""
-                        className="w-6 h-6 rounded-full"
-                      />
-                    </a>
-                  </Link>
-                  <div className="flex flex-col">
-                    <Link href={`/validator/${props.row.original.key}`}>
-                      <a className="text-blue-600 dark:text-blue-400 font-semibold">
-                        {props.value || props.row.original.key}
+                <div className={`min-w-max flex items-${props.value ? 'start' : 'center'} space-x-2`}>
+                  {props.row.original.description.image && (
+                    <Link href={`/validator/${props.row.original.operator_address}`}>
+                      <a>
+                        <img
+                          src={props.row.original.description.image}
+                          alt=""
+                          className="w-6 h-6 rounded-full"
+                        />
                       </a>
                     </Link>
+                  )}
+                  <div className="flex flex-col">
+                    {props.value && (
+                      <Link href={`/validator/${props.row.original.operator_address}`}>
+                        <a className="text-blue-600 dark:text-blue-400 font-medium">
+                          {props.value || props.row.original.operator_address}
+                        </a>
+                      </Link>
+                    )}
                     <span className="flex items-center space-x-1">
-                      <span className="font-light">{ellipseAddress(props.row.original.key)}</span>
-                      <Copy text={props.row.original.key} />
+                      <Link href={`/validator/${props.row.original.operator_address}`}>
+                        <a className="text-gray-500 font-light">
+                          {ellipseAddress(props.row.original.operator_address)}
+                        </a>
+                      </Link>
+                      <Copy text={props.row.original.operator_address} />
                     </span>
                   </div>
                 </div>
@@ -90,16 +108,16 @@ export default function ValidatorsTable({ status }) {
             ),
           },
           {
-            Header: 'Voting Power',
-            accessor: 'voting_power',
-            sortType: (rowA, rowB) => rowA.original.voting_power > rowB.original.voting_power ? 1 : -1,
+            Header: status === 'active' ? 'Voting Power' : 'Bonded Tokens',
+            accessor: 'tokens',
+            sortType: (rowA, rowB) => rowA.original.tokens > rowB.original.tokens ? 1 : -1,
             Cell: props => (
               !props.row.original.skeleton ?
                 <div className="flex flex-col justify-center text-left sm:text-right">
                   {props.value > 0 ?
                     <>
-                      <span className="font-medium">{numberFormat(props.value, '0,0')}</span>
-                      <span className="text-gray-400 dark:text-gray-600">{numberFormat(props.row.original.voting_power_percentage, `0,0.000${Math.abs(props.row.original.voting_power_percentage) < 0.001 ? '000' : ''}`)}%</span>
+                      <span className="font-medium">{numberFormat(Math.floor(props.value / Number(process.env.NEXT_PUBLIC_POWER_REDUCTION)), '0,0.00')}</span>
+                      <span className="text-gray-400 dark:text-gray-600">{numberFormat(props.value * 100 / _.sumBy(validators_data.filter(validator => !validator.jailed && ['BOND_STATUS_BONDED'].includes(validator.status)), 'tokens'), '0,0.000')}%</span>
                     </>
                     :
                     '-'
@@ -107,21 +125,45 @@ export default function ValidatorsTable({ status }) {
                 </div>
                 :
                 <div className="flex flex-col justify-center space-y-1">
-                  <div className="skeleton w-20 h-4 ml-0 sm:ml-auto" />
-                  <div className="skeleton w-8 h-3 ml-0 sm:ml-auto" />
+                  <div className="skeleton w-16 h-4 ml-0 sm:ml-auto" />
+                  <div className="skeleton w-8 h-4 ml-0 sm:ml-auto" />
+                </div>
+            ),
+            headerClassName: 'justify-start sm:justify-end text-left sm:text-right',
+          },
+          {
+            Header: 'Self Delegation',
+            accessor: 'self_delegation',
+            sortType: (rowA, rowB) => rowA.original.self_delegation / rowA.original.delegator_shares > rowB.original.self_delegation / rowB.original.delegator_shares ? 1 : -1,
+            Cell: props => (
+              !props.row.original.skeleton ?
+                <div className="flex flex-col justify-center text-left sm:text-right">
+                  {props.value > 0 ?
+                    <>
+                      {/*<span className="font-medium">{numberFormat(Math.floor(props.value / Number(process.env.NEXT_PUBLIC_POWER_REDUCTION)), '0,0.00')}</span>*/}
+                      <span className="text-gray-400 dark:text-gray-600">{numberFormat(props.value * 100 / props.row.original.delegator_shares, '0,0.000')}%</span>
+                    </>
+                    :
+                    '-'
+                  }
+                </div>
+                :
+                <div className="flex flex-col justify-center space-y-1">
+                  {/*<div className="skeleton w-16 h-4 ml-0 sm:ml-auto" />*/}
+                  <div className="skeleton w-8 h-4 ml-0 sm:ml-auto" />
                 </div>
             ),
             headerClassName: 'justify-start sm:justify-end text-left sm:text-right',
           },
           {
             Header: 'Commission',
-            accessor: 'commission_percenteage',
-            sortType: (rowA, rowB) => rowA.original.commission_percenteage > rowB.original.commission_percenteage ? 1 : -1,
+            accessor: 'commission.commission_rates.rate',
+            sortType: (rowA, rowB) => Number(rowA.original.commission.commission_rates.rate) > Number(rowB.original.commission.commission_rates.rate) ? 1 : -1,
             Cell: props => (
               !props.row.original.skeleton ?
                 <div className="text-right">
                   {props.value > 0 ?
-                    <span>{numberFormat(props.value, '0,0.00')}%</span>
+                    <span>{numberFormat(props.value * 100, '0,0.00')}%</span>
                     :
                     '-'
                   }
@@ -157,28 +199,52 @@ export default function ValidatorsTable({ status }) {
             headerClassName: 'justify-end text-right',
           },
           {
-            Header: 'Deregistering State',
-            accessor: 'deregistering_state',
-            sortType: (rowA, rowB) => rowA.original.commission_percenteage > rowB.original.commission_percenteage ? 1 : -1,
+            Header: 'Status',
+            accessor: 'status',
+            sortType: (rowA, rowB) => rowA.original.status > rowB.original.status ? 1 : -1,
             Cell: props => (
               !props.row.original.skeleton ?
                 <div className="text-right">
-                  <span className="bg-gray-100 dark:bg-gray-800 rounded capitalize text-gray-900 dark:text-gray-100 font-semibold px-2 py-1">
-                    {props.value}
-                  </span>
+                  {props.value ?
+                    <span className={`bg-${props.value.includes('UN') ? props.value.endsWith('ED') ? 'gray-300 dark:bg-gray-600' : 'yellow-400 dark:bg-yellow-600' : 'green-500'} rounded capitalize text-white font-semibold px-2 py-1`}>
+                      {props.value.replace('BOND_STATUS_', '')}
+                    </span>
+                    :
+                    '-'
+                  }
                 </div>
                 :
                 <div className="skeleton w-24 h-4 ml-auto" />
             ),
             headerClassName: 'justify-end text-right',
           },
-        ].filter(column => status === 'deregistering' ? true : !(['deregistering_state'].includes(column.accessor)))}
-        data={validators && validators.status === status ?
-          validators.data.filter(validator => validator.status === status).map((validator, i) => { return { ...validator, i } })
+          {
+            Header: 'Jailed',
+            accessor: 'jailed',
+            disableSortBy: true,
+            Cell: props => (
+              !props.row.original.skeleton ?
+                <div className="text-right">
+                  {props.value ?
+                    <span className="bg-red-600 rounded capitalize text-white font-semibold px-2 py-1">
+                      Jailed
+                    </span>
+                    :
+                    '-'
+                  }
+                </div>
+                :
+                <div className="skeleton w-24 h-4 ml-auto" />
+            ),
+            headerClassName: 'justify-end text-right',
+          },
+        ].filter(column => ['inactive', 'jailed'].includes(status) ? !(['uptime'].includes(column.accessor)) : !(['jailed'].includes(column.accessor)))}
+        data={validators_data ?
+          validators_data.filter(validator => status === 'inactive' ? !(['BOND_STATUS_BONDED'].includes(validator.status)) : status === 'jailed' ? validator.jailed : !validator.jailed && ['BOND_STATUS_BONDED'].includes(validator.status)).map((validator, i) => { return { ...validator, i } })
           :
           [...Array(25).keys()].map(i => { return { i, skeleton: true } })
         }
-        defaultPageSize={50}
+        defaultPageSize={100}
       />
     </div>
   )
