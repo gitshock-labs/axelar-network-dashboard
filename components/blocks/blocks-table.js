@@ -142,7 +142,7 @@ export default function BlocksTable({ n, className = '' }) {
             !props.row.original.skeleton ?
               <div className="text-right">
                 {props.value > -1 ?
-                  <span>{numberFormat(props.value, '0,0.00')}</span>
+                  <span>{numberFormat(props.value, '0,0')}</span>
                   :
                   '-'
                 }

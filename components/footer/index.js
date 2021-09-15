@@ -16,7 +16,7 @@ export default function Footer() {
       <span className="w-full md:w-1/3 flex items-center justify-center md:justify-end text-gray-400 space-x-1 mt-4 md:mt-0">
         <span>© {moment().format('YYYY')} made with</span>
         <FaHeart className="text-red-400 text-xl" />
-        <span>by <span className="font-semibold">{process.env.NEXT_PUBLIC_APP_NAME}</span> team.</span>
+        <span>by <span className="font-semibold">{process.env.NEXT_PUBLIC_TEAM_NAME}</span> team.</span>
       </span>
     </div>
   )

@@ -1,29 +1,64 @@
 import { useState, useEffect } from 'react'
+import { useSelector, useDispatch, shallowEqual } from 'react-redux'
 
-import moment from 'moment'
 import _ from 'lodash'
 
 import BlockDetail from './block-detail'
 import TransactionsTable from '../transactions/transactions-table'
 import Widget from '../widget'
 
-import { getBlock } from '../../lib/api/query'
-import { transactions as getTransactions } from '../../lib/api/cosmos'
+import { validators, block as getBlock, transactions as getTransactions } from '../../lib/api/cosmos'
 import { numberFormat } from '../../lib/utils'
 
+import { VALIDATORS_DATA } from '../../reducers/types'
+
 export default function Block({ height }) {
+  const dispatch = useDispatch()
+  const { data } = useSelector(state => ({ data: state.data }), shallowEqual)
+  const { validators_data } = { ...data }
+
   const [block, setBlock] = useState(null)
   const [transactions, setTransactions] = useState(null)
 
   useEffect(() => {
+    const getValidators = async () => {
+      const response = await validators()
+
+      if (response) {
+        dispatch({
+          type: VALIDATORS_DATA,
+          value: response.data
+        })
+      }
+    }
+
+    getValidators()
+
+    const interval = setInterval(() => getValidators(), 10 * 60 * 1000)
+    return () => clearInterval(interval)
+  }, [])
+
+  useEffect(() => {
     const getData = async () => {
-      let response = await getBlock(height)
+      const response = await getBlock(height)
 
       if (response) {
         setBlock({ data: response.data || {}, height })
       }
+    }
 
-      // response = await getTransactions({ query: { match: { height } }, size: 100, sort: [{ timestamp: 'desc' }] })
+    if (height) {
+      getData()
+    }
+
+    const interval = setInterval(() => getData(), 1 * 60 * 1000)
+    return () => clearInterval(interval)
+  }, [height])
+
+  useEffect(() => {
+    const getData = async () => {
+      // const response = await getTransactions({ query: { match: { height } }, size: 100, sort: [{ timestamp: 'desc' }] })
+      let response
 
       let data = []
 
@@ -44,13 +79,15 @@ export default function Block({ height }) {
       getData()
     }
 
-    const interval = setInterval(() => getData(), 1 * 60 * 1000)
+    const interval = setInterval(() => getData(), 3 * 60 * 1000)
     return () => clearInterval(interval)
   }, [height])
 
+  const validator_data = block && block.height === height && block.data && block.data.proposer_address && validators_data && _.head(validators_data.filter(validator_data => validator_data && validator_data.operator_address === block.data.proposer_address))
+
   return (
     <div className="max-w-6xl my-4 xl:my-6 mx-auto">
-      <BlockDetail data={block && block.height === height && block.data} />
+      <BlockDetail data={block && block.height === height && block.data} validator_data={validator_data} />
       <Widget
         title={<div className="flex items-center text-gray-900 dark:text-white text-lg font-semibold space-x-1 mt-3">
           <span>Transactions</span>
