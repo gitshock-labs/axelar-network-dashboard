@@ -12,15 +12,16 @@ import KeysTable from '../keygen/keys-table'
 import Widget from '../widget'
 
 import { getValidator, getUptime, getDelegations, getKeys } from '../../lib/api/query'
+import { status as getStatus } from '../../lib/api/rpc'
 import { allValidators, transactionsByEvents } from '../../lib/api/cosmos'
 import { getName } from '../../lib/utils'
 
-import { VALIDATORS_DATA } from '../../reducers/types'
+import { STATUS_DATA, VALIDATORS_DATA } from '../../reducers/types'
 
 export default function Validator({ address }) {
   const dispatch = useDispatch()
   const { data } = useSelector(state => ({ data: state.data }), shallowEqual)
-  const { validators_data } = { ...data }
+  const { status_data, validators_data } = { ...data }
 
   const [validator, setValidator] = useState(null)
   const [uptime, setUptime] = useState(null)
@@ -30,8 +31,26 @@ export default function Validator({ address }) {
   const [table, setTable] = useState('voting_events')
 
   useEffect(() => {
+    const getData = async () => {
+      const response = await getStatus()
+
+      if (response) {
+        dispatch({
+          type: STATUS_DATA,
+          value: response
+        })
+      }
+    }
+
+    getData()
+
+    const interval = setInterval(() => getData(), 1 * 60 * 1000)
+    return () => clearInterval(interval)
+  }, [])
+
+  useEffect(() => {
     const getValidators = async () => {
-      const response = await allValidators({}, validators_data, null, address)
+      const response = await allValidators({}, validators_data, null, address, Number(status_data.latest_block_height))
 
       if (response) {
         dispatch({
@@ -41,11 +60,13 @@ export default function Validator({ address }) {
       }
     }
 
-    getValidators()
+    if (status_data) {
+      getValidators()
+    }
 
     const interval = setInterval(() => getValidators(), 10 * 60 * 1000)
     return () => clearInterval(interval)
-  }, [address])
+  }, [address, status_data])
 
   useEffect(() => {
     const getData = async () => {

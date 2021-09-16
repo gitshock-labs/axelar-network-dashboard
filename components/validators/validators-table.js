@@ -9,19 +9,38 @@ import Datatable from '../datatable'
 import { ProgressBarWithText } from '../progress-bars'
 import Copy from '../copy'
 
+import { status as getStatus } from '../../lib/api/rpc'
 import { allValidators } from '../../lib/api/cosmos'
 import { numberFormat, ellipseAddress } from '../../lib/utils'
 
-import { VALIDATORS_DATA } from '../../reducers/types'
+import { STATUS_DATA, VALIDATORS_DATA } from '../../reducers/types'
 
 export default function ValidatorsTable({ status }) {
   const dispatch = useDispatch()
   const { data } = useSelector(state => ({ data: state.data }), shallowEqual)
-  const { validators_data } = { ...data }
+  const { status_data, validators_data } = { ...data }
+
+  useEffect(() => {
+    const getData = async () => {
+      const response = await getStatus()
+
+      if (response) {
+        dispatch({
+          type: STATUS_DATA,
+          value: response
+        })
+      }
+    }
+
+    getData()
+
+    const interval = setInterval(() => getData(), 1 * 60 * 1000)
+    return () => clearInterval(interval)
+  }, [])
 
   useEffect(() => {
     const getValidators = async () => {
-      const response = await allValidators({}, validators_data, status)
+      const response = await allValidators({}, validators_data, status, null, Number(status_data.latest_block_height))
 
       if (response) {
         dispatch({
@@ -31,11 +50,13 @@ export default function ValidatorsTable({ status }) {
       }
     }
 
-    getValidators()
+    if (status_data) {
+      getValidators()
+    }
 
     const interval = setInterval(() => getValidators(), 10 * 60 * 1000)
     return () => clearInterval(interval)
-  }, [status])
+  }, [status, status_data])
 
   return (
     <div className="max-w-6xl my-4 xl:my-6 mx-auto">

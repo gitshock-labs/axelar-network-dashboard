@@ -2,22 +2,43 @@ import Link from 'next/link'
 import { useState, useEffect } from 'react'
 import { useSelector, useDispatch, shallowEqual } from 'react-redux'
 
+import moment from 'moment'
+
 import Summary from './summary'
 import BlocksTable from '../blocks/blocks-table'
 import TransactionsTable from '../transactions/transactions-table'
 import Widget from '../widget'
 
 import { getSummary } from '../../lib/api/query'
+import { status as getStatus } from '../../lib/api/rpc'
 import { allValidators } from '../../lib/api/cosmos'
 
-import { VALIDATORS_DATA } from '../../reducers/types'
+import { STATUS_DATA, VALIDATORS_DATA } from '../../reducers/types'
 
 export default function Dashboard() {
   const dispatch = useDispatch()
   const { data } = useSelector(state => ({ data: state.data }), shallowEqual)
-  const { validators_data } = { ...data }
+  const { status_data, validators_data } = { ...data }
 
   const [summaryData, setSummaryData] = useState(null)
+
+  useEffect(() => {
+    const getData = async () => {
+      const response = await getStatus()
+
+      if (response) {
+        dispatch({
+          type: STATUS_DATA,
+          value: response
+        })
+      }
+    }
+
+    getData()
+
+    const interval = setInterval(() => getData(), 10 * 1000)
+    return () => clearInterval(interval)
+  }, [])
 
   useEffect(() => {
     const getValidators = async () => {
@@ -42,15 +63,21 @@ export default function Dashboard() {
       const response = await getSummary()
 
       if (response) {
-        setSummaryData({ data: response.data || {} })
+        setSummaryData({ data: {
+          ...response.data,
+          block_height: status_data && Number(status_data.latest_block_height),
+          block_height_at: status_data && moment(status_data.latest_block_time).valueOf(),
+          active_validators: validators_data && validators_data.filter(validator_data => ['BOND_STATUS_BONDED'].includes(validator_data.status)).length,
+          total_validators: validators_data && validators_data.length,
+        }})
       }
     }
 
     getData()
 
-    const interval = setInterval(() => getData(), 5 * 1000)
+    const interval = setInterval(() => getData(), 10 * 1000)
     return () => clearInterval(interval)
-  }, [])
+  }, [status_data, validators_data])
 
   return (
     <div className="my-4 mx-auto pb-2">

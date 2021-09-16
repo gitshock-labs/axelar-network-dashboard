@@ -116,13 +116,16 @@ const Summary = ({ data }) => {
         >
           <span className="flex flex-col mt-1 space-y-1">
             {data ?
-              <span className="text-3xl font-semibold">{numberFormat(data.block_height, '0,0')}</span>
+              <span className="h-8 text-3xl font-semibold">{typeof data.block_height === 'number' && numberFormat(data.block_height, '0,0')}</span>
               :
               <div className="skeleton w-24 h-7 mt-1" />
             }
             <span className="text-gray-400 dark:text-gray-600 text-sm font-normal">
               {data ?
-                moment(data.block_height_at).format('MMM D, YYYY h:mm:ss A z')
+                data.block_height_at ?
+                  moment(data.block_height_at).format('MMM D, YYYY h:mm:ss A z')
+                  :
+                  null
                 :
                 <div className="skeleton w-32 h-3 mt-1" />
               }
@@ -135,7 +138,7 @@ const Summary = ({ data }) => {
         >
           <span className="flex flex-col item mt-1 space-y-1">
             {data ?
-              <span className="text-3xl font-semibold">{numberFormat(data.avg_block_time, '0.00')}</span>
+              <span className="h-8 text-3xl font-semibold">{typeof data.avg_block_time === 'number' && numberFormat(data.avg_block_time, '0.00')}</span>
               :
               <div className="skeleton w-24 h-7 mt-1" />
             }
@@ -148,14 +151,14 @@ const Summary = ({ data }) => {
         >
           <span className="flex flex-col mt-1 space-y-1">
             {data ?
-              <span className="text-3xl font-semibold">{numberFormat(data.active_validators, '0,0')}</span>
+              <span className="h-8 text-3xl font-semibold">{typeof data.active_validators === 'number' && numberFormat(data.active_validators, '0,0')}</span>
               :
               <div className="skeleton w-24 h-7 mt-1" />
             }
             <span className="flex items-center text-gray-400 dark:text-gray-600 text-sm font-normal space-x-1">
               <span>out of</span>
               {data ?
-                <span className="text-gray-600 dark:text-gray-400 font-medium">{numberFormat(data.total_validators, '0,0')}</span>
+                <span className="text-gray-600 dark:text-gray-400 font-medium">{typeof data.total_validators === 'number' && numberFormat(data.total_validators, '0,0')}</span>
                 :
                 <div className="skeleton w-6 h-3" />
               }
@@ -169,13 +172,13 @@ const Summary = ({ data }) => {
         >
           <span className="flex flex-col mt-1 space-y-1">
             {data ?
-              <span className="text-3xl font-semibold">{data.online_voting_power_now}</span>
+              <span className="h-8 text-3xl font-semibold">{data.online_voting_power_now}</span>
               :
               <div className="skeleton w-24 h-7 mt-1" />
             }
             <span className="flex items-center text-gray-400 dark:text-gray-600 text-sm font-normal space-x-1">
               {data ?
-                <span className="text-gray-600 dark:text-gray-400 font-medium">{numberFormat(data.online_voting_power_now_percentage, '0,0.00')}%</span>
+                <span className="text-gray-600 dark:text-gray-400 font-medium">{typeof data.online_voting_power_now_percentage === 'number' && numberFormat(data.online_voting_power_now_percentage, '0,0.00')}%</span>
                 :
                 <div className="skeleton w-6 h-3" />
               }
