@@ -3,6 +3,7 @@ import { useEffect } from 'react'
 import { useSelector, useDispatch, shallowEqual } from 'react-redux'
 
 import _ from 'lodash'
+import { FiBox } from 'react-icons/fi'
 
 import Datatable from '../datatable'
 import { ProgressBarWithText } from '../progress-bars'
@@ -174,7 +175,13 @@ export default function ValidatorsTable({ status }) {
             headerClassName: 'justify-end text-right',
           },
           {
-            Header: 'Uptime',
+            Header: (
+              <span className="flex items-center space-x-1">
+                <span>Uptime</span>
+                <span>{numberFormat(Number(process.env.NEXT_PUBLIC_NUM_UPTIME_BLOCKS), '0,0')}</span>
+                <FiBox size={16} className="stroke-current" />
+              </span>
+            ),
             accessor: 'uptime',
             sortType: (rowA, rowB) => rowA.original.uptime > rowB.original.uptime ? 1 : -1,
             Cell: props => (
@@ -192,7 +199,7 @@ export default function ValidatorsTable({ status }) {
                     />
                   </div>
                   :
-                  <div className="w-56 text-right ml-auto">-</div>
+                  <div className="w-56 text-right ml-auto">{/*-*/}</div>
                 :
                 <div className="skeleton w-56 h-4 rounded mt-0.5 ml-auto" />
             ),
