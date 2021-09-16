@@ -83,7 +83,7 @@ export default function Block({ height }) {
     return () => clearInterval(interval)
   }, [height])
 
-  const validator_data = block && block.height === height && block.data && block.data.proposer_address && validators_data && _.head(validators_data.filter(validator_data => validator_data && validator_data.operator_address === block.data.proposer_address))
+  const validator_data = block && block.height === height && block.data && block.data.proposer_address && validators_data && _.head(validators_data.filter(validator_data => validator_data && validator_data.consensus_address === block.data.proposer_address))
 
   return (
     <div className="max-w-6xl my-4 xl:my-6 mx-auto">

@@ -8,7 +8,9 @@ import Copy from '../copy'
 import { numberFormat, ellipseAddress } from '../../lib/utils'
 
 export default function BlockDetail({ data, validator_data }) {
-  if (data && data.proposer_address && validator_data && validator_data.operator_address === data.proposer_address) {
+  if (data && data.proposer_address && validator_data && validator_data.consensus_address === data.proposer_address) {
+    data.operator_address = validator_data.operator_address
+
     if (validator_data.description) {
       data.proposer_name = validator_data.description.moniker
       data.proposer_image = validator_data.description.image
@@ -59,39 +61,42 @@ export default function BlockDetail({ data, validator_data }) {
             <div className="skeleton w-10 h-4" />
           }
         </div>
-        <div className="flex flex-col lg:flex-row items-start lg:items-center space-x-0 lg:space-x-2">
+        <div className={`flex flex-col lg:flex-row items-start lg:items-${!data || data.proposer_name ? 'start' : 'center'} space-x-0 lg:space-x-2`}>
           <span className="font-semibold">Proposer:</span>
           {data ?
-            <div className={`min-w-max flex items-${data.proposer_name ? 'start' : 'center'} space-x-2`}>
-              {data.proposer_image && (
-                <Link href={`/validator/${data.proposer_address}`}>
-                  <a>
-                    <img
-                      src={data.proposer_image}
-                      alt=""
-                      className="w-6 h-6 rounded-full"
-                    />
-                  </a>
-                </Link>
-              )}
-              <div className="flex flex-col">
-                {data.proposer_name && (
-                  <Link href={`/validator/${data.proposer_address}`}>
-                    <a className="text-blue-600 dark:text-blue-400 font-medium">
-                      {data.proposer_name || data.proposer_address}
+            data.operator_address ?
+              <div className={`min-w-max flex items-${data.proposer_name ? 'start' : 'center'} space-x-2`}>
+                {data.proposer_image && (
+                  <Link href={`/validator/${data.operator_address}`}>
+                    <a>
+                      <img
+                        src={data.proposer_image}
+                        alt=""
+                        className="w-6 h-6 rounded-full"
+                      />
                     </a>
                   </Link>
                 )}
-                <span className="flex items-center space-x-1">
-                  <Link href={`/validator/${data.proposer_address}`}>
-                    <a className="text-gray-500 font-light">
-                      {ellipseAddress(data.proposer_address)}
-                    </a>
-                  </Link>
-                  <Copy text={data.proposer_address} />
-                </span>
+                <div className="flex flex-col">
+                  {data.proposer_name && (
+                    <Link href={`/validator/${data.operator_address}`}>
+                      <a className="text-blue-600 dark:text-blue-400 font-medium">
+                        {data.proposer_name || data.operator_address}
+                      </a>
+                    </Link>
+                  )}
+                  <span className="flex items-center space-x-1">
+                    <Link href={`/validator/${data.operator_address}`}>
+                      <a className="text-gray-500 font-light">
+                        {ellipseAddress(data.operator_address)}
+                      </a>
+                    </Link>
+                    <Copy text={data.operator_address} />
+                  </span>
+                </div>
               </div>
-            </div>
+              :
+              '-'
             :
             <div className="flex items-start space-x-2">
               <div className="skeleton w-6 h-6 rounded-full" />

@@ -94,36 +94,39 @@ export default function BlocksTable({ n, className = '' }) {
           disableSortBy: true,
           Cell: props => (
             !props.row.original.skeleton ?
-              <div className={`min-w-max flex items-${props.row.original.proposer_name ? 'start' : 'center'} space-x-2`}>
-                {props.row.original.proposer_image && (
-                  <Link href={`/validator/${props.value}`}>
-                    <a>
-                      <img
-                        src={props.row.original.proposer_image}
-                        alt=""
-                        className="w-6 h-6 rounded-full"
-                      />
-                    </a>
-                  </Link>
-                )}
-                <div className="flex flex-col">
-                  {props.row.original.proposer_name && (
-                    <Link href={`/validator/${props.value}`}>
-                      <a className="text-blue-600 dark:text-blue-400 font-medium">
-                        {props.row.original.proposer_name || props.value}
+              props.row.original.operator_address ?
+                <div className={`min-w-max flex items-${props.row.original.proposer_name ? 'start' : 'center'} space-x-2`}>
+                  {props.row.original.proposer_image && (
+                    <Link href={`/validator/${props.row.original.operator_address}`}>
+                      <a>
+                        <img
+                          src={props.row.original.proposer_image}
+                          alt=""
+                          className="w-6 h-6 rounded-full"
+                        />
                       </a>
                     </Link>
                   )}
-                  <span className="flex items-center space-x-1">
-                    <Link href={`/validator/${props.value}`}>
-                      <a className="text-gray-500 font-light">
-                        {ellipseAddress(props.value)}
-                      </a>
-                    </Link>
-                    <Copy text={props.value} />
-                  </span>
+                  <div className="flex flex-col">
+                    {props.row.original.proposer_name && (
+                      <Link href={`/validator/${props.row.original.operator_address}`}>
+                        <a className="text-blue-600 dark:text-blue-400 font-medium">
+                          {props.row.original.proposer_name || props.row.original.operator_address}
+                        </a>
+                      </Link>
+                    )}
+                    <span className="flex items-center space-x-1">
+                      <Link href={`/validator/${props.row.original.operator_address}`}>
+                        <a className="text-gray-500 font-light">
+                          {ellipseAddress(props.row.original.operator_address)}
+                        </a>
+                      </Link>
+                      <Copy text={props.row.original.operator_address} />
+                    </span>
+                  </div>
                 </div>
-              </div>
+                :
+                '-'
               :
               <div className="flex items-start space-x-2">
                 <div className="skeleton w-6 h-6 rounded-full" />
@@ -175,10 +178,12 @@ export default function BlocksTable({ n, className = '' }) {
       ]}
       data={blocks ?
         blocks.data.filter((block, i) => !n || i < n).map((block, i) => {
-          let proposer_name, proposer_image
+          let proposer_name, proposer_image, operator_address
 
-          if (block && block.proposer_address && validators_data && validators_data.findIndex(validator_data => validator_data.operator_address === block.proposer_address) > -1) {
-            const validator_data = validators_data[validators_data.findIndex(validator_data => validator_data.operator_address === block.proposer_address)]
+          if (block && block.proposer_address && validators_data && validators_data.findIndex(validator_data => validator_data.consensus_address === block.proposer_address) > -1) {
+            const validator_data = validators_data[validators_data.findIndex(validator_data => validator_data.consensus_address === block.proposer_address)]
+
+            operator_address = validator_data.operator_address
 
             if (validator_data.description) {
               proposer_name = validator_data.description.moniker
@@ -186,7 +191,7 @@ export default function BlocksTable({ n, className = '' }) {
             }
           }
 
-          return { ...block, i, proposer_name, proposer_image }
+          return { ...block, i, operator_address, proposer_name, proposer_image }
         })
         :
         [...Array(n || 25).keys()].map(i => { return { i, skeleton: true } })
