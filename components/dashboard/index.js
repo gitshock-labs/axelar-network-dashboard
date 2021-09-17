@@ -9,16 +9,16 @@ import BlocksTable from '../blocks/blocks-table'
 import TransactionsTable from '../transactions/transactions-table'
 import Widget from '../widget'
 
-import { getSummary } from '../../lib/api/query'
 import { status as getStatus } from '../../lib/api/rpc'
 import { allValidators } from '../../lib/api/cosmos'
+import { numberFormat } from '../../lib/utils'
 
 import { STATUS_DATA, VALIDATORS_DATA } from '../../reducers/types'
 
 export default function Dashboard() {
   const dispatch = useDispatch()
   const { data } = useSelector(state => ({ data: state.data }), shallowEqual)
-  const { status_data, validators_data } = { ...data }
+  const { chain_data, status_data, validators_data } = { ...data }
 
   const [summaryData, setSummaryData] = useState(null)
 
@@ -60,25 +60,21 @@ export default function Dashboard() {
 
   useEffect(() => {
     const getData = async () => {
-      const response = await getSummary()
-
-      if (response) {
-        setSummaryData({ data: {
-          ...response.data,
-          block_height: status_data && Number(status_data.latest_block_height),
-          block_height_at: status_data && moment(status_data.latest_block_time).valueOf(),
-          avg_block_time: status_data && moment(status_data.latest_block_time).diff(moment(status_data.earliest_block_time), 'seconds') / Number(status_data.latest_block_height),
-          active_validators: validators_data && validators_data.filter(validator_data => ['BOND_STATUS_BONDED'].includes(validator_data.status)).length,
-          total_validators: validators_data && validators_data.length,
-        }})
-      }
+      setSummaryData({ data: {
+        latest_block: { proposer: {} },
+        block_height: status_data && Number(status_data.latest_block_height),
+        block_height_at: status_data && moment(status_data.latest_block_time).valueOf(),
+        avg_block_time: status_data && moment(status_data.latest_block_time).diff(moment(status_data.earliest_block_time), 'seconds') / Number(status_data.latest_block_height),
+        active_validators: validators_data && validators_data.filter(validator_data => ['BOND_STATUS_BONDED'].includes(validator_data.status)).length,
+        total_validators: validators_data && validators_data.length,
+        online_voting_power_now: chain_data && chain_data.staking_pool && numberFormat(Math.floor(chain_data.staking_pool.bonded_tokens), '0,0.00a'),
+        online_voting_power_now_percentage: chain_data && chain_data.staking_pool && chain_data.bank_supply && (Math.floor(chain_data.staking_pool.bonded_tokens) * 100 / chain_data.bank_supply.amount),
+        total_voting_power: chain_data && chain_data.bank_supply && numberFormat(chain_data.bank_supply.amount, '0,0.00a'),
+      }})
     }
 
     getData()
-
-    const interval = setInterval(() => getData(), 10 * 1000)
-    return () => clearInterval(interval)
-  }, [status_data, validators_data])
+  }, [chain_data, status_data, validators_data])
 
   return (
     <div className="my-4 mx-auto pb-2">
