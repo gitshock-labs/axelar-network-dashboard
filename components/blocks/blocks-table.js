@@ -51,7 +51,7 @@ export default function BlocksTable({ n, className = '' }) {
 
     getData()
 
-    const interval = setInterval(() => getData(), 10 * 1000)
+    const interval = setInterval(() => getData(), (n ? 5 : 10) * 1000)
     return () => clearInterval(interval)
   }, [])
 

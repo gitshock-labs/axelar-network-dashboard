@@ -32,7 +32,7 @@ export default function TransactionsTable({ data, noLoad, page, className = '' }
     }
 
     if (!noLoad) {
-      const interval = setInterval(() => getData(), 10 * 1000)
+      const interval = setInterval(() => getData(), (page === 'index' ? 5 : 10) * 1000)
       return () => clearInterval(interval)
     }
   }, [data])
