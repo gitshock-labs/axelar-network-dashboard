@@ -9,8 +9,9 @@ import BlocksTable from '../blocks/blocks-table'
 import TransactionsTable from '../transactions/transactions-table'
 import Widget from '../widget'
 
-import { status as getStatus } from '../../lib/api/rpc'
+import { status as getStatus, consensusState } from '../../lib/api/rpc'
 import { allValidators } from '../../lib/api/cosmos'
+import { hexToBech32 } from '../../lib/object/key'
 import { numberFormat } from '../../lib/utils'
 
 import { STATUS_DATA, VALIDATORS_DATA } from '../../reducers/types'
@@ -21,6 +22,7 @@ export default function Dashboard() {
   const { chain_data, status_data, validators_data } = { ...data }
 
   const [summaryData, setSummaryData] = useState(null)
+  const [consensusStateData, setConsensusStateData] = useState(null)
 
   useEffect(() => {
     const getData = async () => {
@@ -37,6 +39,21 @@ export default function Dashboard() {
     getData()
 
     const interval = setInterval(() => getData(), 5 * 1000)
+    return () => clearInterval(interval)
+  }, [])
+
+  useEffect(() => {
+    const getConsensusState = async () => {
+      const response = await consensusState()
+
+      if (response) {
+        setConsensusStateData(response)
+      }
+    }
+
+    getConsensusState()
+
+    const interval = setInterval(() => getConsensusState(), 5 * 1000)
     return () => clearInterval(interval)
   }, [])
 
@@ -60,8 +77,27 @@ export default function Dashboard() {
 
   useEffect(() => {
     const getData = async () => {
+      if (consensusStateData && consensusStateData.validators && consensusStateData.validators.proposer && consensusStateData.validators.proposer.address) {
+        const validator_data = validators_data && validators_data[validators_data.findIndex(validator_data => validator_data.consensus_address === hexToBech32(consensusStateData.validators.proposer.address, process.env.NEXT_PUBLIC_PREFIX_CONSENSUS))]
+
+        if (validator_data) {
+          consensusStateData.operator_address = validator_data.operator_address
+          
+          if (validator_data.description) {
+            consensusStateData.proposer_name = validator_data.description.moniker
+            consensusStateData.proposer_image = validator_data.description.image
+          }
+        }
+
+        consensusStateData.voting_power = consensusStateData.validators.proposer.voting_power
+
+        if (chain_data && chain_data.staking_pool) {
+          consensusStateData.voting_power_percentage = consensusStateData.voting_power * 100 / Math.floor(chain_data.staking_pool.bonded_tokens)
+        }
+      }
+
       setSummaryData({ data: {
-        latest_block: { proposer: {} },
+        latest_block: { ...consensusStateData },
         block_height: status_data && Number(status_data.latest_block_height),
         block_height_at: status_data && moment(status_data.latest_block_time).valueOf(),
         avg_block_time: status_data && moment(status_data.latest_block_time).diff(moment(status_data.earliest_block_time), 'seconds') / Number(status_data.latest_block_height),
@@ -75,7 +111,7 @@ export default function Dashboard() {
     }
 
     getData()
-  }, [chain_data, status_data, validators_data])
+  }, [chain_data, status_data, validators_data, consensusStateData])
 
   return (
     <div className="my-4 mx-auto pb-2">

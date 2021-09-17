@@ -18,11 +18,14 @@ const Summary = ({ data }) => {
             <div className="flex flex-col space-y-1 mr-8 lg:mr-32">
               <span className="text-gray-600 dark:text-gray-400 text-sm font-medium">Height</span>
               {data ?
-                <Link href={`/blocks/${data.latest_block.height}`}>
-                  <a className="text-blue-600 dark:text-blue-400 text-lg">
-                    {data.latest_block.height}
-                  </a>
-                </Link>
+                data.latest_block ?
+                  <Link href={`/blocks/${data.latest_block.height}`}>
+                    <a className="text-blue-600 dark:text-blue-400 text-lg">
+                      {data.latest_block.height}
+                    </a>
+                  </Link>
+                  :
+                  null
                 :
                 <div className="skeleton w-16 h-4" />
               }
@@ -30,9 +33,12 @@ const Summary = ({ data }) => {
             <div className="flex flex-col space-y-1 mr-8 lg:mr-32">
               <span className="text-gray-600 dark:text-gray-400 text-sm font-medium">Round</span>
               {data ?
-                <span className="text-lg">
-                  {data.latest_block.round || 0}
-                </span>
+                data.latest_block ?
+                  <span className="text-lg">
+                    {data.latest_block.round || 0}
+                  </span>
+                  :
+                  null
                 :
                 <div className="skeleton w-12 h-4" />
               }
@@ -40,9 +46,12 @@ const Summary = ({ data }) => {
             <div className="flex flex-col space-y-1 mr-8 lg:mr-32">
               <span className="text-gray-600 dark:text-gray-400 text-sm font-medium">Step</span>
               {data ?
-                <span className="text-lg">
-                  {data.latest_block.step || 1}
-                </span>
+                data.latest_block ?
+                  <span className="text-lg">
+                    {data.latest_block.step || 1}
+                  </span>
+                  :
+                  null
                 :
                 <div className="skeleton w-12 h-4" />
               }
@@ -50,28 +59,39 @@ const Summary = ({ data }) => {
             <div className="flex flex-col space-y-1 my-3 sm:my-0 mr-8 lg:mr-32">
               <span className="text-gray-600 dark:text-gray-400 text-sm font-medium">Proposer</span>
               {data ?
-                <div className="min-w-max flex items-start space-x-2">
-                  <Link href={`/validator/${data.latest_block.proposer.key}`}>
-                    <a>
-                      <img
-                        src={data.latest_block.proposer.image}
-                        alt=""
-                        className="w-6 h-6 rounded-full"
-                      />
-                    </a>
-                  </Link>
-                  <div className="flex flex-col">
-                    <Link href={`/validator/${data.latest_block.proposer.key}`}>
-                      <a className="text-blue-600 dark:text-blue-400 text-base font-medium">
-                        {data.latest_block.proposer.name || data.latest_block.proposer.key}
-                      </a>
-                    </Link>
-                    <span className="flex items-center space-x-1">
-                      <span className="font-light">{ellipseAddress(data.latest_block.proposer.key)}</span>
-                      <Copy text={data.latest_block.proposer.key} />
-                    </span>
+                data.latest_block && data.latest_block.operator_address ?
+                  <div className={`min-w-max flex items-${data.latest_block.proposer_name ? 'start' : 'center'}  space-x-2 pt-0.5`}>
+                    {data.latest_block.proposer_image && (
+                      <Link href={`/validator/${data.latest_block.operator_address}`}>
+                        <a>
+                          <img
+                            src={data.latest_block.proposer_image}
+                            alt=""
+                            className="w-6 h-6 rounded-full"
+                          />
+                        </a>
+                      </Link>
+                    )}
+                    <div className="flex flex-col">
+                      {data.latest_block.proposer_name && (
+                        <Link href={`/validator/${data.latest_block.operator_address}`}>
+                          <a className="text-blue-600 dark:text-blue-400 font-medium">
+                            {data.latest_block.proposer_name || data.latest_block.operator_address}
+                          </a>
+                        </Link>
+                      )}
+                      <span className="flex items-center space-x-1">
+                        <Link href={`/validator/${data.latest_block.operator_address}`}>
+                          <a className="text-gray-500 font-light">
+                            {ellipseAddress(data.latest_block.operator_address)}
+                          </a>
+                        </Link>
+                        <Copy text={data.latest_block.operator_address} />
+                      </span>
+                    </div>
                   </div>
-                </div>
+                  :
+                  <span className="text-lg">-</span>
                 :
                 <div className="flex items-start space-x-2">
                   <div className="skeleton w-6 h-6 rounded-full" />
@@ -87,17 +107,19 @@ const Summary = ({ data }) => {
               {data ?
                 <div className="w-64 flex flex-col">
                   <span className="text-base font-medium">
-                    {numberFormat(data.latest_block.proposer.voting_power, '0,0')}
+                    {numberFormat(data.latest_block.voting_power, '0,0')}
                   </span>
-                  <ProgressBarWithText
-                    width={data.latest_block.proposer.voting_power_percentage}
-                    text={<div className="text-white mx-1" style={{ fontSize: '.55rem' }}>
-                      {numberFormat(data.latest_block.proposer.voting_power_percentage, '0,0.00')}%
-                    </div>}
-                    color="bg-green-500 dark:bg-green-600 rounded"
-                    backgroundClassName="h-4 bg-gray-200 dark:bg-gray-800 rounded"
-                    className={`h-4 flex items-center justify-${data.latest_block.proposer.voting_power_percentage < 20 ? 'start' : 'end'}`}
-                  />
+                  {typeof data.latest_block.voting_power_percentage === 'number' && (
+                    <ProgressBarWithText
+                      width={data.latest_block.voting_power_percentage}
+                      text={<div className="text-white mx-1" style={{ fontSize: '.55rem' }}>
+                        {numberFormat(data.latest_block.voting_power_percentage, '0,0.00')}%
+                      </div>}
+                      color="bg-green-500 dark:bg-green-600 rounded"
+                      backgroundClassName="h-4 bg-gray-200 dark:bg-gray-800 rounded"
+                      className={`h-4 flex items-center justify-${data.latest_block.voting_power_percentage < 20 ? 'start' : 'end'}`}
+                    />
+                  )}
                 </div>
                 :
                 <div className="flex flex-col space-y-1.5">
