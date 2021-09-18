@@ -1,3 +1,5 @@
+import { useSelector, shallowEqual } from 'react-redux'
+
 import moment from 'moment'
 
 import Widget from '../widget'
@@ -5,7 +7,10 @@ import Copy from '../copy'
 
 import { numberFormat, ellipseAddress } from '../../lib/utils'
 
-export default function ValidatorDetail({ data }) {
+export default function ValidatorDetail({ data, delegations, keygens }) {
+  const { _data } = useSelector(state => ({ _data: state.data }), shallowEqual)
+  const { chain_data } = { ..._data }
+
   return (
     <Widget
       title={data ?
@@ -84,6 +89,7 @@ export default function ValidatorDetail({ data }) {
         </div>
       }
       description={<span className="text-gray-900 dark:text-white text-lg font-semibold">Service Quality</span>}
+      className="min-h-full"
     >
       {data ?
         <>
@@ -93,23 +99,27 @@ export default function ValidatorDetail({ data }) {
               <span className="font-light">{data.commission && data.commission.commission_rates && !isNaN(data.commission.commission_rates.rate) ? numberFormat(data.commission.commission_rates.rate * 100, '0,0.00') : '-'}%</span>
             </div>
             <div className="flex items-start space-x-2">
+              <span className="font-medium">Max Commission:</span>
+              <span className="font-light">{data.commission && data.commission.commission_rates && !isNaN(data.commission.commission_rates.max_rate) ? numberFormat(data.commission.commission_rates.max_rate * 100, '0,0.00') : '-'}%</span>
+            </div>
+            <div className="flex items-start space-x-2">
               <span className="font-medium">Success rate:</span>
-              <span className="font-light">{numberFormat(data.success_rate_percentage, '0,0.00')}%</span>
-              <span className="font-light">({numberFormat(100 - data.success_rate_percentage, '0,0.00')}% missed)</span>
+              <span className="font-light">{numberFormat(data.uptime, '0,0.00')}%</span>
+              <span className="font-light">({numberFormat(100 - data.uptime, '0,0.00')}% missed)</span>
             </div>
           </div>
           <div className="flex flex-col space-y-1 text-base mt-4">
             <div className="flex items-start space-x-2">
               <span className="font-medium">Validator pool share:</span>
-              <span className="font-light">{numberFormat(data.validator_pool_share_percentage, '0,0.00')}%</span>
-            </div>
-            <div className="flex items-start space-x-2">
-              <span className="font-medium">Network share:</span>
-              <span className="font-light">{numberFormat(data.network_share_percentage, '0,0.00')}%</span>
+              <span className="font-light">{chain_data && chain_data.staking_pool && chain_data.staking_pool.bonded_tokens ? numberFormat(Math.floor(data.delegator_shares / Number(process.env.NEXT_PUBLIC_POWER_REDUCTION)) * 100 / Math.floor(chain_data.staking_pool.bonded_tokens), '0,0.00') : ''}%</span>
             </div>
             <div className="flex items-start space-x-2">
               <span className="font-medium">Delegations:</span>
-              <span className="font-light">{numberFormat(data.delegations, '0,0')}</span>
+              <span className="font-light">{delegations ? numberFormat(delegations.length, '0,0') : '-'}</span>
+            </div>
+            <div className="flex items-start space-x-2">
+              <span className="font-medium">Keygens:</span>
+              <span className="font-light">{keygens ? numberFormat(keygens.length, '0,0') : '-'}</span>
             </div>
           </div>
         </>

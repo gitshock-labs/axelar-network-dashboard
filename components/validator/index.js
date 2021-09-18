@@ -11,9 +11,9 @@ import TransactionsTable from '../transactions/transactions-table'
 import KeysTable from '../keygen/keys-table'
 import Widget from '../widget'
 
-import { getUptime, getDelegations, getKeys } from '../../lib/api/query'
+import { getUptime, getKeys } from '../../lib/api/query'
 import { status as getStatus } from '../../lib/api/rpc'
-import { allValidators, validatorSets, transactionsByEvents } from '../../lib/api/cosmos'
+import { allValidators, validatorSets, transactionsByEvents, allDelegations } from '../../lib/api/cosmos'
 import { getName } from '../../lib/utils'
 
 import { STATUS_DATA, VALIDATORS_DATA } from '../../reducers/types'
@@ -83,7 +83,7 @@ export default function Validator({ address }) {
           validatorData = { ...validatorData, proposer_priority: response.result.validators[response.result.validators.findIndex(validator_data => validator_data.address === validatorData.consensus_address)].proposer_priority }
         }
       }
-console.log(validatorData)
+
       setValidator({ data: validatorData || {}, address })
 
       let response = await getUptime(address)
@@ -102,10 +102,22 @@ console.log(validatorData)
 
       setTransactions({ data, total: response && response.total, address })
 
-      response = await getDelegations({ address })
+      response = await allDelegations(address)
 
       if (response) {
-        setDelegations({ data: response.data || [], address })
+        setDelegations({
+          data: _.orderBy((response.data && response.data.map(delegation => {
+            return {
+              ...delegation.delegation,
+              self: validatorData && delegation.delegation.delegator_address === validatorData.delegator_address,
+              shares: Number(delegation.delegation.shares) / Math.pow(10, delegation.balance && delegation.balance.denom && delegation.balance.denom.startsWith('u') ? 6 : 0),
+              ...delegation.balance,
+              denom: delegation.balance && delegation.balance.denom && delegation.balance.denom.substring(delegation.balance.denom.startsWith('u') ? 1 : 0),
+              amount: delegation.balance && Number(delegation.balance.amount) / Math.pow(10, delegation.balance.denom && delegation.balance.denom.startsWith('u') ? 6 : 0),
+            }
+          })) || [], ['self', 'shares'], ['desc', 'desc']),
+          address
+        })
       }
 
       response = await getKeys({ address })
@@ -125,11 +137,11 @@ console.log(validatorData)
 
   return (
     <>
-      <div className="flex flex-col md:flex-row items-start space-x-0 md:space-x-4">
-        <div className="w-full md:w-1/2 my-2">
-          <ValidatorDetail data={validator && validator.address === address && validator.data} />
+      <div className="grid grid-flow-row grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="my-2">
+          <ValidatorDetail data={validator && validator.address === address && validator.data} delegations={delegations && delegations.address === address && delegations.data} />
         </div>
-        <div className="w-full md:w-1/2 my-2">
+        <div className="my-2">
           <VotingPower data={validator && validator.address === address && validator.data} />
         </div>
       </div>
@@ -157,7 +169,7 @@ console.log(validatorData)
                 <TransactionsTable data={transactions} noLoad={true} page="validator" />
                 :
                 table === 'delegations' ?
-                 <DelegationsTable data={delegations} />
+                 <DelegationsTable data={delegations && delegations.address === address && delegations.data} />
                   :
                   <KeysTable data={keygens} page="validator" address={address} />
               }

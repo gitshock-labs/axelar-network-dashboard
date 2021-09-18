@@ -14,6 +14,7 @@ export default function VotingPower({ data }) {
   return (
     <Widget
       title={<span className="text-gray-900 dark:text-white text-lg font-semibold">Voting Power</span>}
+      className="min-h-full"
     >
       {data ?
         <div className="flex items-center justify-center my-6">

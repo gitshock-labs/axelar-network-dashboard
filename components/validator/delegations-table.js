@@ -9,14 +9,22 @@ export default function DelegationsTable({ data }) {
       columns={[
         {
           Header: 'Address',
-          accessor: 'address',
+          accessor: 'delegator_address',
           disableSortBy: true,
           Cell: props => (
             !props.row.original.skeleton ?
-              <div className="flex items-center space-x-1">
-                <span className="font-medium">{ellipseAddress(props.value)}</span>
-                <Copy text={props.value} />
-              </div>
+              props.value ?
+                <div className="flex items-center space-x-1">
+                  <span className="font-medium">{ellipseAddress(props.value)}</span>
+                  <Copy text={props.value} />
+                  {props.row.original.self && (
+                    <span className="bg-indigo-600 rounded-full capitalize text-white font-semibold px-2 py-0.5">
+                      Self
+                    </span>
+                  )}
+                </div>
+                :
+                '-'
               :
               <div className="skeleton w-48 h-4" />
           ),
@@ -30,7 +38,9 @@ export default function DelegationsTable({ data }) {
               typeof props.value === 'number' ?
                 <span className="flex items-center space-x-1">
                   <span>{numberFormat(props.value, '0,0.00000000')}</span>
-                  <span className="uppercase font-medium">{props.row.original.symbol}</span>
+                  {props.row.original.denom && (
+                    <span className="uppercase font-medium">{props.row.original.denom}</span>
+                  )}
                 </span>
                 :
                 '-'
@@ -40,10 +50,11 @@ export default function DelegationsTable({ data }) {
         },
       ]}
       data={data ?
-        data.data.map((key, i) => { return { ...key, i } })
+        data.map((key, i) => { return { ...key, i } })
         :
         [...Array(10).keys()].map(i => { return { i, skeleton: true } })
       }
+      noPagination={data && data.length <= 10}
       defaultPageSize={10}
     />
   )
