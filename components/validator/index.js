@@ -11,9 +11,9 @@ import TransactionsTable from '../transactions/transactions-table'
 import KeysTable from '../keygen/keys-table'
 import Widget from '../widget'
 
-import { getValidator, getUptime, getDelegations, getKeys } from '../../lib/api/query'
+import { getUptime, getDelegations, getKeys } from '../../lib/api/query'
 import { status as getStatus } from '../../lib/api/rpc'
-import { allValidators, transactionsByEvents } from '../../lib/api/cosmos'
+import { allValidators, validatorSets, transactionsByEvents } from '../../lib/api/cosmos'
 import { getName } from '../../lib/utils'
 
 import { STATUS_DATA, VALIDATORS_DATA } from '../../reducers/types'
@@ -21,7 +21,7 @@ import { STATUS_DATA, VALIDATORS_DATA } from '../../reducers/types'
 export default function Validator({ address }) {
   const dispatch = useDispatch()
   const { data } = useSelector(state => ({ data: state.data }), shallowEqual)
-  const { status_data, validators_data } = { ...data }
+  const { chain_data, status_data, validators_data } = { ...data }
 
   const [validator, setValidator] = useState(null)
   const [uptime, setUptime] = useState(null)
@@ -70,13 +70,23 @@ export default function Validator({ address }) {
 
   useEffect(() => {
     const getData = async () => {
-      let response = await getValidator(address)
+      let validatorData
 
-      if (response) {
-        setValidator({ data: response.data || {}, address })
+      const validator_data = validators_data && validators_data[validators_data.findIndex(validator_data => validator_data.operator_address === address)]
+
+      if (validator_data) {
+        validatorData = { ...validatorData, ...validator_data }
+      
+        const response = await validatorSets()
+
+        if (response && response.result && response.result.validators && response.result.validators.findIndex(validator_data => validator_data.address === validatorData.consensus_address) > -1) {
+          validatorData = { ...validatorData, proposer_priority: response.result.validators[response.result.validators.findIndex(validator_data => validator_data.address === validatorData.consensus_address)].proposer_priority }
+        }
       }
+console.log(validatorData)
+      setValidator({ data: validatorData || {}, address })
 
-      response = await getUptime(address)
+      let response = await getUptime(address)
 
       if (response) {
         setUptime({ data: response.data || [], address })
@@ -105,13 +115,13 @@ export default function Validator({ address }) {
       }
     }
 
-    if (address) {
+    if (address && validators_data) {
       getData()
     }
 
     const interval = setInterval(() => getData(), 3 * 60 * 1000)
     return () => clearInterval(interval)
-  }, [address])
+  }, [address, validators_data])
 
   return (
     <>
