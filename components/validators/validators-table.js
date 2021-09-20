@@ -234,7 +234,7 @@ export default function ValidatorsTable({ status }) {
               !props.row.original.skeleton ?
                 <div className="text-right">
                   {props.value ?
-                    <span className={`bg-${props.value.includes('UN') ? props.value.endsWith('ED') ? 'gray-300 dark:bg-gray-600' : 'yellow-400 dark:bg-yellow-600' : 'green-500'} rounded capitalize text-white font-semibold px-2 py-1`}>
+                    <span className={`bg-${props.value.includes('UN') ? props.value.endsWith('ED') ? 'gray-400 dark:bg-gray-600' : 'yellow-400 dark:bg-yellow-600' : 'green-500'} rounded capitalize text-white font-semibold px-2 py-1`}>
                       {props.value.replace('BOND_STATUS_', '')}
                     </span>
                     :

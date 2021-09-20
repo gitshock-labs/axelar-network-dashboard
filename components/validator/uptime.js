@@ -14,7 +14,7 @@ export default function Uptime({ data, validator_data }) {
       description={<div className="flex items-center mt-2">
         <span className="text-gray-500 dark:text-gray-300">Last {numberFormat(10000, '0,0')} Blocks</span>
         {data ?
-          <span className="ml-auto">{validator_data && validator_data.uptime ? numberFormat(validator_data.uptime, '0,0.00') : null}%</span>
+          <span className="ml-auto">{validator_data && numberFormat(validator_data.uptime, '0,0.00')}%</span>
           :
           <div className="skeleton w-10 h-4 ml-auto" />
         }

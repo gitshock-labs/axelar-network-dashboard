@@ -27,7 +27,7 @@ export default function ValidatorDetail({ data, delegations, keygens }) {
             <div className="flex items-center space-x-2 mb-2">
               <span className="text-lg font-semibold">{(data.description && data.description.moniker) || data.operator_address}</span>
               {data.status && (
-                <span className={`bg-${data.status.includes('UN') ? data.status.endsWith('ED') ? 'gray-300 dark:bg-gray-600' : 'yellow-400 dark:bg-yellow-600' : 'green-500'} rounded capitalize text-white font-semibold px-2 py-1`}>
+                <span className={`bg-${data.status.includes('UN') ? data.status.endsWith('ED') ? 'gray-400 dark:bg-gray-600' : 'yellow-400 dark:bg-yellow-600' : 'green-500'} rounded capitalize text-white font-semibold px-2 py-1`}>
                   {data.status.replace('BOND_STATUS_', '')}
                 </span>
               )}
