@@ -275,6 +275,11 @@ export default function ValidatorsTable({ status }) {
         noPagination={validators_data ? validators_data.filter(validator => status === 'inactive' ? !(['BOND_STATUS_BONDED'].includes(validator.status)) : status === 'deregistering' ? false : !validator.jailed && ['BOND_STATUS_BONDED'].includes(validator.status)).length <= 10 : true}
         defaultPageSize={100}
       />
+      {validators_data && validators_data.filter(validator => status === 'inactive' ? !(['BOND_STATUS_BONDED'].includes(validator.status)) : status === 'deregistering' ? false : !validator.jailed && ['BOND_STATUS_BONDED'].includes(validator.status)).length < 1 && (
+        <div className="bg-white dark:bg-gray-800 text-gray-300 dark:text-gray-500 text-base font-medium italic text-center my-4 py-2">
+          No Validators
+        </div>
+      )}
     </div>
   )
 }
