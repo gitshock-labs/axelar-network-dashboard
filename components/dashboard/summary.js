@@ -210,7 +210,7 @@ const Summary = ({ data }) => {
                 :
                 <div className="skeleton w-8 h-3" />
               }
-              <span className="uppercase text-gray-500">{data && data.denom}</span>
+              <span className="uppercase text-gray-500">{data && ellipseAddress(data.denom)}</span>
             </span>
           </span>
         </Widget>

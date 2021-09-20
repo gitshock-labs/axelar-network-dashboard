@@ -147,7 +147,7 @@ export default function Validator({ address }) {
       </div>
       <div className="flex flex-col md:flex-row items-start space-x-0 md:space-x-4">
         <div className="w-full md:w-1/2 xl:w-2/5 my-2">
-          <Uptime data={uptime && uptime.address === address && uptime.data} />
+          <Uptime data={uptime && uptime.address === address && uptime.data} validator_data={validator && validator.address === address && validator.data} />
         </div>
         <div className="w-full md:w-1/2 xl:w-3/5 my-2">
           <Widget

@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import { useSelector, shallowEqual } from 'react-redux'
 
 import moment from 'moment'
@@ -49,7 +50,9 @@ export default function ValidatorDetail({ data, delegations, keygens }) {
               <div className="flex items-start space-x-2">
                 <span className="font-medium">Self-Delegate Address:</span>
                 <span className="flex items-center space-x-1">
-                  <span className="font-light">{ellipseAddress(data.delegator_address)}</span>
+                  <Link href={`/account/${data.delegator_address}`}>
+                    <a className="text-blue-600 dark:text-blue-400 font-light">{ellipseAddress(data.delegator_address)}</a>
+                  </Link>
                   <Copy text={data.delegator_address} />
                 </span>
               </div>

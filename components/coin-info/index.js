@@ -3,7 +3,7 @@ import { useSelector, useDispatch, shallowEqual } from 'react-redux'
 
 import { stakingParams, stakingPool, bankSupply, communityPool, mintInflation } from '../../lib/api/cosmos'
 import { simplePrice } from '../../lib/api/coingecko'
-import { numberFormat } from '../../lib/utils'
+import { numberFormat, ellipseAddress } from '../../lib/utils'
 
 import { CHAIN_DATA } from '../../reducers/types'
 
@@ -121,7 +121,7 @@ export default function CoinInfo() {
                 {chain_data.community_pool.map((pool, i) => (
                   <span key={i} className="space-x-1">
                     <span>{numberFormat(pool.amount, '0,0.00')}</span>
-                    <span className="uppercase font-medium">{pool.denom}</span>
+                    <span className="uppercase font-medium">{ellipseAddress(pool.denom)}</span>
                   </span>
                 ))}
               </div>

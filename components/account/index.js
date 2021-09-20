@@ -16,7 +16,7 @@ import { VALIDATORS_DATA } from '../../reducers/types'
 export default function Account({ address }) {
   const dispatch = useDispatch()
   const { data } = useSelector(state => ({ data: state.data }), shallowEqual)
-  const { validators_data } = { ...data }
+  const { chain_data, validators_data } = { ...data }
 
   const [account, setAccount] = useState(null)
   const [transactions, setTransactions] = useState(null)
@@ -47,6 +47,10 @@ export default function Account({ address }) {
 
       const operator_address = validator_data && validator_data.operator_address
 
+      if (operator_address) {
+        accountData = { ...accountData, operator_address }
+      }
+
       let response = await allBankBalances(address)
 
       if (response) {
@@ -65,13 +69,38 @@ export default function Account({ address }) {
       response = await allStakingDelegations(address)
 
       if (response) {
-        accountData = { ...accountData, stakingDelegations: response.data }
+        accountData = {
+          ...accountData,
+          stakingDelegations: response.data && response.data.map(delegation => {
+            return {
+              ...delegation.delegation,
+              validator_data: delegation.delegation && validators_data && validators_data.findIndex(validator_data => validator_data.operator_address === delegation.delegation.validator_address) > -1 ? validators_data[validators_data.findIndex(validator_data => validator_data.operator_address === delegation.delegation.validator_address)].description : {},
+              shares: delegation.delegation && delegation.delegation.shares && (isNaN(delegation.delegation.shares) ? -1 : Number(delegation.delegation.shares) / Math.pow(10, delegation.balance && delegation.balance.denom && delegation.balance.denom.startsWith('u') ? 6 : 0)),
+              ...delegation.balance,
+              denom: delegation.balance && delegation.balance.denom && delegation.balance.denom.substring(delegation.balance.denom.startsWith('u') ? 1 : 0),
+              amount: delegation.balance && delegation.balance.amount && (isNaN(delegation.balance.amount) ? -1 : Number(delegation.balance.amount) / Math.pow(10, delegation.balance && delegation.balance.denom && delegation.balance.denom.startsWith('u') ? 6 : 0)),
+            }
+          }),
+        }
       }
 
       response = await allStakingUnbonding(address)
 
       if (response) {
-        accountData = { ...accountData, stakingUnbonding: response.data }
+        accountData = {
+          ...accountData,
+          stakingUnbonding: response.data && response.data.flatMap(unbonding => !(unbonding && unbonding.entries) ? [] : unbonding.entries.map(entry => {
+            return {
+              ...unbonding,
+              validator_data: unbonding && validators_data && validators_data.findIndex(validator_data => validator_data.operator_address === unbonding.validator_address) > -1 ? validators_data[validators_data.findIndex(validator_data => validator_data.operator_address === unbonding.validator_address)].description : {},
+              entries: undefined,
+              ...entry,
+              creation_height: Number(entry.creation_height),
+              initial_balance: Number(entry.initial_balance) / Number(process.env.NEXT_PUBLIC_POWER_REDUCTION),
+              balance: Number(entry.balance) / Number(process.env.NEXT_PUBLIC_POWER_REDUCTION),
+            }
+          })),
+        }
       }
 
       response = await distributionRewards(address)
@@ -88,22 +117,33 @@ export default function Account({ address }) {
       }
 
       if (operator_address) {
-        response = await distributionCommission(address)
+        response = await distributionCommission(operator_address)
 
         if (response) {
           accountData = {
             ...accountData,
-            commission: response && response.commission && response.commission.map(commission => {
-            return {
-              ...commission,
-              denom: commission.denom && commission.denom.substring(commission.denom.startsWith('u') ? 1 : 0),
-              amount: commission.amount && (isNaN(commission.amount) ? -1 : Number(commission.amount) / Math.pow(10, commission.denom && commission.denom.startsWith('u') ? 6 : 0)),
-            }
-          }),
+            commission: response && response.commission && response.commission.commission && response.commission.commission.map(commission => {
+              return {
+                ...commission,
+                denom: commission.denom && commission.denom.substring(commission.denom.startsWith('u') ? 1 : 0),
+                amount: commission.amount && (isNaN(commission.amount) ? -1 : Number(commission.amount) / Math.pow(10, commission.denom && commission.denom.startsWith('u') ? 6 : 0)),
+              }
+            }),
           }
         }
       }
-console.log(accountData)
+
+      accountData = {
+        ...accountData,
+        total: Object.entries(_.groupBy(_.concat(
+          accountData.balances && accountData.balances.filter(balance => balance.amount > -1),
+          accountData.stakingDelegations && accountData.stakingDelegations.filter(delegation => delegation.amount > -1),
+          accountData.stakingUnbonding && accountData.stakingUnbonding.map(unbonding => { return { ...unbonding, denom: unbonding.denom || (chain_data && chain_data.staking_params && chain_data.staking_params.bond_denom), amount: unbonding.balance } }),
+          accountData.rewards && accountData.rewards.rewards && accountData.rewards.rewards.filter(reward => reward.amount > -1),
+          accountData.commission && accountData.commission.filter(commission => commission.amount > -1)
+        ), 'denom')).map(([key, value]) => { return { denom: key, amount: _.sumBy(value, 'amount') } }),
+      }
+
       setAccount({ data: accountData || {}, address })
 
       let data = []

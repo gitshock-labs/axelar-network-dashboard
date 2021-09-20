@@ -86,7 +86,7 @@ export default function ValidatorsTable({ status }) {
           {
             Header: 'Validator',
             accessor: 'description.moniker',
-            sortType: (rowA, rowB) => (rowA.original.description.moniker || rowA.original.description.i) > (rowB.original.description.moniker || rowB.original.description.i) ? 1 : -1,
+            sortType: (rowA, rowB) => (rowA.original.description.moniker || rowA.original.i) > (rowB.original.description.moniker || rowB.original.i) ? 1 : -1,
             Cell: props => (
               !props.row.original.skeleton ?
                 <div className={`min-w-max flex items-${props.value ? 'start' : 'center'} space-x-2`}>

@@ -39,7 +39,7 @@ export default function DelegationsTable({ data }) {
                 <span className="flex items-center space-x-1">
                   <span>{numberFormat(props.value, '0,0.00000000')}</span>
                   {props.row.original.denom && (
-                    <span className="uppercase font-medium">{props.row.original.denom}</span>
+                    <span className="uppercase font-medium">{ellipseAddress(props.row.original.denom)}</span>
                   )}
                 </span>
                 :

@@ -7,16 +7,16 @@ import Popover from '../popover'
 
 import { numberFormat } from '../../lib/utils'
 
-export default function Uptime({ data }) {
+export default function Uptime({ data, validator_data }) {
   return (
     <Widget
       title={<span className="text-gray-900 dark:text-white text-lg font-semibold">Uptime</span>}
       description={<div className="flex items-center mt-2">
         <span className="text-gray-500 dark:text-gray-300">Last {numberFormat(10000, '0,0')} Blocks</span>
         {data ?
-          <span className="ml-auto">{numberFormat(data.filter(block => block.approved > 0 || block.denied > 0).length * 100 / data.length, '0,0.00')}%</span>
+          <span className="ml-auto">{validator_data && validator_data.uptime ? numberFormat(validator_data.uptime, '0,0.00') : null}%</span>
           :
-          <div className="skeleton w-12 h-3 ml-auto" />
+          <div className="skeleton w-10 h-4 ml-auto" />
         }
       </div>}
     >
