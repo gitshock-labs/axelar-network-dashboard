@@ -46,7 +46,7 @@ export default function AccountDetail({ data }) {
           <div className="skeleton w-20 h-5 ml-0 md:ml-auto" />
         }
       </div>
-      <div className={`w-full grid grid-flow-row grid-cols-1 sm:grid-cols-2 lg:grid-cols-${data && data.operator_address ? 3 : 2} gap-2 md:gap-4 my-4`}>
+      <div className="w-full grid grid-flow-row grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 md:gap-4 my-4">
         <Widget
           title={<span className="text-gray-900 dark:text-white text-lg font-semibold">Balances</span>}
         >
@@ -235,7 +235,7 @@ export default function AccountDetail({ data }) {
             className="no-border mt-4"
           />
         </Widget>
-        {data && data.operator_address && (
+        {/*data && data.operator_address*/true && (
           <Widget
             title={<span className="text-gray-900 dark:text-white text-lg font-semibold">Commissions</span>}
           >

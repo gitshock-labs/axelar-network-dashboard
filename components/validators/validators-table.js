@@ -158,7 +158,7 @@ export default function ValidatorsTable({ status }) {
             accessor: 'self_delegation',
             sortType: (rowA, rowB) => rowA.original.self_delegation / rowA.original.delegator_shares > rowB.original.self_delegation / rowB.original.delegator_shares ? 1 : -1,
             Cell: props => (
-              !props.row.original.skeleton ?
+              !props.row.original.skeleton && typeof props.value === 'number' ?
                 <div className="flex flex-col justify-center text-left sm:text-right">
                   {props.value > 0 ?
                     <>
@@ -206,7 +206,7 @@ export default function ValidatorsTable({ status }) {
             accessor: 'uptime',
             sortType: (rowA, rowB) => rowA.original.uptime > rowB.original.uptime ? 1 : -1,
             Cell: props => (
-              !props.row.original.skeleton ?
+              !props.row.original.skeleton && typeof props.value === 'number' ?
                 props.value > 0 ?
                   <div className="w-56 mt-0.5 ml-auto">
                     <ProgressBarWithText
@@ -234,7 +234,7 @@ export default function ValidatorsTable({ status }) {
               !props.row.original.skeleton ?
                 <div className="text-right">
                   {props.value ?
-                    <span className={`bg-${props.value.includes('UN') ? props.value.endsWith('ED') ? 'gray-400 dark:bg-gray-600' : 'yellow-400 dark:bg-yellow-600' : 'green-500'} rounded capitalize text-white font-semibold px-2 py-1`}>
+                    <span className={`bg-${props.value.includes('UN') ? props.value.endsWith('ED') ? 'gray-300 dark:bg-gray-600' : 'yellow-500' : 'green-500'} rounded capitalize text-white font-semibold px-2 py-1`}>
                       {props.value.replace('BOND_STATUS_', '')}
                     </span>
                     :
