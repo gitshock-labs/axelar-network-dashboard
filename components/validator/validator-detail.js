@@ -31,6 +31,11 @@ export default function ValidatorDetail({ data, delegations, keygens }) {
                   {data.status.replace('BOND_STATUS_', '')}
                 </span>
               )}
+              {data.deregistering && (
+                <span className="bg-blue-400 rounded capitalize text-white font-semibold px-2 py-1">
+                  De-registering
+                </span>
+              )}
               {data.jailed && (
                 <span className="bg-red-600 rounded capitalize text-white font-semibold px-2 py-1">
                   Jailed

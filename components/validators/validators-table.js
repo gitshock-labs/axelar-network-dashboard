@@ -50,7 +50,7 @@ export default function ValidatorsTable({ status }) {
       }
     }
 
-    if (status_data) {
+    if (status && status_data) {
       getValidators()
     }
 
@@ -65,7 +65,7 @@ export default function ValidatorsTable({ status }) {
           <Link key={i} href={`/validators${i > 0 ? `/${_status}` : ''}`}>
             <a className={`btn btn-default btn-rounded ${_status === status ? 'bg-gray-700 dark:bg-gray-800 text-white' : 'bg-trasparent hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 hover:text-gray-700 dark:hover:text-gray-100'}`}>
               {_status}
-              {validators_data && _status === status ? ` (${validators_data.filter(validator => status === 'inactive' ? !(['BOND_STATUS_BONDED'].includes(validator.status)) : status === 'deregistering' ? false : !validator.jailed && ['BOND_STATUS_BONDED'].includes(validator.status)).length})` : ''}
+              {validators_data && _status === status ? ` (${validators_data.filter(validator => status === 'inactive' ? !(['BOND_STATUS_BONDED'].includes(validator.status)) : status === 'deregistering' ? validator.deregistering : !validator.jailed && ['BOND_STATUS_BONDED'].includes(validator.status)).length})` : ''}
             </a>
           </Link>
         ))}
@@ -130,7 +130,7 @@ export default function ValidatorsTable({ status }) {
             ),
           },
           {
-            Header: status === 'active' ? 'Voting Power' : 'Bonded Tokens',
+            Header: ['active'].includes(status) ? 'Voting Power' : 'Bonded Tokens',
             accessor: 'tokens',
             sortType: (rowA, rowB) => rowA.original.tokens > rowB.original.tokens ? 1 : -1,
             Cell: props => (
@@ -234,9 +234,16 @@ export default function ValidatorsTable({ status }) {
               !props.row.original.skeleton ?
                 <div className="text-right">
                   {props.value ?
-                    <span className={`bg-${props.value.includes('UN') ? props.value.endsWith('ED') ? 'gray-300 dark:bg-gray-600' : 'yellow-500' : 'green-500'} rounded capitalize text-white font-semibold px-2 py-1`}>
-                      {props.value.replace('BOND_STATUS_', '')}
-                    </span>
+                    <>
+                      <span className={`bg-${props.value.includes('UN') ? props.value.endsWith('ED') ? 'gray-300 dark:bg-gray-600' : 'yellow-500' : 'green-500'} rounded capitalize text-white font-semibold px-2 py-1`}>
+                        {props.value.replace('BOND_STATUS_', '')}
+                      </span>
+                      {props.row.original.deregistering && (
+                        <div className="text-gray-400 dark:text-gray-600 text-xs font-normal mt-2">
+                          (De-registering)
+                        </div>
+                      )}
+                    </>
                     :
                     '-'
                   }
@@ -268,14 +275,14 @@ export default function ValidatorsTable({ status }) {
           },
         ].filter(column => ['inactive', 'deregistering'].includes(status) ? !(['uptime'].includes(column.accessor)) : !(['jailed'].includes(column.accessor)))}
         data={validators_data ?
-          validators_data.filter(validator => status === 'inactive' ? !(['BOND_STATUS_BONDED'].includes(validator.status)) : status === 'deregistering' ? false : !validator.jailed && ['BOND_STATUS_BONDED'].includes(validator.status)).map((validator, i) => { return { ...validator, i } })
+          validators_data.filter(validator => status === 'inactive' ? !(['BOND_STATUS_BONDED'].includes(validator.status)) : status === 'deregistering' ? validator.deregistering : !validator.jailed && ['BOND_STATUS_BONDED'].includes(validator.status)).map((validator, i) => { return { ...validator, i } })
           :
           [...Array(25).keys()].map(i => { return { i, skeleton: true } })
         }
-        noPagination={validators_data ? validators_data.filter(validator => status === 'inactive' ? !(['BOND_STATUS_BONDED'].includes(validator.status)) : status === 'deregistering' ? false : !validator.jailed && ['BOND_STATUS_BONDED'].includes(validator.status)).length <= 10 : true}
+        noPagination={validators_data ? validators_data.filter(validator => status === 'inactive' ? !(['BOND_STATUS_BONDED'].includes(validator.status)) : status === 'deregistering' ? validator.deregistering : !validator.jailed && ['BOND_STATUS_BONDED'].includes(validator.status)).length <= 10 : true}
         defaultPageSize={100}
       />
-      {validators_data && validators_data.filter(validator => status === 'inactive' ? !(['BOND_STATUS_BONDED'].includes(validator.status)) : status === 'deregistering' ? false : !validator.jailed && ['BOND_STATUS_BONDED'].includes(validator.status)).length < 1 && (
+      {validators_data && validators_data.filter(validator => status === 'inactive' ? !(['BOND_STATUS_BONDED'].includes(validator.status)) : status === 'deregistering' ? validator.deregistering : !validator.jailed && ['BOND_STATUS_BONDED'].includes(validator.status)).length < 1 && (
         <div className="bg-white dark:bg-gray-800 text-gray-300 dark:text-gray-500 text-base font-medium italic text-center my-4 py-2">
           No Validators
         </div>

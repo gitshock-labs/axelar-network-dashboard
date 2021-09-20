@@ -60,7 +60,7 @@ export default function Validator({ address }) {
       }
     }
 
-    if (status_data) {
+    if (address && status_data) {
       getValidators()
     }
 
