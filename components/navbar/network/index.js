@@ -38,11 +38,7 @@ export default function DropdownNetwork() {
         onClick={handleDropdownClick}
         className="w-6 sm:w-12 h-16 flex items-center justify-center"
       >
-        <img
-          src={network.image}
-          alt=""
-          className="w-6 h-6"
-        />
+        {network.icon}
       </button>
       <div
         ref={dropdownRef} 

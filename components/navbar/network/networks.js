@@ -10,13 +10,9 @@ export default function Networks({ handleDropdownClick }) {
             key={i}
             href={item.url}
             onClick={handleDropdownClick}
-            className="dropdown-item w-1/2 flex items-center justify-start space-x-2 p-2"
+            className="dropdown-item w-1/2 flex items-center justify-start space-x-1.5 p-2"
           >
-            <img
-              src={item.image}
-              alt=""
-              className="w-4 h-4"
-            />
+            {item.icon}
             <span className="text-xs">{item.title}</span>
           </a>
         ))}

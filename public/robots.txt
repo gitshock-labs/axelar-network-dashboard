@@ -2,4 +2,4 @@
 User-agent: *
 Disallow:
 
-Sitemap: https://dashboard.axelar.network/sitemap.xml
+Sitemap: https://axelar-testnet.coinhippo.io/sitemap.xml
