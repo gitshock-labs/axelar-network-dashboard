@@ -161,6 +161,7 @@ export default function Validator({ address }) {
                   {getName(_table)}
                 </div>
               ))}
+              <span className="text-gray-500 font-light italic">(Mocked)</span>
             </div>}
             className="px-2 md:px-4"
           >

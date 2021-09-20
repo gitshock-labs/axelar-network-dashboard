@@ -7,7 +7,7 @@ export default function BridgeIndex() {
     <>
       <SectionTitle
         title="List of Bridge Accounts"
-        subtitle="Bridge Accounts"
+        subtitle={<>Bridge Accounts <span className="text-gray-500 text-sm font-light italic">(Mocked)</span></>}
         right={<CoinInfo />}
         className="flex-col sm:flex-row items-start sm:items-center"
       />
