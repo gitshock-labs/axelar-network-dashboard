@@ -1,20 +1,67 @@
 import { useState, useEffect } from 'react'
 
+import StackGrid from 'react-stack-grid'
+import moment from 'moment'
+import _ from 'lodash'
+
 import Widget from '../widget'
 import Copy from '../copy'
 
-import { getBridgeAccounts } from '../../lib/api/query'
-import { getName, numberFormat, ellipseAddress } from '../../lib/utils'
+import { bridgeAccounts as getBridgeAccounts } from '../../lib/api/query'
+import { axelard } from '../../lib/api/executor'
+import { ellipseAddress, randImage } from '../../lib/utils'
 
 export default function Bridge() {
   const [bridgeAccounts, setBridgeAccounts] = useState(null)
+  const [timer, setTimer] = useState(null)
 
   useEffect(() => {
     const getData = async () => {
       const response = await getBridgeAccounts()
 
-      if (response) {
-        setBridgeAccounts({ data: response.data || [] })
+      let data = (response || []).map((bridgeAccount, i) => {
+        return {
+          ...bridgeAccount,
+          image: bridgeAccount.image || randImage(i),
+          exec_cmds: bridgeAccount.cmds && bridgeAccount.cmds.filter(cmd => cmd).map((cmd, j) => {
+            return {
+              cmd,
+              result: bridgeAccounts && bridgeAccounts.data && bridgeAccounts.data.findIndex(_bridgeAccount => _bridgeAccount.id === bridgeAccount.id) > -1 ?
+                bridgeAccounts.data[bridgeAccounts.data.findIndex(_bridgeAccount => _bridgeAccount.id === bridgeAccount.id)].exec_cmds[j].result
+                :
+                null,
+            }
+          }),
+        }
+      })
+
+      setBridgeAccounts({ data })
+
+      for (let i = 0; i < data.length; i++) {
+        const bridgeAccount = data[i]
+
+        if (bridgeAccount && bridgeAccount.exec_cmds) {
+          for (let j = 0; j < bridgeAccount.exec_cmds.length; j++) {
+            const exec_cmd = bridgeAccount.exec_cmds[j]
+
+            const execResponse = await axelard({ cmd: exec_cmd.cmd })
+
+            if (execResponse && execResponse.data && execResponse.data.stdout) {
+              exec_cmd.result = execResponse.data.stdout
+            }
+            else if (execResponse && execResponse.data && execResponse.data.stderr) {
+              exec_cmd.result = execResponse.data.stderr
+            }
+            else {
+              exec_cmd.result = ''
+            }
+
+            bridgeAccount.exec_cmds[j] = exec_cmd
+            data[i] = bridgeAccount
+
+            setBridgeAccounts({ data })
+          }
+        }
       }
     }
 
@@ -24,60 +71,81 @@ export default function Bridge() {
     return () => clearInterval(interval)
   }, [])
 
+  useEffect(() => {
+    const run = async () => setTimer(moment().unix())
+
+    if (!timer) {
+      run()
+    }
+
+    const interval = setInterval(() => run(), 0.5 * 1000)
+    return () => clearInterval(interval)
+  }, [timer])
+
   return (
-    <div className="max-w-6xl grid grid-flow-row grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 my-4 xl:my-6 mx-auto">
+    <StackGrid
+      columnWidth={460}
+      gutterWidth={12}
+      gutterHeight={12}
+    >
       {(bridgeAccounts ?
-        bridgeAccounts.data.map((bridgeAccount, i) => { return { ...bridgeAccount, i } })
+        bridgeAccounts.data && bridgeAccounts.data.map((bridgeAccount, i) => { return { ...bridgeAccount, i } })
         :
         [...Array(10).keys()].map(i => { return { i, skeleton: true } })
       ).map((bridgeAccount, i) => (
         <Widget key={i}>
           {!bridgeAccount.skeleton ?
-            <div className="min-w-max flex items-start space-x-2">
-              <img
-                src={bridgeAccount.image}
-                alt=""
-                className="w-8 h-8 rounded-full"
-              />
-              <div className="flex flex-col space-y-1">
-                <span className="capitalize text-lg font-semibold">{bridgeAccount.name}</span>
-                {bridgeAccount.website && (
-                  <a href={bridgeAccount.website} target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-400">
-                    {bridgeAccount.website}
-                  </a>
-                )}
+            <div className="mb-1.5">
+              <div className="flex flex-col space-y-2">
+                <div className="flex items-center space-x-2">
+                  <img
+                    src={bridgeAccount.image}
+                    alt=""
+                    className="w-8 h-8 rounded-full"
+                  />
+                  <span className={`${bridgeAccount.name ? 'capitalize' : 'uppercase'} text-lg font-semibold my-0.5`}>{bridgeAccount.name || bridgeAccount.id}</span>
+                </div>
                 <div className="flex flex-col space-y-2">
-                  {['bridge_account', 'gateway_address', 'token_address'].filter(addressField => bridgeAccount[addressField] && bridgeAccount[addressField].length > 0).map((addressField, j) => (
-                    <div key={j} className="flex flex-col">
-                      <span className="font-semibold">{getName(addressField)}</span>
-                      {bridgeAccount[addressField].map(key => (
-                        Object.entries(key).map(([field, value]) => (
-                          <div key={field} className="flex flex-col">
-                            <span className="flex items-center space-x-1">
-                              <span className="text-sm">{ellipseAddress(value)}</span>
-                              <Copy text={value} />
-                            </span>
-                            <span className="text-gray-500 dark:text-gray-400 text-xs font-light">{getName(field)}</span>
+                  {bridgeAccount.exec_cmds && bridgeAccount.exec_cmds.map((exec_cmd, j) => (
+                    <div key={j} className="bg-gray-50 dark:bg-gray-800 rounded-lg flex flex-col space-y-2 p-3">
+                      <div className="flex items-start text-gray-400 text-xs font-light space-x-1">
+                        <span>>_</span>
+                        <span>{exec_cmd.cmd}</span>
+                      </div>
+                      {typeof exec_cmd.result === 'string' ?
+                        exec_cmd.result && exec_cmd.result.includes('\n') ?
+                          <div>
+                            {exec_cmd.result.split('\n').filter((result, k) => exec_cmd.result.toLowerCase().includes('error') ? k < 1 : true).map((result, k) => (
+                              <div key={k} className={`${exec_cmd.result.toLowerCase().includes('error') ? '' : 'whitespace-pre'} text-gray-500 dark:text-white text-sm font-medium`}>{result}</div>
+                            ))}
                           </div>
-                        ))
-                      ))}
+                          :
+                          <span className="whitespace-pre text-gray-500 dark:text-white text-sm font-medium">{exec_cmd.result || 'N/A'}</span>
+                        :
+                        <div className="skeleton w-60 h-4" />
+                      }
                     </div>
                   ))}
                 </div>
               </div>
             </div>
             :
-            <div className="flex items-start space-x-2">
-              <div className="skeleton w-8 h-8 rounded-full" />
-              <div className="flex flex-col space-y-1.5">
-                <div className="skeleton w-20 h-4" />
-                <div className="skeleton w-40 h-3" />
+            <div className="mb-1.5">
+              <div className="flex flex-col space-y-2">
+                <div className="skeleton w-8 h-8 rounded-full" />
+                <div className="skeleton w-28 h-5 my-1.5" />
+              </div>
+              <div className="space-y-2">
+                <div className="skeleton w-60 h-4" />
                 <div className="skeleton w-48 h-4" />
+              </div>
+              <div className="space-y-2">
+                <div className="skeleton w-60 h-4" />
                 <div className="skeleton w-48 h-4" />
               </div>
             </div>}
         </Widget>
       ))}
-    </div>
+    </StackGrid>
   )
 }

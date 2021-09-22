@@ -7,8 +7,7 @@ import Widget from '../widget'
 import Datatable from '../datatable'
 import Copy from '../copy'
 
-import { randImage } from '../../lib/api/query'
-import { numberFormat, ellipseAddress } from '../../lib/utils'
+import { numberFormat, ellipseAddress, randImage } from '../../lib/utils'
 
 const CURRENCY = 'usd'
 const CURRENCY_SYMBOL = '$'
