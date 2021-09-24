@@ -95,53 +95,53 @@ export default function Bridge() {
       ).map((bridgeAccount, i) => (
         <Widget key={i}>
           {!bridgeAccount.skeleton ?
-            <div className="mb-1.5">
+            <div className="space-y-2 mb-1.5">
+              <div className="flex items-center space-x-2">
+                <img
+                  src={bridgeAccount.image}
+                  alt=""
+                  className="w-8 h-8 rounded-full"
+                />
+                <span className={`${bridgeAccount.name ? 'capitalize' : 'uppercase'} text-lg font-semibold my-0.5`}>{bridgeAccount.name || bridgeAccount.id}</span>
+              </div>
               <div className="flex flex-col space-y-2">
-                <div className="flex items-center space-x-2">
-                  <img
-                    src={bridgeAccount.image}
-                    alt=""
-                    className="w-8 h-8 rounded-full"
-                  />
-                  <span className={`${bridgeAccount.name ? 'capitalize' : 'uppercase'} text-lg font-semibold my-0.5`}>{bridgeAccount.name || bridgeAccount.id}</span>
-                </div>
-                <div className="flex flex-col space-y-2">
-                  {bridgeAccount.exec_cmds && bridgeAccount.exec_cmds.map((exec_cmd, j) => (
-                    <div key={j} className="bg-gray-50 dark:bg-gray-800 rounded-lg flex flex-col space-y-2 p-3">
-                      <div className="flex items-start text-gray-400 text-xs font-light space-x-1">
-                        <span>>_</span>
-                        <span>{exec_cmd.cmd}</span>
-                      </div>
-                      {typeof exec_cmd.result === 'string' ?
-                        exec_cmd.result && exec_cmd.result.includes('\n') ?
-                          <div>
-                            {exec_cmd.result.split('\n').filter((result, k) => exec_cmd.result.toLowerCase().includes('error') ? k < 1 : true).map((result, k) => (
-                              <div key={k} className={`${exec_cmd.result.toLowerCase().includes('error') ? '' : 'whitespace-pre'} text-gray-500 dark:text-white text-sm font-medium`}>{result}</div>
-                            ))}
-                          </div>
-                          :
-                          <span className="whitespace-pre text-gray-500 dark:text-white text-sm font-medium">{exec_cmd.result || 'N/A'}</span>
-                        :
-                        <div className="skeleton w-60 h-4" />
-                      }
+                {bridgeAccount.exec_cmds && bridgeAccount.exec_cmds.map((exec_cmd, j) => (
+                  <div key={j} className="bg-gray-50 dark:bg-gray-800 rounded-lg flex flex-col space-y-2 p-3">
+                    <div className="flex items-start text-gray-400 text-xs font-light space-x-1">
+                      <span>>_</span>
+                      <span>{exec_cmd.cmd}</span>
                     </div>
-                  ))}
-                </div>
+                    {typeof exec_cmd.result === 'string' ?
+                      exec_cmd.result && exec_cmd.result.includes('\n') ?
+                        <div>
+                          {exec_cmd.result.split('\n').filter((result, k) => exec_cmd.result.toLowerCase().includes('error') ? k < 1 : true).map((result, k) => (
+                            <div key={k} className="break-all text-gray-500 dark:text-white text-xs font-medium">{result}</div>
+                          ))}
+                        </div>
+                        :
+                        <span className="break-all text-gray-500 dark:text-white text-xs font-medium">{exec_cmd.result || 'N/A'}</span>
+                      :
+                      <div className="skeleton w-60 h-4" />
+                    }
+                  </div>
+                ))}
               </div>
             </div>
             :
-            <div className="mb-1.5">
-              <div className="flex flex-col space-y-2">
+            <div className="space-y-2 mb-1.5">
+              <div className="flex items-center space-x-2">
                 <div className="skeleton w-8 h-8 rounded-full" />
                 <div className="skeleton w-28 h-5 my-1.5" />
               </div>
-              <div className="space-y-2">
-                <div className="skeleton w-60 h-4" />
-                <div className="skeleton w-48 h-4" />
-              </div>
-              <div className="space-y-2">
-                <div className="skeleton w-60 h-4" />
-                <div className="skeleton w-48 h-4" />
+              <div className="flex flex-col space-y-2">
+                <div className="space-y-2">
+                  <div className="skeleton w-60 h-4" />
+                  <div className="skeleton w-48 h-4" />
+                </div>
+                <div className="space-y-2">
+                  <div className="skeleton w-60 h-4" />
+                  <div className="skeleton w-48 h-4" />
+                </div>
               </div>
             </div>}
         </Widget>
