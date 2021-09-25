@@ -11,9 +11,10 @@ import TransactionsTable from '../transactions/transactions-table'
 import KeysTable from '../keygen/keys-table'
 import Widget from '../widget'
 
-import { getUptime, getKeys } from '../../lib/api/query'
+import { getUptime } from '../../lib/api/query'
 import { status as getStatus } from '../../lib/api/rpc'
 import { allValidators, validatorSets, transactionsByEvents, allDelegations } from '../../lib/api/cosmos'
+import { getKeygensByValidator } from '../../lib/api/executor'
 import { getName } from '../../lib/utils'
 
 import { STATUS_DATA, VALIDATORS_DATA } from '../../reducers/types'
@@ -120,10 +121,10 @@ export default function Validator({ address }) {
         })
       }
 
-      response = await getKeys({ address })
+      response = await getKeygensByValidator(address)
 
       if (response) {
-        setKeygens({ data: response.data || [], address })
+        setKeygens({ data: response, address })
       }
     }
 
@@ -159,9 +160,9 @@ export default function Validator({ address }) {
                   className={`btn btn-default btn-rounded cursor-pointer bg-trasparent ${_table === table ? 'bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white font-semibold' : 'hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-500 hover:text-gray-700 text-white dark:hover:text-gray-100'}`}
                 >
                   {getName(_table)}
+                  {_table === 'voting_events' && (<span className="text-gray-500 font-light italic ml-1">(Mocked)</span>)}
                 </div>
               ))}
-              <span className="text-gray-500 font-light italic">(Mocked)</span>
             </div>}
             className="px-2 md:px-4"
           >

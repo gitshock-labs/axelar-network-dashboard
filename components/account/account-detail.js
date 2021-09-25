@@ -140,7 +140,7 @@ export default function AccountDetail({ data }) {
             className="no-border mt-4"
           />
           {data && !(data.balances && data.balances.length > 0) && (
-            <div className="bg-gray-50 dark:bg-gray-800 text-gray-300 dark:text-gray-500 text-sm font-medium italic text-center my-3 py-2">
+            <div className="bg-gray-50 dark:bg-gray-800 text-gray-300 dark:text-gray-500 text-sm font-medium italic text-center my-2 py-2">
               No Balances
             </div>
           )}
@@ -239,7 +239,7 @@ export default function AccountDetail({ data }) {
             className="no-border mt-4"
           />
           {data && !(data.rewards && data.rewards.rewards && data.rewards.rewards.length > 0) && (
-            <div className="bg-gray-50 dark:bg-gray-800 text-gray-300 dark:text-gray-500 text-sm font-medium italic text-center my-3 py-2">
+            <div className="bg-gray-50 dark:bg-gray-800 text-gray-300 dark:text-gray-500 text-sm font-medium italic text-center my-2 py-2">
               No Rewards
             </div>
           )}
@@ -339,7 +339,7 @@ export default function AccountDetail({ data }) {
               className="no-border mt-4"
             />
             {data && !(data.commission && data.commission.length > 0) && (
-              <div className="bg-gray-50 dark:bg-gray-800 text-gray-300 dark:text-gray-500 text-sm font-medium italic text-center my-3 py-2">
+              <div className="bg-gray-50 dark:bg-gray-800 text-gray-300 dark:text-gray-500 text-sm font-medium italic text-center my-2 py-2">
                 No Commissions
               </div>
             )}
@@ -487,7 +487,7 @@ export default function AccountDetail({ data }) {
             className="no-border mt-4"
           />
           {data && !(data.stakingDelegations && data.stakingDelegations.length > 0) && (
-            <div className="bg-gray-50 dark:bg-gray-800 text-gray-300 dark:text-gray-500 text-base font-medium italic text-center my-4 py-2">
+            <div className="bg-gray-50 dark:bg-gray-800 text-gray-300 dark:text-gray-500 text-base font-medium italic text-center my-2 py-2">
               No Delegations
             </div>
           )}
@@ -609,7 +609,7 @@ export default function AccountDetail({ data }) {
             className="no-border mt-4"
           />
           {data && !(data.stakingUnbonding && data.stakingUnbonding.length > 0) && (
-            <div className="bg-gray-50 dark:bg-gray-800 text-gray-300 dark:text-gray-500 text-base font-medium italic text-center my-4 py-2">
+            <div className="bg-gray-50 dark:bg-gray-800 text-gray-300 dark:text-gray-500 text-base font-medium italic text-center my-2 py-2">
               No Unbonding
             </div>
           )}

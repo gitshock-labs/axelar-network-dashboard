@@ -91,7 +91,7 @@ export default function Bridge() {
       {(bridgeAccounts ?
         bridgeAccounts.data && bridgeAccounts.data.map((bridgeAccount, i) => { return { ...bridgeAccount, i } })
         :
-        [...Array(10).keys()].map(i => { return { i, skeleton: true } })
+        [...Array(15).keys()].map(i => { return { i, skeleton: true } })
       ).map((bridgeAccount, i) => (
         <Widget key={i}>
           {!bridgeAccount.skeleton ?

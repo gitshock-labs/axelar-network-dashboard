@@ -1,6 +1,5 @@
 import Link from 'next/link'
 
-import moment from 'moment'
 import { FiKey } from 'react-icons/fi'
 
 import Datatable from '../datatable'
@@ -14,12 +13,12 @@ export default function KeysTable({ data, address, page }) {
       <Datatable
         columns={[
           {
-            Header: 'Generated Key',
-            accessor: 'key',
+            Header: 'Key ID',
+            accessor: 'key_id',
             disableSortBy: true,
             Cell: props => (
               !props.row.original.skeleton ?
-                <div className="flex items-center space-x-1">
+                <div className="flex items-center text-gray-900 dark:text-gray-100 space-x-1">
                   <FiKey size={16} />
                   <span className="font-medium">{ellipseAddress(props.value)}</span>
                   <Copy text={props.value} />
@@ -29,28 +28,44 @@ export default function KeysTable({ data, address, page }) {
             ),
           },
           {
-            Header: 'Time',
-            accessor: 'time',
+            Header: 'Key Chain',
+            accessor: 'key_chain',
             disableSortBy: true,
             Cell: props => (
               !props.row.original.skeleton ?
-                <div className="text-right">
-                  <span className="text-gray-400 dark:text-gray-600">
-                    {moment(props.value).format('MMM D, YYYY h:mm:ss A')}
+                props.value ?
+                  <span className="bg-gray-100 dark:bg-gray-800 rounded capitalize text-gray-900 dark:text-gray-100 font-semibold px-1.5 py-0.5" style={{ fontSize: '.65rem' }}>
+                    {props.value}
                   </span>
-                </div>
+                  :
+                  '-'
                 :
-                <div className="skeleton w-48 h-4 ml-auto" />
+                <div className="skeleton w-12 h-4" />
             ),
-            headerClassName: 'justify-end text-right',
+          },
+          {
+            Header: 'Key Role',
+            accessor: 'key_role',
+            disableSortBy: true,
+            Cell: props => (
+              !props.row.original.skeleton ?
+                props.value ?
+                  <span className="bg-gray-100 dark:bg-gray-800 rounded capitalize text-gray-900 dark:text-gray-100 font-semibold px-1.5 py-0.5" style={{ fontSize: '.65rem' }}>
+                    {props.value.replace('KEY_ROLE_', '')}
+                  </span>
+                  :
+                  '-'
+                :
+                <div className="skeleton w-12 h-4" />
+            ),
           },
           {
             Header: 'Block',
-            accessor: 'block',
+            accessor: 'snapshot_block_number',
             disableSortBy: true,
             Cell: props => (
               !props.row.original.skeleton ?
-                <div className="text-right">
+                <div>
                   <Link href={`/blocks/${props.value}`}>
                     <a className="text-blue-600 dark:text-blue-400">
                       {props.value}
@@ -58,7 +73,22 @@ export default function KeysTable({ data, address, page }) {
                   </Link>
                 </div>
                 :
-                <div className="skeleton w-16 h-4 ml-auto" />
+                <div className="skeleton w-16 h-4" />
+            ),
+          },
+          {
+            Header: 'Share',
+            accessor: 'num_validator_shares',
+            sortType: (rowA, rowB) => rowA.original.num_validator_shares > rowB.original.num_validator_shares ? 1 : -1,
+            Cell: props => (
+              !props.row.original.skeleton ?
+                <div className="text-right space-x-1">
+                  <span>{numberFormat(props.value, '0,0')}</span>
+                  <span>/</span>
+                  <span>{numberFormat(props.row.original.num_total_shares, '0,0')}</span>
+                </div>
+                :
+                <div className="skeleton w-12 h-4 ml-auto" />
             ),
             headerClassName: 'justify-end text-right',
           },
@@ -90,28 +120,13 @@ export default function KeysTable({ data, address, page }) {
                 </div>
             ),
           },
-          {
-            Header: 'Share',
-            accessor: 'share',
-            disableSortBy: true,
-            Cell: props => (
-              !props.row.original.skeleton ?
-                props.row.original.validators && props.row.original.validators.length > 0 ?
-                  props.row.original.validators.filter(validator => validator.key === address).map((validator, i) => (
-                    <span key={i}>{validator.share}</span>
-                  ))
-                  :
-                  '-'
-                :
-                <div className="skeleton w-12 h-4" />
-            ),
-          },
-        ].filter(column => ['validator'].includes(page) ? !(['time', 'block', 'validators'].includes(column.accessor)) : !(['share'].includes(column.accessor)))}
+        ].filter(column => ['validator'].includes(page) ? !(['validators', 'shares'].includes(column.accessor)) : !(['share'].includes(column.accessor)))}
         data={data ?
           data.data.map((key, i) => { return { ...key, i } })
           :
           [...Array(10).keys()].map(i => { return { i, skeleton: true } })
         }
+        noPagination={data && data.length > 10 ? false : true}
         defaultPageSize={10}
       />
       {data && !(data.data && data.data.length > 0) && (
