@@ -202,7 +202,7 @@ export default function BlocksTable({ n, className = '' }) {
         className={`min-h-full ${className}`}
       />
       {blocks && !(blocks.data && blocks.data.length > 0) && (
-        <div className={`bg-${!page ? 'white' : 'gray-50'} dark:bg-gray-800 text-gray-300 dark:text-gray-500 text-base font-medium italic text-center my-4 py-2`}>
+        <div className={`bg-${!n ? 'white' : 'gray-50'} dark:bg-gray-800 text-gray-300 dark:text-gray-500 text-base font-medium italic text-center my-4 py-2`}>
           No Blocks
         </div>
       )}
