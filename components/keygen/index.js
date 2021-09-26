@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react'
 import { useSelector, useDispatch, shallowEqual } from 'react-redux'
 
+import _ from 'lodash'
+
 import KeygenSummary from './keygen-summary'
 import KeysTable from './keys-table'
 
@@ -77,6 +79,8 @@ export default function Keygen() {
           }),
         }
       }
+
+      data = _.orderBy(data, ['snapshot_block_number'], ['desc'])
 
       setKeygens({ data })
     }
