@@ -1,5 +1,7 @@
 import Link from 'next/link'
+import { useState } from 'react'
 
+import _ from 'lodash'
 import { FiKey } from 'react-icons/fi'
 
 import Datatable from '../datatable'
@@ -7,7 +9,11 @@ import Copy from '../copy'
 
 import { numberFormat, ellipseAddress } from '../../lib/utils'
 
+const COLLAPSE_VALIDATORS_SIZE = 5
+
 export default function KeysTable({ data, page }) {
+  const [keyIdSeeMore, setKeyIdSeeMore] = useState(null)
+
   return (
     <>
       <Datatable
@@ -60,7 +66,7 @@ export default function KeysTable({ data, page }) {
             ),
           },
           {
-            Header: 'Block',
+            Header: 'Snapshot Block',
             accessor: 'snapshot_block_number',
             disableSortBy: true,
             Cell: props => (
@@ -105,56 +111,66 @@ export default function KeysTable({ data, page }) {
             disableSortBy: true,
             Cell: props => (
               !props.row.original.skeleton ?
-                <div className="flex flex-col space-y-2.5 mb-4">
+                <div className={`flex flex-col space-y-2 mb-${props.value && props.value.length > COLLAPSE_VALIDATORS_SIZE ? 0.5 : 4}`}>
                   {props.value && props.value.length > 0 ?
-                    props.value.map((validator, i) => (
-                      <div key={i} className="flex items-center text-xs space-x-1.5">
-                        <div className="flex flex-col space-y-0.5">
-                          {validator.description && validator.description.moniker && (
-                            <span className="flex items-center space-x-1.5">
+                    <>
+                      {_.slice(props.value, 0, keyIdSeeMore === props.row.original.key_id ? props.value.length : COLLAPSE_VALIDATORS_SIZE).map((validator, i) => (
+                        <div key={i} className="flex items-center text-xs space-x-1.5">
+                          <div className="flex flex-col space-y-0.5">
+                            {validator.description && validator.description.moniker && (
+                              <span className="flex items-center space-x-1.5">
+                                <Link href={`/validator/${validator.address}`}>
+                                  <a className="text-blue-600 dark:text-blue-400 font-medium">
+                                    {validator.description.moniker}
+                                  </a>
+                                </Link>
+                                {validator.status && !(['BOND_STATUS_BONDED'].includes(validator.status)) && (
+                                  <span className={`bg-${validator.status.includes('UN') ? validator.status.endsWith('ED') ? 'gray-300 dark:bg-gray-600' : 'yellow-500' : 'green-500'} rounded capitalize text-white font-semibold px-1.5 py-0.5`} style={{ fontSize: '.65rem' }}>
+                                    {validator.status.replace('BOND_STATUS_', '')}
+                                  </span>
+                                )}
+                                {validator.deregistering && (
+                                  <span className="bg-blue-300 dark:bg-blue-700 rounded capitalize text-white font-semibold px-1.5 py-0.5" style={{ fontSize: '.65rem' }}>
+                                    De-registering
+                                  </span>
+                                )}
+                              </span>
+                            )}
+                            <span className="flex items-center space-x-1">
                               <Link href={`/validator/${validator.address}`}>
-                                <a className="text-blue-600 dark:text-blue-400 font-medium">
-                                  {validator.description.moniker}
+                                <a className={`${validator.description && validator.description.moniker ? 'text-gray-400 dark:text-gray-600' : 'text-blue-600 dark:text-blue-400 font-medium'}`}>
+                                  {ellipseAddress(validator.address, 16)}
                                 </a>
                               </Link>
-                              {validator.status && !(['BOND_STATUS_BONDED'].includes(validator.status)) && (
-                                <span className={`bg-${validator.status.includes('UN') ? validator.status.endsWith('ED') ? 'gray-300 dark:bg-gray-600' : 'yellow-500' : 'green-500'} rounded capitalize text-white font-semibold px-1.5 py-0.5`} style={{ fontSize: '.65rem' }}>
-                                  {validator.status.replace('BOND_STATUS_', '')}
-                                </span>
-                              )}
-                              {validator.deregistering && (
-                                <span className="bg-blue-300 dark:bg-blue-700 rounded capitalize text-white font-semibold px-1.5 py-0.5" style={{ fontSize: '.65rem' }}>
-                                  De-registering
-                                </span>
-                              )}
+                              <Copy text={validator.address} />
                             </span>
-                          )}
-                          <span className="flex items-center space-x-1">
-                            <Link href={`/validator/${validator.address}`}>
-                              <a className={`${validator.description && validator.description.moniker ? 'text-gray-400 dark:text-gray-600' : 'text-blue-600 dark:text-blue-400 font-medium'}`}>
-                                {ellipseAddress(validator.address, 16)}
-                              </a>
-                            </Link>
-                            <Copy text={validator.address} />
-                          </span>
-                          {!(validator.description && validator.description.moniker) && (
-                            <span className="flex items-center space-x-1.5">
-                              {validator.status && !(['BOND_STATUS_BONDED'].includes(validator.status)) && (
-                                <span className={`bg-${validator.status.includes('UN') ? validator.status.endsWith('ED') ? 'gray-300 dark:bg-gray-600' : 'yellow-500' : 'green-500'} rounded capitalize text-white font-semibold px-1.5 py-0.5`} style={{ fontSize: '.65rem' }}>
-                                  {validator.status.replace('BOND_STATUS_', '')}
-                                </span>
-                              )}
-                              {validator.deregistering && (
-                                <span className="bg-blue-300 dark:bg-blue-700 rounded capitalize text-white font-semibold px-1.5 py-0.5" style={{ fontSize: '.65rem' }}>
-                                  De-registering
-                                </span>
-                              )}
-                            </span>
-                          )}
+                            {!(validator.description && validator.description.moniker) && (
+                              <span className="flex items-center space-x-1.5">
+                                {validator.status && !(['BOND_STATUS_BONDED'].includes(validator.status)) && (
+                                  <span className={`bg-${validator.status.includes('UN') ? validator.status.endsWith('ED') ? 'gray-300 dark:bg-gray-600' : 'yellow-500' : 'green-500'} rounded capitalize text-white font-semibold px-1.5 py-0.5`} style={{ fontSize: '.65rem' }}>
+                                    {validator.status.replace('BOND_STATUS_', '')}
+                                  </span>
+                                )}
+                                {validator.deregistering && (
+                                  <span className="bg-blue-300 dark:bg-blue-700 rounded capitalize text-white font-semibold px-1.5 py-0.5" style={{ fontSize: '.65rem' }}>
+                                    De-registering
+                                  </span>
+                                )}
+                              </span>
+                            )}
+                          </div>
+                          <span className="text-gray-600 dark:text-gray-400 font-semibold">[{numberFormat(validator.share, '0,0')}]</span>
                         </div>
-                        <span className="text-gray-600 dark:text-gray-400 font-semibold">[{numberFormat(validator.share, '0,0')}]</span>
-                      </div>
-                    ))
+                      ))}
+                      {(props.value.length > COLLAPSE_VALIDATORS_SIZE || keyIdSeeMore === props.row.original.key_id) && (
+                        <div
+                          onClick={() => setKeyIdSeeMore(keyIdSeeMore === props.row.original.key_id ? null : props.row.original.key_id)}
+                          className={`max-w-min cursor-pointer rounded capitalize text-${keyIdSeeMore === props.row.original.key_id ? 'red-500' : 'gray-700 dark:text-white'} text-xs font-medium`}
+                        >
+                          See {keyIdSeeMore === props.row.original.key_id ? 'Less' : 'More'}
+                        </div>
+                      )}
+                    </>
                     :
                     '-'
                   }
