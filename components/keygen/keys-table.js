@@ -21,7 +21,7 @@ export default function KeysTable({ data, page }) {
                 <div className="flex items-center text-gray-900 dark:text-gray-100 space-x-1">
                   <FiKey size={16} />
                   <span className="font-medium">{ellipseAddress(props.value, ['validator'].includes(page) ? 10 : 20)}</span>
-                  <Copy text={props.value} />
+                  {props.value && (<Copy text={props.value} />)}
                 </div>
                 :
                 <div className="skeleton w-48 h-4" />
@@ -65,13 +65,14 @@ export default function KeysTable({ data, page }) {
             disableSortBy: true,
             Cell: props => (
               !props.row.original.skeleton ?
-                <div>
+                props.value ?
                   <Link href={`/blocks/${props.value}`}>
                     <a className="text-blue-600 dark:text-blue-400">
                       {props.value}
                     </a>
                   </Link>
-                </div>
+                  :
+                  '-'
                 :
                 <div className="skeleton w-16 h-4" />
             ),
@@ -83,9 +84,15 @@ export default function KeysTable({ data, page }) {
             Cell: props => (
               !props.row.original.skeleton ?
                 <div className="text-right space-x-1">
-                  <span>{numberFormat(props.value, '0,0')}</span>
-                  <span>/</span>
-                  <span>{numberFormat(props.row.original.num_total_shares, '0,0')}</span>
+                  {typeof props.value === 'number' ?
+                    <>
+                      <span>{numberFormat(props.value, '0,0')}</span>
+                      <span>/</span>
+                      <span>{numberFormat(props.row.original.num_total_shares, '0,0')}</span>
+                    </>
+                    :
+                    '-'
+                  }
                 </div>
                 :
                 <div className="skeleton w-12 h-4 ml-auto" />
