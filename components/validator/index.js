@@ -140,7 +140,7 @@ export default function Validator({ address }) {
     <>
       <div className="grid grid-flow-row grid-cols-1 md:grid-cols-2 gap-4">
         <div className="my-2">
-          <ValidatorDetail data={validator && validator.address === address && validator.data} delegations={delegations && delegations.address === address && delegations.data} />
+          <ValidatorDetail data={validator && validator.address === address && validator.data} delegations={delegations && delegations.address === address && delegations.data} keygens={keygens && keygens.address === address && keygens.data} />
         </div>
         <div className="my-2">
           <VotingPower data={validator && validator.address === address && validator.data} />
