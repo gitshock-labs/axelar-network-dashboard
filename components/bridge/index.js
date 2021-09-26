@@ -44,7 +44,7 @@ export default function Bridge() {
           for (let j = 0; j < bridgeAccount.exec_cmds.length; j++) {
             const exec_cmd = bridgeAccount.exec_cmds[j]
 
-            const execResponse = await axelard({ cmd: exec_cmd.cmd })
+            const execResponse = await axelard({ cmd: exec_cmd.cmd, cache: true })
 
             if (execResponse && execResponse.data && execResponse.data.stdout) {
               exec_cmd.result = execResponse.data.stdout

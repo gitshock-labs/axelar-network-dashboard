@@ -7,7 +7,7 @@ import Copy from '../copy'
 
 import { numberFormat, ellipseAddress } from '../../lib/utils'
 
-export default function KeysTable({ data, address, page }) {
+export default function KeysTable({ data, page }) {
   return (
     <>
       <Datatable
@@ -20,7 +20,7 @@ export default function KeysTable({ data, address, page }) {
               !props.row.original.skeleton ?
                 <div className="flex items-center text-gray-900 dark:text-gray-100 space-x-1">
                   <FiKey size={16} />
-                  <span className="font-medium">{ellipseAddress(props.value)}</span>
+                  <span className="font-medium">{ellipseAddress(props.value, ['validator'].includes(page) ? 10 : 20)}</span>
                   <Copy text={props.value} />
                 </div>
                 :
@@ -98,14 +98,54 @@ export default function KeysTable({ data, address, page }) {
             disableSortBy: true,
             Cell: props => (
               !props.row.original.skeleton ?
-                <div className="flex flex-col space-y-2 mb-4">
+                <div className="flex flex-col space-y-2.5 mb-4">
                   {props.value && props.value.length > 0 ?
                     props.value.map((validator, i) => (
-                      <div key={i} className="flex items-center text-xs space-x-1">
-                        <Link href={`/validator/${validator.key}`}>
-                          <a className="text-blue-600 dark:text-blue-400 font-medium">{validator.key}</a>
-                        </Link>
-                        <span>[{validator.share}]</span>
+                      <div key={i} className="flex items-center text-xs space-x-1.5">
+                        <div className="flex flex-col space-y-0.5">
+                          {validator.description && validator.description.moniker && (
+                            <span className="flex items-center space-x-1.5">
+                              <Link href={`/validator/${validator.address}`}>
+                                <a className="text-blue-600 dark:text-blue-400 font-medium">
+                                  {validator.description.moniker}
+                                </a>
+                              </Link>
+                              {validator.status && !(['BOND_STATUS_BONDED'].includes(validator.status)) && (
+                                <span className={`bg-${validator.status.includes('UN') ? validator.status.endsWith('ED') ? 'gray-300 dark:bg-gray-600' : 'yellow-500' : 'green-500'} rounded capitalize text-white font-semibold px-1.5 py-0.5`} style={{ fontSize: '.65rem' }}>
+                                  {validator.status.replace('BOND_STATUS_', '')}
+                                </span>
+                              )}
+                              {validator.deregistering && (
+                                <span className="bg-blue-300 dark:bg-blue-700 rounded capitalize text-white font-semibold px-1.5 py-0.5" style={{ fontSize: '.65rem' }}>
+                                  De-registering
+                                </span>
+                              )}
+                            </span>
+                          )}
+                          <span className="flex items-center space-x-1">
+                            <Link href={`/validator/${validator.address}`}>
+                              <a className={`${validator.description && validator.description.moniker ? 'text-gray-400 dark:text-gray-600' : 'text-blue-600 dark:text-blue-400 font-medium'}`}>
+                                {ellipseAddress(validator.address, 16)}
+                              </a>
+                            </Link>
+                            <Copy text={validator.address} />
+                          </span>
+                          {!(validator.description && validator.description.moniker) && (
+                            <span className="flex items-center space-x-1.5">
+                              {validator.status && !(['BOND_STATUS_BONDED'].includes(validator.status)) && (
+                                <span className={`bg-${validator.status.includes('UN') ? validator.status.endsWith('ED') ? 'gray-300 dark:bg-gray-600' : 'yellow-500' : 'green-500'} rounded capitalize text-white font-semibold px-1.5 py-0.5`} style={{ fontSize: '.65rem' }}>
+                                  {validator.status.replace('BOND_STATUS_', '')}
+                                </span>
+                              )}
+                              {validator.deregistering && (
+                                <span className="bg-blue-300 dark:bg-blue-700 rounded capitalize text-white font-semibold px-1.5 py-0.5" style={{ fontSize: '.65rem' }}>
+                                  De-registering
+                                </span>
+                              )}
+                            </span>
+                          )}
+                        </div>
+                        <span className="text-gray-600 dark:text-gray-400 font-semibold">[{numberFormat(validator.share, '0,0')}]</span>
                       </div>
                     ))
                     :
@@ -120,13 +160,13 @@ export default function KeysTable({ data, address, page }) {
                 </div>
             ),
           },
-        ].filter(column => ['validator'].includes(page) ? !(['validators', 'shares'].includes(column.accessor)) : !(['share'].includes(column.accessor)))}
+        ].filter(column => ['validator'].includes(page) ? !(['validators'].includes(column.accessor)) : !(['num_validator_shares'].includes(column.accessor)))}
         data={data ?
-          data.data.map((key, i) => { return { ...key, i } })
+          data.data && data.data.map((key, i) => { return { ...key, i } })
           :
           [...Array(10).keys()].map(i => { return { i, skeleton: true } })
         }
-        noPagination={data && data.length > 10 ? false : true}
+        noPagination={data && data.data && data.data.length > 10 ? false : true}
         defaultPageSize={10}
       />
       {data && !(data.data && data.data.length > 0) && (

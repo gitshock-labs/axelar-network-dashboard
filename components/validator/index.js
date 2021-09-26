@@ -173,7 +173,7 @@ export default function Validator({ address }) {
                 table === 'delegations' ?
                  <DelegationsTable data={delegations && delegations.address === address && delegations.data} />
                   :
-                  <KeysTable data={keygens} page="validator" address={address} />
+                  <KeysTable data={keygens} page="validator" />
               }
             </div>
           </Widget>

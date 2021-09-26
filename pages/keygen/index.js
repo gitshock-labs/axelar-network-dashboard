@@ -7,7 +7,7 @@ export default function KeygenIndex() {
     <>
       <SectionTitle
         title="Keygen Details"
-        subtitle={<>Keygen <span className="text-gray-500 text-sm font-light italic">(Mocked)</span></>}
+        subtitle="Keygen"
         right={<CoinInfo />}
         className="flex-col sm:flex-row items-start sm:items-center"
       />

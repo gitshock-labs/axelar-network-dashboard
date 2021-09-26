@@ -16,6 +16,7 @@ const KeygenSummary = ({ data }) => {
           :
           <div className="skeleton w-24 h-6 mt-1" />
         }
+        <span className="text-gray-500 text-sm font-light italic ml-1">(Mocked)</span>
       </Widget>
       <Widget
         title="Active Keygen Threshold"
@@ -26,6 +27,7 @@ const KeygenSummary = ({ data }) => {
           :
           <div className="skeleton w-24 h-6 mt-1" />
         }
+        <span className="text-gray-500 text-sm font-light italic ml-1">(Mocked)</span>
       </Widget>
       <Widget
         title="Signing Participation Threshold"
@@ -36,6 +38,7 @@ const KeygenSummary = ({ data }) => {
           :
           <div className="skeleton w-24 h-6 mt-1" />
         }
+        <span className="text-gray-500 text-sm font-light italic ml-1">(Mocked)</span>
       </Widget>
       <Widget
         title="Corruption Signing Threshold"
@@ -46,6 +49,7 @@ const KeygenSummary = ({ data }) => {
           :
           <div className="skeleton w-24 h-6 mt-1" />
         }
+        <span className="text-gray-500 text-sm font-light italic ml-1">(Mocked)</span>
       </Widget>
     </div>
   )
