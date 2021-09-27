@@ -140,22 +140,22 @@ export default function ValidatorDetail({ data, delegations, keygens }) {
             <div className="flex items-center space-x-2">
               <span className="font-medium">Keygen Participation:</span>
               <span className="font-light">{numberFormat(100, '0,0.00')}%</span>
-              <span className="text-gray-500 text-sm font-light italic">(Mocked)</span>
+              <span className="text-gray-500 text-xs font-light italic">(Mock Data)</span>
             </div>
             <div className="flex items-center space-x-2">
               <span className="font-medium">Signing Participation:</span>
               <span className="font-light">{numberFormat(100, '0,0.00')}%</span>
-              <span className="text-gray-500 text-sm font-light italic">(Mocked)</span>
+              <span className="text-gray-500 text-xs font-light italic">(Mock Data)</span>
             </div>
             <div className="flex items-center space-x-2">
               <span className="font-medium">Active Keygen:</span>
               <span className="font-light">{numberFormat(100, '0,0.00')}%</span>
-              <span className="text-gray-500 text-sm font-light italic">(Mocked)</span>
+              <span className="text-gray-500 text-xs font-light italic">(Mock Data)</span>
             </div>
             <div className="flex items-center space-x-2">
               <span className="font-medium">Corruption Signing:</span>
               <span className="font-light">{numberFormat(0, '0,0.00')}%</span>
-              <span className="text-gray-500 text-sm font-light italic">(Mocked)</span>
+              <span className="text-gray-500 text-xs font-light italic">(Mock Data)</span>
             </div>
           </div>
         </>

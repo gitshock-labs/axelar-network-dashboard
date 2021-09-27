@@ -10,7 +10,7 @@ import { numberFormat } from '../../lib/utils'
 export default function Uptime({ data, validator_data }) {
   return (
     <Widget
-      title={<span className="text-gray-900 dark:text-white text-lg font-semibold">Uptime <span className="text-gray-500 text-sm font-light italic">(Mocked)</span></span>}
+      title={<span className="text-gray-900 dark:text-white text-lg font-semibold">Uptime <span className="text-gray-500 text-sm font-light italic">(Mock Data)</span></span>}
       description={<div className="flex items-center mt-2">
         <span className="text-gray-500 dark:text-gray-300">Last {numberFormat(10000, '0,0')} Blocks</span>
         {data ?
