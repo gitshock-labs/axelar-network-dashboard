@@ -101,7 +101,7 @@ export default function ValidatorDetail({ data, delegations, keygens }) {
     >
       {data ?
         <>
-          <div className="grid grid-flow-row grid-cols-1 md:grid-cols-2 gap-2 md:gap-4 text-base mt-3">
+          <div className="grid grid-flow-row grid-cols-1 md:grid-cols-2 gap-2 md:gap-4 text-base sm:text-xs lg:text-base mt-3">
             <div className="flex items-start space-x-2">
               <span className="font-medium">Commission:</span>
               <span className="font-light">{data.commission && data.commission.commission_rates && !isNaN(data.commission.commission_rates.rate) ? numberFormat(data.commission.commission_rates.rate * 100, '0,0.00') : '-'}%</span>
@@ -113,14 +113,14 @@ export default function ValidatorDetail({ data, delegations, keygens }) {
             <div className="flex items-start space-x-2">
               <span className="font-medium">Uptime:</span>
               <span className="font-light">{numberFormat(data.uptime, '0,0.00')}%</span>
-              <span className="font-light">({numberFormat(100 - data.uptime, '0,0.00')}% missed)</span>
+              <span className="block sm:hidden lg:block font-light">({numberFormat(100 - data.uptime, '0,0.00')}% missed)</span>
             </div>
             <div className="flex items-start space-x-2">
               <span className="font-medium">Voting Power:</span>
               <span className="font-light">{chain_data && chain_data.staking_pool && chain_data.staking_pool.bonded_tokens ? numberFormat(Math.floor(data.delegator_shares / Number(process.env.NEXT_PUBLIC_POWER_REDUCTION)) * 100 / Math.floor(chain_data.staking_pool.bonded_tokens), '0,0.00') : ''}%</span>
             </div>
           </div>
-          <div className="grid grid-flow-row grid-cols-1 md:grid-cols-2 gap-2 md:gap-4 text-base mt-4">
+          <div className="grid grid-flow-row grid-cols-1 md:grid-cols-2 gap-2 md:gap-4 text-base sm:text-xs lg:text-base mt-4">
             <div className="flex items-center space-x-2">
               <span className="font-medium">Delegations:</span>
               {delegations ?
