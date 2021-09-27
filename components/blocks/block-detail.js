@@ -56,7 +56,7 @@ export default function BlockDetail({ data, validator_data }) {
             data.txs > -1 ?
               <span>{numberFormat(data.txs, '0,0')}</span>
               :
-              '-'
+              <span>-</span>
             :
             <div className="skeleton w-10 h-4" />
           }
@@ -96,7 +96,7 @@ export default function BlockDetail({ data, validator_data }) {
                 </div>
               </div>
               :
-              '-'
+              <span>-</span>
             :
             <div className="flex items-start space-x-2">
               <div className="skeleton w-6 h-6 rounded-full" />
