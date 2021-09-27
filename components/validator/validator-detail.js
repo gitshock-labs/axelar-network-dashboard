@@ -96,12 +96,12 @@ export default function ValidatorDetail({ data, delegations, keygens }) {
           </div>
         </div>
       }
-      description={<span className="text-gray-900 dark:text-white text-lg font-semibold">Service Quality</span>}
+      description={<span className="text-gray-900 dark:text-white text-lg font-semibold">Validator Infomation</span>}
       className="min-h-full"
     >
       {data ?
         <>
-          <div className="flex flex-col space-y-1 text-base mt-2">
+          <div className="grid grid-flow-row grid-cols-1 md:grid-cols-2 gap-2 md:gap-4 text-base mt-3">
             <div className="flex items-start space-x-2">
               <span className="font-medium">Commission:</span>
               <span className="font-light">{data.commission && data.commission.commission_rates && !isNaN(data.commission.commission_rates.rate) ? numberFormat(data.commission.commission_rates.rate * 100, '0,0.00') : '-'}%</span>
@@ -111,36 +111,67 @@ export default function ValidatorDetail({ data, delegations, keygens }) {
               <span className="font-light">{data.commission && data.commission.commission_rates && !isNaN(data.commission.commission_rates.max_rate) ? numberFormat(data.commission.commission_rates.max_rate * 100, '0,0.00') : '-'}%</span>
             </div>
             <div className="flex items-start space-x-2">
-              <span className="font-medium">Success rate:</span>
+              <span className="font-medium">Uptime:</span>
               <span className="font-light">{numberFormat(data.uptime, '0,0.00')}%</span>
               <span className="font-light">({numberFormat(100 - data.uptime, '0,0.00')}% missed)</span>
             </div>
-          </div>
-          <div className="flex flex-col space-y-1 text-base mt-4">
             <div className="flex items-start space-x-2">
-              <span className="font-medium">Validator pool share:</span>
+              <span className="font-medium">Voting Power:</span>
               <span className="font-light">{chain_data && chain_data.staking_pool && chain_data.staking_pool.bonded_tokens ? numberFormat(Math.floor(data.delegator_shares / Number(process.env.NEXT_PUBLIC_POWER_REDUCTION)) * 100 / Math.floor(chain_data.staking_pool.bonded_tokens), '0,0.00') : ''}%</span>
             </div>
-            <div className="flex items-start space-x-2">
+          </div>
+          <div className="grid grid-flow-row grid-cols-1 md:grid-cols-2 gap-2 md:gap-4 text-base mt-4">
+            <div className="flex items-center space-x-2">
               <span className="font-medium">Delegations:</span>
-              <span className="font-light">{delegations ? numberFormat(delegations.length, '0,0') : '-'}</span>
+              {delegations ?
+                <span className="font-light">{numberFormat(delegations.length, '0,0')}</span>
+                :
+                <div className="skeleton w-12 h-4" />
+              }
             </div>
-            <div className="flex items-start space-x-2">
+            <div className="flex items-center space-x-2">
               <span className="font-medium">Keygens:</span>
-              <span className="font-light">{keygens ? numberFormat(keygens.length, '0,0') : '-'}</span>
+              {keygens ?
+                <span className="font-light">{numberFormat(keygens.length, '0,0')}</span>
+                :
+                <div className="skeleton w-12 h-4" />
+              }
+            </div>
+            <div className="flex items-center space-x-2">
+              <span className="font-medium">Keygen Participation:</span>
+              <span className="font-light">{numberFormat(100, '0,0.00')}%</span>
+              <span className="text-gray-500 text-sm font-light italic">(Mocked)</span>
+            </div>
+            <div className="flex items-center space-x-2">
+              <span className="font-medium">Signing Participation:</span>
+              <span className="font-light">{numberFormat(100, '0,0.00')}%</span>
+              <span className="text-gray-500 text-sm font-light italic">(Mocked)</span>
+            </div>
+            <div className="flex items-center space-x-2">
+              <span className="font-medium">Active Keygen:</span>
+              <span className="font-light">{numberFormat(100, '0,0.00')}%</span>
+              <span className="text-gray-500 text-sm font-light italic">(Mocked)</span>
+            </div>
+            <div className="flex items-center space-x-2">
+              <span className="font-medium">Corruption Signing:</span>
+              <span className="font-light">{numberFormat(0, '0,0.00')}%</span>
+              <span className="text-gray-500 text-sm font-light italic">(Mocked)</span>
             </div>
           </div>
         </>
         :
         <>
-          <div className="flex flex-col space-y-3 mt-4">
+          <div className="grid grid-flow-row grid-cols-1 md:grid-cols-2 gap-2 md:gap-4 text-base mt-3">
             <div className="skeleton w-48 h-4" />
-            <div className="skeleton w-60 h-4" />
+            <div className="skeleton w-48 h-4" />
+            <div className="skeleton w-48 h-4" />
+            <div className="skeleton w-48 h-4" />
           </div>
-          <div className="flex flex-col space-y-3 mt-7">
-            <div className="skeleton w-60 h-4" />
+          <div className="grid grid-flow-row grid-cols-1 md:grid-cols-2 gap-2 md:gap-4 text-base mt-4">
             <div className="skeleton w-48 h-4" />
-            <div className="skeleton w-40 h-4" />
+            <div className="skeleton w-48 h-4" />
+            <div className="skeleton w-48 h-4" />
+            <div className="skeleton w-48 h-4" />
           </div>
         </>
       }

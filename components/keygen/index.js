@@ -3,10 +3,9 @@ import { useSelector, useDispatch, shallowEqual } from 'react-redux'
 
 import _ from 'lodash'
 
-import KeygenSummary from './keygen-summary'
 import KeysTable from './keys-table'
 
-import { getKeygenSummary, keygens as getKeygens } from '../../lib/api/query'
+import { keygens as getKeygens } from '../../lib/api/query'
 import { allValidators } from '../../lib/api/cosmos'
 import { getKeygenById } from '../../lib/api/executor'
 import { getName } from '../../lib/utils'
@@ -18,7 +17,6 @@ export default function Keygen() {
   const { data } = useSelector(state => ({ data: state.data }), shallowEqual)
   const { validators_data } = { ...data }
 
-  const [keygenSummary, setKeygenSummary] = useState(null)
   const [keygens, setKeygens] = useState(null)
 
   useEffect(() => {
@@ -41,13 +39,7 @@ export default function Keygen() {
 
   useEffect(() => {
     const getData = async () => {
-      let response = await getKeygenSummary()
-
-      if (response) {
-        setKeygenSummary({ data: response.data || {} })
-      }
-
-      response = await getKeygens()
+      const response = await getKeygens()
 
       let data = (response || []).map((key_id, i) => {
         return {
@@ -111,7 +103,6 @@ export default function Keygen() {
 
   return (
     <div className="max-w-6xl my-4 xl:my-6 mx-auto">
-      <KeygenSummary data={keygenSummary && keygenSummary.data} />
       <KeysTable data={keygens} />
     </div>
   )
