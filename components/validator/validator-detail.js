@@ -162,16 +162,16 @@ export default function ValidatorDetail({ data, delegations, keygens }) {
         :
         <>
           <div className="grid grid-flow-row grid-cols-1 md:grid-cols-2 gap-2 md:gap-4 text-base mt-3">
-            <div className="skeleton w-48 h-4" />
-            <div className="skeleton w-48 h-4" />
-            <div className="skeleton w-48 h-4" />
-            <div className="skeleton w-48 h-4" />
+            <div className="skeleton w-48 h-5" />
+            <div className="skeleton w-48 h-5" />
+            <div className="skeleton w-60 h-5" />
+            <div className="skeleton w-60 h-5" />
           </div>
           <div className="grid grid-flow-row grid-cols-1 md:grid-cols-2 gap-2 md:gap-4 text-base mt-4">
-            <div className="skeleton w-48 h-4" />
-            <div className="skeleton w-48 h-4" />
-            <div className="skeleton w-48 h-4" />
-            <div className="skeleton w-48 h-4" />
+            <div className="skeleton w-48 h-5" />
+            <div className="skeleton w-48 h-5" />
+            <div className="skeleton w-60 h-5" />
+            <div className="skeleton w-60 h-5" />
           </div>
         </>
       }
