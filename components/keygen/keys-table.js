@@ -40,7 +40,7 @@ export default function KeysTable({ data, page }) {
             Cell: props => (
               !props.row.original.skeleton ?
                 props.value ?
-                  <span className="bg-gray-100 dark:bg-gray-800 rounded capitalize text-gray-900 dark:text-gray-100 font-semibold px-1.5 py-0.5" style={{ fontSize: '.65rem' }}>
+                  <span className="bg-gray-100 dark:bg-gray-800 rounded capitalize text-gray-900 dark:text-gray-100 font-semibold px-1.5 py-0.5" style={{ fontSize: ['validator'].includes(page) ? '.65rem' : '.85rem' }}>
                     {props.value}
                   </span>
                   :
@@ -56,7 +56,7 @@ export default function KeysTable({ data, page }) {
             Cell: props => (
               !props.row.original.skeleton ?
                 props.value ?
-                  <span className="bg-gray-100 dark:bg-gray-800 rounded capitalize text-gray-900 dark:text-gray-100 font-semibold px-1.5 py-0.5" style={{ fontSize: '.65rem' }}>
+                  <span className="bg-gray-100 dark:bg-gray-800 rounded capitalize text-gray-900 dark:text-gray-100 font-semibold px-1.5 py-0.5" style={{ fontSize: ['validator'].includes(page) ? '.65rem' : '.85rem' }}>
                     {props.value.replace('KEY_ROLE_', '')}
                   </span>
                   :
