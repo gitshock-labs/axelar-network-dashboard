@@ -155,7 +155,7 @@ const Summary = ({ data }) => {
           </span>
         </Widget>
         <Widget
-          title="Average Block Time (All)"
+          title="Average Block Time"
           className="bg-transparent sm:bg-white sm:dark:bg-gray-900 border-0 sm:border border-gray-100 dark:border-gray-800 p-0 sm:p-4"
         >
           <span className="flex flex-col item mt-1 space-y-1">
