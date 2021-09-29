@@ -1,10 +1,11 @@
-import { CHAIN_DATA, STATUS_DATA, VALIDATORS_DATA } from './types'
+import { CHAIN_DATA, STATUS_DATA, VALIDATORS_DATA, KEYGENS_DATA } from './types'
 
 export default function data(
   state = {
     [`${CHAIN_DATA}`]: null,
     [`${STATUS_DATA}`]: null,
     [`${VALIDATORS_DATA}`]: null,
+    [`${KEYGENS_DATA}`]: null,
   },
   action
 ) {
@@ -23,6 +24,11 @@ export default function data(
       return {
         ...state,
         [`${VALIDATORS_DATA}`]: action.value
+      }
+    case KEYGENS_DATA:
+      return {
+        ...state,
+        [`${KEYGENS_DATA}`]: action.value
       }
     default:
       return state

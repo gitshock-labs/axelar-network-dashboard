@@ -3,20 +3,22 @@ import { useSelector, useDispatch, shallowEqual } from 'react-redux'
 
 import _ from 'lodash'
 
+import Summary from './summary'
 import KeysTable from './keys-table'
 
-import { keygens as getKeygens } from '../../lib/api/query'
+import { keygenSummary, keygens as getKeygens } from '../../lib/api/query'
 import { allValidators } from '../../lib/api/cosmos'
 import { getKeygenById } from '../../lib/api/executor'
 import { getName } from '../../lib/utils'
 
-import { VALIDATORS_DATA } from '../../reducers/types'
+import { VALIDATORS_DATA, KEYGENS_DATA } from '../../reducers/types'
 
 export default function Keygen() {
   const dispatch = useDispatch()
   const { data } = useSelector(state => ({ data: state.data }), shallowEqual)
   const { validators_data } = { ...data }
 
+  const [summaryData, setSummaryData] = useState(null)
   const [keygens, setKeygens] = useState(null)
 
   useEffect(() => {
@@ -39,7 +41,29 @@ export default function Keygen() {
 
   useEffect(() => {
     const getData = async () => {
+      const response = await keygenSummary()
+
+      if (response) {
+        setSummaryData({ data: response.data || {}})
+      }
+    }
+
+    getData()
+
+    const interval = setInterval(() => getData(), 3 * 60 * 1000)
+    return () => clearInterval(interval)
+  }, [])
+
+  useEffect(() => {
+    const getData = async () => {
       const response = await getKeygens()
+
+      if (response) {
+        dispatch({
+          type: KEYGENS_DATA,
+          value: response
+        })
+      }
 
       let data = (response || []).map((key_id, i) => {
         return {
@@ -103,6 +127,7 @@ export default function Keygen() {
 
   return (
     <div className="max-w-6xl my-4 xl:my-6 mx-auto">
+      <Summary data={summaryData && summaryData.data} />
       <KeysTable data={keygens} />
     </div>
   )

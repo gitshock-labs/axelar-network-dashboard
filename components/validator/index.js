@@ -11,23 +11,24 @@ import TransactionsTable from '../transactions/transactions-table'
 import KeysTable from '../keygen/keys-table'
 import Widget from '../widget'
 
-import { getUptime } from '../../lib/api/query'
+import { getUptime, keygens as getKeygens } from '../../lib/api/query'
 import { status as getStatus } from '../../lib/api/rpc'
 import { allValidators, validatorSets, transactionsByEvents, allDelegations } from '../../lib/api/cosmos'
 import { getKeygensByValidator } from '../../lib/api/executor'
 import { getName } from '../../lib/utils'
 
-import { STATUS_DATA, VALIDATORS_DATA } from '../../reducers/types'
+import { STATUS_DATA, VALIDATORS_DATA, KEYGENS_DATA } from '../../reducers/types'
 
 export default function Validator({ address }) {
   const dispatch = useDispatch()
   const { data } = useSelector(state => ({ data: state.data }), shallowEqual)
-  const { chain_data, status_data, validators_data } = { ...data }
+  const { chain_data, status_data, validators_data, keygens_data } = { ...data }
 
   const [validator, setValidator] = useState(null)
   const [uptime, setUptime] = useState(null)
-  const [delegations, setDelegations] = useState(null)
+  const [signEvents, setSignEvents] = useState(null)
   const [transactions, setTransactions] = useState(null)
+  const [delegations, setDelegations] = useState(null)
   const [keygens, setKeygens] = useState(null)
   const [table, setTable] = useState('voting_events')
 
@@ -70,6 +71,26 @@ export default function Validator({ address }) {
   }, [address, status_data])
 
   useEffect(() => {
+    const getAllKeygens = async () => {
+      const response = await getKeygens()
+
+      if (response) {
+        dispatch({
+          type: KEYGENS_DATA,
+          value: response
+        })
+      }
+    }
+
+    if (!keygens_data) {
+      getAllKeygens()
+    }
+
+    const interval = setInterval(() => getAllKeygens(), 10 * 60 * 1000)
+    return () => clearInterval(interval)
+  }, [keygens_data])
+
+  useEffect(() => {
     const getData = async () => {
       let validatorData
 
@@ -93,6 +114,10 @@ export default function Validator({ address }) {
         setUptime({ data: response.data || [], address })
       }
 
+      response = await transactionsByEvents(`sign.action='decided'`, null, address)
+
+      setSignEvents({ data: response || [], total: response ? response.length : 0, address })
+
       let data = []
 
       // data = await transactionsByEvents(`message.sender='${address}'`, data)
@@ -101,7 +126,7 @@ export default function Validator({ address }) {
 
       data = _.slice(data, 0, 100)
 
-      setTransactions({ data, total: response && response.total, address })
+      setTransactions({ data, total: data.length, address })
 
       response = await allDelegations(address)
 
@@ -140,7 +165,13 @@ export default function Validator({ address }) {
     <>
       <div className="grid grid-flow-row grid-cols-1 md:grid-cols-2 gap-4">
         <div className="my-2">
-          <ValidatorDetail data={validator && validator.address === address && validator.data} delegations={delegations && delegations.address === address && delegations.data} keygens={keygens && keygens.address === address && keygens.data} />
+          <ValidatorDetail
+            data={validator && validator.address === address && validator.data}
+            delegations={delegations && delegations.address === address && delegations.data}
+            keygens={keygens && keygens.address === address && keygens.data}
+            all_keygens={keygens_data}
+            sign_events={signEvents && signEvents.address === address && signEvents.data}
+          />
         </div>
         <div className="my-2">
           <VotingPower data={validator && validator.address === address && validator.data} />

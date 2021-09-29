@@ -8,7 +8,7 @@ import Copy from '../copy'
 
 import { numberFormat, ellipseAddress } from '../../lib/utils'
 
-export default function ValidatorDetail({ data, delegations, keygens }) {
+export default function ValidatorDetail({ data, delegations, keygens, all_keygens, sign_events }) {
   const { _data } = useSelector(state => ({ _data: state.data }), shallowEqual)
   const { chain_data } = { ..._data }
 
@@ -138,24 +138,26 @@ export default function ValidatorDetail({ data, delegations, keygens }) {
               }
             </div>
             <div className="flex items-center space-x-2">
-              <span className="font-medium">Keygen Participation:</span>
-              <span className="font-light">{numberFormat(100, '0,0.00')}%</span>
-              <span className="text-gray-500 text-xs font-light italic">(Mock Data)</span>
-            </div>
-            <div className="flex items-center space-x-2">
               <span className="font-medium">Signing Participation:</span>
-              <span className="font-light">{numberFormat(100, '0,0.00')}%</span>
-              <span className="text-gray-500 text-xs font-light italic">(Mock Data)</span>
+              {sign_events ?
+                <div className="flex space-x-1">
+                  <span className="font-light">{numberFormat(sign_events.filter(event => event.participated).length, '0,0')}/{numberFormat(sign_events.length, '0,0')}</span>
+                  <span className="block sm:hidden lg:block font-light">({numberFormat(sign_events.length > 0 ? sign_events.filter(event => event.participated).length * 100 / sign_events.length : sign_events.filter(event => event.participated).length < 1 ? 0 : 100, '0,0.00')}%)</span>
+                </div>
+                :
+                <div className="skeleton w-12 h-4" />
+              }
             </div>
             <div className="flex items-center space-x-2">
-              <span className="font-medium">Active Keygen:</span>
-              <span className="font-light">{numberFormat(100, '0,0.00')}%</span>
-              <span className="text-gray-500 text-xs font-light italic">(Mock Data)</span>
-            </div>
-            <div className="flex items-center space-x-2">
-              <span className="font-medium">Corruption Signing:</span>
-              <span className="font-light">{numberFormat(0, '0,0.00')}%</span>
-              <span className="text-gray-500 text-xs font-light italic">(Mock Data)</span>
+              <span className="font-medium">Keygen Participation:</span>
+              {keygens && all_keygens ?
+                <div className="flex space-x-1">
+                  <span className="font-light">{numberFormat(keygens.length, '0,0')}/{numberFormat(all_keygens.length, '0,0')}</span>
+                  <span className="block sm:hidden lg:block font-light">({numberFormat(all_keygens.length > 0 ? keygens.length * 100 / all_keygens.length : keygens.length < 1 ? 0 : 100, '0,0.00')}%)</span>
+                </div>
+                :
+                <div className="skeleton w-12 h-4" />
+              }
             </div>
           </div>
         </>
