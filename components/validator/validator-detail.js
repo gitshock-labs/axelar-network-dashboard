@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { useSelector, shallowEqual } from 'react-redux'
 
 import moment from 'moment'
+import _ from 'lodash'
 
 import Widget from '../widget'
 import Copy from '../copy'
@@ -11,6 +12,8 @@ import { numberFormat, ellipseAddress } from '../../lib/utils'
 export default function ValidatorDetail({ data, delegations, keygens, all_keygens, sign_events }) {
   const { _data } = useSelector(state => ({ _data: state.data }), shallowEqual)
   const { chain_data } = { ..._data }
+
+  all_keygens = all_keygens && _.uniqBy(all_keygens, key_id => key_id.split('-').length > 2 ? _.slice(key_id.split('-'), 0, 2).join('-') : key_id)
 
   return (
     <Widget
