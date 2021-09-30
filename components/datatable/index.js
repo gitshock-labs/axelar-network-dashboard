@@ -51,7 +51,7 @@ export default function Datatable({ columns, data, rowSelectEnable = false, noPa
       stateReducer: (newState, action, prevState) => action.type.startsWith('reset') ? prevState : newState,
     },
     useSortBy,
-    noPagination ? false : usePagination,
+    /*noPagination ? false : */usePagination,
     useRowSelect,
     hooks => {
       hooks.visibleColumns.push(columns => [
