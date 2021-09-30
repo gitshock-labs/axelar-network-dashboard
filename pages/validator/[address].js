@@ -16,7 +16,8 @@ export default function ValidatorAddress() {
       <SectionTitle
         title="Details for Validator"
         subtitle={<div className="flex items-center space-x-2">
-          <span className="uppercase">{ellipseAddress(query.address, 16)}</span>
+          <span className="md:hidden uppercase text-sm md:text-lg">{ellipseAddress(query.address, 16)}</span>
+          <span className="hidden md:block uppercase text-sm md:text-lg">{ellipseAddress(query.address, 32)}</span>
           <Copy size={20} text={query.address} />
         </div>}
         right={<CoinInfo />}

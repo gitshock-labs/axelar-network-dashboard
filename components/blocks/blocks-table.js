@@ -82,7 +82,7 @@ export default function BlocksTable({ n, className = '' }) {
               !props.row.original.skeleton ?
                 <Link href={`/blocks/${props.row.original.height}`}>
                   <a className="uppercase font-medium">
-                    {ellipseAddress(props.value)}
+                    {ellipseAddress(props.value, n ? 6 : 10)}
                   </a>
                 </Link>
                 :

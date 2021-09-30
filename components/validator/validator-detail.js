@@ -26,7 +26,7 @@ export default function ValidatorDetail({ data, delegations, keygens, all_keygen
               className="w-6 md:w-10 h-6 md:h-10 rounded-full"
             />
           )}
-          <div className="flex flex-col space-y-1">
+          <div className="flex flex-col space-y-1.5 sm:space-y-1">
             <div className="flex items-center space-x-2 mb-2">
               <span className="text-lg font-semibold">{(data.description && data.description.moniker) || data.operator_address}</span>
               {data.status && (
@@ -46,39 +46,43 @@ export default function ValidatorDetail({ data, delegations, keygens, all_keygen
               )}
             </div>
             {data.operator_address && (
-              <div className="flex items-start space-x-2">
+              <div className="flex flex-col sm:flex-row items-start space-x-0 sm:space-x-2">
                 <span className="font-medium">Operator Address:</span>
                 <span className="flex items-center space-x-1">
-                  <span className="font-light">{ellipseAddress(data.operator_address, 16)}</span>
+                  <span className="sm:hidden font-light">{ellipseAddress(data.operator_address, 16)}</span>
+                  <span className="hidden sm:block font-light">{ellipseAddress(data.operator_address, 32)}</span>
                   <Copy text={data.operator_address} />
                 </span>
               </div>
             )}
             {data.delegator_address && (
-              <div className="flex items-start space-x-2">
+              <div className="flex flex-col sm:flex-row items-start space-x-0 sm:space-x-2">
                 <span className="font-medium">Self-Delegate Address:</span>
                 <span className="flex items-center space-x-1">
                   <Link href={`/account/${data.delegator_address}`}>
-                    <a className="text-blue-600 dark:text-blue-400 font-light">{ellipseAddress(data.delegator_address, 10)}</a>
+                    <a className="sm:hidden text-blue-600 dark:text-blue-400 font-light">{ellipseAddress(data.delegator_address, 16)}</a>
+                  </Link>
+                  <Link href={`/account/${data.delegator_address}`}>
+                    <a className="hidden sm:block text-blue-600 dark:text-blue-400 font-light">{ellipseAddress(data.delegator_address, 24)}</a>
                   </Link>
                   <Copy text={data.delegator_address} />
                 </span>
               </div>
             )}
             {data.description && data.description.website && (
-              <div className="flex items-start space-x-2">
+              <div className="flex flex-col sm:flex-row items-start space-x-0 sm:space-x-2">
                 <span className="font-medium">Website:</span>
                 <a href={data.description.website} target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-400 font-light">{data.description.website}</a>
               </div>
             )}
             {data.description && data.description.details && (
-              <div className="flex items-start space-x-2">
+              <div className="flex flex-col sm:flex-row items-start space-x-0 sm:space-x-2">
                 <span className="font-medium">Details:</span>
                 <span className="font-light">{data.description.details}</span>
               </div>
             )}
             {data.started_at && (
-              <div className="flex items-start space-x-2">
+              <div className="flex flex-col sm:flex-row items-start space-x-0 sm:space-x-2">
                 <span className="font-medium">First Seen:</span>
                 <div className="flex flex-wrap items-start">
                   <span className="text-gray-400 dark:text-gray-400 mr-2">{moment(data.started_at).fromNow()}</span>

@@ -183,7 +183,7 @@ export default function Validator({ address }) {
         </div>
         <div className="w-full md:w-1/2 xl:w-3/5 my-2">
           <Widget
-            title={<div className="flex flex-row items-center space-x-1">
+            title={<div className="grid grid-flow-row grid-cols-2 sm:flex flex-row items-center space-x-1">
               {['voting_events', 'delegations', 'signing_events', 'keygen'].map((_table, i) => (
                 <div
                   key={i}

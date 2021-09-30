@@ -13,7 +13,7 @@ import { numberFormat, ellipseAddress } from '../../lib/utils'
 const COLLAPSE_VALIDATORS_SIZE = 5
 
 export default function KeysTable({ data, corruption_signing_threshold, page }) {
-  const [keyIdSeeMore, setKeyIdSeeMore] = useState(null)
+  const [keyIdsSeeMore, setKeyIdsSeeMore] = useState([])
 
   return (
     <>
@@ -141,7 +141,7 @@ export default function KeysTable({ data, corruption_signing_threshold, page }) 
                 <div className={`flex flex-col space-y-2 mb-${props.value && props.value.length > COLLAPSE_VALIDATORS_SIZE ? 0.5 : 4}`}>
                   {props.value && props.value.length > 0 ?
                     <>
-                      {_.slice(props.value, 0, keyIdSeeMore === props.row.original.key_id ? props.value.length : COLLAPSE_VALIDATORS_SIZE).map((validator, i) => (
+                      {_.slice(props.value, 0, keyIdsSeeMore.includes(props.row.original.key_id) ? props.value.length : COLLAPSE_VALIDATORS_SIZE).map((validator, i) => (
                         <div key={i} className="flex items-center text-xs space-x-1.5">
                           <div className="flex flex-col space-y-0.5">
                             {validator.description && validator.description.moniker && (
@@ -189,13 +189,13 @@ export default function KeysTable({ data, corruption_signing_threshold, page }) 
                           <span className="text-gray-600 dark:text-gray-400 font-semibold">[{numberFormat(validator.share, '0,0')}]</span>
                         </div>
                       ))}
-                      {(props.value.length > COLLAPSE_VALIDATORS_SIZE || keyIdSeeMore === props.row.original.key_id) && (
+                      {(props.value.length > COLLAPSE_VALIDATORS_SIZE || keyIdsSeeMore.includes(props.row.original.key_id)) && (
                         <div
-                          onClick={() => setKeyIdSeeMore(keyIdSeeMore === props.row.original.key_id ? null : props.row.original.key_id)}
-                          className={`max-w-min flex items-center cursor-pointer rounded capitalize text-${keyIdSeeMore === props.row.original.key_id ? 'red-500' : 'gray-500 dark:text-white'} text-xs font-medium space-x-0.5`}
+                          onClick={() => setKeyIdsSeeMore(keyIdsSeeMore.includes(props.row.original.key_id) ? keyIdsSeeMore.filter(key_id => key_id !== props.row.original.key_id) : _.uniq(_.concat(keyIdsSeeMore, props.row.original.key_id)))}
+                          className={`max-w-min flex items-center cursor-pointer rounded capitalize text-${keyIdsSeeMore.includes(props.row.original.key_id) ? 'red-500' : 'gray-500 dark:text-white'} text-xs font-medium space-x-0.5`}
                         >
-                          <span>See {keyIdSeeMore === props.row.original.key_id ? 'Less' : 'More'}</span>
-                          {keyIdSeeMore === props.row.original.key_id ? <IoCaretUpOutline /> : <IoCaretDownOutline />}
+                          <span>See {keyIdsSeeMore.includes(props.row.original.key_id) ? 'Less' : 'More'}</span>
+                          {keyIdsSeeMore.includes(props.row.original.key_id) ? <IoCaretUpOutline /> : <IoCaretDownOutline />}
                         </div>
                       )}
                     </>
