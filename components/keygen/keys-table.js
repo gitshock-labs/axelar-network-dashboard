@@ -120,8 +120,8 @@ export default function KeysTable({ data, corruption_signing_threshold, page }) 
                 <div className="flex flex-col text-right space-y-0.5">
                   {props.value > -1 ?
                     <>
-                      <span className="font-semibold">{numberFormat(props.value, '0,0')} / {numberFormat(_.sum(Object.entries(corruption_signing_threshold).filter(([key_id, threshold]) => _.head(key_id.split('-')) === _.head(props.row.original.key_id.split('-'))).map(([key_id, threshold]) => threshold)), '0,0')}</span>
-                      <span className="text-gray-400 dark:text-gray-500 text-xs">({numberFormat(props.value * 100 / _.sum(Object.entries(corruption_signing_threshold).filter(([key_id, threshold]) => _.head(key_id.split('-')) === _.head(props.row.original.key_id.split('-'))).map(([key_id, threshold]) => threshold)), '0,0.00')}%)</span>
+                      <span className="font-semibold">{numberFormat(props.value, '0,0')} / {numberFormat(_.sum(Object.entries(corruption_signing_threshold).filter(([key_id, threshold]) => _.head(key_id.split('-')) === _.head(props.row.original.key_id.split('-')) && _.last(key_id.split('-')) === _.last(props.row.original.key_id.split('-'))).map(([key_id, threshold]) => threshold)), '0,0')}</span>
+                      <span className="text-gray-400 dark:text-gray-500 text-xs">({numberFormat(props.value * 100 / _.sum(Object.entries(corruption_signing_threshold).filter(([key_id, threshold]) => _.head(key_id.split('-')) === _.head(props.row.original.key_id.split('-')) && _.last(key_id.split('-')) === _.last(props.row.original.key_id.split('-'))).map(([key_id, threshold]) => threshold)), '0,0.00')}%)</span>
                     </>
                     :
                     '-'
