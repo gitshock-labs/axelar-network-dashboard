@@ -22,7 +22,7 @@ export default function KeysTable({ data, corruption_signing_threshold, page }) 
           {
             Header: 'Key ID',
             accessor: 'key_id',
-            disableSortBy: true,
+            sortType: (rowA, rowB) => rowA.original.key_id > rowB.original.key_id ? 1 : -1,
             Cell: props => (
               !props.row.original.skeleton ?
                 <div className="flex items-center text-gray-900 dark:text-gray-100 space-x-1">
@@ -37,7 +37,7 @@ export default function KeysTable({ data, corruption_signing_threshold, page }) 
           {
             Header: 'Key Chain',
             accessor: 'key_chain',
-            disableSortBy: true,
+            sortType: (rowA, rowB) => rowA.original.key_chain > rowB.original.key_chain ? 1 : -1,
             Cell: props => (
               !props.row.original.skeleton ?
                 props.value ?
@@ -53,7 +53,7 @@ export default function KeysTable({ data, corruption_signing_threshold, page }) 
           {
             Header: 'Key Role',
             accessor: 'key_role',
-            disableSortBy: true,
+            sortType: (rowA, rowB) => rowA.original.key_role > rowB.original.key_role ? 1 : -1,
             Cell: props => (
               !props.row.original.skeleton ?
                 props.value ?
@@ -69,7 +69,7 @@ export default function KeysTable({ data, corruption_signing_threshold, page }) 
           {
             Header: 'Snapshot Block',
             accessor: 'snapshot_block_number',
-            disableSortBy: true,
+            sortType: (rowA, rowB) => rowA.original.snapshot_block_number > rowB.original.snapshot_block_number ? 1 : -1,
             Cell: props => (
               !props.row.original.skeleton ?
                 <div className="text-right">
@@ -117,11 +117,11 @@ export default function KeysTable({ data, corruption_signing_threshold, page }) 
             sortType: (rowA, rowB) => rowA.original.corruption_signing_threshold > rowB.original.corruption_signing_threshold ? 1 : -1,
             Cell: props => (
               !props.row.original.skeleton && corruption_signing_threshold ?
-                <div className="text-right space-x-1">
+                <div className="flex flex-col text-right space-y-0.5">
                   {props.value > -1 ?
                     <>
-                      <span>{numberFormat(props.value, '0,0')}/{numberFormat(_.sum(Object.entries(corruption_signing_threshold).filter(([key_id, threshold]) => _.head(key_id.split('-')) === _.head(props.row.original.key_id.split('-'))).map(([key_id, threshold]) => threshold)), '0,0')}</span>
-                      <span>({numberFormat(props.value * 100 / _.sum(Object.entries(corruption_signing_threshold).filter(([key_id, threshold]) => _.head(key_id.split('-')) === _.head(props.row.original.key_id.split('-'))).map(([key_id, threshold]) => threshold)), '0,0.00')}%)</span>
+                      <span className="font-semibold">{numberFormat(props.value, '0,0')} / {numberFormat(_.sum(Object.entries(corruption_signing_threshold).filter(([key_id, threshold]) => _.head(key_id.split('-')) === _.head(props.row.original.key_id.split('-'))).map(([key_id, threshold]) => threshold)), '0,0')}</span>
+                      <span className="text-gray-400 dark:text-gray-500 text-xs">({numberFormat(props.value * 100 / _.sum(Object.entries(corruption_signing_threshold).filter(([key_id, threshold]) => _.head(key_id.split('-')) === _.head(props.row.original.key_id.split('-'))).map(([key_id, threshold]) => threshold)), '0,0.00')}%)</span>
                     </>
                     :
                     '-'
