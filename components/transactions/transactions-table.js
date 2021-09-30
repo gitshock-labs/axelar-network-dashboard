@@ -111,27 +111,35 @@ export default function TransactionsTable({ data, noLoad, hasVote, page, classNa
                 <div className="skeleton w-16 h-4" />
             ),
           },
-          // {
-          //   Header: 'Value',
-          //   accessor: 'value',
-          //   disableSortBy: true,
-          //   Cell: props => (
-          //     !props.row.original.skeleton ?
-          //       <div className="text-right">
-          //         {typeof props.value === 'number' ?
-          //           <span className="flex items-center justify-end space-x-1">
-          //             <span>{numberFormat(props.value, '0,0.00000000')}</span>
-          //             <span className="uppercase font-medium">{props.row.original.symbol}</span>
-          //           </span>
-          //           :
-          //           '-'
-          //         }
-          //       </div>
-          //       :
-          //       <div className="skeleton w-16 h-4 ml-auto" />
-          //   ),
-          //   headerClassName: 'justify-end text-right',
-          // },
+          {
+            Header: 'Amount',
+            accessor: 'value',
+            disableSortBy: true,
+            Cell: props => (
+              !props.row.original.skeleton ?
+                <div className="text-right">
+                  {typeof props.value === 'number' ?
+                    <span className="flex items-center justify-end space-x-1">
+                      <span>{numberFormat(props.value, '0,0.00000000')}</span>
+                      <span className="uppercase font-medium">{props.row.original.symbol}</span>
+                    </span>
+                    :
+                    props.row.original.activities && props.row.original.activities.findIndex(activity => activity.amount && activity.symbol) > -1 ?
+                      props.row.original.activities.map((activity, i) => (
+                        <div key={i} className="flex items-center justify-end space-x-1">
+                          <span>{numberFormat(activity.amount, '0,0.00000000')}</span>
+                          <span className="uppercase font-medium">{ellipseAddress(activity.symbol || activity.denom, 6)}</span>
+                        </div>
+                      ))
+                      :
+                      '-'
+                  }
+                </div>
+                :
+                <div className="skeleton w-16 h-4 ml-auto" />
+            ),
+            headerClassName: 'justify-end text-right',
+          },
           {
             Header: 'Fee',
             accessor: 'fee',
@@ -191,7 +199,7 @@ export default function TransactionsTable({ data, noLoad, hasVote, page, classNa
             ),
             headerClassName: 'justify-end text-right',
           },
-        ].filter(column => ['blocks'].includes(page) ? !(['height', 'vote'].includes(column.accessor)) : ['index'].includes(page) ? !(['height', 'fee', 'vote'].includes(column.accessor)) : ['validator'].includes(page) ? !((hasVote ? ['value', 'fee'] : ['vote']).includes(column.accessor)) : !(['vote'].includes(column.accessor)))}
+        ].filter(column => ['blocks'].includes(page) ? !(['height', 'vote'].includes(column.accessor)) : ['index'].includes(page) ? !(['height', 'value', 'fee', 'vote'].includes(column.accessor)) : ['validator'].includes(page) ? !((hasVote ? ['value', 'fee'] : ['value', 'fee', 'vote']).includes(column.accessor)) : !(['vote'].includes(column.accessor)))}
         data={transactions ?
           transactions.data && transactions.data.map((transaction, i) => { return { ...transaction, i } })
           :
