@@ -26,7 +26,7 @@ export default function ValidatorDetail({ data, delegations, keygens, all_keygen
               className="w-6 md:w-10 h-6 md:h-10 rounded-full"
             />
           )}
-          <div className="flex flex-col space-y-1.5 sm:space-y-1">
+          <div className="flex flex-col space-y-1.5 lg:space-y-1">
             <div className="flex items-center space-x-2 mb-2">
               <span className="text-lg font-semibold">{(data.description && data.description.moniker) || data.operator_address}</span>
               {data.status && (
@@ -46,43 +46,43 @@ export default function ValidatorDetail({ data, delegations, keygens, all_keygen
               )}
             </div>
             {data.operator_address && (
-              <div className="flex flex-col sm:flex-row items-start space-x-0 sm:space-x-2">
+              <div className="flex flex-col xl:flex-row items-start space-x-0 xl:space-x-2">
                 <span className="font-medium">Operator Address:</span>
-                <span className="flex items-center space-x-1">
-                  <span className="sm:hidden font-light">{ellipseAddress(data.operator_address, 16)}</span>
-                  <span className="hidden sm:block font-light">{ellipseAddress(data.operator_address, 32)}</span>
+                <span className="flex items-center space-x-1 lg:space-x-0">
+                  <span className="lg:hidden font-light">{ellipseAddress(data.operator_address, 16)}</span>
+                  <span className="hidden lg:block font-light lg:pr-1">{ellipseAddress(data.operator_address, 32)}</span>
                   <Copy text={data.operator_address} />
                 </span>
               </div>
             )}
             {data.delegator_address && (
-              <div className="flex flex-col sm:flex-row items-start space-x-0 sm:space-x-2">
+              <div className="flex flex-col xl:flex-row items-start space-x-0 xl:space-x-2">
                 <span className="font-medium">Self-Delegate Address:</span>
-                <span className="flex items-center space-x-1">
+                <span className="flex items-center space-x-1 lg:space-x-0">
                   <Link href={`/account/${data.delegator_address}`}>
-                    <a className="sm:hidden text-blue-600 dark:text-blue-400 font-light">{ellipseAddress(data.delegator_address, 16)}</a>
+                    <a className="lg:hidden text-blue-600 dark:text-blue-400 font-light">{ellipseAddress(data.delegator_address, 16)}</a>
                   </Link>
                   <Link href={`/account/${data.delegator_address}`}>
-                    <a className="hidden sm:block text-blue-600 dark:text-blue-400 font-light">{ellipseAddress(data.delegator_address, 24)}</a>
+                    <a className="hidden lg:block text-blue-600 dark:text-blue-400 font-light lg:pr-1">{ellipseAddress(data.delegator_address, 24)}</a>
                   </Link>
                   <Copy text={data.delegator_address} />
                 </span>
               </div>
             )}
             {data.description && data.description.website && (
-              <div className="flex flex-col sm:flex-row items-start space-x-0 sm:space-x-2">
+              <div className="flex flex-col lg:flex-row items-start space-x-0 lg:space-x-2">
                 <span className="font-medium">Website:</span>
                 <a href={data.description.website} target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-400 font-light">{data.description.website}</a>
               </div>
             )}
             {data.description && data.description.details && (
-              <div className="flex flex-col sm:flex-row items-start space-x-0 sm:space-x-2">
+              <div className="flex flex-col lg:flex-row items-start space-x-0 lg:space-x-2">
                 <span className="font-medium">Details:</span>
                 <span className="font-light">{data.description.details}</span>
               </div>
             )}
             {data.started_at && (
-              <div className="flex flex-col sm:flex-row items-start space-x-0 sm:space-x-2">
+              <div className="flex flex-col lg:flex-row items-start space-x-0 lg:space-x-2">
                 <span className="font-medium">First Seen:</span>
                 <div className="flex flex-wrap items-start">
                   <span className="text-gray-400 dark:text-gray-400 mr-2">{moment(data.started_at).fromNow()}</span>
@@ -145,25 +145,25 @@ export default function ValidatorDetail({ data, delegations, keygens, all_keygen
               }
             </div>
             <div className="flex items-center space-x-2">
-              <span className="font-medium">Signing Participation:</span>
+              <span className="max-w-max sm:max-w-min lg:max-w-max font-medium">Signing Participation:</span>
               {sign_events ?
                 <div className="flex space-x-1">
                   <span className="font-light">{numberFormat(sign_events.filter(event => event.participated).length, '0,0')}/{numberFormat(sign_events.length, '0,0')}</span>
                   <span className="block sm:hidden lg:block font-light">({numberFormat(sign_events.length > 0 ? sign_events.filter(event => event.participated).length * 100 / sign_events.length : sign_events.filter(event => event.participated).length < 1 ? 0 : 100, '0,0.00')}%)</span>
                 </div>
                 :
-                <div className="skeleton w-12 h-4" />
+                <div className="skeleton w-6 lg:w-12 h-4" />
               }
             </div>
             <div className="flex items-center space-x-2">
-              <span className="font-medium">Keygen Participation:</span>
+              <span className="max-w-max sm:max-w-min lg:max-w-max font-medium">Keygen Participation:</span>
               {keygens && all_keygens ?
                 <div className="flex space-x-1">
                   <span className="font-light">{numberFormat(keygens.length, '0,0')}/{numberFormat(all_keygens.length, '0,0')}</span>
                   <span className="block sm:hidden lg:block font-light">({numberFormat(all_keygens.length > 0 ? keygens.length * 100 / all_keygens.length : keygens.length < 1 ? 0 : 100, '0,0.00')}%)</span>
                 </div>
                 :
-                <div className="skeleton w-12 h-4" />
+                <div className="skeleton w-6 lg:w-12 h-4" />
               }
             </div>
           </div>
@@ -171,16 +171,16 @@ export default function ValidatorDetail({ data, delegations, keygens, all_keygen
         :
         <>
           <div className="grid grid-flow-row grid-cols-1 md:grid-cols-2 gap-2 md:gap-4 text-base mt-3">
-            <div className="skeleton w-48 h-5" />
-            <div className="skeleton w-48 h-5" />
-            <div className="skeleton w-60 h-5" />
-            <div className="skeleton w-60 h-5" />
+            <div className="skeleton w-48 md:w-28 lg:w-48 h-5" />
+            <div className="skeleton w-48 md:w-28 lg:w-48 h-5" />
+            <div className="skeleton w-48 md:w-28 lg:w-56 h-5" />
+            <div className="skeleton w-48 md:w-28 lg:w-56 h-5" />
           </div>
           <div className="grid grid-flow-row grid-cols-1 md:grid-cols-2 gap-2 md:gap-4 text-base mt-4">
-            <div className="skeleton w-48 h-5" />
-            <div className="skeleton w-48 h-5" />
-            <div className="skeleton w-60 h-5" />
-            <div className="skeleton w-60 h-5" />
+            <div className="skeleton w-48 md:w-28 lg:w-48 h-5" />
+            <div className="skeleton w-48 md:w-28 lg:w-48 h-5" />
+            <div className="skeleton w-48 md:w-28 lg:w-56 h-5" />
+            <div className="skeleton w-48 md:w-28 lg:w-56 h-5" />
           </div>
         </>
       }

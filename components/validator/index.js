@@ -183,12 +183,12 @@ export default function Validator({ address }) {
         </div>
         <div className="w-full md:w-1/2 xl:w-3/5 my-2">
           <Widget
-            title={<div className="grid grid-flow-row grid-cols-2 sm:flex flex-row items-center space-x-1">
+            title={<div className="grid grid-flow-row grid-cols-2 sm:grid-cols-4 md:grid-cols-2 xl:flex flex-row items-center space-x-1">
               {['voting_events', 'delegations', 'signing_events', 'keygen'].map((_table, i) => (
                 <div
                   key={i}
                   onClick={() => setTable(_table)}
-                  className={`btn btn-default btn-rounded cursor-pointer bg-trasparent ${_table === table ? 'bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white font-semibold' : 'hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-500 hover:text-gray-700 text-white dark:hover:text-gray-100'}`}
+                  className={`max-w-min sm:max-w-max md:max-w-min lg:max-w-max btn btn-default btn-rounded cursor-pointer bg-trasparent ${_table === table ? 'bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white font-semibold' : 'hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-500 hover:text-gray-700 text-white dark:hover:text-gray-100'}`}
                 >
                   {getName(_table)}
                   {_table === 'voting_events' && (<span className="text-gray-500 font-light italic ml-1">(Mock Data)</span>)}

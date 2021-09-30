@@ -15,9 +15,9 @@ export default function AccountIndex() {
     <>
       <SectionTitle
         title="Details for Account"
-        subtitle={<div className="flex items-center space-x-2">
-          <span className="md:hidden uppercase text-sm md:text-lg">{ellipseAddress(query.address, 16)}</span>
-          <span className="hidden md:block uppercase text-sm md:text-lg">{ellipseAddress(query.address, 24)}</span>
+        subtitle={<div className="flex items-center space-x-2 xl:space-x-0">
+          <span className="xl:hidden uppercase text-sm xl:text-lg">{ellipseAddress(query.address, 16)}</span>
+          <span className="hidden xl:block uppercase text-sm xl:text-lg xl:pr-2">{ellipseAddress(query.address, 24)}</span>
           <Copy size={20} text={query.address} />
         </div>}
         right={<CoinInfo />}

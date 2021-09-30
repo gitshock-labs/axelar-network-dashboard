@@ -16,7 +16,7 @@ export default function Tx() {
       <SectionTitle
         title="Details for Transaction"
         subtitle={<div className="flex items-center space-x-2">
-          <span className="uppercase text-sm md:text-lg">{ellipseAddress(query.tx, 16)}</span>
+          <span className="uppercase text-sm lg:text-lg">{ellipseAddress(query.tx, 16)}</span>
           <Copy size={20} text={query.tx} />
         </div>}
         right={<CoinInfo />}
