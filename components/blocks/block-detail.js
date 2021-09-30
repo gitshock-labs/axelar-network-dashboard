@@ -32,7 +32,7 @@ export default function BlockDetail({ data, validator_data }) {
           <span className="font-semibold">Block Hash:</span>
           {data ?
             <span className="flex items-center space-x-1">
-              <span>{ellipseAddress(data.hash)}</span>
+              <span>{ellipseAddress(data.hash, 16)}</span>
               <Copy text={data.hash} />
             </span>
             :
@@ -88,7 +88,7 @@ export default function BlockDetail({ data, validator_data }) {
                   <span className="flex items-center space-x-1">
                     <Link href={`/validator/${data.operator_address}`}>
                       <a className="text-gray-500 font-light">
-                        {ellipseAddress(data.operator_address)}
+                        {ellipseAddress(data.operator_address, 16)}
                       </a>
                     </Link>
                     <Copy text={data.operator_address} />

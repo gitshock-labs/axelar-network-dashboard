@@ -112,7 +112,7 @@ export default function ValidatorsTable({ status }) {
                     <span className="flex items-center space-x-1">
                       <Link href={`/validator/${props.row.original.operator_address}`}>
                         <a className="text-gray-500 font-light">
-                          {ellipseAddress(props.row.original.operator_address)}
+                          {ellipseAddress(props.row.original.operator_address, 16)}
                         </a>
                       </Link>
                       <Copy text={props.row.original.operator_address} />

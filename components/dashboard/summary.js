@@ -83,7 +83,7 @@ const Summary = ({ data }) => {
                       <span className="flex items-center space-x-1">
                         <Link href={`/validator/${data.latest_block.operator_address}`}>
                           <a className="text-gray-500 font-light">
-                            {ellipseAddress(data.latest_block.operator_address)}
+                            {ellipseAddress(data.latest_block.operator_address, 16)}
                           </a>
                         </Link>
                         <Copy text={data.latest_block.operator_address} />

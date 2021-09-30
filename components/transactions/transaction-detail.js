@@ -95,7 +95,7 @@ export default function TransactionDetail({ data }) {
               <div className="flex flex-wrap items-center text-xs lg:text-base space-x-1">
                 <Link href={`/${data.from.type === 'validator' ? 'validator' : 'account'}/${data.from.key}`}>
                   <a className="uppercase text-blue-600 dark:text-blue-400 font-medium">
-                    {ellipseAddress(data.from.key)}
+                    {ellipseAddress(data.from.key, 16)}
                   </a>
                 </Link>
                 <Copy text={data.from.key} />
@@ -115,7 +115,7 @@ export default function TransactionDetail({ data }) {
               <div className="flex flex-wrap items-center text-xs lg:text-base space-x-1">
                 <Link href={`/${data.from.type === 'validator' ? 'validator' : 'account'}/${data.to.key}`}>
                   <a className="uppercase text-blue-600 dark:text-blue-400 font-medium">
-                    {ellipseAddress(data.to.key)}
+                    {ellipseAddress(data.to.key, 16)}
                   </a>
                 </Link>
                 <Copy text={data.to.key} />

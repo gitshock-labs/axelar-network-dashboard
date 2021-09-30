@@ -9,7 +9,7 @@ import Copy from '../copy'
 
 import { bridgeAccounts as getBridgeAccounts } from '../../lib/api/query'
 import { axelard } from '../../lib/api/executor'
-import { ellipseAddress, randImage } from '../../lib/utils'
+import { randImage } from '../../lib/utils'
 
 export default function Bridge() {
   const [bridgeAccounts, setBridgeAccounts] = useState(null)

@@ -49,7 +49,7 @@ export default function ValidatorDetail({ data, delegations, keygens, all_keygen
               <div className="flex items-start space-x-2">
                 <span className="font-medium">Operator Address:</span>
                 <span className="flex items-center space-x-1">
-                  <span className="font-light">{ellipseAddress(data.operator_address)}</span>
+                  <span className="font-light">{ellipseAddress(data.operator_address, 16)}</span>
                   <Copy text={data.operator_address} />
                 </span>
               </div>
@@ -59,7 +59,7 @@ export default function ValidatorDetail({ data, delegations, keygens, all_keygen
                 <span className="font-medium">Self-Delegate Address:</span>
                 <span className="flex items-center space-x-1">
                   <Link href={`/account/${data.delegator_address}`}>
-                    <a className="text-blue-600 dark:text-blue-400 font-light">{ellipseAddress(data.delegator_address)}</a>
+                    <a className="text-blue-600 dark:text-blue-400 font-light">{ellipseAddress(data.delegator_address, 10)}</a>
                   </Link>
                   <Copy text={data.delegator_address} />
                 </span>

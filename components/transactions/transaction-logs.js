@@ -32,7 +32,7 @@ export default function TransactionLogs({ data }) {
                       <div className="flex flex-wrap items-center text-xs lg:text-base space-x-1">
                         <Link href={`/${type(activity.sender)}/${activity.sender}`}>
                           <a className="uppercase text-blue-600 dark:text-blue-400 font-medium">
-                            {ellipseAddress(activity.sender)}
+                            {ellipseAddress(activity.sender, 16)}
                           </a>
                         </Link>
                         <Copy text={activity.sender} />
@@ -54,7 +54,7 @@ export default function TransactionLogs({ data }) {
                       <div className="flex flex-wrap items-center text-xs lg:text-base space-x-1">
                         <Link href={`/${type(activity.depositor)}/${activity.depositor}`}>
                           <a className="uppercase text-blue-600 dark:text-blue-400 font-medium">
-                            {ellipseAddress(activity.depositor)}
+                            {ellipseAddress(activity.depositor, 16)}
                           </a>
                         </Link>
                         <Copy text={activity.depositor} />
@@ -165,7 +165,7 @@ export default function TransactionLogs({ data }) {
                       <div className="flex flex-wrap items-center text-xs lg:text-base space-x-1">
                         <Link href={`/${type(activity.recipient)}/${activity.recipient}`}>
                           <a className="uppercase text-blue-600 dark:text-blue-400 font-medium">
-                            {ellipseAddress(activity.recipient)}
+                            {ellipseAddress(activity.recipient, 16)}
                           </a>
                         </Link>
                         <Copy text={activity.recipient} />
@@ -187,7 +187,7 @@ export default function TransactionLogs({ data }) {
                       <div className="flex flex-wrap items-center text-xs lg:text-base space-x-1">
                         <Link href={`/${type(activity.validator)}/${activity.validator}`}>
                           <a className="uppercase text-blue-600 dark:text-blue-400 font-medium">
-                            {ellipseAddress(activity.validator)}
+                            {ellipseAddress(activity.validator, 16)}
                           </a>
                         </Link>
                         <Copy text={activity.validator} />

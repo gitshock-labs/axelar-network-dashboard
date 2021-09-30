@@ -392,7 +392,7 @@ export default function AccountDetail({ data }) {
                         <span className="flex items-center space-x-1">
                           <Link href={`/validator/${props.row.original.validator_address}`}>
                             <a className="text-gray-500 font-light">
-                              {ellipseAddress(props.row.original.validator_address)}
+                              {ellipseAddress(props.row.original.validator_address, 16)}
                             </a>
                           </Link>
                           <Copy text={props.row.original.validator_address} />
@@ -537,7 +537,7 @@ export default function AccountDetail({ data }) {
                         <span className="flex items-center space-x-1">
                           <Link href={`/validator/${props.row.original.validator_address}`}>
                             <a className="text-gray-500 font-light">
-                              {ellipseAddress(props.row.original.validator_address)}
+                              {ellipseAddress(props.row.original.validator_address, 16)}
                             </a>
                           </Link>
                           <Copy text={props.row.original.validator_address} />

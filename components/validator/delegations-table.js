@@ -16,7 +16,7 @@ export default function DelegationsTable({ data }) {
               !props.row.original.skeleton ?
                 props.value ?
                   <div className="flex items-center space-x-1">
-                    <span className="font-medium">{ellipseAddress(props.value)}</span>
+                    <span className="font-medium">{ellipseAddress(props.value, 16)}</span>
                     <Copy text={props.value} />
                     {props.row.original.self && (
                       <span className="bg-indigo-600 rounded-full capitalize text-white font-semibold px-2 py-0.5">

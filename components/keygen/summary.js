@@ -10,7 +10,7 @@ const Summary = ({ data }) => {
   return (
     <div className="w-full grid grid-flow-row grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 my-4">
       <Widget
-        title="Active Keygen Threshold"
+        title="Keygen Threshold"
         className="bg-transparent sm:bg-white sm:dark:bg-gray-900 border-0 sm:border border-gray-100 dark:border-gray-800 p-0 sm:p-4"
       >
         <span className="flex flex-col mt-1 space-y-1">
