@@ -195,7 +195,13 @@ export default function KeysTable({ data, corruption_signing_threshold, page }) 
                           className={`max-w-min flex items-center cursor-pointer rounded capitalize text-${keyIdsSeeMore.includes(props.row.original.key_id) ? 'red-500' : 'gray-500 dark:text-white'} text-xs font-medium space-x-0.5`}
                         >
                           <span>See {keyIdsSeeMore.includes(props.row.original.key_id) ? 'Less' : 'More'}</span>
+                          {!(keyIdsSeeMore.includes(props.row.original.key_id)) && (
+                            <span>({numberFormat(props.value.length - COLLAPSE_VALIDATORS_SIZE, '0,0')})</span>
+                          )}
                           {keyIdsSeeMore.includes(props.row.original.key_id) ? <IoCaretUpOutline /> : <IoCaretDownOutline />}
+                          {!(keyIdsSeeMore.includes(props.row.original.key_id)) && (
+                            <span>[{numberFormat(_.sumBy(_.slice(props.value, COLLAPSE_VALIDATORS_SIZE), 'share'), '0,0')}]</span>
+                          )}
                         </div>
                       )}
                     </>
