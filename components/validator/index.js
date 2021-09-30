@@ -184,7 +184,7 @@ export default function Validator({ address }) {
         <div className="w-full md:w-1/2 xl:w-3/5 my-2">
           <Widget
             title={<div className="flex flex-row items-center space-x-1">
-              {['voting_events', 'delegations', 'keygen'].map((_table, i) => (
+              {['voting_events', 'delegations', 'signing_events', 'keygen'].map((_table, i) => (
                 <div
                   key={i}
                   onClick={() => setTable(_table)}
@@ -199,12 +199,15 @@ export default function Validator({ address }) {
           >
             <div className="mt-3">
               {table === 'voting_events' ?
-                <TransactionsTable data={transactions} noLoad={true} page="validator" />
+                <TransactionsTable data={transactions} noLoad={true} hasVote={true} page="validator" />
                 :
                 table === 'delegations' ?
-                 <DelegationsTable data={delegations && delegations.address === address && delegations.data} />
+                  <DelegationsTable data={delegations && delegations.address === address && delegations.data} />
                   :
-                  <KeysTable data={keygens} page="validator" />
+                  table === 'signing_events' ?
+                    <TransactionsTable data={signEvents && { ...signEvents, data: _.slice(signEvents.data, 0, 100) }} noLoad={true} page="validator" />
+                    :
+                    <KeysTable data={keygens} page="validator" />
               }
             </div>
           </Widget>

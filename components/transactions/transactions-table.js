@@ -12,7 +12,7 @@ import { numberFormat, getName, ellipseAddress } from '../../lib/utils'
 
 const LATEST_SIZE = 100
 
-export default function TransactionsTable({ data, noLoad, page, className = '' }) {
+export default function TransactionsTable({ data, noLoad, hasVote, page, className = '' }) {
   const [transactions, setTransactions] = useState(null)
 
   useEffect(() => {
@@ -191,7 +191,7 @@ export default function TransactionsTable({ data, noLoad, page, className = '' }
             ),
             headerClassName: 'justify-end text-right',
           },
-        ].filter(column => ['blocks'].includes(page) ? !(['height', 'vote'].includes(column.accessor)) : ['index'].includes(page) ? !(['height', 'fee', 'vote'].includes(column.accessor)) : ['validator'].includes(page) ? !([/*'type', 'status', */'value', 'fee'].includes(column.accessor)) : !(['vote'].includes(column.accessor)))}
+        ].filter(column => ['blocks'].includes(page) ? !(['height', 'vote'].includes(column.accessor)) : ['index'].includes(page) ? !(['height', 'fee', 'vote'].includes(column.accessor)) : ['validator'].includes(page) ? !((hasVote ? ['value', 'fee'] : ['vote']).includes(column.accessor)) : !(['vote'].includes(column.accessor)))}
         data={transactions ?
           transactions.data && transactions.data.map((transaction, i) => { return { ...transaction, i } })
           :
