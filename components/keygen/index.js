@@ -43,9 +43,7 @@ export default function Keygen() {
     const getData = async () => {
       const response = await keygenSummary()
 
-      if (response) {
-        setSummaryData({ data: response.data || {}})
-      }
+      setSummaryData({ data: response || {}})
     }
 
     getData()
@@ -128,7 +126,7 @@ export default function Keygen() {
   return (
     <div className="max-w-6xl my-4 xl:my-6 mx-auto">
       <Summary data={summaryData && summaryData.data} />
-      <KeysTable data={keygens} />
+      <KeysTable data={keygens} corruption_signing_threshold={summaryData && summaryData.data && summaryData.data.corruption_signing_threshold} />
     </div>
   )
 }

@@ -3,6 +3,7 @@ import { useState } from 'react'
 
 import _ from 'lodash'
 import { FiKey } from 'react-icons/fi'
+import { IoCaretUpOutline, IoCaretDownOutline } from 'react-icons/io5'
 
 import Datatable from '../datatable'
 import Copy from '../copy'
@@ -11,7 +12,7 @@ import { numberFormat, ellipseAddress } from '../../lib/utils'
 
 const COLLAPSE_VALIDATORS_SIZE = 5
 
-export default function KeysTable({ data, page }) {
+export default function KeysTable({ data, corruption_signing_threshold, page }) {
   const [keyIdSeeMore, setKeyIdSeeMore] = useState(null)
 
   return (
@@ -71,17 +72,21 @@ export default function KeysTable({ data, page }) {
             disableSortBy: true,
             Cell: props => (
               !props.row.original.skeleton ?
-                props.value ?
-                  <Link href={`/blocks/${props.value}`}>
-                    <a className="text-blue-600 dark:text-blue-400">
-                      {props.value}
-                    </a>
-                  </Link>
-                  :
-                  '-'
+                <div className="text-right">
+                  {props.value ?
+                    <Link href={`/blocks/${props.value}`}>
+                      <a className="text-blue-600 dark:text-blue-400">
+                        {props.value}
+                      </a>
+                    </Link>
+                    :
+                    '-'
+                  }
+                </div>
                 :
-                <div className="skeleton w-16 h-4" />
+                <div className="skeleton w-16 h-4 ml-auto" />
             ),
+            headerClassName: 'justify-end text-right',
           },
           {
             Header: 'Share',
@@ -96,6 +101,25 @@ export default function KeysTable({ data, page }) {
                       <span>/</span>
                       <span>{numberFormat(props.row.original.num_total_shares, '0,0')}</span>
                     </>
+                    :
+                    '-'
+                  }
+                </div>
+                :
+                <div className="skeleton w-12 h-4 ml-auto" />
+            ),
+            headerClassName: 'justify-end text-right',
+          },
+          {
+            Header: 'Corruption Threshold',
+            accessor: 'corruption_signing_threshold',
+            disableSortBy: corruption_signing_threshold ? false : true,
+            sortType: (rowA, rowB) => rowA.original.corruption_signing_threshold > rowB.original.corruption_signing_threshold ? 1 : -1,
+            Cell: props => (
+              !props.row.original.skeleton && corruption_signing_threshold ?
+                <div className="text-right space-x-1">
+                  {props.value > -1 ?
+                    <span>{numberFormat(props.value, '0,0')}</span>
                     :
                     '-'
                   }
@@ -165,9 +189,10 @@ export default function KeysTable({ data, page }) {
                       {(props.value.length > COLLAPSE_VALIDATORS_SIZE || keyIdSeeMore === props.row.original.key_id) && (
                         <div
                           onClick={() => setKeyIdSeeMore(keyIdSeeMore === props.row.original.key_id ? null : props.row.original.key_id)}
-                          className={`max-w-min cursor-pointer rounded capitalize text-${keyIdSeeMore === props.row.original.key_id ? 'red-500' : 'gray-700 dark:text-white'} text-xs font-medium`}
+                          className={`max-w-min flex items-center cursor-pointer rounded capitalize text-${keyIdSeeMore === props.row.original.key_id ? 'red-500' : 'gray-500 dark:text-white'} text-xs font-medium space-x-0.5`}
                         >
-                          See {keyIdSeeMore === props.row.original.key_id ? 'Less' : 'More'}
+                          <span>See {keyIdSeeMore === props.row.original.key_id ? 'Less' : 'More'}</span>
+                          {keyIdSeeMore === props.row.original.key_id ? <IoCaretUpOutline /> : <IoCaretDownOutline />}
                         </div>
                       )}
                     </>
@@ -183,9 +208,9 @@ export default function KeysTable({ data, page }) {
                 </div>
             ),
           },
-        ].filter(column => ['validator'].includes(page) ? !(['validators'].includes(column.accessor)) : !(['num_validator_shares'].includes(column.accessor)))}
+        ].filter(column => ['validator'].includes(page) ? !(['validators', 'corruption_signing_threshold'].includes(column.accessor)) : !(['num_validator_shares'].includes(column.accessor)))}
         data={data ?
-          data.data && data.data.map((key, i) => { return { ...key, i } })
+          data.data && data.data.map((key, i) => { return { ...key, i, corruption_signing_threshold: corruption_signing_threshold && typeof corruption_signing_threshold[key.key_id] === 'number' ? corruption_signing_threshold[key.key_id] : -1 } })
           :
           [...Array(10).keys()].map(i => { return { i, skeleton: true } })
         }
