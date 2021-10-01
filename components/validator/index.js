@@ -204,7 +204,7 @@ export default function Validator({ address }) {
                   <DelegationsTable data={delegations && delegations.address === address && delegations.data} />
                   :
                   table === 'signing_events' ?
-                    <TransactionsTable data={signEvents && { ...signEvents, data: _.slice(signEvents.data, 0, 100) }} noLoad={true} page="validator" />
+                    <TransactionsTable data={signEvents && { ...signEvents, data: _.slice(signEvents.data.filter(transaction => transaction.participated), 0, 100) }} noLoad={true} page="validator" />
                     :
                     <KeysTable data={keygens} page="validator" />
               }
