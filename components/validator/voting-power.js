@@ -5,6 +5,7 @@ import _ from 'lodash'
 import Widget from '../widget'
 import Copy from '../copy'
 
+import { denomName } from '../../lib/object/denom'
 import { numberFormat } from '../../lib/utils'
 
 export default function VotingPower({ data }) {
@@ -41,7 +42,7 @@ export default function VotingPower({ data }) {
               <span className="text-gray-400 dark:text-gray-600 space-x-1">
                 <span>(~</span>
                 <span>{numberFormat(Math.floor(data.self_delegation / Number(process.env.NEXT_PUBLIC_POWER_REDUCTION)), '0,0')}</span>
-                <span className="uppercase">{chain_data && chain_data.staking_params && chain_data.staking_params.bond_denom && chain_data.staking_params.bond_denom.substring(chain_data.staking_params.bond_denom.startsWith('u') ? 1 : 0)})</span>
+                <span className="uppercase">{chain_data && chain_data.staking_params && denomName(chain_data.staking_params.bond_denom)})</span>
               </span>
             </span>
           </div>

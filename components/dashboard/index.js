@@ -12,6 +12,7 @@ import Widget from '../widget'
 import { status as getStatus, consensusState } from '../../lib/api/rpc'
 import { allValidators } from '../../lib/api/cosmos'
 import { hexToBech32 } from '../../lib/object/key'
+import { denomName } from '../../lib/object/denom'
 import { numberFormat } from '../../lib/utils'
 
 import { STATUS_DATA, VALIDATORS_DATA } from '../../reducers/types'
@@ -103,7 +104,7 @@ export default function Dashboard() {
         avg_block_time: status_data && moment(status_data.latest_block_time).diff(moment(status_data.earliest_block_time), 'seconds') / Number(status_data.latest_block_height),
         active_validators: validators_data && validators_data.filter(validator_data => ['BOND_STATUS_BONDED'].includes(validator_data.status)).length,
         total_validators: validators_data && validators_data.length,
-        denom: chain_data && chain_data.staking_params && chain_data.staking_params.bond_denom && chain_data.staking_params.bond_denom.substring(chain_data.staking_params.bond_denom.startsWith('u') ? 1 : 0),
+        denom: chain_data && chain_data.staking_params && denomName(chain_data.staking_params.bond_denom),
         online_voting_power_now: chain_data && chain_data.staking_pool && numberFormat(Math.floor(chain_data.staking_pool.bonded_tokens), '0,0.00a'),
         online_voting_power_now_percentage: chain_data && chain_data.staking_pool && chain_data.bank_supply && (Math.floor(chain_data.staking_pool.bonded_tokens) * 100 / chain_data.bank_supply.amount),
         total_voting_power: chain_data && chain_data.bank_supply && numberFormat(chain_data.bank_supply.amount, '0,0.00a'),

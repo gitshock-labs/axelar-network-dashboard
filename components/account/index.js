@@ -9,6 +9,7 @@ import TransactionsTable from '../transactions/transactions-table'
 import Widget from '../widget'
 
 import { allValidators, allBankBalances, allStakingDelegations, allStakingUnbonding, distributionRewards, distributionCommission, transactionsByEvents } from '../../lib/api/cosmos'
+import { denomName, denomAmount } from '../../lib/object/denom'
 import { numberFormat } from '../../lib/utils'
 
 import { VALIDATORS_DATA } from '../../reducers/types'
@@ -59,8 +60,8 @@ export default function Account({ address }) {
           balances: response.data && response.data.map(balance => {
             return {
               ...balance,
-              denom: balance.denom && balance.denom.substring(balance.denom.startsWith('u') ? 1 : 0),
-              amount: balance.amount && (isNaN(balance.amount) ? -1 : Number(balance.amount) / Math.pow(10, balance.denom && balance.denom.startsWith('u') ? 6 : 0)),
+              denom: denomName(balance.denom),
+              amount: denomAmount(balance.amount, balance.denom),
             }
           }),
         }
@@ -75,10 +76,10 @@ export default function Account({ address }) {
             return {
               ...delegation.delegation,
               validator_data: delegation.delegation && validators_data && validators_data.findIndex(validator_data => validator_data.operator_address === delegation.delegation.validator_address) > -1 ? validators_data[validators_data.findIndex(validator_data => validator_data.operator_address === delegation.delegation.validator_address)].description : {},
-              shares: delegation.delegation && delegation.delegation.shares && (isNaN(delegation.delegation.shares) ? -1 : Number(delegation.delegation.shares) / Math.pow(10, delegation.balance && delegation.balance.denom && delegation.balance.denom.startsWith('u') ? 6 : 0)),
+              shares: delegation.delegation && delegation.delegation.shares && (isNaN(delegation.delegation.shares) ? -1 : denomAmount(delegation.delegation.shares, delegation.balance && delegation.balance.denom)),
               ...delegation.balance,
-              denom: delegation.balance && delegation.balance.denom && delegation.balance.denom.substring(delegation.balance.denom.startsWith('u') ? 1 : 0),
-              amount: delegation.balance && delegation.balance.amount && (isNaN(delegation.balance.amount) ? -1 : Number(delegation.balance.amount) / Math.pow(10, delegation.balance && delegation.balance.denom && delegation.balance.denom.startsWith('u') ? 6 : 0)),
+              denom: delegation.balance && delegation.balance.denom && denomName(delegation.balance.denom),
+              amount: delegation.balance && delegation.balance.amount && (isNaN(delegation.balance.amount) ? -1 : denomAmount(delegation.balance.amount, delegation.balance.denom)),
             }
           }),
         }
@@ -110,8 +111,8 @@ export default function Account({ address }) {
           ...accountData,
           rewards: {
             ...response,
-            rewards: response.rewards && Object.entries(_.groupBy(response.rewards.flatMap(reward => reward.reward).map(reward => { return { ...reward, denom: reward.denom && reward.denom.substring(reward.denom.startsWith('u') ? 1 : 0), amount: reward.amount && (isNaN(reward.amount) ? -1 : Number(reward.amount) / Math.pow(10, reward.denom && reward.denom.startsWith('u') ? 6 : 0)) } }), 'denom')).map(([key, value]) => { return { denom: key, amount: _.sumBy(value, 'amount') } }),
-            total: response.total && Object.entries(_.groupBy(response.total.map(total => { return { ...total, denom: total.denom && total.denom.substring(total.denom.startsWith('u') ? 1 : 0), amount: total.amount && Number(total.amount) / Math.pow(10, total.denom && total.denom.startsWith('u') ? 6 : 0) } }), 'denom')).map(([key, value]) => { return { denom: key, amount: _.sumBy(value, 'amount') } }),
+            rewards: response.rewards && Object.entries(_.groupBy(response.rewards.flatMap(reward => reward.reward).map(reward => { return { ...reward, denom: denomName(reward.denom), amount: reward.amount && (isNaN(reward.amount) ? -1 : denomAmount(reward.amount, reward.denom)) } }), 'denom')).map(([key, value]) => { return { denom: key, amount: _.sumBy(value, 'amount') } }),
+            total: response.total && Object.entries(_.groupBy(response.total.map(total => { return { ...total, denom: denomName(total.denom), amount: total.amount && denomAmount(total.amount, total.denom) } }), 'denom')).map(([key, value]) => { return { denom: key, amount: _.sumBy(value, 'amount') } }),
           },
         }
       }
@@ -125,8 +126,8 @@ export default function Account({ address }) {
             commission: response && response.commission && response.commission.commission && response.commission.commission.map(commission => {
               return {
                 ...commission,
-                denom: commission.denom && commission.denom.substring(commission.denom.startsWith('u') ? 1 : 0),
-                amount: commission.amount && (isNaN(commission.amount) ? -1 : Number(commission.amount) / Math.pow(10, commission.denom && commission.denom.startsWith('u') ? 6 : 0)),
+                denom: denomName(commission.denom),
+                amount: commission.amount && (isNaN(commission.amount) ? -1 : denomAmount(commission.amount, commission.denom)),
               }
             }),
           }
@@ -153,13 +154,13 @@ export default function Account({ address }) {
         data = await transactionsByEvents(`ibc_transfer.receiver='${address}'`, data)
       }
       else {
-        data = await transactionsByEvents(`message.sender='${address}'`, data)
-        data = await transactionsByEvents(`message.address='${address}'`, data)
-        data = await transactionsByEvents(`message.destinationAddress='${address}'`, data)
-        data = await transactionsByEvents(`transfer.sender='${address}'`, data)
-        data = await transactionsByEvents(`transfer.recipient='${address}'`, data)
-        data = await transactionsByEvents(`outpointConfirmation.destinationAddress='${address}'`, data)
-        data = await transactionsByEvents(`depositConfirmation.destinationAddress='${address}'`, data)
+        data = await transactionsByEvents(`message.sender='${address}'`, data, null, true)
+        data = await transactionsByEvents(`message.address='${address}'`, data, null, true)
+        data = await transactionsByEvents(`message.destinationAddress='${address}'`, data, null, true)
+        data = await transactionsByEvents(`transfer.sender='${address}'`, data, null, true)
+        data = await transactionsByEvents(`transfer.recipient='${address}'`, data, null, true)
+        data = await transactionsByEvents(`outpointConfirmation.destinationAddress='${address}'`, data, null, true)
+        data = await transactionsByEvents(`depositConfirmation.destinationAddress='${address}'`, data, null, true)
       }
 
       data = _.slice(data, 0, 100)

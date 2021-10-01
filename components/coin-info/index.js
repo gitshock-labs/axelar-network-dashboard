@@ -3,6 +3,7 @@ import { useSelector, useDispatch, shallowEqual } from 'react-redux'
 
 import { stakingParams, stakingPool, bankSupply, communityPool, mintInflation } from '../../lib/api/cosmos'
 import { simplePrice } from '../../lib/api/coingecko'
+import { denomName, denomAmount } from '../../lib/object/denom'
 import { numberFormat, ellipseAddress } from '../../lib/utils'
 
 import { CHAIN_DATA } from '../../reducers/types'
@@ -35,14 +36,14 @@ export default function CoinInfo() {
         response = await bankSupply(chainData.staking_params.bond_denom)
 
         if (response && response.amount) {
-          chainData = { ...chainData, bank_supply: Object.fromEntries(Object.entries(response.amount).map(([key, value]) => [key, isNaN(value) ? key === 'denom' && value.startsWith('u') ? value.substring(1) : value : Number(value) / Math.pow(10, response.amount.denom && response.amount.denom.startsWith('u') ? 6 : 0)])) }
+          chainData = { ...chainData, bank_supply: Object.fromEntries(Object.entries(response.amount).map(([key, value]) => [key, key === 'denom' ? denomName(value) : denomAmount(value, response.amount.denom)])) }
         }
       }
 
       response = await communityPool()
 
       if (response && response.pool) {
-        chainData = { ...chainData, community_pool: response.pool.map(pool => Object.fromEntries(Object.entries(pool).map(([key, value]) => [key, isNaN(value) ? key === 'denom' && value.startsWith('u') ? value.substring(1) : value : Number(value) / Math.pow(10, pool.denom && pool.denom.startsWith('u') ? 6 : 0)]))) }
+        chainData = { ...chainData, community_pool: response.pool.map(pool => Object.fromEntries(Object.entries(pool).map(([key, value]) => [key, key === 'denom' ? denomName(value) : denomAmount(value, pool.denom)]))) }
       }
 
       response = await mintInflation()
@@ -82,7 +83,7 @@ export default function CoinInfo() {
               :
               'N/A'
             :
-            <div className="skeleton w-8 h-3" />
+            <div className="skeleton w-8 h-4" />
           }
         </span>
       </div>
@@ -95,7 +96,7 @@ export default function CoinInfo() {
               :
               'N/A'
             :
-            <div className="skeleton w-20 h-3" />
+            <div className="skeleton w-20 h-4" />
           }
         </span>
       </div>
@@ -108,7 +109,7 @@ export default function CoinInfo() {
               :
               'N/A'
             :
-            <div className="skeleton w-8 h-3" />
+            <div className="skeleton w-8 h-4" />
           }
         </span>
       </div>
@@ -128,7 +129,7 @@ export default function CoinInfo() {
               :
               '-'
             :
-            <div className="skeleton w-20 h-3" />
+            <div className="skeleton w-20 h-4" />
           }
         </span>
       </div>

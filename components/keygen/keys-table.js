@@ -94,12 +94,11 @@ export default function KeysTable({ data, corruption_signing_threshold, page }) 
             sortType: (rowA, rowB) => rowA.original.num_validator_shares > rowB.original.num_validator_shares ? 1 : -1,
             Cell: props => (
               !props.row.original.skeleton ?
-                <div className="text-right space-x-1">
+                <div className="flex flex-col text-right space-y-0.5">
                   {typeof props.value === 'number' ?
                     <>
-                      <span>{numberFormat(props.value, '0,0')}</span>
-                      <span>/</span>
-                      <span>{numberFormat(props.row.original.num_total_shares, '0,0')}</span>
+                      <span className="font-semibold">{numberFormat(props.value, '0,0')} / {numberFormat(props.row.original.num_total_shares, '0,0')}</span>
+                      <span className="text-gray-400 dark:text-gray-500 text-xs">({numberFormat(props.value * 100 / props.row.original.num_total_shares, '0,0.00')}%)</span>
                     </>
                     :
                     '-'
