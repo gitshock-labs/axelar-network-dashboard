@@ -94,7 +94,7 @@ export default function BlocksTable({ n, className = '' }) {
             accessor: 'proposer_address',
             disableSortBy: true,
             Cell: props => (
-              !props.row.original.skeleton ?
+              !props.row.original.skeleton && validators_data ?
                 props.row.original.operator_address ?
                   <div className={`min-w-max flex items-${props.row.original.proposer_name ? 'start' : 'center'} space-x-2`}>
                     {props.row.original.proposer_image && (

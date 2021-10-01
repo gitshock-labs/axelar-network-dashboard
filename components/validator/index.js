@@ -145,15 +145,6 @@ export default function Validator({ address }) {
 
       let data = []
 
-      // if (validatorData) {
-      //   data = await transactionsByEvents(`message.sender='${validatorData.delegator_address}'`, data, null, true)
-      //   data = await transactionsByEvents(`message.address='${validatorData.delegator_address}'`, data, null, true)
-      //   data = await transactionsByEvents(`message.destinationAddress='${validatorData.delegator_address}'`, data, null, true)
-      //   data = await transactionsByEvents(`transfer.sender='${validatorData.delegator_address}'`, data, null, true)
-      //   data = await transactionsByEvents(`transfer.recipient='${validatorData.delegator_address}'`, data, null, true)
-      //   data = await transactionsByEvents(`outpointConfirmation.destinationAddress='${validatorData.delegator_address}'`, data, null, true)
-      //   data = await transactionsByEvents(`depositConfirmation.destinationAddress='${validatorData.delegator_address}'`, data, null, true)
-      // }
       data = await transactionsByEvents(`message.action='VoteConfirmDeposit'`, data, address, true)
 
       // data = _.slice(data, 0, 100)

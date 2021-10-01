@@ -56,50 +56,50 @@ const Summary = ({ data }) => {
                 <div className="skeleton w-12 h-4" />
               }
             </div>
-            <div className="flex flex-col space-y-1 my-3 sm:my-0 mr-8 lg:mr-32">
+            <div className="flex flex-col space-y-1 mt-6 mb-3 sm:my-0 mr-8 lg:mr-32">
               <span className="text-gray-600 dark:text-gray-400 text-sm font-medium">Proposer</span>
-              {data ?
-                data.latest_block && data.latest_block.operator_address ?
-                  <div className={`min-w-max flex items-${data.latest_block.proposer_name ? 'start' : 'center'}  space-x-2 pt-0.5`}>
-                    {data.latest_block.proposer_image && (
+              {data && data.latest_block && data.latest_block.operator_address ?
+                <div className={`min-w-max flex items-${data.latest_block.proposer_name ? 'start' : 'center'}  space-x-2 pt-0.5`}>
+                  {data.latest_block.proposer_image && (
+                    <Link href={`/validator/${data.latest_block.operator_address}`}>
+                      <a>
+                        <img
+                          src={data.latest_block.proposer_image}
+                          alt=""
+                          className="w-6 h-6 rounded-full"
+                        />
+                      </a>
+                    </Link>
+                  )}
+                  <div className="flex flex-col">
+                    {data.latest_block.proposer_name && (
                       <Link href={`/validator/${data.latest_block.operator_address}`}>
-                        <a>
-                          <img
-                            src={data.latest_block.proposer_image}
-                            alt=""
-                            className="w-6 h-6 rounded-full"
-                          />
+                        <a className="text-blue-600 dark:text-blue-400 font-medium">
+                          {data.latest_block.proposer_name || data.latest_block.operator_address}
                         </a>
                       </Link>
                     )}
-                    <div className="flex flex-col">
-                      {data.latest_block.proposer_name && (
-                        <Link href={`/validator/${data.latest_block.operator_address}`}>
-                          <a className="text-blue-600 dark:text-blue-400 font-medium">
-                            {data.latest_block.proposer_name || data.latest_block.operator_address}
-                          </a>
-                        </Link>
-                      )}
-                      <span className="flex items-center space-x-1">
-                        <Link href={`/validator/${data.latest_block.operator_address}`}>
-                          <a className="text-gray-500 font-light">
-                            {ellipseAddress(data.latest_block.operator_address, 16)}
-                          </a>
-                        </Link>
-                        <Copy text={data.latest_block.operator_address} />
-                      </span>
-                    </div>
-                  </div>
-                  :
-                  <span className="text-lg">-</span>
-                :
-                <div className="flex items-start space-x-2">
-                  <div className="skeleton w-6 h-6 rounded-full" />
-                  <div className="flex flex-col space-y-1.5">
-                    <div className="skeleton w-24 h-4" />
-                    <div className="skeleton w-32 h-3" />
+                    <span className="flex items-center space-x-1">
+                      <Link href={`/validator/${data.latest_block.operator_address}`}>
+                        <a className="text-gray-500 font-light">
+                          {ellipseAddress(data.latest_block.operator_address, 16)}
+                        </a>
+                      </Link>
+                      <Copy text={data.latest_block.operator_address} />
+                    </span>
                   </div>
                 </div>
+                :
+                data && !data.latest_block ?
+                  <span className="w-24 text-lg">-</span>
+                  :
+                  <div className="flex items-start space-x-2">
+                    <div className="skeleton w-6 h-6 rounded-full" />
+                    <div className="flex flex-col space-y-1.5">
+                      <div className="skeleton w-28 h-4" />
+                      <div className="skeleton w-48 h-3" />
+                    </div>
+                  </div>
               }
             </div>
             <div className="flex flex-col space-y-1 my-3 sm:my-0 mr-8 lg:mr-32">
