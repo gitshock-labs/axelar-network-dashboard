@@ -158,18 +158,31 @@ export default function TransactionLogs({ data }) {
                   }
                 </div>
               )}
-              {(activity.skeleton || (activity.recipient && !activity.validator)) && (
+              {(activity.skeleton || (activity.recipient && activity.recipient.length > 0 && !activity.validator)) && (
                 <div className="flex flex-col">
                   {!activity.skeleton ?
                     <>
-                      <div className="flex flex-wrap items-center text-xs lg:text-base space-x-1">
-                        <Link href={`/${type(activity.recipient)}/${activity.recipient}`}>
-                          <a className="uppercase text-blue-600 dark:text-blue-400 font-medium">
-                            {ellipseAddress(activity.recipient, 16)}
-                          </a>
-                        </Link>
-                        <Copy text={activity.recipient} />
-                      </div>
+                      {Array.isArray(activity.recipient) ?
+                        activity.recipient.map((recipient, i) => (
+                          <div key={i} className="flex flex-wrap items-center text-xs lg:text-base space-x-1">
+                            <Link href={`/${type(recipient)}/${recipient}`}>
+                              <a className="uppercase text-blue-600 dark:text-blue-400 font-medium">
+                                {ellipseAddress(recipient, 16)}
+                              </a>
+                            </Link>
+                            <Copy text={recipient} />
+                          </div>
+                        ))
+                        :
+                        <div className="flex flex-wrap items-center text-xs lg:text-base space-x-1">
+                          <Link href={`/${type(activity.recipient)}/${activity.recipient}`}>
+                            <a className="uppercase text-blue-600 dark:text-blue-400 font-medium">
+                              {ellipseAddress(activity.recipient, 16)}
+                            </a>
+                          </Link>
+                          <Copy text={activity.recipient} />
+                        </div>
+                      }
                       <span className="text-xs">{activity.recipient_name || 'Recipient'}</span>
                     </>
                     :
