@@ -154,13 +154,13 @@ export default function Account({ address }) {
         data = await transactionsByEvents(`ibc_transfer.receiver='${address}'`, data)
       }
       else {
-        data = await transactionsByEvents(`message.sender='${address}'`, data, null, true)
-        data = await transactionsByEvents(`message.address='${address}'`, data, null, true)
-        data = await transactionsByEvents(`message.destinationAddress='${address}'`, data, null, true)
-        data = await transactionsByEvents(`transfer.sender='${address}'`, data, null, true)
-        data = await transactionsByEvents(`transfer.recipient='${address}'`, data, null, true)
-        data = await transactionsByEvents(`outpointConfirmation.destinationAddress='${address}'`, data, null, true)
-        data = await transactionsByEvents(`depositConfirmation.destinationAddress='${address}'`, data, null, true)
+        data = await transactionsByEvents(`message.sender='${address}'`, data)
+        data = await transactionsByEvents(`message.address='${address}'`, data)
+        data = await transactionsByEvents(`message.destinationAddress='${address}'`, data)
+        data = await transactionsByEvents(`transfer.sender='${address}'`, data)
+        data = await transactionsByEvents(`transfer.recipient='${address}'`, data)
+        data = await transactionsByEvents(`outpointConfirmation.destinationAddress='${address}'`, data)
+        data = await transactionsByEvents(`depositConfirmation.destinationAddress='${address}'`, data)
       }
 
       data = _.slice(data, 0, 100)
