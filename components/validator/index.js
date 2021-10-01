@@ -147,8 +147,6 @@ export default function Validator({ address }) {
 
       data = await transactionsByEvents(`message.action='VoteConfirmDeposit'`, data, address)
 
-      // data = _.slice(data, 0, 100)
-
       setVotingEvents({ data, total: data.length, address })
     }
 
