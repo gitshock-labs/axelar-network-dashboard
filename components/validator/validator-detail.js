@@ -119,8 +119,14 @@ export default function ValidatorDetail({ data, delegations, keygens, all_keygen
             </div>
             <div className="flex items-start space-x-2">
               <span className="font-medium">Uptime:</span>
-              <span className="font-light">{numberFormat(data.uptime, '0,0.00')}%</span>
-              <span className="block sm:hidden lg:block font-light">({numberFormat(100 - data.uptime, '0,0.00')}% missed)</span>
+              {typeof data.uptime === 'number' ?
+                <>
+                  <span className="font-light">{numberFormat(data.uptime, '0,0.00')}%</span>
+                  <span className="block sm:hidden lg:block font-light">({numberFormat(100 - data.uptime, '0,0.00')}% missed)</span>
+                </>
+                :
+                <div className="skeleton w-12 h-4" />
+              }
             </div>
             <div className="flex items-start space-x-2">
               <span className="font-medium">Voting Power:</span>

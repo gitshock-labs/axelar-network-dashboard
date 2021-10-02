@@ -115,10 +115,6 @@ export default function Validator({ address }) {
         setUptime({ data: response.data || [], address })
       }
 
-      response = await transactionsByEvents(`sign.action='decided'`, null, address, true)
-
-      setSignEvents({ data: response || [], total: response ? response.length : 0, address })
-
       response = await allDelegations(address)
 
       if (response) {
@@ -137,11 +133,15 @@ export default function Validator({ address }) {
         })
       }
 
+      response = await transactionsByEvents(`sign.action='decided'`, null, address, true)
+
       response = await getKeygensByValidator(address)
 
       if (response) {
         setKeygens({ data: response, address })
       }
+
+      setSignEvents({ data: response || [], total: response ? response.length : 0, address })
 
       let data = []
 
@@ -182,7 +182,7 @@ export default function Validator({ address }) {
         <div className="w-full md:w-1/2 xl:w-3/5 my-2">
           <Widget
             title={<div className="grid grid-flow-row grid-cols-2 sm:grid-cols-4 md:grid-cols-2 xl:flex flex-row items-center space-x-1">
-              {['delegations', 'voting_events', 'signing_events', 'keygen'].map((_table, i) => (
+              {['delegations', 'voting_events', 'keygen', 'signing_events'].map((_table, i) => (
                 <div
                   key={i}
                   onClick={() => setTable(_table)}
