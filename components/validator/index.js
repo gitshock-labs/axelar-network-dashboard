@@ -145,7 +145,8 @@ export default function Validator({ address }) {
 
       let data = []
 
-      data = await transactionsByEvents(`message.action='VoteConfirmDeposit'`, data, address)
+      data = await transactionsByEvents(`depositConfirmation.action='vote'`, data, address)
+      data = await transactionsByEvents(`outpointConfirmation.action='voted'`, data, address)
 
       setVotingEvents({ data, total: data.length, address })
     }
