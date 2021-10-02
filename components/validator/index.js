@@ -109,7 +109,7 @@ export default function Validator({ address }) {
 
       setValidator({ data: validatorData || {}, address })
 
-      let response = await getUptime(address)
+      let response = await getUptime(Number(status_data.latest_block_height), validatorData && validatorData.consensus_address)
 
       if (response) {
         setUptime({ data: response.data || [], address })
@@ -151,13 +151,13 @@ export default function Validator({ address }) {
       setVotingEvents({ data, total: data.length, address })
     }
 
-    if (address && validators_data) {
+    if (address && status_data && validators_data) {
       getData()
     }
 
     const interval = setInterval(() => getData(), 3 * 60 * 1000)
     return () => clearInterval(interval)
-  }, [address, validators_data])
+  }, [address, status_data, validators_data])
 
   return (
     <>

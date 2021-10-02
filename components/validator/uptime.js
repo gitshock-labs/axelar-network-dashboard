@@ -1,6 +1,7 @@
 import Link from 'next/link'
 
 import { BsArrowRightShort } from 'react-icons/bs'
+import { MdCancel } from 'react-icons/md'
 
 import Widget from '../widget'
 import Popover from '../popover'
@@ -12,7 +13,7 @@ export default function Uptime({ data, validator_data }) {
     <Widget
       title={<span className="text-gray-900 dark:text-white text-lg font-semibold">Uptime <span className="text-gray-500 text-sm font-light italic">(Mock Data)</span></span>}
       description={<div className="flex items-center mt-2">
-        <span className="text-gray-500 dark:text-gray-300">Last {numberFormat(10000, '0,0')} Blocks</span>
+        <span className="text-gray-500 dark:text-gray-300">Last {numberFormat(process.env.NEXT_PUBLIC_NUM_UPTIME_BLOCKS, '0,0')} Blocks</span>
         {data ?
           <span className="ml-auto">{validator_data && numberFormat(validator_data.uptime, '0,0.00')}%</span>
           :
@@ -24,7 +25,7 @@ export default function Uptime({ data, validator_data }) {
         {(data ?
           data
           :
-          [...Array(250).keys()].map(i => { return { i, skeleton: true } })
+          [...Array(Number(process.env.NEXT_PUBLIC_NUM_UPTIME_DISPLAY_BLOCKS)).keys()].map(i => { return { i, skeleton: true } })
         ).map((block, i) => (
           !block.skeleton ?
             <Popover
@@ -54,13 +55,19 @@ export default function Uptime({ data, validator_data }) {
                     </span>
                   </>
                   :
-                  <span className="text-gray-400 dark:text-gray-600 text-lg">(Not Paticipated)</span>
+                  block.up ?
+                    <span className="text-gray-400 dark:text-gray-600 text-lg">(Not Paticipated)</span>
+                    :
+                    <span className="flex items-center text-red-600 dark:text-red-400 text-lg space-x-1">
+                      <MdCancel size={24} />
+                      <span>Down</span>
+                    </span>
                 }
               </div>}
             >
               <div
                 title={block.height}
-                className={`w-6 md:w-8 h-6 md:h-8 ${block.approved > block.denied ? 'bg-green-500' : block.denied > block.approved ? 'bg-red-500' : block.approved > 0 ? 'bg-yellow-500' : 'bg-gray-300 dark:bg-gray-500'} rounded m-1`}
+                className={`w-6 md:w-8 h-6 md:h-8 ${block.approved > block.denied ? 'bg-green-600' : block.denied > block.approved ? 'bg-red-500' : block.approved > 0 ? 'bg-yellow-500' : block.up ? 'bg-green-500' : 'bg-gray-300 dark:bg-gray-500'} rounded m-1`}
               />
             </Popover>
             :
