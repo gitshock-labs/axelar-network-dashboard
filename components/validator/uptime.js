@@ -12,7 +12,7 @@ import { numberFormat } from '../../lib/utils'
 export default function Uptime({ data, validator_data }) {
   return (
     <Widget
-      title={<span className="text-gray-900 dark:text-white text-lg font-semibold">Uptime <span className="text-gray-500 text-sm font-light italic">(Mock Data)</span></span>}
+      title={<span className="text-gray-900 dark:text-white text-lg font-semibold">Uptime</span>}
       description={<div className="flex items-center mt-2">
         <span className="text-gray-500 dark:text-gray-300">Last {numberFormat(process.env.NEXT_PUBLIC_NUM_UPTIME_BLOCKS, '0,0')} Blocks</span>
         {data ?
@@ -48,11 +48,13 @@ export default function Uptime({ data, validator_data }) {
                       <span className="bg-green-500 rounded capitalize text-white font-semibold px-2 py-1">approved</span>
                       <span className="text-base font-medium">{numberFormat(block.approved, '0,0')}</span>
                       <span>Event{block.approved > 1 ? 's' : ''}</span>
+                      <span className="text-gray-500 text-sm font-light italic">(Mock Data)</span>
                     </span>
                     <span className="flex items-center space-x-2">
                       <span className="bg-red-500 rounded capitalize text-white font-semibold px-2 py-1">denied</span>
                       <span className="text-base font-medium">{numberFormat(block.denied, '0,0')}</span>
                       <span>Event{block.denied > 1 ? 's' : ''}</span>
+                      <span className="text-gray-500 text-sm font-light italic">(Mock Data)</span>
                     </span>
                   </>
                   :
