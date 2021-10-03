@@ -18,12 +18,12 @@ export default function VotingPower({ data }) {
       className="min-h-full"
     >
       {data ?
-        <div className="flex items-center justify-center my-6">
-          <div className="w-60 h-28 bg-gray-800 dark:bg-gray-200 flex items-center justify-center">
+        <div className="flex items-center justify-center mt-4 mb-6">
+          <div className="w-60 h-28 bg-gray-800 dark:bg-gray-800 rounded-lg flex items-center justify-center">
             <div className="flex flex-col">
-              <span className="text-gray-200 dark:text-gray-800 text-2xl font-semibold">{numberFormat(Math.floor(data.tokens / Number(process.env.NEXT_PUBLIC_POWER_REDUCTION)), '0,0')}</span>
+              <span className="text-gray-100 dark:text-gray-100 text-2xl font-semibold">{numberFormat(Math.floor(data.tokens / Number(process.env.NEXT_PUBLIC_POWER_REDUCTION)), '0,0')}</span>
               {chain_data && chain_data.staking_pool && chain_data.staking_pool.bonded_tokens && (
-                <span className="text-gray-200 dark:text-gray-800 text-sm text-center">(~ {numberFormat(Math.floor(data.tokens / Number(process.env.NEXT_PUBLIC_POWER_REDUCTION)) * 100 / Math.floor(chain_data.staking_pool.bonded_tokens), '0,0.00')}%)</span>
+                <span className="text-gray-200 dark:text-gray-200 text-sm text-center">(~ {numberFormat(Math.floor(data.tokens / Number(process.env.NEXT_PUBLIC_POWER_REDUCTION)) * 100 / Math.floor(chain_data.staking_pool.bonded_tokens), '0,0.00')}%)</span>
               )}
             </div>
           </div>

@@ -1,6 +1,7 @@
 import Link from 'next/link'
 
 import { BsArrowRightShort } from 'react-icons/bs'
+import { IoArrowUpCircle } from 'react-icons/io5'
 import { MdCancel } from 'react-icons/md'
 
 import Widget from '../widget'
@@ -56,7 +57,10 @@ export default function Uptime({ data, validator_data }) {
                   </>
                   :
                   block.up ?
-                    <span className="text-gray-400 dark:text-gray-600 text-lg">(Not Paticipated)</span>
+                    <span className="flex items-center text-green-600 dark:text-green-400 text-lg space-x-1">
+                      <IoArrowUpCircle size={24} />
+                      <span>Up</span>
+                    </span>
                     :
                     <span className="flex items-center text-red-600 dark:text-red-400 text-lg space-x-1">
                       <MdCancel size={24} />
