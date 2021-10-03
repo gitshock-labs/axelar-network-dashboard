@@ -29,8 +29,8 @@ export default function VotingPower({ data }) {
           </div>
         </div>
         :
-        <div className="flex items-center justify-center my-6">
-          <div className="skeleton w-60 h-28" />
+        <div className="flex items-center justify-center mt-4 mb-6">
+          <div className="skeleton w-60 h-28 rounded-lg" />
         </div>
       }
       {data ?
