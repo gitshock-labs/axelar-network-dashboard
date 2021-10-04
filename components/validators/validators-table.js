@@ -10,7 +10,7 @@ import { ProgressBarWithText } from '../progress-bars'
 import Copy from '../copy'
 
 import { status as getStatus } from '../../lib/api/rpc'
-import { allValidators } from '../../lib/api/cosmos'
+import { allValidators, validatorSelfDelegation } from '../../lib/api/cosmos'
 import { numberFormat, ellipseAddress } from '../../lib/utils'
 
 import { STATUS_DATA, VALIDATORS_DATA } from '../../reducers/types'
@@ -40,13 +40,32 @@ export default function ValidatorsTable({ status }) {
 
   useEffect(() => {
     const getValidators = async () => {
-      const response = await allValidators({}, validators_data, status, null, Number(status_data.latest_block_height))
+      let response = await allValidators({}, validators_data, status, null, Number(status_data.latest_block_height))
 
       if (response) {
         dispatch({
           type: VALIDATORS_DATA,
           value: response.data
         })
+
+        if (response.data) {
+          const validators_data = response.data
+
+          for (let i = 0; i < validators_data.length; i++) {
+            let validator_data = validators_data[i]
+
+            validator_data = await validatorSelfDelegation(validator_data, validators_data, status)
+
+            if (validator_data) {
+              validators_data[i] = validator_data
+
+              dispatch({
+                type: VALIDATORS_DATA,
+                value: validators_data
+              })
+            }
+          }
+        }
       }
     }
 
