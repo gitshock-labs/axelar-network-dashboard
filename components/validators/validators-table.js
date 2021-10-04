@@ -11,7 +11,7 @@ import Copy from '../copy'
 
 import { status as getStatus } from '../../lib/api/rpc'
 import { allValidators, validatorSelfDelegation } from '../../lib/api/cosmos'
-import { numberFormat, ellipseAddress } from '../../lib/utils'
+import { numberFormat, getName, ellipseAddress } from '../../lib/utils'
 
 import { STATUS_DATA, VALIDATORS_DATA } from '../../reducers/types'
 
@@ -79,12 +79,12 @@ export default function ValidatorsTable({ status }) {
 
   return (
     <div className="max-w-6xl my-4 xl:my-6 mx-auto">
-      <div className="flex flex-row items-center space-x-1 my-2">
-        {['active', 'inactive', 'deregistering'].map((_status, i) => (
+      <div className="flex flex-row items-center overflow-x-auto space-x-1 my-2">
+        {['active', 'inactive', 'illegible', 'deregistering'].map((_status, i) => (
           <Link key={i} href={`/validators${i > 0 ? `/${_status}` : ''}`}>
-            <a className={`btn btn-default btn-rounded ${_status === status ? 'bg-gray-700 dark:bg-gray-800 text-white' : 'bg-trasparent hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 hover:text-gray-700 dark:hover:text-gray-100'}`}>
+            <a className={`min-w-max btn btn-default btn-rounded ${_status === status ? 'bg-gray-700 dark:bg-gray-800 text-white' : 'bg-trasparent hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 hover:text-gray-700 dark:hover:text-gray-100'}`}>
               {_status}
-              {validators_data && _status === status ? ` (${validators_data.filter(validator => status === 'inactive' ? !(['BOND_STATUS_BONDED'].includes(validator.status)) : status === 'deregistering' ? validator.deregistering : !validator.jailed && ['BOND_STATUS_BONDED'].includes(validator.status)).length})` : ''}
+              {validators_data && _status === status ? ` (${validators_data.filter(validator => status === 'inactive' ? !(['BOND_STATUS_BONDED'].includes(validator.status)) : status === 'illegible' ? validator.illegible : status === 'deregistering' ? validator.deregistering : !validator.jailed && ['BOND_STATUS_BONDED'].includes(validator.status)).length})` : ''}
             </a>
           </Link>
         ))}
@@ -257,6 +257,15 @@ export default function ValidatorsTable({ status }) {
                       <span className={`bg-${props.value.includes('UN') ? props.value.endsWith('ED') ? 'gray-300 dark:bg-gray-600' : 'yellow-500' : 'green-500'} rounded capitalize text-white font-semibold px-2 py-1`}>
                         {props.value.replace('BOND_STATUS_', '')}
                       </span>
+                      {props.row.original.illegible && props.row.original.tss_illegibility_info && (
+                        <div className="flex flex-col items-end space-y-1.5 mt-2">
+                          {Object.entries(props.row.original.tss_illegibility_info).filter(([key, value]) => value).map(([key, value]) => (
+                            <span key={key} className="max-w-min bg-gray-100 dark:bg-gray-700 rounded capitalize text-gray-800 dark:text-gray-200 font-semibold px-2 py-1">
+                              {getName(key)}
+                            </span>
+                          ))}
+                        </div>
+                      )}
                       {props.row.original.deregistering && (
                         <div className="text-gray-400 dark:text-gray-600 text-xs font-normal mt-2">
                           (De-registering)
@@ -292,16 +301,16 @@ export default function ValidatorsTable({ status }) {
             ),
             headerClassName: 'justify-end text-right',
           },
-        ].filter(column => ['inactive', 'deregistering'].includes(status) ? !(['uptime'].includes(column.accessor)) : !(['jailed'].includes(column.accessor)))}
+        ].filter(column => ['inactive', 'deregistering'].includes(status) ? !(['uptime'].includes(column.accessor)) : ['illegible'].includes(status) ? !(['uptime', 'jailed'].includes(column.accessor)) : !(['jailed'].includes(column.accessor)))}
         data={validators_data ?
-          validators_data.filter(validator => status === 'inactive' ? !(['BOND_STATUS_BONDED'].includes(validator.status)) : status === 'deregistering' ? validator.deregistering : !validator.jailed && ['BOND_STATUS_BONDED'].includes(validator.status)).map((validator, i) => { return { ...validator, i } })
+          validators_data.filter(validator => status === 'inactive' ? !(['BOND_STATUS_BONDED'].includes(validator.status)) : status === 'illegible' ? validator.illegible : status === 'deregistering' ? validator.deregistering : !validator.jailed && ['BOND_STATUS_BONDED'].includes(validator.status)).map((validator, i) => { return { ...validator, i } })
           :
           [...Array(25).keys()].map(i => { return { i, skeleton: true } })
         }
-        noPagination={validators_data ? validators_data.filter(validator => status === 'inactive' ? !(['BOND_STATUS_BONDED'].includes(validator.status)) : status === 'deregistering' ? validator.deregistering : !validator.jailed && ['BOND_STATUS_BONDED'].includes(validator.status)).length <= 10 : true}
+        noPagination={validators_data ? validators_data.filter(validator => status === 'inactive' ? !(['BOND_STATUS_BONDED'].includes(validator.status)) : status === 'illegible' ? validator.illegible : status === 'deregistering' ? validator.deregistering : !validator.jailed && ['BOND_STATUS_BONDED'].includes(validator.status)).length <= 10 : true}
         defaultPageSize={100}
       />
-      {validators_data && validators_data.filter(validator => status === 'inactive' ? !(['BOND_STATUS_BONDED'].includes(validator.status)) : status === 'deregistering' ? validator.deregistering : !validator.jailed && ['BOND_STATUS_BONDED'].includes(validator.status)).length < 1 && (
+      {validators_data && validators_data.filter(validator => status === 'inactive' ? !(['BOND_STATUS_BONDED'].includes(validator.status)) : status === 'illegible' ? validator.illegible : status === 'deregistering' ? validator.deregistering : !validator.jailed && ['BOND_STATUS_BONDED'].includes(validator.status)).length < 1 && (
         <div className="bg-white dark:bg-gray-800 text-gray-300 dark:text-gray-500 text-base font-medium italic text-center my-4 py-2">
           No Validators
         </div>

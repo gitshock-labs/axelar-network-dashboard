@@ -7,7 +7,7 @@ import _ from 'lodash'
 import Widget from '../widget'
 import Copy from '../copy'
 
-import { numberFormat, ellipseAddress } from '../../lib/utils'
+import { numberFormat, getName, ellipseAddress } from '../../lib/utils'
 
 export default function ValidatorDetail({ data, delegations, keygens, all_keygens, sign_events }) {
   const { _data } = useSelector(state => ({ _data: state.data }), shallowEqual)
@@ -27,24 +27,36 @@ export default function ValidatorDetail({ data, delegations, keygens, all_keygen
             />
           )}
           <div className="flex flex-col space-y-1.5 lg:space-y-1">
-            <div className="flex items-center space-x-2 mb-2">
+            <div className="flex flex-col lg:flex-row lg:items-center space-x-0 lg:space-x-2">
               <span className="text-lg font-semibold">{(data.description && data.description.moniker) || data.operator_address}</span>
-              {data.status && (
-                <span className={`bg-${data.status.includes('UN') ? data.status.endsWith('ED') ? 'gray-300 dark:bg-gray-600' : 'yellow-500' : 'green-500'} rounded capitalize text-white font-semibold px-2 py-1`}>
-                  {data.status.replace('BOND_STATUS_', '')}
-                </span>
-              )}
-              {data.deregistering && (
-                <span className="bg-blue-400 rounded capitalize text-white font-semibold px-2 py-1">
-                  De-registering
-                </span>
-              )}
-              {data.jailed && (
-                <span className="bg-red-600 rounded capitalize text-white font-semibold px-2 py-1">
-                  Jailed
-                </span>
-              )}
+              <div className="flex flex-row space-x-1.5">
+                {data.status && (
+                  <span className={`bg-${data.status.includes('UN') ? data.status.endsWith('ED') ? 'gray-300 dark:bg-gray-600' : 'yellow-500' : 'green-500'} rounded capitalize text-white font-semibold px-2 py-1`}>
+                    {data.status.replace('BOND_STATUS_', '')}
+                  </span>
+                )}
+                {data.deregistering && (
+                  <span className="bg-blue-400 rounded capitalize text-white font-semibold px-2 py-1">
+                    De-registering
+                  </span>
+                )}
+                {data.jailed && (
+                  <span className="bg-red-600 rounded capitalize text-white font-semibold px-2 py-1">
+                    Jailed
+                  </span>
+                )}
+              </div>
             </div>
+            {data.illegible && data.tss_illegibility_info && (
+              <div className="space-x-1.5 pt-1">
+                {Object.entries(data.tss_illegibility_info).filter(([key, value]) => value).map(([key, value]) => (
+                  <span key={key} className="max-w-min bg-gray-100 dark:bg-gray-700 rounded capitalize text-gray-800 dark:text-gray-200 text-xs font-semibold px-1.5 py-0.5">
+                    {getName(key)}
+                  </span>
+                ))}
+              </div>
+            )}
+            <div className="h-0.5" />
             {data.operator_address && (
               <div className="flex flex-col xl:flex-row items-start space-x-0 xl:space-x-2">
                 <span className="font-medium">Operator Address:</span>
@@ -95,7 +107,7 @@ export default function ValidatorDetail({ data, delegations, keygens, all_keygen
         :
         <div className="flex items-start space-x-2 mb-7">
           <div className="skeleton w-6 md:w-10 h-6 md:h-10 rounded-full" />
-          <div className="flex flex-col space-y-2.5">
+          <div className="flex flex-col space-y-2.5 mt-1.5">
             <div className="skeleton w-32 h-6 mb-1.5" />
             <div className="skeleton w-60 h-4" />
             <div className="skeleton w-40 h-4" />
