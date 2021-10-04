@@ -4,13 +4,15 @@ import CoinInfo from '../components/coin-info'
 import Dashboard from '../components/dashboard'
 import SectionTitle from '../components/section-title'
 
+import { isMatchRoute } from '../lib/routes'
+
 export default function Index() {
   const router = useRouter()
   const { pathname, asPath } = { ...router }
   const _asPath = asPath.includes('?') ? asPath.substring(0, asPath.indexOf('?')) : asPath
 
   if (typeof window !== 'undefined' && pathname !== _asPath) {
-    router.push(_asPath)
+    router.push(isMatchRoute(_asPath) ? asPath : '/')
   }
 
   if (typeof window === 'undefined' || pathname !== _asPath) {
