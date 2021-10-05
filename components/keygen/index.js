@@ -9,7 +9,7 @@ import KeysTable from './keys-table'
 import { keygenSummary, keygens as getKeygens } from '../../lib/api/query'
 import { allValidators } from '../../lib/api/cosmos'
 import { getKeygenById } from '../../lib/api/executor'
-import { signAttempts as getSignAttempts } from '../../lib/api/opensearch'
+import { signAttempts as getSignAttempts, failedKeygens as getFailedKeygens } from '../../lib/api/opensearch'
 import { getName } from '../../lib/utils'
 
 import { VALIDATORS_DATA, KEYGENS_DATA } from '../../reducers/types'
@@ -101,6 +101,40 @@ export default function Keygen() {
       data = _.orderBy(data, ['snapshot_block_number'], ['desc'])
 
       setKeygens({ data })
+
+      response = await getFailedKeygens({ size: 100, sort: [{ timestamp: 'desc' }] })
+
+      data = (response && response.data) || []
+
+      for (let i = 0; i < data.length; i++) {
+        const failedKeygen = data[i]
+
+        data[i] = {
+          ...failedKeygen,
+          key_chain: failedKeygen.key_chain || (failedKeygen && failedKeygen.key_id && failedKeygen.key_id.split('-').length > 1 && getName(failedKeygen.key_id.split('-')[0])),
+          key_role: failedKeygen.key_role || (failedKeygen && failedKeygen.key_id && failedKeygen.key_id.split('-').length > 2 && `${failedKeygen.key_id.split('-')[1].toUpperCase()}_KEY`),
+          validators: failedKeygen.snapshot_validators && failedKeygen.snapshot_validators.validators && failedKeygen.snapshot_validators.validators.map((validator, j) => {
+            return {
+              ...validator,
+              address: validator.validator,
+              ...(validators_data && validators_data[validators_data.findIndex(validator_data => validator_data.operator_address === validator.validator)]),
+              share: validator.share_count,
+            }
+          }),
+          non_participant_validators: failedKeygen.snapshot_non_participant_validators && failedKeygen.snapshot_non_participant_validators.validators && failedKeygen.snapshot_non_participant_validators.validators.map((validator, j) => {
+            return {
+              ...validator,
+              address: validator.validator,
+              ...(validators_data && validators_data[validators_data.findIndex(validator_data => validator_data.operator_address === validator.validator)]),
+              share: validator.share_count,
+            }
+          }),
+        }
+      }
+
+      data = _.orderBy(data, ['timestamp', 'height'], ['desc', 'desc'])
+
+      setFailedKeygens({ data, total: response && response.total })
 
       response = await getSignAttempts({ size: 100, sort: [{ timestamp: 'desc' }] })
 

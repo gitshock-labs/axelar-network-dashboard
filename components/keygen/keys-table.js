@@ -3,19 +3,21 @@ import { useState } from 'react'
 
 import _ from 'lodash'
 import moment from 'moment'
-import { FaSignature } from 'react-icons/fa'
 import { FiKey } from 'react-icons/fi'
+import { MdCancel } from 'react-icons/md'
+import { FaSignature } from 'react-icons/fa'
 import { IoCaretUpOutline, IoCaretDownOutline } from 'react-icons/io5'
 
 import Datatable from '../datatable'
 import Copy from '../copy'
 
-import { numberFormat, ellipseAddress } from '../../lib/utils'
+import { numberFormat, getName, ellipseAddress } from '../../lib/utils'
 
 const COLLAPSE_VALIDATORS_SIZE = 5
 
 export default function KeysTable({ data, corruption_signing_threshold, page }) {
   const [keyIdsSeeMore, setKeyIdsSeeMore] = useState([])
+  const [keyIdsSeeMoreForNon, setKeyIdsSeeMoreForNon] = useState([])
 
   return (
     <>
@@ -29,12 +31,12 @@ export default function KeysTable({ data, corruption_signing_threshold, page }) 
               !props.row.original.skeleton ?
                 <>
                   <div className="flex items-center text-gray-900 dark:text-gray-100 space-x-1">
-                    <FiKey size={16} />
+                    {['failed'].includes(page) ? <MdCancel size={16} className="text-red-500" /> : <FiKey size={16} />}
                     <span className="font-medium">{ellipseAddress(props.value, ['validator'].includes(page) ? 10 : 20)}</span>
                     {props.value && (<Copy text={props.value} />)}
                   </div>
                   {['failed'].includes(page) && props.row.original.reason && (
-                    <div className="max-w-lg text-gray-400 dark:text-gray-600 text-xs font-normal mt-2">
+                    <div className="max-w-xs whitespace-pre-wrap text-gray-400 dark:text-gray-600 text-xs font-normal mt-2">
                       {props.row.original.reason}
                     </div>
                   )}
@@ -287,7 +289,7 @@ export default function KeysTable({ data, corruption_signing_threshold, page }) 
                           <span className="font-bold">[{numberFormat(_.sumBy(props.value, 'share'), '0,0')}]</span>
                         </div>
                       )}
-                      {_.slice(props.value, 0, keyIdsSeeMore.includes(props.row.original.key_id) ? props.value.length : COLLAPSE_VALIDATORS_SIZE).map((validator, i) => (
+                      {_.slice(props.value, 0, keyIdsSeeMoreForNon.includes(props.row.original.key_id) ? props.value.length : COLLAPSE_VALIDATORS_SIZE).map((validator, i) => (
                         <div key={i} className="flex items-center text-xs space-x-1.5">
                           <div className="flex flex-col space-y-0.5">
                             {validator.description && validator.description.moniker && (
@@ -331,21 +333,30 @@ export default function KeysTable({ data, corruption_signing_threshold, page }) 
                                 )}
                               </span>
                             )}
+                            {validator.illegible && validator.tss_illegibility_info && (
+                              <div className="space-x-1.5">
+                                {Object.entries(validator.tss_illegibility_info).filter(([key, value]) => value).map(([key, value]) => (
+                                  <span key={key} className="max-w-min bg-gray-100 dark:bg-gray-700 rounded capitalize text-gray-800 dark:text-gray-200 text-xs font-semibold px-1.5 py-0.5">
+                                    {getName(key)}
+                                  </span>
+                                ))}
+                              </div>
+                            )}
                           </div>
                           <span className="text-gray-600 dark:text-gray-400 font-semibold">[{numberFormat(validator.share, '0,0')}]</span>
                         </div>
                       ))}
-                      {(props.value.length > COLLAPSE_VALIDATORS_SIZE || keyIdsSeeMore.includes(props.row.original.key_id)) && (
+                      {(props.value.length > COLLAPSE_VALIDATORS_SIZE || keyIdsSeeMoreForNon.includes(props.row.original.key_id)) && (
                         <div
-                          onClick={() => setKeyIdsSeeMore(keyIdsSeeMore.includes(props.row.original.key_id) ? keyIdsSeeMore.filter(key_id => key_id !== props.row.original.key_id) : _.uniq(_.concat(keyIdsSeeMore, props.row.original.key_id)))}
-                          className={`max-w-min flex items-center cursor-pointer rounded capitalize text-${keyIdsSeeMore.includes(props.row.original.key_id) ? 'red-500' : 'gray-500 dark:text-white'} text-xs font-medium space-x-0.5`}
+                          onClick={() => setKeyIdsSeeMoreForNon(keyIdsSeeMoreForNon.includes(props.row.original.key_id) ? keyIdsSeeMoreForNon.filter(key_id => key_id !== props.row.original.key_id) : _.uniq(_.concat(keyIdsSeeMoreForNon, props.row.original.key_id)))}
+                          className={`max-w-min flex items-center cursor-pointer rounded capitalize text-${keyIdsSeeMoreForNon.includes(props.row.original.key_id) ? 'red-500' : 'gray-500 dark:text-white'} text-xs font-medium space-x-0.5`}
                         >
-                          <span>See {keyIdsSeeMore.includes(props.row.original.key_id) ? 'Less' : 'More'}</span>
-                          {!(keyIdsSeeMore.includes(props.row.original.key_id)) && (
+                          <span>See {keyIdsSeeMoreForNon.includes(props.row.original.key_id) ? 'Less' : 'More'}</span>
+                          {!(keyIdsSeeMoreForNon.includes(props.row.original.key_id)) && (
                             <span>({numberFormat(props.value.length - COLLAPSE_VALIDATORS_SIZE, '0,0')})</span>
                           )}
-                          {keyIdsSeeMore.includes(props.row.original.key_id) ? <IoCaretUpOutline /> : <IoCaretDownOutline />}
-                          {!(keyIdsSeeMore.includes(props.row.original.key_id)) && (
+                          {keyIdsSeeMoreForNon.includes(props.row.original.key_id) ? <IoCaretUpOutline /> : <IoCaretDownOutline />}
+                          {!(keyIdsSeeMoreForNon.includes(props.row.original.key_id)) && (
                             <span>[{numberFormat(_.sumBy(_.slice(props.value, COLLAPSE_VALIDATORS_SIZE), 'share'), '0,0')}]</span>
                           )}
                         </div>
