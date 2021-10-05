@@ -191,11 +191,18 @@ export default function KeysTable({ data, corruption_signing_threshold, page }) 
                   {props.value && props.value.length > 0 ?
                     <>
                       {['failed', 'sign_attempts'].includes(page) && (
-                        <div className="space-x-1.5">
-                          <span className="font-medium">Participants:</span>
-                          <span className="font-medium">{numberFormat(props.value.length, '0,0')}</span>
-                          <span className="font-bold">[{numberFormat(_.sumBy(props.value, 'share'), '0,0')}]</span>
-                        </div>
+                        <>
+                          <div className="space-x-1.5">
+                            <span className="font-medium">Participants:</span>
+                            <span className="font-medium">{numberFormat(props.value.length, '0,0')}</span>
+                            <span className="font-bold">[{numberFormat(_.sumBy(props.value, 'share'), '0,0')}]</span>
+                          </div>
+                          {typeof props.row.original.snapshot === 'number' && (
+                            <div className="uppercase text-gray-400 dark:text-gray-600 text-xs font-semibold" style={{ marginTop: '.125rem' }}>
+                              Snapshot: #{props.row.original.snapshot}
+                            </div>
+                          )}
+                        </>
                       )}
                       {_.slice(props.value, 0, keyIdsSeeMore.includes(props.row.original.key_id) ? props.value.length : COLLAPSE_VALIDATORS_SIZE).map((validator, i) => (
                         <div key={i} className="flex items-center text-xs space-x-1.5">
@@ -283,11 +290,18 @@ export default function KeysTable({ data, corruption_signing_threshold, page }) 
                   {props.value && props.value.length > 0 ?
                     <>
                       {['failed', 'sign_attempts'].includes(page) && (
-                        <div className="space-x-1.5">
-                          <span className="font-medium">Non-Participants:</span>
-                          <span className="font-medium">{numberFormat(props.value.length, '0,0')}</span>
-                          <span className="font-bold">[{numberFormat(_.sumBy(props.value, 'share'), '0,0')}]</span>
-                        </div>
+                        <>
+                          <div className="space-x-1.5">
+                            <span className="font-medium">Non-Participants:</span>
+                            <span className="font-medium">{numberFormat(props.value.length, '0,0')}</span>
+                            <span className="font-bold">[{numberFormat(_.sumBy(props.value, 'share'), '0,0')}]</span>
+                          </div>
+                          {typeof props.row.original.snapshot === 'number' && (
+                            <div className="uppercase text-gray-400 dark:text-gray-600 text-xs font-semibold" style={{ marginTop: '.125rem' }}>
+                              Snapshot: #{props.row.original.snapshot}
+                            </div>
+                          )}
+                        </>
                       )}
                       {_.slice(props.value, 0, keyIdsSeeMoreForNon.includes(props.row.original.key_id) ? props.value.length : COLLAPSE_VALIDATORS_SIZE).map((validator, i) => (
                         <div key={i} className="flex items-center text-xs space-x-1.5">
