@@ -13,7 +13,7 @@ export default function ValidatorDetail({ data, delegations, keygens, all_keygen
   const { _data } = useSelector(state => ({ _data: state.data }), shallowEqual)
   const { chain_data } = { ..._data }
 
-  all_keygens = all_keygens && _.uniqBy(all_keygens, key_id => key_id.split('-').length > 2 ? _.slice(key_id.split('-'), 0, 2).join('-') : key_id)
+  all_keygens = all_keygens && _.uniqBy(all_keygens, key_id => key_id.split('-').length > 2 ? _.slice(key_id.split('-'), 0, 2).map((key_attr, i) => i === 0 ? getName(key_attr) : key_attr).join('-').toLowerCase() : key_id)
 
   return (
     <Widget
