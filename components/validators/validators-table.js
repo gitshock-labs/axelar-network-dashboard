@@ -39,6 +39,8 @@ export default function ValidatorsTable({ status }) {
   }, [])
 
   useEffect(() => {
+    const controller = new AbortController()
+
     const getValidators = async () => {
       let response = await allValidators({}, validators_data, status, null, Number(status_data.latest_block_height))
 
@@ -52,17 +54,19 @@ export default function ValidatorsTable({ status }) {
           const validators_data = response.data
 
           for (let i = 0; i < validators_data.length; i++) {
-            let validator_data = validators_data[i]
+            if (!controller.signal.aborted) {
+              let validator_data = validators_data[i]
 
-            validator_data = await validatorSelfDelegation(validator_data, validators_data, status)
+              validator_data = await validatorSelfDelegation(validator_data, validators_data, status)
 
-            if (validator_data) {
-              validators_data[i] = validator_data
+              if (validator_data) {
+                validators_data[i] = validator_data
 
-              dispatch({
-                type: VALIDATORS_DATA,
-                value: validators_data
-              })
+                dispatch({
+                  type: VALIDATORS_DATA,
+                  value: validators_data
+                })
+              }
             }
           }
         }
@@ -74,7 +78,10 @@ export default function ValidatorsTable({ status }) {
     }
 
     const interval = setInterval(() => getValidators(), 10 * 60 * 1000)
-    return () => clearInterval(interval)
+    return () => {
+      controller?.abort()
+      clearInterval(interval)
+    }
   }, [status, status_data])
 
   return (
