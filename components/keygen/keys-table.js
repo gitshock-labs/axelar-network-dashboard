@@ -284,7 +284,7 @@ export default function KeysTable({ data, corruption_signing_threshold, page }) 
                     <>
                       {['failed', 'sign_attempts'].includes(page) && (
                         <div className="space-x-1.5">
-                          <span className="font-medium">Participants:</span>
+                          <span className="font-medium">Non-Participants:</span>
                           <span className="font-medium">{numberFormat(props.value.length, '0,0')}</span>
                           <span className="font-bold">[{numberFormat(_.sumBy(props.value, 'share'), '0,0')}]</span>
                         </div>
