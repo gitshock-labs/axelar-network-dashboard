@@ -249,6 +249,30 @@ export default function Participations() {
 
         setSignAttempts({ ...signAttempts, data })
       }
+
+      if (failedSignAttempts && failedSignAttempts.data) {
+        const data = failedSignAttempts.data.map(signAttempt => {
+          return {
+            ...signAttempt,
+            validators: signAttempt.participants && signAttempt.participants.map((address, j) => {
+              return {
+                address,
+                ...(validators_data && validators_data[validators_data.findIndex(validator_data => validator_data.operator_address === address)]),
+                share: signAttempt.participant_shares && signAttempt.participant_shares[j],
+              }
+            }),
+            non_participant_validators: signAttempt.non_participants && signAttempt.non_participants.map((address, j) => {
+              return {
+                address,
+                ...(validators_data && validators_data[validators_data.findIndex(validator_data => validator_data.operator_address === address)]),
+                share: signAttempt.non_participant_shares && signAttempt.non_participant_shares[j],
+              }
+            }),
+          }
+        })
+
+        setFailedSignAttempts({ ...failedSignAttempts, data })
+      }
     }
   }, [validators_data])
 
