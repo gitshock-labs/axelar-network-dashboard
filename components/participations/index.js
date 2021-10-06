@@ -226,6 +226,32 @@ export default function Participations() {
         setKeygens({ data })
       }
 
+      if (failedKeygens && failedKeygens.data) {
+        const data = failedKeygens.data.map(failedKeygen => {
+          return {
+            ...failedKeygen,
+            validators: failedKeygen.snapshot_validators && failedKeygen.snapshot_validators.validators && failedKeygen.snapshot_validators.validators.map((validator, j) => {
+              return {
+                ...validator,
+                address: validator.validator,
+                ...(validators_data && validators_data[validators_data.findIndex(validator_data => validator_data.operator_address === validator.validator)]),
+                share: validator.share_count,
+              }
+            }),
+            non_participant_validators: failedKeygen.snapshot_non_participant_validators && failedKeygen.snapshot_non_participant_validators.validators && failedKeygen.snapshot_non_participant_validators.validators.map((validator, j) => {
+              return {
+                ...validator,
+                address: validator.validator,
+                ...(validators_data && validators_data[validators_data.findIndex(validator_data => validator_data.operator_address === validator.validator)]),
+                share: validator.share_count,
+              }
+            }),
+          }
+        })
+
+        setFailedKeygens({ ...failedKeygens, data })
+      }
+
       if (signAttempts && signAttempts.data) {
         const data = signAttempts.data.map(signAttempt => {
           return {
