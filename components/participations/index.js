@@ -206,7 +206,7 @@ export default function Participations() {
 
     const interval = setInterval(() => getData(), 5 * 60 * 1000)
     return () => clearInterval(interval)
-  }, [])
+  }, [validators_data])
 
   useEffect(() => {
     if (validators_data) {
