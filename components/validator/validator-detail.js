@@ -155,7 +155,7 @@ export default function ValidatorDetail({ data, delegations, keygens, all_keygen
               }
             </div>
             <div className="flex items-center space-x-2">
-              <span className="font-medium">Keygens:</span>
+              <span className="font-medium">Keygen Participation:</span>
               {keygens ?
                 <span className="font-light">{numberFormat(keygens.length, '0,0')}</span>
                 :
@@ -173,7 +173,7 @@ export default function ValidatorDetail({ data, delegations, keygens, all_keygen
                 <div className="skeleton w-6 lg:w-12 h-4" />
               }
             </div>
-            <div className="flex items-center space-x-2">
+            {/*<div className="flex items-center space-x-2">
               <span className="max-w-max sm:max-w-min lg:max-w-max font-medium">Keygen Participation:</span>
               {keygens && all_keygens ?
                 <div className="flex space-x-1">
@@ -183,7 +183,7 @@ export default function ValidatorDetail({ data, delegations, keygens, all_keygen
                 :
                 <div className="skeleton w-6 lg:w-12 h-4" />
               }
-            </div>
+            </div>*/}
           </div>
         </>
         :

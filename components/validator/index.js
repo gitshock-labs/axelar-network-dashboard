@@ -18,7 +18,7 @@ import { getKeygensByValidator } from '../../lib/api/executor'
 import { denomName, denomAmount } from '../../lib/object/denom'
 import { getName } from '../../lib/utils'
 
-import { STATUS_DATA, VALIDATORS_DATA, KEYGENS_DATA } from '../../reducers/types'
+import { STATUS_DATA, VALIDATORS_DATA/*, KEYGENS_DATA*/ } from '../../reducers/types'
 
 export default function Validator({ address }) {
   const dispatch = useDispatch()
@@ -71,25 +71,25 @@ export default function Validator({ address }) {
     return () => clearInterval(interval)
   }, [address, status_data])
 
-  useEffect(() => {
-    const getAllKeygens = async () => {
-      const response = await getKeygens()
+  // useEffect(() => {
+  //   const getAllKeygens = async () => {
+  //     const response = await getKeygens()
 
-      if (response) {
-        dispatch({
-          type: KEYGENS_DATA,
-          value: response
-        })
-      }
-    }
+  //     if (response) {
+  //       dispatch({
+  //         type: KEYGENS_DATA,
+  //         value: response
+  //       })
+  //     }
+  //   }
 
-    if (!keygens_data) {
-      getAllKeygens()
-    }
+  //   if (!keygens_data) {
+  //     getAllKeygens()
+  //   }
 
-    const interval = setInterval(() => getAllKeygens(), 10 * 60 * 1000)
-    return () => clearInterval(interval)
-  }, [keygens_data])
+  //   const interval = setInterval(() => getAllKeygens(), 10 * 60 * 1000)
+  //   return () => clearInterval(interval)
+  // }, [keygens_data])
 
   useEffect(() => {
     const getData = async () => {
@@ -133,13 +133,13 @@ export default function Validator({ address }) {
         })
       }
 
-      response = await transactionsByEvents(`sign.action='decided'`, null, address, true)
-
       response = await getKeygensByValidator(address)
 
       if (response) {
         setKeygens({ data: response, address })
       }
+
+      response = await transactionsByEvents(`sign.action='decided'`, null, address, true)
 
       setSignEvents({ data: response || [], total: response ? response.length : 0, address })
 
