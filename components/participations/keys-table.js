@@ -31,20 +31,20 @@ export default function KeysTable({ data, corruption_signing_threshold, page }) 
               !props.row.original.skeleton ?
                 <>
                   <div className="flex items-center text-gray-900 dark:text-gray-100 space-x-1">
-                    {['failed'].includes(page) ? <MdCancel size={16} className="text-red-500" /> : <FiKey size={16} />}
+                    {['keygen_failed'].includes(page) ? <MdCancel size={16} className="text-red-500" /> : <FiKey size={16} />}
                     <span className="font-medium">{ellipseAddress(props.value, ['validator'].includes(page) ? 10 : 20)}</span>
                     {props.value && (<Copy text={props.value} />)}
                   </div>
-                  {['failed'].includes(page) && props.row.original.reason && (
+                  {['keygen_failed'].includes(page) && props.row.original.reason && (
                     <div className="max-w-xs whitespace-pre-wrap text-gray-400 dark:text-gray-600 text-xs font-normal mt-2">
                       {props.row.original.reason}
                     </div>
                   )}
-                  {['sign_attempts'].includes(page) && props.row.original.sig_id && (
+                  {['sign_success', 'sign_failed'].includes(page) && props.row.original.sig_id && (
                     <>
                       <div className="text-gray-400 dark:text-gray-600 text-xs font-normal mt-2">Signature ID</div>
                       <div className="flex items-center text-gray-900 dark:text-gray-100 space-x-1">
-                        <FaSignature size={16} />
+                        {['sign_failed'].includes(page) ? <MdCancel size={16} className="text-red-500" /> : <FaSignature size={16} />}
                         <span className="font-medium">{ellipseAddress(props.row.original.sig_id, 16)}</span>
                         <Copy text={props.row.original.sig_id} />
                       </div>
@@ -123,11 +123,11 @@ export default function KeysTable({ data, corruption_signing_threshold, page }) 
                           {props.value}
                         </a>
                       </Link>
-                      {props.row.original.timestamp && (
+                      {/*props.row.original.timestamp && (
                         <div className="text-gray-400 dark:text-gray-600 text-xs font-normal mt-1" style={{ fontSize: '.65rem' }}>
                           {moment(props.row.original.timestamp * 1000).format('MMM D, YYYY h:mm:ss A z')}
                         </div>
-                      )}
+                      )*/}
                     </>
                     :
                     '-'
@@ -190,7 +190,7 @@ export default function KeysTable({ data, corruption_signing_threshold, page }) 
                 <div className={`flex flex-col space-y-2 mb-${props.value && props.value.length > COLLAPSE_VALIDATORS_SIZE ? 0.5 : 4}`}>
                   {props.value && props.value.length > 0 ?
                     <>
-                      {['failed', 'sign_attempts'].includes(page) && (
+                      {['keygen_failed', 'sign_success', 'sign_failed'].includes(page) && (
                         <>
                           <div className="space-x-1.5">
                             <span className="font-medium">Participants:</span>
@@ -289,7 +289,7 @@ export default function KeysTable({ data, corruption_signing_threshold, page }) 
                 <div className={`flex flex-col space-y-2 mb-${props.value && props.value.length > COLLAPSE_VALIDATORS_SIZE ? 0.5 : 4}`}>
                   {props.value && props.value.length > 0 ?
                     <>
-                      {['failed', 'sign_attempts'].includes(page) && (
+                      {['keygen_failed', 'sign_success', 'sign_failed'].includes(page) && (
                         <>
                           <div className="space-x-1.5">
                             <span className="font-medium">Non-Participants:</span>
@@ -388,7 +388,7 @@ export default function KeysTable({ data, corruption_signing_threshold, page }) 
                 </div>
             ),
           },
-        ].filter(column => ['validator'].includes(page) ? !(['validators', 'corruption_signing_threshold', 'height', 'non_participant_validators'].includes(column.accessor)) : ['failed'].includes(page) ? !(['num_validator_shares', 'snapshot_block_number', 'corruption_signing_threshold'].includes(column.accessor)) : ['sign_attempts'].includes(page) ? !(['num_validator_shares', 'snapshot_block_number', 'corruption_signing_threshold'].includes(column.accessor)) : !(['num_validator_shares', 'height', 'non_participant_validators'].includes(column.accessor)))}
+        ].filter(column => ['validator'].includes(page) ? !(['validators', 'corruption_signing_threshold', 'height', 'non_participant_validators'].includes(column.accessor)) : ['keygen_failed'].includes(page) ? !(['num_validator_shares', 'snapshot_block_number', 'corruption_signing_threshold'].includes(column.accessor)) : ['sign_success', 'sign_failed'].includes(page) ? !(['num_validator_shares', 'snapshot_block_number', 'corruption_signing_threshold'].includes(column.accessor)) : !(['num_validator_shares', 'height', 'non_participant_validators'].includes(column.accessor)))}
         data={data ?
           data.data && data.data.map((key, i) => { return { ...key, i, corruption_signing_threshold: corruption_signing_threshold && typeof corruption_signing_threshold[key.key_id] === 'number' ? corruption_signing_threshold[key.key_id] : -1 } })
           :
@@ -399,7 +399,7 @@ export default function KeysTable({ data, corruption_signing_threshold, page }) 
       />
       {data && !(data.data && data.data.length > 0) && (
         <div className={`bg-${['validator'].includes(page) ? 'gray-50' : 'white'} dark:bg-gray-800 text-gray-300 dark:text-gray-500 text-base font-medium italic text-center my-4 py-2`}>
-          No Keys
+          No Participations
         </div>
       )}
     </>

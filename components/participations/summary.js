@@ -6,7 +6,7 @@ import Widget from '../widget'
 
 import { numberFormat } from '../../lib/utils'
 
-const Summary = ({ data, keygens, failedKeygens, signAttempts }) => {
+const Summary = ({ data, keygens, failedKeygens, signAttempts, failedSignAttempts }) => {
   return (
     <div className="w-full grid grid-flow-row grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 my-4">
       <Widget
@@ -126,11 +126,24 @@ const Summary = ({ data, keygens, failedKeygens, signAttempts }) => {
         className="bg-transparent sm:bg-white sm:dark:bg-gray-900 border-0 sm:border border-gray-100 dark:border-gray-800 p-0 sm:p-4"
       >
         <span className="flex flex-col mt-1 space-y-1">
-          {typeof signAttempts === 'number' ?
-            <span className="h-8 text-3xl font-semibold">{numberFormat(signAttempts, '0,0')}</span>
-            :
-            <div className="skeleton w-24 h-7 mt-1" />
-          }
+          <div className="flex flex-row space-x-1.5">
+            {typeof signAttempts === 'number' ?
+              <span className="h-8 text-3xl font-semibold">{numberFormat(signAttempts, '0,0')}</span>
+              :
+              <div className="skeleton w-12 h-7 mt-1" />
+            }
+            <span className="h-8 text-gray-600 dark:text-gray-400 text-3xl font-light">/</span>
+            {typeof failedSignAttempts === 'number' ?
+              <span className="h-8 text-3xl font-semibold">{numberFormat(failedSignAttempts, '0,0')}</span>
+              :
+              <div className="skeleton w-12 h-7 mt-1" />
+            }
+          </div>
+          <div className="grid">
+            <span className="text-gray-400 dark:text-gray-600 text-xs font-normal mt-1">
+              Success / Failed
+            </span>
+          </div>
         </span>
       </Widget>
     </div>
@@ -142,6 +155,7 @@ Summary.propTypes = {
   keygens: PropTypes.any,
   failedKeygens: PropTypes.any,
   signAttempts: PropTypes.any,
+  failedSignAttempts: PropTypes.any,
 }
 
 export default Summary

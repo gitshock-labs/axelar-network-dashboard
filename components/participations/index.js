@@ -23,7 +23,8 @@ export default function Participations() {
   const [keygens, setKeygens] = useState(null)
   const [failedKeygens, setFailedKeygens] = useState(null)
   const [signAttempts, setSignAttempts] = useState(null)
-  const [table, setTable] = useState('success')
+  const [failedSignAttempts, setFailedSignAttempts] = useState(null)
+  const [table, setTable] = useState('keygen_success')
 
   useEffect(() => {
     const getValidators = async () => {
@@ -136,7 +137,7 @@ export default function Participations() {
 
       setFailedKeygens({ data, total: response && response.total })
 
-      response = await getSignAttempts({ size: 100, sort: [{ height: 'desc' }] })
+      response = await getSignAttempts({ size: 100, query: { match: { result: true } }, sort: [{ height: 'desc' }] })
 
       data = (response && response.data) || []
 
@@ -167,6 +168,38 @@ export default function Participations() {
       data = _.orderBy(data, ['height'], ['desc'])
 
       setSignAttempts({ data, total: response && response.total })
+
+      response = await getSignAttempts({ size: 100, query: { match: { result: false } }, sort: [{ height: 'desc' }] })
+
+      data = (response && response.data) || []
+
+      for (let i = 0; i < data.length; i++) {
+        const signAttempt = data[i]
+
+        data[i] = {
+          ...signAttempt,
+          key_chain: signAttempt.key_chain || (signAttempt && signAttempt.key_id && signAttempt.key_id.split('-').length > 1 && getName(signAttempt.key_id.split('-')[0])),
+          key_role: signAttempt.key_role || (signAttempt && signAttempt.key_id && signAttempt.key_id.split('-').length > 2 && `${signAttempt.key_id.split('-')[1].toUpperCase()}_KEY`),
+          validators: signAttempt.participants && signAttempt.participants.map((address, j) => {
+            return {
+              address,
+              ...(validators_data && validators_data[validators_data.findIndex(validator_data => validator_data.operator_address === address)]),
+              share: signAttempt.participant_shares && signAttempt.participant_shares[j],
+            }
+          }),
+          non_participant_validators: signAttempt.non_participants && signAttempt.non_participants.map((address, j) => {
+            return {
+              address,
+              ...(validators_data && validators_data[validators_data.findIndex(validator_data => validator_data.operator_address === address)]),
+              share: signAttempt.non_participant_shares && signAttempt.non_participant_shares[j],
+            }
+          }),
+        }
+      }
+
+      data = _.orderBy(data, ['height'], ['desc'])
+
+      setFailedSignAttempts({ data, total: response && response.total })
     }
 
     getData()
@@ -220,15 +253,16 @@ export default function Participations() {
   }, [validators_data])
 
   return (
-    <div className={`max-w-${['failed', 'sign_attempts'].includes(table) ? '7xl' : '7xl'} my-4 xl:my-6 mx-auto`}>
+    <div className={`max-w-${['keygen_failed', 'sign_success', 'sign_failed'].includes(table) ? '7xl' : '7xl'} my-4 xl:my-6 mx-auto`}>
       <Summary
         data={summaryData && summaryData.data}
         keygens={keygens && keygens.data}
         failedKeygens={failedKeygens && (typeof failedKeygens.total === 'number' ? failedKeygens.total : (failedKeygens.data && failedKeygens.data.length))}
         signAttempts={signAttempts && (typeof signAttempts.total === 'number' ? signAttempts.total : (signAttempts.data && signAttempts.data.length))}
+        failedSignAttempts={failedSignAttempts && (typeof failedSignAttempts.total === 'number' ? failedSignAttempts.total : (failedSignAttempts.data && failedSignAttempts.data.length))}
       />
       <div className="flex flex-row items-center overflow-x-auto space-x-1 my-2">
-        {['success', 'failed', 'sign_attempts'].map((_table, i) => (
+        {['keygen_success', 'keygen_failed', 'sign_success', 'sign_failed'].map((_table, i) => (
           <div
             key={i}
             onClick={() => setTable(_table)}
@@ -238,13 +272,16 @@ export default function Participations() {
           </div>
         ))}
       </div>
-      {table === 'failed' ?
+      {table === 'keygen_failed' ?
         <KeysTable data={failedKeygens} page={table} />
         :
-        table === 'sign_attempts' ?
+        table === 'sign_success' ?
           <KeysTable data={signAttempts} page={table} />
           :
-          <KeysTable data={keygens} corruption_signing_threshold={summaryData && summaryData.data && summaryData.data.corruption_signing_threshold} />
+          table === 'sign_failed' ?
+            <KeysTable data={failedSignAttempts} page={table} />
+            :
+            <KeysTable data={keygens} corruption_signing_threshold={summaryData && summaryData.data && summaryData.data.corruption_signing_threshold} />
       }
     </div>
   )
