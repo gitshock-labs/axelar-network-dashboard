@@ -35,11 +35,6 @@ export default function KeysTable({ data, corruption_signing_threshold, page }) 
                     <span className="font-medium">{ellipseAddress(props.value, ['validator'].includes(page) ? 10 : 20)}</span>
                     {props.value && (<Copy text={props.value} />)}
                   </div>
-                  {['keygen_failed'].includes(page) && props.row.original.reason && (
-                    <div className="max-w-xs whitespace-pre-wrap text-gray-400 dark:text-gray-600 text-xs font-normal mt-2">
-                      {props.row.original.reason}
-                    </div>
-                  )}
                   {['sign_success', 'sign_failed'].includes(page) && props.row.original.sig_id && (
                     <>
                       <div className="text-gray-400 dark:text-gray-600 text-xs font-normal mt-2">Signature ID</div>
@@ -49,6 +44,11 @@ export default function KeysTable({ data, corruption_signing_threshold, page }) 
                         <Copy text={props.row.original.sig_id} />
                       </div>
                     </>
+                  )}
+                  {props.row.original.reason && (
+                    <div className="max-w-xs whitespace-pre-wrap text-gray-400 dark:text-gray-600 text-xs font-normal mt-2">
+                      {props.row.original.reason}
+                    </div>
                   )}
                 </>
                 :
