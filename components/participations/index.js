@@ -102,7 +102,7 @@ export default function Participations() {
 
       setKeygens({ data })
 
-      response = await getFailedKeygens({ size: 100, sort: [{ timestamp: 'desc' }] })
+      response = await getFailedKeygens({ size: 100, sort: [{ height: 'desc' }] })
 
       data = (response && response.data) || []
 
@@ -132,11 +132,11 @@ export default function Participations() {
         }
       }
 
-      data = _.orderBy(data, ['timestamp', 'height'], ['desc', 'desc'])
+      data = _.orderBy(data, ['height'], ['desc'])
 
       setFailedKeygens({ data, total: response && response.total })
 
-      response = await getSignAttempts({ size: 100, sort: [{ timestamp: 'desc' }] })
+      response = await getSignAttempts({ size: 100, sort: [{ height: 'desc' }] })
 
       data = (response && response.data) || []
 
@@ -164,7 +164,7 @@ export default function Participations() {
         }
       }
 
-      data = _.orderBy(data, ['timestamp', 'height'], ['desc', 'desc'])
+      data = _.orderBy(data, ['height'], ['desc'])
 
       setSignAttempts({ data, total: response && response.total })
     }
