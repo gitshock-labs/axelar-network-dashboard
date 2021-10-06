@@ -204,7 +204,7 @@ export default function Participations() {
 
     getData()
 
-    const interval = setInterval(() => getData(), 3 * 60 * 1000)
+    const interval = setInterval(() => getData(), 5 * 60 * 1000)
     return () => clearInterval(interval)
   }, [])
 
