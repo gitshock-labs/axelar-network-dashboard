@@ -19,11 +19,15 @@ const Summary = ({ data, keygens, failedKeygens, signAttempts }) => {
               data.tss && data.tss.params && data.tss.params.key_requirements && data.tss.params.key_requirements.length > 0 ?
                 data.tss.params.key_requirements.map((key, i) => (
                   <span key={i} className="h-8 text-3xl lg:text-2xl xl:text-3xl font-semibold">
-                    {key.min_keygen_threshold && key.min_keygen_threshold.denominator > 0 ? numberFormat(key.min_keygen_threshold.numerator * 100 / key.min_keygen_threshold.denominator, '0,0.00') : '-'}%
+                    {key.min_keygen_threshold && key.min_keygen_threshold.denominator > 0 ? numberFormat(key.min_keygen_threshold.numerator * 100 / key.min_keygen_threshold.denominator, '0,0.00') : '-'}
+                    <span className="text-lg font-normal">%</span>
                   </span>
                 ))
                 :
-                <span className="h-8 text-3xl font-semibold">{typeof data.active_keygen_threshold === 'number' ? numberFormat(data.active_keygen_threshold, '0,0.00') : 'N/A'}%</span>
+                <span className="h-8 text-3xl font-semibold">
+                  {typeof data.active_keygen_threshold === 'number' ? numberFormat(data.active_keygen_threshold, '0,0.00') : 'N/A'}
+                  <span className="text-lg font-normal">%</span>
+                </span>
               :
               <>
                 <div className="skeleton w-16 h-7 mt-1" />
@@ -60,7 +64,8 @@ const Summary = ({ data, keygens, failedKeygens, signAttempts }) => {
               data.tss && data.tss.params && data.tss.params.key_requirements && data.tss.params.key_requirements.length > 0 ?
                 data.tss.params.key_requirements.map((key, i) => (
                   <span key={i} className="h-8 text-3xl lg:text-2xl xl:text-3xl font-semibold">
-                    {key.safety_threshold && key.safety_threshold.denominator > 0 ? numberFormat(key.safety_threshold.numerator * 100 / key.safety_threshold.denominator, '0,0.00') : '-'}%
+                    {key.safety_threshold && key.safety_threshold.denominator > 0 ? numberFormat(key.safety_threshold.numerator * 100 / key.safety_threshold.denominator, '0,0.00') : '-'}
+                    <span className="text-lg font-normal">%</span>
                   </span>
                 ))
                 :
