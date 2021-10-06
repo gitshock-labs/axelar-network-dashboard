@@ -112,7 +112,7 @@ export default function KeysTable({ data, corruption_signing_threshold, page }) 
           {
             Header: 'Height',
             accessor: 'height',
-            sortType: (rowA, rowB) => rowA.original.original.timestamp === rowB.original.original.timestamp ? rowA.original.height > rowB.original.height ? 1 : -1 : rowA.original.original.timestamp > rowB.original.original.timestamp ? 1 : -1,
+            sortType: (rowA, rowB) => rowA.original.timestamp === rowB.original.timestamp ? rowA.original.height > rowB.original.height ? 1 : -1 : rowA.original.timestamp > rowB.original.timestamp ? 1 : -1,
             Cell: props => (
               !props.row.original.skeleton ?
                 <div className="text-right">

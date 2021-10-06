@@ -8,7 +8,7 @@ import VotingPower from './voting-power'
 import Uptime from './uptime'
 import DelegationsTable from './delegations-table'
 import TransactionsTable from '../transactions/transactions-table'
-import KeysTable from '../keygen/keys-table'
+import KeysTable from '../participations/keys-table'
 import Widget from '../widget'
 
 import { getUptime, keygens as getKeygens } from '../../lib/api/query'

@@ -14,7 +14,7 @@ import { getName } from '../../lib/utils'
 
 import { VALIDATORS_DATA, KEYGENS_DATA } from '../../reducers/types'
 
-export default function Keygen() {
+export default function Participations() {
   const dispatch = useDispatch()
   const { data } = useSelector(state => ({ data: state.data }), shallowEqual)
   const { validators_data } = { ...data }
@@ -220,7 +220,7 @@ export default function Keygen() {
   }, [validators_data])
 
   return (
-    <div className={`max-w-${['failed', 'sign_attempts'].includes(table) ? '7xl' : '6xl'} my-4 xl:my-6 mx-auto`}>
+    <div className={`max-w-${['failed', 'sign_attempts'].includes(table) ? '7xl' : '7xl'} my-4 xl:my-6 mx-auto`}>
       <Summary
         data={summaryData && summaryData.data}
         keygens={keygens && keygens.data}

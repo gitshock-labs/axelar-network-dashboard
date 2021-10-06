@@ -1,17 +1,17 @@
 import CoinInfo from '../../components/coin-info'
-import Keygen from '../../components/keygen'
+import Participations from '../../components/participations'
 import SectionTitle from '../../components/section-title'
 
-export default function KeygenIndex() {
+export default function ParticipationsIndex() {
   return (
     <>
       <SectionTitle
-        title="Keygen Details"
-        subtitle="Keygen"
+        title="Participation Details"
+        subtitle="Threshold Participation"
         right={<CoinInfo />}
         className="flex-col sm:flex-row items-start sm:items-center"
       />
-      <Keygen />
+      <Participations />
     </>
   )
 }
