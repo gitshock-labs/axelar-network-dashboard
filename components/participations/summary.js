@@ -6,7 +6,7 @@ import Widget from '../widget'
 
 import { numberFormat } from '../../lib/utils'
 
-const Summary = ({ data, keygens, failedKeygens, signAttempts, failedSignAttempts }) => {
+const Summary = ({ data, keygens, successKeygens, failedKeygens, signAttempts, failedSignAttempts }) => {
   return (
     <div className="w-full grid grid-flow-row grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 my-4">
       <Widget
@@ -102,8 +102,11 @@ const Summary = ({ data, keygens, failedKeygens, signAttempts, failedSignAttempt
       >
         <span className="flex flex-col mt-1 space-y-1">
           <div className="flex flex-row space-x-1.5">
-            {keygens ?
-              <span className="h-8 text-3xl font-semibold">{numberFormat(keygens.length, '0,0')}</span>
+            {keygens || successKeygens ?
+              keygens ?
+                <span className="h-8 text-3xl font-semibold">{numberFormat(keygens.length, '0,0')}</span>
+                :
+                <span className="h-8 text-3xl font-semibold">{numberFormat(successKeygens, '0,0')}</span>
               :
               <div className="skeleton w-12 h-7 mt-1" />
             }
@@ -153,6 +156,7 @@ const Summary = ({ data, keygens, failedKeygens, signAttempts, failedSignAttempt
 Summary.propTypes = {
   data: PropTypes.any,
   keygens: PropTypes.any,
+  successKeygens: PropTypes.any,
   failedKeygens: PropTypes.any,
   signAttempts: PropTypes.any,
   failedSignAttempts: PropTypes.any,

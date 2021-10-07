@@ -169,8 +169,8 @@ export default function KeysTable({ data, corruption_signing_threshold, page }) 
                 <div className="flex flex-col text-right space-y-0.5">
                   {props.value > -1 ?
                     <>
-                      <span className="font-semibold">{numberFormat(props.value, '0,0')} / {numberFormat(_.sumBy(props.row.original.validators, 'share'), '0,0')}</span>
-                      <span className="text-gray-400 dark:text-gray-500 text-xs">({numberFormat(props.value * 100 / _.sumBy(props.row.original.validators, 'share'), '0,0.00')}%)</span>
+                      <span className="font-semibold">{numberFormat(props.value, '0,0')} / {numberFormat(_.sumBy(props.row.original.validator_shares || props.row.original.validators, 'share'), '0,0')}</span>
+                      <span className="text-gray-400 dark:text-gray-500 text-xs">({numberFormat(props.value * 100 / _.sumBy(props.row.original.validator_shares || props.row.original.validators, 'share'), '0,0.00')}%)</span>
                     </>
                     :
                     '-'
@@ -195,7 +195,7 @@ export default function KeysTable({ data, corruption_signing_threshold, page }) 
                   )}
                   {props.value && props.value.length > 0 ?
                     <>
-                      {['keygen_failed', 'sign_success', 'sign_failed'].includes(page) && (
+                      {['keygen_success', 'keygen_failed', 'sign_success', 'sign_failed'].includes(page) && (
                         <div className="space-x-1.5">
                           <span className="font-medium">Participants:</span>
                           <span className="font-medium">{numberFormat(props.value.length, '0,0')}</span>
@@ -296,7 +296,7 @@ export default function KeysTable({ data, corruption_signing_threshold, page }) 
                   )}
                   {props.value && props.value.length > 0 ?
                     <>
-                      {['keygen_failed', 'sign_success', 'sign_failed'].includes(page) && (
+                      {['keygen_success', 'keygen_failed', 'sign_success', 'sign_failed'].includes(page) && (
                         <div className="space-x-1.5">
                           <span className="font-medium">Non-Participants:</span>
                           <span className="font-medium">{numberFormat(props.value.length, '0,0')}</span>
@@ -392,7 +392,7 @@ export default function KeysTable({ data, corruption_signing_threshold, page }) 
                 </div>
             ),
           },
-        ].filter(column => ['validator'].includes(page) ? !(['validators', 'corruption_signing_threshold', 'height', 'non_participant_validators'].includes(column.accessor)) : ['keygen_failed'].includes(page) ? !(['num_validator_shares', 'snapshot_block_number', 'corruption_signing_threshold'].includes(column.accessor)) : ['sign_success', 'sign_failed'].includes(page) ? !(['num_validator_shares', 'snapshot_block_number', 'corruption_signing_threshold'].includes(column.accessor)) : !(['num_validator_shares', 'height', 'non_participant_validators'].includes(column.accessor)))}
+        ].filter(column => ['validator'].includes(page) ? !(['validators', 'corruption_signing_threshold', 'height', 'non_participant_validators'].includes(column.accessor)) : ['keygen_failed'].includes(page) ? !(['num_validator_shares', 'snapshot_block_number', 'corruption_signing_threshold'].includes(column.accessor)) : ['sign_success', 'sign_failed'].includes(page) ? !(['num_validator_shares', 'snapshot_block_number', 'corruption_signing_threshold'].includes(column.accessor)) : !(['num_validator_shares', 'snapshot_block_number'/*'height', 'non_participant_validators'*/].includes(column.accessor)))}
         data={data ?
           data.data && data.data.map((key, i) => { return { ...key, i, corruption_signing_threshold: corruption_signing_threshold && typeof corruption_signing_threshold[key.key_id] === 'number' ? corruption_signing_threshold[key.key_id] : -1 } })
           :

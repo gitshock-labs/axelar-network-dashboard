@@ -9,7 +9,7 @@ import KeysTable from './keys-table'
 import { keygenSummary, keygens as getKeygens } from '../../lib/api/query'
 import { allValidators } from '../../lib/api/cosmos'
 import { getKeygenById } from '../../lib/api/executor'
-import { signAttempts as getSignAttempts, failedKeygens as getFailedKeygens } from '../../lib/api/opensearch'
+import { signAttempts as getSignAttempts, successKeygens as getSuccessKeygens, failedKeygens as getFailedKeygens } from '../../lib/api/opensearch'
 import { getName } from '../../lib/utils'
 
 import { VALIDATORS_DATA, KEYGENS_DATA } from '../../reducers/types'
@@ -21,6 +21,7 @@ export default function Participations() {
 
   const [summaryData, setSummaryData] = useState(null)
   const [keygens, setKeygens] = useState(null)
+  const [successKeygens, setSuccessKeygens] = useState(null)
   const [failedKeygens, setFailedKeygens] = useState(null)
   const [signAttempts, setSignAttempts] = useState(null)
   const [failedSignAttempts, setFailedSignAttempts] = useState(null)
@@ -59,49 +60,89 @@ export default function Participations() {
 
   useEffect(() => {
     const getData = async () => {
-      let response = await getKeygens()
+      // let response = await getKeygens()
 
-      if (response) {
-        dispatch({
-          type: KEYGENS_DATA,
-          value: response
-        })
-      }
+      // if (response) {
+      //   dispatch({
+      //     type: KEYGENS_DATA,
+      //     value: response
+      //   })
+      // }
 
-      let data = (response || []).map((key_id, i) => {
-        return {
-          key_id,
-          ...(keygens && keygens.data && keygens.data.findIndex(keygen => keygen.key_id === key_id) > -1 ?
-            keygens.data[keygens.data.findIndex(keygen => keygen.key_id === key_id)]
-            :
-            null
-          ),
-        }
-      })
+      // let data = (response || []).map((key_id, i) => {
+      //   return {
+      //     key_id,
+      //     ...(keygens && keygens.data && keygens.data.findIndex(keygen => keygen.key_id === key_id) > -1 ?
+      //       keygens.data[keygens.data.findIndex(keygen => keygen.key_id === key_id)]
+      //       :
+      //       null
+      //     ),
+      //   }
+      // })
+
+      // for (let i = 0; i < data.length; i++) {
+      //   let keygen = data[i]
+
+      //   if (keygen && keygen.key_id) {
+      //     keygen = await getKeygenById(keygen.key_id, { cache: true }) || keygen
+      //   }
+
+      //   data[i] = {
+      //     ...keygen,
+      //     key_chain: keygen.key_chain || (keygen && keygen.key_id && keygen.key_id.split('-').length > 1 && getName(keygen.key_id.split('-')[0])),
+      //     key_role: keygen.key_role || (keygen && keygen.key_id && keygen.key_id.split('-').length > 2 && `${keygen.key_id.split('-')[1].toUpperCase()}_KEY`),
+      //     validators: keygen.validators && keygen.validators.map(validator => {
+      //       return {
+      //         ...validator,
+      //         ...(validators_data && validators_data[validators_data.findIndex(validator_data => validator_data.operator_address === validator.address)]),
+      //       }
+      //     }),
+      //   }
+      // }
+
+      // data = _.orderBy(data, ['snapshot_block_number'], ['desc'])
+
+      // setKeygens({ data })
+
+      let response = await getSuccessKeygens({ size: 100, sort: [{ height: 'desc' }] })
+
+      let data = (response && response.data) || []
 
       for (let i = 0; i < data.length; i++) {
-        let keygen = data[i]
+        let successKeygen = data[i]
 
-        if (keygen && keygen.key_id) {
-          keygen = await getKeygenById(keygen.key_id, { cache: true }) || keygen
+        if (successKeygen && successKeygen.key_id) {
+          const keygen = await getKeygenById(successKeygen.key_id, { cache: true })
+
+          successKeygen = { ...keygen, ...successKeygen, validator_shares: keygen && keygen.validators }
         }
 
         data[i] = {
-          ...keygen,
-          key_chain: keygen.key_chain || (keygen && keygen.key_id && keygen.key_id.split('-').length > 1 && getName(keygen.key_id.split('-')[0])),
-          key_role: keygen.key_role || (keygen && keygen.key_id && keygen.key_id.split('-').length > 2 && `${keygen.key_id.split('-')[1].toUpperCase()}_KEY`),
-          validators: keygen.validators && keygen.validators.map(validator => {
+          ...successKeygen,
+          key_chain: successKeygen.key_chain || (successKeygen && successKeygen.key_id && successKeygen.key_id.split('-').length > 1 && getName(successKeygen.key_id.split('-')[0])),
+          key_role: successKeygen.key_role || (successKeygen && successKeygen.key_id && successKeygen.key_id.split('-').length > 2 && `${successKeygen.key_id.split('-')[1].toUpperCase()}_KEY`),
+          validators: successKeygen.snapshot_validators && successKeygen.snapshot_validators.validators && successKeygen.snapshot_validators.validators.map((validator, j) => {
             return {
               ...validator,
-              ...(validators_data && validators_data[validators_data.findIndex(validator_data => validator_data.operator_address === validator.address)]),
+              address: validator.validator,
+              ...(validators_data && validators_data[validators_data.findIndex(validator_data => validator_data.operator_address === validator.validator)]),
+              share: validator.share_count,
+            }
+          }),
+          non_participant_validators: successKeygen.snapshot_non_participant_validators && successKeygen.snapshot_non_participant_validators.validators && successKeygen.snapshot_non_participant_validators.validators.map((validator, j) => {
+            return {
+              ...validator,
+              address: validator.validator,
+              ...(validators_data && validators_data[validators_data.findIndex(validator_data => validator_data.operator_address === validator.validator)]),
+              share: validator.share_count,
             }
           }),
         }
       }
 
-      data = _.orderBy(data, ['snapshot_block_number'], ['desc'])
+      data = _.orderBy(data, ['height'], ['desc'])
 
-      setKeygens({ data })
+      setSuccessKeygens({ data, total: response && response.total })
 
       response = await getFailedKeygens({ size: 100, sort: [{ height: 'desc' }] })
 
@@ -226,6 +267,32 @@ export default function Participations() {
         setKeygens({ data })
       }
 
+      if (successKeygens && successKeygens.data) {
+        const data = successKeygens.data.map(successKeygen => {
+          return {
+            ...successKeygen,
+            validators: successKeygen.snapshot_validators && successKeygen.snapshot_validators.validators && successKeygen.snapshot_validators.validators.map((validator, j) => {
+              return {
+                ...validator,
+                address: validator.validator,
+                ...(validators_data && validators_data[validators_data.findIndex(validator_data => validator_data.operator_address === validator.validator)]),
+                share: validator.share_count,
+              }
+            }),
+            non_participant_validators: successKeygen.snapshot_non_participant_validators && successKeygen.snapshot_non_participant_validators.validators && successKeygen.snapshot_non_participant_validators.validators.map((validator, j) => {
+              return {
+                ...validator,
+                address: validator.validator,
+                ...(validators_data && validators_data[validators_data.findIndex(validator_data => validator_data.operator_address === validator.validator)]),
+                share: validator.share_count,
+              }
+            }),
+          }
+        })
+
+        setSuccessKeygens({ ...successKeygens, data })
+      }
+
       if (failedKeygens && failedKeygens.data) {
         const data = failedKeygens.data.map(failedKeygen => {
           return {
@@ -303,10 +370,11 @@ export default function Participations() {
   }, [validators_data])
 
   return (
-    <div className={`max-w-${['keygen_failed', 'sign_success', 'sign_failed'].includes(table) ? '7xl' : '7xl'} my-4 xl:my-6 mx-auto`}>
+    <div className={`max-w-${['keygen_failed', 'sign_success', 'sign_failed'].includes(table) ? '7xl' : '8xl'} my-4 xl:my-6 mx-auto`}>
       <Summary
         data={summaryData && summaryData.data}
         keygens={keygens && keygens.data}
+        successKeygens={successKeygens && (typeof successKeygens.total === 'number' ? successKeygens.total : (successKeygens.data && successKeygens.data.length))}
         failedKeygens={failedKeygens && (typeof failedKeygens.total === 'number' ? failedKeygens.total : (failedKeygens.data && failedKeygens.data.length))}
         signAttempts={signAttempts && (typeof signAttempts.total === 'number' ? signAttempts.total : (signAttempts.data && signAttempts.data.length))}
         failedSignAttempts={failedSignAttempts && (typeof failedSignAttempts.total === 'number' ? failedSignAttempts.total : (failedSignAttempts.data && failedSignAttempts.data.length))}
@@ -331,7 +399,7 @@ export default function Participations() {
           table === 'sign_failed' ?
             <KeysTable data={failedSignAttempts} page={table} />
             :
-            <KeysTable data={keygens} corruption_signing_threshold={summaryData && summaryData.data && summaryData.data.corruption_signing_threshold} />
+            <KeysTable data={keygens || successKeygens} page={table} corruption_signing_threshold={summaryData && summaryData.data && summaryData.data.corruption_signing_threshold} />
       }
     </div>
   )
