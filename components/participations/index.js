@@ -111,11 +111,11 @@ export default function Participations() {
       for (let i = 0; i < data.length; i++) {
         let successKeygen = data[i]
 
-        if (successKeygen && successKeygen.key_id) {
-          const keygen = await getKeygenById(successKeygen.key_id, { cache: true })
+        // if (successKeygen && successKeygen.key_id) {
+        //   const keygen = await getKeygenById(successKeygen.key_id, { cache: true })
 
-          successKeygen = { ...keygen, ...successKeygen, validator_shares: keygen && keygen.validators }
-        }
+        //   successKeygen = { ...keygen, ...successKeygen, validator_shares: keygen && keygen.validators }
+        // }
 
         data[i] = {
           ...successKeygen,
