@@ -177,7 +177,7 @@ export default function ValidatorsTable({ status }) {
                   <div className="skeleton w-8 h-4 ml-0 sm:ml-auto" />
                 </div>
             ),
-            headerClassName: 'justify-start sm:justify-end text-left sm:text-right',
+            headerClassName: 'min-w-max justify-start sm:justify-end text-left sm:text-right',
           },
           {
             Header: 'Self Delegation',
@@ -201,7 +201,7 @@ export default function ValidatorsTable({ status }) {
                   <div className="skeleton w-8 h-4 ml-0 sm:ml-auto" />
                 </div>
             ),
-            headerClassName: 'justify-start sm:justify-end text-left sm:text-right',
+            headerClassName: 'min-w-max justify-start sm:justify-end text-left sm:text-right',
           },
           {
             Header: 'Commission',
