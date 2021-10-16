@@ -172,17 +172,17 @@ const Summary = ({ data }) => {
           className="bg-transparent sm:bg-white sm:dark:bg-gray-900 border-0 sm:border border-gray-100 dark:border-gray-800 p-0 sm:p-4"
         >
           <span className="flex flex-col mt-1 space-y-1">
-            {data ?
-              <span className="h-8 text-3xl font-semibold">{typeof data.active_validators === 'number' && numberFormat(data.active_validators, '0,0')}</span>
+            {typeof data?.active_validators === 'number' ?
+              <span className="h-8 text-3xl font-semibold">{numberFormat(data.active_validators, '0,0')}</span>
               :
               <div className="skeleton w-24 h-7 mt-1" />
             }
             <span className="flex items-center text-gray-400 dark:text-gray-600 text-sm font-normal space-x-1">
               <span>out of</span>
-              {data ?
-                <span className="text-gray-600 dark:text-gray-400 font-medium">{typeof data.total_validators === 'number' && numberFormat(data.total_validators, '0,0')}</span>
+              {typeof data?.total_validators === 'number' ?
+                <span className="text-gray-600 dark:text-gray-400 font-medium">{numberFormat(data.total_validators, '0,0')}</span>
                 :
-                <div className="skeleton w-6 h-3" />
+                <div className="skeleton w-6 h-3.5" />
               }
               <span>validators</span>
             </span>
@@ -193,22 +193,22 @@ const Summary = ({ data }) => {
           className="bg-transparent sm:bg-white sm:dark:bg-gray-900 border-0 sm:border border-gray-100 dark:border-gray-800 p-0 sm:p-4"
         >
           <span className="flex flex-col mt-1 space-y-1">
-            {data ?
+            {data?.online_voting_power_now ?
               <span className="h-8 text-3xl font-semibold">{data.online_voting_power_now}</span>
               :
               <div className="skeleton w-24 h-7 mt-1" />
             }
             <span className="flex items-center text-gray-400 dark:text-gray-600 text-sm font-normal space-x-1">
-              {data ?
-                <span className="text-gray-600 dark:text-gray-400 font-medium">{typeof data.online_voting_power_now_percentage === 'number' && numberFormat(data.online_voting_power_now_percentage, '0,0.00')}%</span>
+              {typeof data?.online_voting_power_now_percentage === 'number' ?
+                <span className="text-gray-600 dark:text-gray-400 font-medium">{numberFormat(data.online_voting_power_now_percentage, '0,0.00')}%</span>
                 :
-                <div className="skeleton w-6 h-3" />
+                <div className="skeleton w-6 h-3.5" />
               }
               <span>from</span>
-              {data ?
+              {data?.total_voting_power ?
                 <span className="text-gray-600 dark:text-gray-400 font-medium">{data.total_voting_power}</span>
                 :
-                <div className="skeleton w-8 h-3" />
+                <div className="skeleton w-8 h-3.5" />
               }
               <span className="uppercase text-gray-500">{data && ellipseAddress(data.denom)}</span>
             </span>
