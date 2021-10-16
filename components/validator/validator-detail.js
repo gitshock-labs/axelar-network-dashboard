@@ -129,7 +129,7 @@ export default function ValidatorDetail({ data, delegations, keygens, all_keygen
               <span className="font-medium">Max Commission:</span>
               <span className="font-light">{data.commission && data.commission.commission_rates && !isNaN(data.commission.commission_rates.max_rate) ? numberFormat(data.commission.commission_rates.max_rate * 100, '0,0.00') : '-'}%</span>
             </div>
-            <div className="flex items-start space-x-2">
+            <div className="flex items-center space-x-2">
               <span className="font-medium">Uptime:</span>
               {typeof data.uptime === 'number' ?
                 <>

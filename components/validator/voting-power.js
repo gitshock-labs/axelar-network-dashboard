@@ -60,7 +60,7 @@ export default function VotingPower({ data }) {
           </div>
         </div>
         :
-        <div className="w-full grid grid-flow-row grid-cols-1 lg:grid-cols-2 text-base gap-3 lg:gap-8">
+        <div className="w-full grid grid-flow-row grid-cols-1 lg:grid-cols-2 text-base gap-3 lg:gap-8 mb-4">
           <div className="flex flex-col space-y-4">
             <div className="skeleton w-48 h-4" />
             <div className="skeleton w-40 h-5" />
