@@ -67,7 +67,7 @@ export default function BlocksTable({ n, className = '' }) {
               !props.row.original.skeleton ?
                 <Link href={`/blocks/${props.value}`}>
                   <a className="text-blue-600 dark:text-blue-400 font-medium">
-                    {props.value}
+                    {numberFormat(props.value, '0,0')}
                   </a>
                 </Link>
                 :

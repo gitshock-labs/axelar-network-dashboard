@@ -22,7 +22,7 @@ export default function TransactionLogs({ data }) {
         :
         [...Array(1).keys()].map(i => { return { i, skeleton: true } })
       ).map((activity, i) => (
-        <div key={i} className="md:min-w-max max-w-3xl bg-white dark:bg-gray-800 rounded shadow-lg flex items-center space-x-4 p-4">
+        <div key={i} className="md:min-w-max max-w-3xl bg-white dark:bg-gray-900 rounded shadow-lg flex items-center space-x-4 p-4">
           {activity.skeleton || (!activity.failed && !(['update_client'].includes(activity.type)) && !(['KeygenTraffic', 'SignPendingTransfers', 'ExecutePendingTransfers', 'VoteConfirmDeposit', 'VoteSig'].includes(activity.action))) ?
             <>
               {(activity.skeleton || (activity.sender && !activity.depositor)) && (

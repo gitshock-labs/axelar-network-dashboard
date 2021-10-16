@@ -97,7 +97,7 @@ export default function KeysTable({ data, corruption_signing_threshold, page }) 
                   {props.value ?
                     <Link href={`/blocks/${props.value}`}>
                       <a className="text-blue-600 dark:text-blue-400">
-                        {props.value}
+                        {numberFormat(props.value, '0,0')}
                       </a>
                     </Link>
                     :
@@ -120,7 +120,7 @@ export default function KeysTable({ data, corruption_signing_threshold, page }) 
                     <>
                       <Link href={`/blocks/${props.value}`}>
                         <a className="text-blue-600 dark:text-blue-400">
-                          {props.value}
+                          {numberFormat(props.value, '0,0')}
                         </a>
                       </Link>
                       {/*props.row.original.timestamp && (

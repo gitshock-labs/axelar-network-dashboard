@@ -30,6 +30,7 @@ export default function Index() {
         className="flex-col sm:flex-row items-start sm:items-center"
       />
       <Dashboard />
+      <div className="dark:bg-black" />
     </>
   )
 }

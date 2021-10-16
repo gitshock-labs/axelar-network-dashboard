@@ -16,7 +16,7 @@ export default function Navbar() {
   const { theme } = { ...preferences }
 
   return (
-    <div className="navbar border-b">
+    <div className="navbar dark:bg-gray-900 border-b">
       <div className="navbar-inner w-full flex items-center">
         <Logo />
         <DropdownNavigation />

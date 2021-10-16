@@ -562,7 +562,7 @@ export default function AccountDetail({ data }) {
                   !props.row.original.skeleton ?
                     <Link href={`/blocks/${props.value}`}>
                       <a className="text-blue-600 dark:text-blue-400">
-                        {props.value}
+                        {numberFormat(props.value, '0,0')}
                       </a>
                     </Link>
                     :

@@ -73,7 +73,7 @@ export default function CoinInfo() {
   }, [])
 
   return (
-    <div className="w-full sm:w-auto bg-gray-100 dark:bg-gray-800 rounded grid grid-flow-row grid-cols-2 sm:flex items-center gap-2 sm:gap-8 lg:gap-6 mt-2 sm:mt-auto py-3 px-4">
+    <div className="w-full sm:w-auto bg-gray-100 dark:bg-gray-900 rounded grid grid-flow-row grid-cols-2 sm:flex items-center gap-2 sm:gap-8 lg:gap-6 mt-2 sm:mt-auto py-3 px-4">
       <div className="flex flex-col lg:flex-row lg:items-center lg:space-x-2">
         <span className="text-gray-700 dark:text-gray-500 font-semibold">Price:</span>
         <span className="text-gray-900 dark:text-gray-300 font-light">
