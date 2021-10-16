@@ -95,20 +95,20 @@ export default function Dashboard() {
         if (chain_data && chain_data.staking_pool) {
           consensusStateData.voting_power_percentage = consensusStateData.voting_power * 100 / Math.floor(chain_data.staking_pool.bonded_tokens)
         }
-      }
 
-      setSummaryData({ data: {
-        latest_block: { ...consensusStateData },
-        block_height: status_data && Number(status_data.latest_block_height),
-        block_height_at: status_data && moment(status_data.latest_block_time).valueOf(),
-        avg_block_time: status_data && moment(status_data.latest_block_time).diff(moment(status_data.earliest_block_time), 'seconds') / Number(status_data.latest_block_height),
-        active_validators: validators_data && validators_data.filter(validator_data => ['BOND_STATUS_BONDED'].includes(validator_data.status)).length,
-        total_validators: validators_data && validators_data.length,
-        denom: chain_data && chain_data.staking_params && denomName(chain_data.staking_params.bond_denom),
-        online_voting_power_now: chain_data && chain_data.staking_pool && numberFormat(Math.floor(chain_data.staking_pool.bonded_tokens), '0,0.00a'),
-        online_voting_power_now_percentage: chain_data && chain_data.staking_pool && chain_data.bank_supply && (Math.floor(chain_data.staking_pool.bonded_tokens) * 100 / chain_data.bank_supply.amount),
-        total_voting_power: chain_data && chain_data.bank_supply && numberFormat(chain_data.bank_supply.amount, '0,0.00a'),
-      }})
+        setSummaryData({ data: {
+          latest_block: { ...consensusStateData },
+          block_height: status_data && Number(status_data.latest_block_height),
+          block_height_at: status_data && moment(status_data.latest_block_time).valueOf(),
+          avg_block_time: status_data && moment(status_data.latest_block_time).diff(moment(status_data.earliest_block_time), 'seconds') / Number(status_data.latest_block_height),
+          active_validators: validators_data && validators_data.filter(validator_data => ['BOND_STATUS_BONDED'].includes(validator_data.status)).length,
+          total_validators: validators_data && validators_data.length,
+          denom: chain_data && chain_data.staking_params && denomName(chain_data.staking_params.bond_denom),
+          online_voting_power_now: chain_data && chain_data.staking_pool && numberFormat(Math.floor(chain_data.staking_pool.bonded_tokens), '0,0.00a'),
+          online_voting_power_now_percentage: chain_data && chain_data.staking_pool && chain_data.bank_supply && (Math.floor(chain_data.staking_pool.bonded_tokens) * 100 / chain_data.bank_supply.amount),
+          total_voting_power: chain_data && chain_data.bank_supply && numberFormat(chain_data.bank_supply.amount, '0,0.00a'),
+        }})
+      }
     }
 
     getData()
