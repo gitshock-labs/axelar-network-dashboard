@@ -116,7 +116,7 @@ const Summary = ({ data }) => {
                         {numberFormat(data.latest_block.voting_power_percentage, '0,0.00')}%
                       </div>}
                       color="bg-green-500 dark:bg-green-600 rounded"
-                      backgroundClassName="h-4 bg-gray-200 dark:bg-gray-900 rounded"
+                      backgroundClassName="h-4 bg-gray-200 dark:bg-gray-800 rounded"
                       className={`h-4 flex items-center justify-${data.latest_block.voting_power_percentage < 20 ? 'start' : 'end'}`}
                     />
                   )}
