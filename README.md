@@ -10,7 +10,7 @@ This is the frontend part of the [Axelar Network Dashboard](https://axelar-testn
 - [Participations](https://axelar-testnet.coinhippo.io/participations) display the key generation and key sign logs.
 - [Bridge Accounts](https://axelar-testnet.coinhippo.io/bridge) display Axelar owned addresses on external chains such as Ethereum Gateway contract address, bitcoin master address, etc
 
-The dashboard also supports searching functionality. Users can serach for their Axelar wallet address or transaction information.
+The dashboard also supports searching functionality. Users can serach with their Axelar wallet address or transaction information.
 
 ## Follow us
 - [Website](https://coinhippo.io)
