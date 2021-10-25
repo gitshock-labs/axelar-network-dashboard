@@ -124,7 +124,7 @@ export default function TransactionsTable({ data, noLoad, hasVote, page, classNa
                       <span className="uppercase font-medium">{props.row.original.symbol}</span>
                     </span>
                     :
-                    props.row.original.activities && props.row.original.activities.findIndex(activity => activity.amount && activity.symbol) > -1 ?
+                    props.row.original.activities && props.row.original.activities.findIndex(activity => activity.amount/* && activity.symbol*/) > -1 ?
                       props.row.original.activities.map((activity, i) => (
                         <div key={i} className="flex items-center justify-end space-x-1">
                           <span>{numberFormat(activity.amount, '0,0.00000000')}</span>

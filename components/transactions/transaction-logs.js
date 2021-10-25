@@ -105,7 +105,7 @@ export default function TransactionLogs({ data }) {
                           <span className="capitalize">{activity.value}</span>
                           :
                           typeof activity.amount === 'number' ?
-                            <span className="flex items-center justify-end space-x-1">
+                            <span className="w-full flex items-center justify-end space-x-1">
                               <span>{numberFormat(activity.amount, '0,0.00000000')}</span>
                               <span className="uppercase font-medium">{activity.symbol || ellipseAddress(activity.denom)}</span>
                             </span>

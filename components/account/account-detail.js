@@ -370,14 +370,18 @@ export default function AccountDetail({ data }) {
                 Cell: props => (
                   !props.row.original.skeleton ?
                     <div className={`min-w-max flex items-${props.value ? 'start' : 'center'} space-x-2`}>
-                      {props.row.original.validator_data && props.row.original.validator_data.image && (
+                      {props.row.original.validator_data && (
                         <Link href={`/validator/${props.row.original.validator_address}`}>
                           <a>
-                            <img
-                              src={props.row.original.validator_data.image}
-                              alt=""
-                              className="w-6 h-6 rounded-full"
-                            />
+                            {props.row.original.validator_data.image ?
+                              <img
+                                src={props.row.original.validator_data.image}
+                                alt=""
+                                className="w-6 h-6 rounded-full"
+                              />
+                              :
+                              <div className="skeleton w-6 h-6 rounded-full" />
+                            }
                           </a>
                         </Link>
                       )}
@@ -515,14 +519,18 @@ export default function AccountDetail({ data }) {
                 Cell: props => (
                   !props.row.original.skeleton ?
                     <div className={`min-w-max flex items-${props.value ? 'start' : 'center'} space-x-2`}>
-                      {props.row.original.validator_data && props.row.original.validator_data.image && (
+                      {props.row.original.validator_data && (
                         <Link href={`/validator/${props.row.original.validator_address}`}>
                           <a>
-                            <img
-                              src={props.row.original.validator_data.image}
-                              alt=""
-                              className="w-6 h-6 rounded-full"
-                            />
+                            {props.row.original.validator_data.image ?
+                              <img
+                                src={props.row.original.validator_data.image}
+                                alt=""
+                                className="w-6 h-6 rounded-full"
+                              />
+                              :
+                              <div className="skeleton w-6 h-6 rounded-full" />
+                            }
                           </a>
                         </Link>
                       )}

@@ -10,8 +10,8 @@ import { ProgressBarWithText } from '../progress-bars'
 import Copy from '../copy'
 
 import { status as getStatus } from '../../lib/api/rpc'
-import { allValidators, validatorSelfDelegation } from '../../lib/api/cosmos'
-import { numberFormat, getName, ellipseAddress } from '../../lib/utils'
+import { allValidators, validatorSelfDelegation, validatorProfile } from '../../lib/api/cosmos'
+import { numberFormat, getName, ellipseAddress, randImage } from '../../lib/utils'
 
 import { STATUS_DATA, VALIDATORS_DATA } from '../../reducers/types'
 
@@ -60,6 +60,18 @@ export default function ValidatorsTable({ status }) {
               validator_data = await validatorSelfDelegation(validator_data, validators_data, status)
 
               if (validator_data) {
+                if (validator_data.description) {
+                  if (validator_data.description.identity && !validator_data.description.image) {
+                    const responseProfile = await validatorProfile({ key_suffix: validator_data.description.identity })
+
+                    if (responseProfile?.them?.[0]?.pictures?.primary?.url) {
+                      validator_data.description.image = responseProfile.them[0].pictures.primary.url
+                    }
+                  }
+
+                  validator_data.description.image = validator_data.description.image || randImage(i)
+                }
+
                 validators_data[i] = validator_data
 
                 dispatch({
@@ -116,17 +128,19 @@ export default function ValidatorsTable({ status }) {
             Cell: props => (
               !props.row.original.skeleton ?
                 <div className={`min-w-max flex items-${props.value ? 'start' : 'center'} space-x-2`}>
-                  {props.row.original.description.image && (
-                    <Link href={`/validator/${props.row.original.operator_address}`}>
-                      <a>
+                  <Link href={`/validator/${props.row.original.operator_address}`}>
+                    <a>
+                      {props.row.original.description.image ?
                         <img
                           src={props.row.original.description.image}
                           alt=""
                           className="w-6 h-6 rounded-full"
                         />
-                      </a>
-                    </Link>
-                  )}
+                        :
+                        <div className="skeleton w-6 h-6 rounded-full" />
+                      }
+                    </a>
+                  </Link>
                   <div className="flex flex-col">
                     {props.value && (
                       <Link href={`/validator/${props.row.original.operator_address}`}>

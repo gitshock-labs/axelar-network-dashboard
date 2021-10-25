@@ -66,17 +66,19 @@ export default function BlockDetail({ data, validator_data }) {
           {data ?
             data.operator_address ?
               <div className={`min-w-max flex items-${data.proposer_name ? 'start' : 'center'} space-x-2`}>
-                {data.proposer_image && (
-                  <Link href={`/validator/${data.operator_address}`}>
-                    <a>
+                <Link href={`/validator/${data.operator_address}`}>
+                  <a>
+                    {data.proposer_image ?
                       <img
                         src={data.proposer_image}
                         alt=""
                         className="w-6 h-6 rounded-full"
                       />
-                    </a>
-                  </Link>
-                )}
+                      :
+                      <div className="skeleton w-6 h-6 rounded-full" />
+                    }
+                  </a>
+                </Link>
                 <div className="flex flex-col">
                   {data.proposer_name && (
                     <Link href={`/validator/${data.operator_address}`}>

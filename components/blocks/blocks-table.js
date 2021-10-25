@@ -7,9 +7,9 @@ import moment from 'moment'
 import Datatable from '../datatable'
 import Copy from '../copy'
 
-import { allValidators } from '../../lib/api/cosmos'
+import { allValidators, validatorProfile } from '../../lib/api/cosmos'
 import { blocks as getBlocks } from '../../lib/api/opensearch'
-import { numberFormat, ellipseAddress } from '../../lib/utils'
+import { numberFormat, ellipseAddress, randImage } from '../../lib/utils'
 
 import { VALIDATORS_DATA } from '../../reducers/types'
 
@@ -21,6 +21,7 @@ export default function BlocksTable({ n, className = '' }) {
   const { validators_data } = { ...data }
 
   const [blocks, setBlocks] = useState(null)
+  const [loadValsProfile, setLoadValsProfile] = useState(false)
 
   useEffect(() => {
     const getValidators = async () => {
@@ -31,6 +32,8 @@ export default function BlocksTable({ n, className = '' }) {
           type: VALIDATORS_DATA,
           value: response.data
         })
+
+        setLoadValsProfile(true)
       }
     }
 
@@ -39,6 +42,39 @@ export default function BlocksTable({ n, className = '' }) {
     const interval = setInterval(() => getValidators(), 10 * 60 * 1000)
     return () => clearInterval(interval)
   }, [])
+
+  useEffect(() => {
+    const getValidatorsProfile = async () => {
+      if (loadValsProfile && validators_data?.findIndex(validator_data => validator_data?.description && !validator_data.description.image) > -1) {
+        const data = _.cloneDeep(validators_data)
+
+        for (let i = 0; i < data.length; i++) {
+          const validator_data = data[i]
+
+          if (validator_data?.description) {
+            if (validator_data.description.identity && !validator_data.description.image) {
+              const responseProfile = await validatorProfile({ key_suffix: validator_data.description.identity })
+
+              if (responseProfile?.them?.[0]?.pictures?.primary?.url) {
+                validator_data.description.image = responseProfile.them[0].pictures.primary.url
+              }
+            }
+
+            validator_data.description.image = validator_data.description.image || randImage(i)
+
+            data[i] = validator_data
+          }
+        }
+
+        dispatch({
+          type: VALIDATORS_DATA,
+          value: data
+        })
+      }
+    }
+
+    getValidatorsProfile()
+  }, [loadValsProfile])
 
   useEffect(() => {
     const getData = async () => {
@@ -97,17 +133,19 @@ export default function BlocksTable({ n, className = '' }) {
               !props.row.original.skeleton && validators_data ?
                 props.row.original.operator_address ?
                   <div className={`min-w-max flex items-${props.row.original.proposer_name ? 'start' : 'center'} space-x-2`}>
-                    {props.row.original.proposer_image && (
-                      <Link href={`/validator/${props.row.original.operator_address}`}>
-                        <a>
+                    <Link href={`/validator/${props.row.original.operator_address}`}>
+                      <a>
+                        {props.row.original.proposer_image ?
                           <img
                             src={props.row.original.proposer_image}
                             alt=""
                             className="w-6 h-6 rounded-full"
                           />
-                        </a>
-                      </Link>
-                    )}
+                          :
+                          <div className="skeleton w-6 h-6 rounded-full" />
+                        }
+                      </a>
+                    </Link>
                     <div className="flex flex-col">
                       {props.row.original.proposer_name && (
                         <Link href={`/validator/${props.row.original.operator_address}`}>

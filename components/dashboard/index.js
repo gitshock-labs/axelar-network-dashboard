@@ -10,10 +10,10 @@ import TransactionsTable from '../transactions/transactions-table'
 import Widget from '../widget'
 
 import { status as getStatus, consensusState } from '../../lib/api/rpc'
-import { allValidators } from '../../lib/api/cosmos'
+import { allValidators, validatorProfile } from '../../lib/api/cosmos'
 import { hexToBech32 } from '../../lib/object/key'
 import { denomName } from '../../lib/object/denom'
-import { numberFormat } from '../../lib/utils'
+import { numberFormat, randImage } from '../../lib/utils'
 
 import { STATUS_DATA, VALIDATORS_DATA } from '../../reducers/types'
 
@@ -24,6 +24,7 @@ export default function Dashboard() {
 
   const [summaryData, setSummaryData] = useState(null)
   const [consensusStateData, setConsensusStateData] = useState(null)
+  const [loadValsProfile, setLoadValsProfile] = useState(false)
 
   useEffect(() => {
     const getData = async () => {
@@ -67,6 +68,8 @@ export default function Dashboard() {
           type: VALIDATORS_DATA,
           value: response.data
         })
+
+        setLoadValsProfile(true)
       }
     }
 
@@ -75,6 +78,39 @@ export default function Dashboard() {
     const interval = setInterval(() => getValidators(), 10 * 60 * 1000)
     return () => clearInterval(interval)
   }, [])
+
+  useEffect(() => {
+    const getValidatorsProfile = async () => {
+      if (loadValsProfile && validators_data?.findIndex(validator_data => validator_data?.description && !validator_data.description.image) > -1) {
+        const data = _.cloneDeep(validators_data)
+
+        for (let i = 0; i < data.length; i++) {
+          const validator_data = data[i]
+
+          if (validator_data?.description) {
+            if (validator_data.description.identity && !validator_data.description.image) {
+              const responseProfile = await validatorProfile({ key_suffix: validator_data.description.identity })
+
+              if (responseProfile?.them?.[0]?.pictures?.primary?.url) {
+                validator_data.description.image = responseProfile.them[0].pictures.primary.url
+              }
+            }
+
+            validator_data.description.image = validator_data.description.image || randImage(i)
+
+            data[i] = validator_data
+          }
+        }
+
+        dispatch({
+          type: VALIDATORS_DATA,
+          value: data
+        })
+      }
+    }
+
+    getValidatorsProfile()
+  }, [loadValsProfile])
 
   useEffect(() => {
     const getData = async () => {

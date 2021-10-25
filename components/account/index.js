@@ -8,9 +8,9 @@ import AccountDetail from './account-detail'
 import TransactionsTable from '../transactions/transactions-table'
 import Widget from '../widget'
 
-import { allValidators, allBankBalances, allStakingDelegations, allStakingUnbonding, distributionRewards, distributionCommission, transactionsByEvents } from '../../lib/api/cosmos'
+import { allValidators, allBankBalances, allStakingDelegations, allStakingUnbonding, distributionRewards, distributionCommission, transactionsByEvents, validatorProfile } from '../../lib/api/cosmos'
 import { denomName, denomAmount } from '../../lib/object/denom'
-import { numberFormat } from '../../lib/utils'
+import { numberFormat, randImage } from '../../lib/utils'
 
 import { VALIDATORS_DATA } from '../../reducers/types'
 
@@ -21,6 +21,7 @@ export default function Account({ address }) {
 
   const [account, setAccount] = useState(null)
   const [transactions, setTransactions] = useState(null)
+  const [loadValsProfile, setLoadValsProfile] = useState(false)
 
   useEffect(() => {
     const getValidators = async () => {
@@ -31,6 +32,8 @@ export default function Account({ address }) {
           type: VALIDATORS_DATA,
           value: response.data
         })
+
+        setLoadValsProfile(true)
       }
     }
 
@@ -39,6 +42,39 @@ export default function Account({ address }) {
     const interval = setInterval(() => getValidators(), 10 * 60 * 1000)
     return () => clearInterval(interval)
   }, [])
+
+  useEffect(() => {
+    const getValidatorsProfile = async () => {
+      if (loadValsProfile && validators_data?.findIndex(validator_data => validator_data?.description && !validator_data.description.image) > -1) {
+        const data = _.cloneDeep(validators_data)
+
+        for (let i = 0; i < data.length; i++) {
+          const validator_data = data[i]
+
+          if (validator_data?.description) {
+            if (validator_data.description.identity && !validator_data.description.image) {
+              const responseProfile = await validatorProfile({ key_suffix: validator_data.description.identity })
+
+              if (responseProfile?.them?.[0]?.pictures?.primary?.url) {
+                validator_data.description.image = responseProfile.them[0].pictures.primary.url
+              }
+            }
+
+            validator_data.description.image = validator_data.description.image || randImage(i)
+
+            data[i] = validator_data
+          }
+        }
+
+        dispatch({
+          type: VALIDATORS_DATA,
+          value: data
+        })
+      }
+    }
+
+    getValidatorsProfile()
+  }, [loadValsProfile])
 
   useEffect(() => {
     const getData = async () => {
@@ -178,7 +214,7 @@ export default function Account({ address }) {
 
   return (
     <div className="max-w-6xl my-4 xl:my-6 mx-auto">
-      <AccountDetail data={account && account.address === address && account.data} />
+      <AccountDetail data={account?.address === address && account?.data} />
       <Widget
         title={<div className="flex items-center text-gray-900 dark:text-white text-lg font-semibold space-x-1 mt-3">
           <span>Transactions</span>
@@ -186,7 +222,7 @@ export default function Account({ address }) {
         className="mt-4"
       >
         <div className="mt-3">
-          <TransactionsTable data={transactions} noLoad={true} />
+          <TransactionsTable data={transactions?.address === address && transactions} noLoad={true} />
         </div>
       </Widget>
     </div>
