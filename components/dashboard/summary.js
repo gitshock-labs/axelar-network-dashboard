@@ -20,7 +20,7 @@ const Summary = ({ data }) => {
               {data ?
                 data.latest_block ?
                   <Link href={`/blocks/${data.latest_block.height}`}>
-                    <a className="text-blue-600 dark:text-blue-400 text-lg">
+                    <a className="text-blue-600 dark:text-blue-500 text-lg">
                       {numberFormat(data.latest_block.height, '0,0')}
                     </a>
                   </Link>
@@ -76,7 +76,7 @@ const Summary = ({ data }) => {
                   <div className="flex flex-col">
                     {data.latest_block.proposer_name && (
                       <Link href={`/validator/${data.latest_block.operator_address}`}>
-                        <a className="text-blue-600 dark:text-blue-400 font-medium">
+                        <a className="text-blue-600 dark:text-blue-500 font-medium">
                           {data.latest_block.proposer_name || data.latest_block.operator_address}
                         </a>
                       </Link>

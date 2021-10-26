@@ -102,7 +102,7 @@ export default function BlocksTable({ n, className = '' }) {
             Cell: props => (
               !props.row.original.skeleton ?
                 <Link href={`/blocks/${props.value}`}>
-                  <a className="text-blue-600 dark:text-blue-400 font-medium">
+                  <a className="text-blue-600 dark:text-blue-500 font-medium">
                     {numberFormat(props.value, '0,0')}
                   </a>
                 </Link>
@@ -149,7 +149,7 @@ export default function BlocksTable({ n, className = '' }) {
                     <div className="flex flex-col">
                       {props.row.original.proposer_name && (
                         <Link href={`/validator/${props.row.original.operator_address}`}>
-                          <a className="text-blue-600 dark:text-blue-400 font-medium">
+                          <a className="text-blue-600 dark:text-blue-500 font-medium">
                             {props.row.original.proposer_name || props.row.original.operator_address}
                           </a>
                         </Link>

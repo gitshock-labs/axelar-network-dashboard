@@ -82,7 +82,7 @@ export default function BlockDetail({ data, validator_data }) {
                 <div className="flex flex-col">
                   {data.proposer_name && (
                     <Link href={`/validator/${data.operator_address}`}>
-                      <a className="text-blue-600 dark:text-blue-400 font-medium">
+                      <a className="text-blue-600 dark:text-blue-500 font-medium">
                         {data.proposer_name || data.operator_address}
                       </a>
                     </Link>

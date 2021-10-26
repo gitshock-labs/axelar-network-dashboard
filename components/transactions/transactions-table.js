@@ -49,7 +49,7 @@ export default function TransactionsTable({ data, noLoad, hasVote, page, classNa
               !props.row.original.skeleton ?
                 <div className="flex items-center space-x-1 mb-4">
                   <Link href={`/tx/${props.value}`}>
-                    <a className="uppercase text-blue-600 dark:text-blue-400 font-medium">
+                    <a className="uppercase text-blue-600 dark:text-blue-500 font-medium">
                       {ellipseAddress(props.value)}
                     </a>
                   </Link>
@@ -66,7 +66,7 @@ export default function TransactionsTable({ data, noLoad, hasVote, page, classNa
             Cell: props => (
               !props.row.original.skeleton ?
                 <Link href={`/blocks/${props.value}`}>
-                  <a className="text-blue-600 dark:text-blue-400">
+                  <a className="text-blue-600 dark:text-blue-500">
                     {numberFormat(props.value, '0,0')}
                   </a>
                 </Link>

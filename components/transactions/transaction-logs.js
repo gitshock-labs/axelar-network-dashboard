@@ -31,7 +31,7 @@ export default function TransactionLogs({ data }) {
                     <>
                       <div className="flex flex-wrap items-center text-xs lg:text-base space-x-1">
                         <Link href={`/${type(activity.sender)}/${activity.sender}`}>
-                          <a className="uppercase text-blue-600 dark:text-blue-400 font-medium">
+                          <a className="uppercase text-blue-600 dark:text-blue-500 font-medium">
                             {ellipseAddress(activity.sender, 16)}
                           </a>
                         </Link>
@@ -53,7 +53,7 @@ export default function TransactionLogs({ data }) {
                     <>
                       <div className="flex flex-wrap items-center text-xs lg:text-base space-x-1">
                         <Link href={`/${type(activity.depositor)}/${activity.depositor}`}>
-                          <a className="uppercase text-blue-600 dark:text-blue-400 font-medium">
+                          <a className="uppercase text-blue-600 dark:text-blue-500 font-medium">
                             {ellipseAddress(activity.depositor, 16)}
                           </a>
                         </Link>
@@ -166,7 +166,7 @@ export default function TransactionLogs({ data }) {
                         activity.recipient.map((recipient, i) => (
                           <div key={i} className="flex flex-wrap items-center text-xs lg:text-base space-x-1">
                             <Link href={`/${type(recipient)}/${recipient}`}>
-                              <a className="uppercase text-blue-600 dark:text-blue-400 font-medium">
+                              <a className="uppercase text-blue-600 dark:text-blue-500 font-medium">
                                 {ellipseAddress(recipient, 16)}
                               </a>
                             </Link>
@@ -176,7 +176,7 @@ export default function TransactionLogs({ data }) {
                         :
                         <div className="flex flex-wrap items-center text-xs lg:text-base space-x-1">
                           <Link href={`/${type(activity.recipient)}/${activity.recipient}`}>
-                            <a className="uppercase text-blue-600 dark:text-blue-400 font-medium">
+                            <a className="uppercase text-blue-600 dark:text-blue-500 font-medium">
                               {ellipseAddress(activity.recipient, 16)}
                             </a>
                           </Link>
@@ -199,7 +199,7 @@ export default function TransactionLogs({ data }) {
                     <>
                       <div className="flex flex-wrap items-center text-xs lg:text-base space-x-1">
                         <Link href={`/${type(activity.validator)}/${activity.validator}`}>
-                          <a className="uppercase text-blue-600 dark:text-blue-400 font-medium">
+                          <a className="uppercase text-blue-600 dark:text-blue-500 font-medium">
                             {ellipseAddress(activity.validator, 16)}
                           </a>
                         </Link>

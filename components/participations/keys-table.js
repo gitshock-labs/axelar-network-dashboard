@@ -96,7 +96,7 @@ export default function KeysTable({ data, corruption_signing_threshold, page }) 
                 <div className="text-right">
                   {props.value ?
                     <Link href={`/blocks/${props.value}`}>
-                      <a className="text-blue-600 dark:text-blue-400">
+                      <a className="text-blue-600 dark:text-blue-500">
                         {numberFormat(props.value, '0,0')}
                       </a>
                     </Link>
@@ -119,7 +119,7 @@ export default function KeysTable({ data, corruption_signing_threshold, page }) 
                   {props.value ?
                     <>
                       <Link href={`/blocks/${props.value}`}>
-                        <a className="text-blue-600 dark:text-blue-400">
+                        <a className="text-blue-600 dark:text-blue-500">
                           {numberFormat(props.value, '0,0')}
                         </a>
                       </Link>
@@ -210,7 +210,7 @@ export default function KeysTable({ data, corruption_signing_threshold, page }) 
                             {validator.description && validator.description.moniker && (
                               <span className="flex items-center space-x-1.5">
                                 <Link href={`/validator/${validator.address}`}>
-                                  <a className="text-blue-600 dark:text-blue-400 font-medium">
+                                  <a className="text-blue-600 dark:text-blue-500 font-medium">
                                     {validator.description.moniker}
                                   </a>
                                 </Link>
@@ -228,7 +228,7 @@ export default function KeysTable({ data, corruption_signing_threshold, page }) 
                             )}
                             <span className="flex items-center space-x-1">
                               <Link href={`/validator/${validator.address}`}>
-                                <a className={`${validator.description && validator.description.moniker ? 'text-gray-400 dark:text-gray-600' : 'text-blue-600 dark:text-blue-400 font-medium'}`}>
+                                <a className={`${validator.description && validator.description.moniker ? 'text-gray-400 dark:text-gray-600' : 'text-blue-600 dark:text-blue-500 font-medium'}`}>
                                   {ellipseAddress(validator.address, 16)}
                                 </a>
                               </Link>
@@ -311,7 +311,7 @@ export default function KeysTable({ data, corruption_signing_threshold, page }) 
                             {validator.description && validator.description.moniker && (
                               <span className="flex items-center space-x-1.5">
                                 <Link href={`/validator/${validator.address}`}>
-                                  <a className="text-blue-600 dark:text-blue-400 font-medium">
+                                  <a className="text-blue-600 dark:text-blue-500 font-medium">
                                     {validator.description.moniker}
                                   </a>
                                 </Link>
@@ -329,7 +329,7 @@ export default function KeysTable({ data, corruption_signing_threshold, page }) 
                             )}
                             <span className="flex items-center space-x-1">
                               <Link href={`/validator/${validator.address}`}>
-                                <a className={`${validator.description && validator.description.moniker ? 'text-gray-400 dark:text-gray-600' : 'text-blue-600 dark:text-blue-400 font-medium'}`}>
+                                <a className={`${validator.description && validator.description.moniker ? 'text-gray-400 dark:text-gray-600' : 'text-blue-600 dark:text-blue-500 font-medium'}`}>
                                   {ellipseAddress(validator.address, 16)}
                                 </a>
                               </Link>

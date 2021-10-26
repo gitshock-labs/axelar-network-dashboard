@@ -49,7 +49,7 @@ export default function TransactionDetail({ data }) {
             data.height && (
               <div className="text-xs lg:text-base">
                 <Link href={`/blocks/${data.height}`}>
-                  <a className="text-blue-600 dark:text-blue-400">
+                  <a className="text-blue-600 dark:text-blue-500">
                     {numberFormat(data.height, '0,0')}
                   </a>
                 </Link>
@@ -96,7 +96,7 @@ export default function TransactionDetail({ data }) {
             <div className="flex flex-col">
               <div className="flex flex-wrap items-center text-xs lg:text-base space-x-1">
                 <Link href={`/${data.from.type === 'validator' ? 'validator' : 'account'}/${data.from.key}`}>
-                  <a className="uppercase text-blue-600 dark:text-blue-400 font-medium">
+                  <a className="uppercase text-blue-600 dark:text-blue-500 font-medium">
                     {ellipseAddress(data.from.key, 16)}
                   </a>
                 </Link>
@@ -116,7 +116,7 @@ export default function TransactionDetail({ data }) {
             <div className="flex flex-col">
               <div className="flex flex-wrap items-center text-xs lg:text-base space-x-1">
                 <Link href={`/${data.from.type === 'validator' ? 'validator' : 'account'}/${data.to.key}`}>
-                  <a className="uppercase text-blue-600 dark:text-blue-400 font-medium">
+                  <a className="uppercase text-blue-600 dark:text-blue-500 font-medium">
                     {ellipseAddress(data.to.key, 16)}
                   </a>
                 </Link>
