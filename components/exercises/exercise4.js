@@ -215,6 +215,7 @@ export default function Exercise4() {
                 {...register(item.name)}
                 type={item.type}
                 placeholder={item.placeholder}
+                disabled={processing?.findIndex(process => typeof process?.status !== 'boolean') > -1}
                 className={`form-input ${errors?.[item.name] ? 'border-red-500' : ''}`}
               />
               {errors?.[item.name] && (
@@ -226,6 +227,7 @@ export default function Exercise4() {
         <input
           type="submit"
           value="Validate"
+          disabled={processing?.findIndex(process => typeof process?.status !== 'boolean') > -1}
           className="btn btn-default btn-rounded max-h-8 bg-gray-200 hover:bg-gray-300 dark:bg-gray-800 dark:hover:bg-gray-900"
         />
       </form>
