@@ -9,12 +9,11 @@ import { FaCheckCircle, FaTimesCircle } from 'react-icons/fa'
 
 import Copy from '../copy'
 
-import { transactionsByEvents, transaction } from '../../lib/api/cosmos'
-import { axelard } from '../../lib/api/executor'
-import { transaction as btcTx } from '../../lib/api/btc_explorer'
+import { transaction } from '../../lib/api/cosmos'
+import { axelard, gaiad } from '../../lib/api/executor'
 import { convertToJson, sleep } from '../../lib/utils'
 
-export default function Exercise3() {
+export default function Exercise4() {
   const { preferences } = useSelector(state => ({ preferences: state.preferences }), shallowEqual)
   const { theme } = { ...preferences }
 
@@ -34,22 +33,16 @@ export default function Exercise3() {
       placeholder: 'Enter Axelar address',
     },
     {
-      label: 'Bitcoin deposit Tx ID',
-      name: 'tx_btc_deposit',
+      label: 'Cosmos IBC transfer Tx hash',
+      name: 'tx_cosmos_transfer',
       type: 'text',
-      placeholder: 'Enter deposit transaction ID',
+      placeholder: 'Enter transfer transaction hash',
     },
     {
-      label: 'Axelar burn Tx ID',
-      name: 'tx_axelar_burn',
+      label: 'Axelar IBC transfer Tx ID',
+      name: 'tx_axelar_transfer',
       type: 'text',
-      placeholder: 'Enter burn transaction ID',
-    },
-    {
-      label: 'Bitcoin burn transfer Tx ID',
-      name: 'tx_btc_burn_transfer',
-      type: 'text',
-      placeholder: 'Enter burn transfer transaction ID',
+      placeholder: 'Enter transfer transaction ID',
     },
   ]
 
@@ -61,6 +54,7 @@ export default function Exercise3() {
       let error = false
 
       const accountRegEx = new RegExp(`${process.env.NEXT_PUBLIC_PREFIX_ACCOUNT}.*$`, 'igm')
+      const accountATOMRegEx = new RegExp(`${process.env.NEXT_PUBLIC_PREFIX_ACCOUNT.replace('axelar', 'cosmos')}.*$`, 'igm')
 
       if (!(data.axelar_address?.toLowerCase().match(accountRegEx))) {
         setError('axelar_address', {
@@ -74,38 +68,26 @@ export default function Exercise3() {
         }
       }
 
-      if (!data.tx_btc_deposit) {
-        setError('tx_btc_deposit', {
+      if (!data.tx_cosmos_transfer) {
+        setError('tx_cosmos_transfer', {
           type: 'manual',
-          message: 'Deposit Tx ID is required',
+          message: 'IBC transfer Tx hash is required',
         })
 
         if (!error) {
-          setFocus('tx_btc_deposit')
+          setFocus('tx_cosmos_transfer')
           error = true
         }
       }
 
-      if (!data.tx_axelar_burn) {
-        setError('tx_axelar_burn', {
+      if (!data.tx_axelar_transfer) {
+        setError('tx_axelar_transfer', {
           type: 'manual',
-          message: 'Burn Tx ID is required',
+          message: 'IBC transfer Tx ID is required',
         })
 
         if (!error) {
-          setFocus('tx_axelar_burn')
-          error = true
-        }
-      }
-
-      if (!data.tx_btc_burn_transfer) {
-        setError('tx_btc_burn_transfer', {
-          type: 'manual',
-          message: 'Burn transfer Tx ID is required',
-        })
-
-        if (!error) {
-          setFocus('tx_btc_burn_transfer')
+          setFocus('tx_axelar_transfer')
           error = true
         }
       }
@@ -134,6 +116,8 @@ export default function Exercise3() {
 
         if (response?.data?.stdout) {
           _processing[_processing.length - 1].commands[0].result = response.data.stdout
+          _processing[_processing.length - 1].status = true
+          _processing[_processing.length - 1].answer = data.axelar_address
         }
         else {
           _processing[_processing.length - 1].commands[0].result = 'Invalid address'
@@ -144,44 +128,13 @@ export default function Exercise3() {
         setProcessing(_.cloneDeep(_processing))
 
         if (!error) {
-          // cmd = `axelard q bitcoin deposit-address axelar ${data.axelar_address}`
+          cmd = `gaiad q tx ${data.tx_cosmos_transfer}`
 
-          _processing[_processing.length - 1].commands[1] = {
-            // message: `>_ ${cmd}`,
-            message: 'Get linked bitcoin deposit address',
-          }
-
-          setProcessing(_.cloneDeep(_processing))
-
-          await sleep(0.5 * 1000)
-
-          // response = await axelard({ cmd: `${cmd} -oj` })
-          response = await transactionsByEvents(`message.destinationAddress='${data.axelar_address}'`)
-          response = response?.filter(tx => tx?.logs?.[0].events?.[0]?.attributes?.findIndex(attr => attr?.key === 'action' && attr.value === 'Link') > -1).map(tx => tx.logs[0].events[0].attributes.find(attr => attr?.key === 'depositAddress' && attr.value)?.value).filter(address => address) || []
-
-          // if (response?.data?.stdout) {
-          //   _processing[_processing.length - 1].commands[1].result = response.data.stdout
-          if (response?.length > 0) {
-            data.btc_addresses = response
-            _processing[_processing.length - 1].commands[1].result = response.join('\n')
-            _processing[_processing.length - 1].status = true
-            _processing[_processing.length - 1].answer = data.axelar_address
-          }
-          else {
-            _processing[_processing.length - 1].commands[1].result = 'No linked address'
-            _processing[_processing.length - 1].status = false
-            error = true
-          }
-
-          setProcessing(_.cloneDeep(_processing))
-        }
-
-        if (!error) {
           _processing.push({
             label: `Check ${items?.[1]?.label}`,
             commands: [
               {
-                message: `GET blockstream.info /tx/${data.tx_btc_deposit}`,
+                message: `>_ ${cmd}`,
               }
             ],
           })
@@ -190,15 +143,15 @@ export default function Exercise3() {
 
           await sleep(0.5 * 1000)
 
-          response = await btcTx(data.tx_btc_deposit)
+          response = await gaiad({ cmd: `${cmd} -oj` })
 
-          if (response?.vout?.findIndex(vout => data.btc_addresses.includes(vout?.scriptpubkey_address)) > -1) {
-            _processing[_processing.length - 1].commands[0].result = `Valid deposit transaction ID (vout[${response.vout.findIndex(vout => data.btc_addresses.includes(vout?.scriptpubkey_address))}])`
+          if (response?.data?.stdout && !(convertToJson(response.data.stdout)?.code) && convertToJson(response.data.stdout)?.logs?.findIndex(log => log?.events?.findIndex(event => event?.type === 'ibc_transfer' && event.attributes?.findIndex(attr => attr?.key === 'receiver' && attr.value === data.axelar_address.toLowerCase()) > -1 && event.attributes?.findIndex(attr => attr?.key === 'sender' && attr.value?.match(accountATOMRegEx)) > -1) > -1) > -1) {
+            _processing[_processing.length - 1].commands[0].result = response.data.stdout
             _processing[_processing.length - 1].status = true
-            _processing[_processing.length - 1].answer = `${process.env.NEXT_PUBLIC_BITCOIN_EXPLORER_URL}/tx/${data.tx_btc_deposit}`
+            _processing[_processing.length - 1].answer = data.tx_cosmos_transfer
           }
           else {
-            _processing[_processing.length - 1].commands[0].result = 'Wrong deposit transaction ID'
+            _processing[_processing.length - 1].commands[0].result = 'Wrong IBC transfer transaction hash'
             _processing[_processing.length - 1].status = false
             error = true
           }
@@ -211,7 +164,7 @@ export default function Exercise3() {
             label: `Check ${items?.[2]?.label}`,
             commands: [
               {
-                message: `GET Axelar transaction /tx/${data.tx_axelar_burn}`,
+                message: `GET Axelar transaction /tx/${data.tx_axelar_transfer}`,
               }
             ],
           })
@@ -220,50 +173,15 @@ export default function Exercise3() {
 
           await sleep(0.5 * 1000)
 
-          response = await transaction(data.tx_axelar_burn)
+          response = await transaction(data.tx_axelar_transfer)
 
-          if (response?.data?.status === 'success' && response.data.activities?.findIndex(activity => activity.action === 'send' && activity.sender === data.axelar_address.toLowerCase() && activity.recipient?.length > 0 && activity.amount > 0 && activity.symbol === 'satoshi') > -1) {
+          if (response?.data?.status === 'success' && response.data.activities?.findIndex(activity => activity.action === 'transfer' && activity.sender === data.axelar_address.toLowerCase() && activity.receiver?.match(accountATOMRegEx) && activity.amount > 0 && activity.symbol === 'photon') > -1) {
             _processing[_processing.length - 1].commands[0].result = response.data
             _processing[_processing.length - 1].status = true
-            _processing[_processing.length - 1].answer = `${process.env.NEXT_PUBLIC_SITE_URL}/tx/${data.tx_axelar_burn}`
+            _processing[_processing.length - 1].answer = `${process.env.NEXT_PUBLIC_SITE_URL}/tx/${data.tx_axelar_transfer}`
           }
           else {
-            _processing[_processing.length - 1].commands[0].result = 'Wrong burn transaction ID'
-            _processing[_processing.length - 1].status = false
-            error = true
-          }
-
-          setProcessing(_.cloneDeep(_processing))
-        }
-
-        if (!error) {
-          _processing.push({
-            label: `Check ${items?.[3]?.label}`,
-            commands: [
-              {
-                message: `GET blockstream.info /tx/${data.tx_btc_burn_transfer}`,
-              }
-            ],
-          })
-
-          setProcessing(_.cloneDeep(_processing))
-
-          await sleep(0.5 * 1000)
-
-          response = await btcTx(data.tx_btc_burn_transfer)
-
-          if (response?.vout?.findIndex(vout => data.btc_addresses.includes(vout?.scriptpubkey_address)) > -1) {
-            _processing[_processing.length - 1].commands[0].result = `Valid burn transaction ID (vout[${response.vout.findIndex(vout => data.btc_addresses.includes(vout?.scriptpubkey_address))}])`
-            _processing[_processing.length - 1].status = true
-            _processing[_processing.length - 1].answer = `${process.env.NEXT_PUBLIC_BITCOIN_EXPLORER_URL}/tx/${data.tx_btc_burn_transfer}`
-          }
-          else if (response?.vin?.findIndex(vin => data.btc_addresses.includes(vin?.prevout?.scriptpubkey_address)) > -1) {
-            _processing[_processing.length - 1].commands[0].result = `Valid burn transaction ID (vout[${response.vin.find(vin => data.btc_addresses.includes(vin?.prevout?.scriptpubkey_address))?.vout}])`
-            _processing[_processing.length - 1].status = true
-            _processing[_processing.length - 1].answer = `${process.env.NEXT_PUBLIC_BITCOIN_EXPLORER_URL}/tx/${data.tx_btc_burn_transfer}`
-          }
-          else {
-            _processing[_processing.length - 1].commands[0].result = 'Wrong burn transaction ID'
+            _processing[_processing.length - 1].commands[0].result = 'Wrong IBC transfer transaction ID'
             _processing[_processing.length - 1].status = false
             error = true
           }
