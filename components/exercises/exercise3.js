@@ -181,7 +181,7 @@ export default function Exercise3() {
             label: `Check ${items?.[1]?.label}`,
             commands: [
               {
-                message: `GET blockstream.info /tx/${data.tx_btc_deposit}`,
+                message: `GET ${new URL(process.env.NEXT_PUBLIC_BITCOIN_EXPLORER_URL).hostname} /tx/${data.tx_btc_deposit}`,
               }
             ],
           })
@@ -241,7 +241,7 @@ export default function Exercise3() {
             label: `Check ${items?.[3]?.label}`,
             commands: [
               {
-                message: `GET blockstream.info /tx/${data.tx_btc_burn_transfer}`,
+                message: `GET ${new URL(process.env.NEXT_PUBLIC_BITCOIN_EXPLORER_URL).hostname} /tx/${data.tx_btc_burn_transfer}`,
               }
             ],
           })
@@ -253,17 +253,17 @@ export default function Exercise3() {
           response = await btcTx(data.tx_btc_burn_transfer)
 
           if (response?.vout?.findIndex(vout => data.btc_addresses.includes(vout?.scriptpubkey_address)) > -1) {
-            _processing[_processing.length - 1].commands[0].result = `Valid burn transaction ID (vout[${response.vout.findIndex(vout => data.btc_addresses.includes(vout?.scriptpubkey_address))}])`
+            _processing[_processing.length - 1].commands[0].result = `Valid burn transfer transaction ID (vout[${response.vout.findIndex(vout => data.btc_addresses.includes(vout?.scriptpubkey_address))}])`
             _processing[_processing.length - 1].status = true
             _processing[_processing.length - 1].answer = `${process.env.NEXT_PUBLIC_BITCOIN_EXPLORER_URL}/tx/${data.tx_btc_burn_transfer}`
           }
           else if (response?.vin?.findIndex(vin => data.btc_addresses.includes(vin?.prevout?.scriptpubkey_address)) > -1) {
-            _processing[_processing.length - 1].commands[0].result = `Valid burn transaction ID (vout[${response.vin.find(vin => data.btc_addresses.includes(vin?.prevout?.scriptpubkey_address))?.vout}])`
+            _processing[_processing.length - 1].commands[0].result = `Valid burn transfer transaction ID (vout[${response.vin.find(vin => data.btc_addresses.includes(vin?.prevout?.scriptpubkey_address))?.vout}])`
             _processing[_processing.length - 1].status = true
             _processing[_processing.length - 1].answer = `${process.env.NEXT_PUBLIC_BITCOIN_EXPLORER_URL}/tx/${data.tx_btc_burn_transfer}`
           }
           else {
-            _processing[_processing.length - 1].commands[0].result = 'Wrong burn transaction ID'
+            _processing[_processing.length - 1].commands[0].result = 'Wrong burn transfer transaction ID'
             _processing[_processing.length - 1].status = false
             error = true
           }

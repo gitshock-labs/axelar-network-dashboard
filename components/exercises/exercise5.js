@@ -9,9 +9,10 @@ import { FaCheckCircle, FaTimesCircle } from 'react-icons/fa'
 
 import Copy from '../copy'
 
+import { transaction } from '../../lib/api/cosmos'
 import { axelard } from '../../lib/api/executor'
-import { transaction as btcTx } from '../../lib/api/btc_explorer'
 import { ethTx } from '../../lib/api/cryptoapis'
+import { denoms } from '../../lib/object/denom'
 import { convertToJson, sleep } from '../../lib/utils'
 
 export default function Exercise1() {
@@ -34,8 +35,8 @@ export default function Exercise1() {
       placeholder: 'Enter Axelar address',
     },
     {
-      label: 'Bitcoin deposit Tx ID',
-      name: 'tx_btc_deposit',
+      label: 'Axelar deposit Tx ID',
+      name: 'tx_axelar_deposit',
       type: 'text',
       placeholder: 'Enter deposit transaction ID',
     },
@@ -52,8 +53,8 @@ export default function Exercise1() {
       placeholder: 'Enter burn transaction ID',
     },
     {
-      label: 'Bitcoin burn transfer Tx ID',
-      name: 'tx_btc_burn_transfer',
+      label: 'Axelar burn transfer Tx ID',
+      name: 'tx_axelar_burn_transfer',
       type: 'text',
       placeholder: 'Enter burn transfer transaction ID',
     },
@@ -80,14 +81,14 @@ export default function Exercise1() {
         }
       }
 
-      if (!data.tx_btc_deposit) {
-        setError('tx_btc_deposit', {
+      if (!data.tx_axelar_deposit) {
+        setError('tx_axelar_deposit', {
           type: 'manual',
           message: 'Deposit Tx ID is required',
         })
 
         if (!error) {
-          setFocus('tx_btc_deposit')
+          setFocus('tx_axelar_deposit')
           error = true
         }
       }
@@ -116,14 +117,14 @@ export default function Exercise1() {
         }
       }
 
-      if (!data.tx_btc_burn_transfer) {
-        setError('tx_btc_burn_transfer', {
+      if (!data.tx_axelar_burn_transfer) {
+        setError('tx_axelar_burn_transfer', {
           type: 'manual',
           message: 'Burn transfer Tx ID is required',
         })
 
         if (!error) {
-          setFocus('tx_btc_burn_transfer')
+          setFocus('tx_axelar_burn_transfer')
           error = true
         }
       }
@@ -168,7 +169,7 @@ export default function Exercise1() {
             label: `Check ${items?.[1]?.label}`,
             commands: [
               {
-                message: `GET ${new URL(process.env.NEXT_PUBLIC_BITCOIN_EXPLORER_URL).hostname} /tx/${data.tx_btc_deposit}`,
+                message: `GET Axelar transaction /tx/${data.tx_axelar_deposit}`,
               }
             ],
           })
@@ -177,12 +178,14 @@ export default function Exercise1() {
 
           await sleep(0.5 * 1000)
 
-          response = await btcTx(data.tx_btc_deposit)
+          response = await transaction(data.tx_axelar_deposit)
 
-          if (response?.vout) {
-            _processing[_processing.length - 1].commands[0].result = response
+          if (response?.data?.status === 'success' && response.data.activities?.findIndex(activity => activity.action === 'send' && activity.sender === data.axelar_address.toLowerCase() && activity.recipient?.length > 0 && activity.amount > 0 && ['axl', 'satoshi', 'photon'].includes(activity.symbol)) > -1) {
+            data.token = response.data.activities[response.data.activities?.findIndex(activity => activity.action === 'send' && activity.sender === data.axelar_address.toLowerCase() && activity.recipient?.length > 0 && activity.amount > 0 && ['axl', 'satoshi', 'photon'].includes(activity.symbol))].symbol
+            data.contract_symbol = denoms.find(_denom => _denom?.name === data.token)?.contract_symbol || data.token
+            _processing[_processing.length - 1].commands[0].result = response.data
             _processing[_processing.length - 1].status = true
-            _processing[_processing.length - 1].answer = `${process.env.NEXT_PUBLIC_BITCOIN_EXPLORER_URL}/tx/${data.tx_btc_deposit}`
+            _processing[_processing.length - 1].answer = `${process.env.NEXT_PUBLIC_SITE_URL}/tx/${data.tx_axelar_deposit}`
           }
           else {
             _processing[_processing.length - 1].commands[0].result = 'Wrong deposit transaction ID'
@@ -254,7 +257,7 @@ export default function Exercise1() {
         }
 
         if (!error) {
-          cmd = 'axelard q evm token-address ethereum satoshi'
+          cmd = `axelard q evm token-address ethereum ${data.contract_symbol}`
 
           _processing.push({
             label: `Check ${items?.[3]?.label}`,
@@ -272,7 +275,7 @@ export default function Exercise1() {
           response = await axelard({ cmd: `${cmd}` })
 
           if (response?.data?.stdout) {
-            data.eth_satoshi_contract = response.data.stdout
+            data.eth_token_contract = response.data.stdout
             _processing[_processing.length - 1].commands[0].result = response.data.stdout
           }
           else {
@@ -292,7 +295,7 @@ export default function Exercise1() {
           response = await ethTx(data.tx_eth_burn)
 
           if (response?.data?.item?.isConfirmed === 'true') {
-            if (response.data.item.recipients?.findIndex(recipient => !data.eth_satoshi_contract || recipient?.address?.toLowerCase() === data.eth_satoshi_contract.toLowerCase()) > -1) {
+            if (response.data.item.recipients?.findIndex(recipient => !data.eth_token_contract || recipient?.address?.toLowerCase() === data.eth_token_contract.toLowerCase()) > -1) {
               if (response.data.item.senders?.findIndex(sender => !(data.eth_addresses?.length > 0) || data.eth_addresses.includes(sender?.address?.toLowerCase())) > -1) {
                 _processing[_processing.length - 1].commands[1].result = response.data.item
                 _processing[_processing.length - 1].status = true
@@ -305,7 +308,7 @@ export default function Exercise1() {
               }
             }
             else {
-              _processing[_processing.length - 1].commands[1].result = `Wrong contract (axelarBTC contract${data.eth_satoshi_contract ? `: ${data.eth_satoshi_contract}` : ''})`
+              _processing[_processing.length - 1].commands[1].result = `Wrong contract (${data.contract_symbol} contract${data.eth_token_contract ? `: ${data.eth_token_contract}` : ''})`
               _processing[_processing.length - 1].status = false
               error = true
             }
@@ -324,7 +327,7 @@ export default function Exercise1() {
             label: `Check ${items?.[4]?.label}`,
             commands: [
               {
-                message: `GET ${new URL(process.env.NEXT_PUBLIC_BITCOIN_EXPLORER_URL).hostname} /tx/${data.tx_btc_burn_transfer}`,
+                message: `GET Axelar transaction /tx/${data.tx_axelar_burn_transfer}`,
               }
             ],
           })
@@ -333,12 +336,12 @@ export default function Exercise1() {
 
           await sleep(0.5 * 1000)
 
-          response = await btcTx(data.tx_btc_burn_transfer)
+          response = await transaction(data.tx_axelar_burn_transfer)
 
-          if (response?.vout) {
-            _processing[_processing.length - 1].commands[0].result = response
+          if (response?.data?.status === 'success' && response.data.activities?.findIndex(activity => (activity.action === 'ExecutePendingTransfers' || activity.type === 'transfer') && activity.recipient?.includes(data.axelar_address.toLowerCase()) && activity.sender && activity.amount > 0 && activity.symbol === data.token) > -1) {
+            _processing[_processing.length - 1].commands[0].result = response.data
             _processing[_processing.length - 1].status = true
-            _processing[_processing.length - 1].answer = `${process.env.NEXT_PUBLIC_BITCOIN_EXPLORER_URL}/tx/${data.tx_btc_burn_transfer}`
+            _processing[_processing.length - 1].answer = `${process.env.NEXT_PUBLIC_SITE_URL}/tx/${data.tx_axelar_burn_transfer}`
           }
           else {
             _processing[_processing.length - 1].commands[0].result = 'Wrong burn transfer transaction ID'
