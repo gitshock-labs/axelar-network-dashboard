@@ -12,7 +12,7 @@ import { numberFormat } from '../../lib/utils'
 export default function Uptime({ data, validator_data }) {
   return (
     <Widget
-      title={<span className="text-gray-900 dark:text-white text-lg font-semibold">Uptime <span className="text-gray-500 text-sm font-light italic">(Mock Data)</span></span>}
+      title={<span className="text-gray-900 dark:text-white text-lg font-semibold">Uptime</span>}
       description={<div className="flex items-center mt-2">
         <span className="text-gray-500 dark:text-gray-300">Last {numberFormat(process.env.NEXT_PUBLIC_NUM_UPTIME_BLOCKS, '0,0')} Blocks</span>
         {data ?
