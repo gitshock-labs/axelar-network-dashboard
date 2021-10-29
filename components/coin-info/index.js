@@ -81,7 +81,7 @@ export default function CoinInfo() {
             chain_data.coin ?
               <>{CURRENCY_SYMBOL}{numberFormat(chain_data.coin[CURRENCY], '0,0.00000000')}</>
               :
-              'N/A'
+              '-'
             :
             <div className="skeleton w-8 h-4" />
           }
@@ -94,7 +94,7 @@ export default function CoinInfo() {
             chain_data.coin ?
               <>{CURRENCY_SYMBOL}{numberFormat(chain_data.coin[`${CURRENCY}_market_cap`], '0,0')}</>
               :
-              'N/A'
+              '-'
             :
             <div className="skeleton w-20 h-4" />
           }
@@ -107,7 +107,7 @@ export default function CoinInfo() {
             typeof chain_data.inflation === 'number' ?
               <>{numberFormat(chain_data.inflation * 100, '0,0.00')}%</>
               :
-              'N/A'
+              '-'
             :
             <div className="skeleton w-8 h-4" />
           }

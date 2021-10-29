@@ -1,6 +1,9 @@
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 
+import _ from 'lodash'
+import { RiDashboardLine } from 'react-icons/ri'
+
 import { navigations } from '../../../../lib/menus'
 
 export default function Navigations({ handleDropdownClick }) {
@@ -9,7 +12,7 @@ export default function Navigations({ handleDropdownClick }) {
 
   return (
     <div className="flex flex-wrap">
-      {navigations.map((item, i) => (
+      {_.concat(navigations[0]?.path !== '/' ? { id: 'dashboard', title: 'Dashboard', path: '/', icon: <RiDashboardLine size={16} className="stroke-current" /> } : [], navigations).map((item, i) => (
         <Link key={i} href={item.path}>
           <a
             onClick={handleDropdownClick}
