@@ -3,6 +3,7 @@ import { useSelector, shallowEqual } from 'react-redux'
 
 import moment from 'moment'
 import _ from 'lodash'
+import Linkify from 'react-linkify'
 
 import Widget from '../widget'
 import Copy from '../copy'
@@ -72,10 +73,10 @@ export default function ValidatorDetail({ data, delegations, keygens, all_keygen
                 <span className="font-medium">Self-Delegate Address:</span>
                 <span className="flex items-center space-x-1 lg:space-x-0">
                   <Link href={`/account/${data.delegator_address}`}>
-                    <a className="lg:hidden text-blue-600 dark:text-blue-500 font-light">{ellipseAddress(data.delegator_address, 16)}</a>
+                    <a className="lg:hidden text-blue-600 dark:text-blue-500 font-normal">{ellipseAddress(data.delegator_address, 16)}</a>
                   </Link>
                   <Link href={`/account/${data.delegator_address}`}>
-                    <a className="hidden lg:block text-blue-600 dark:text-blue-500 font-light lg:pr-1">{ellipseAddress(data.delegator_address, 24)}</a>
+                    <a className="hidden lg:block text-blue-600 dark:text-blue-500 font-normal lg:pr-1">{ellipseAddress(data.delegator_address, 24)}</a>
                   </Link>
                   <Copy text={data.delegator_address} />
                 </span>
@@ -84,13 +85,13 @@ export default function ValidatorDetail({ data, delegations, keygens, all_keygen
             {data.description && data.description.website && (
               <div className="flex flex-col lg:flex-row items-start space-x-0 lg:space-x-2">
                 <span className="font-medium">Website:</span>
-                <a href={data.description.website} target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-500 font-light">{data.description.website}</a>
+                <a href={data.description.website} target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-500 font-normal">{data.description.website}</a>
               </div>
             )}
             {data.description && data.description.details && (
               <div className="flex flex-col lg:flex-row items-start space-x-0 lg:space-x-2">
                 <span className="font-medium">Details:</span>
-                <span className="font-light">{data.description.details}</span>
+                <span className="linkify font-light"><Linkify>{data.description.details}</Linkify></span>
               </div>
             )}
             {data.started_at && (

@@ -26,6 +26,7 @@
     "react-hook-form": "^7.12.2",
     "react-icons": "^4.2.0",
     "react-json-view": "^1.21.3",
+    "react-linkify": "^1.0.0-alpha",
     "react-loader-spinner": "^4.0.0",
     "react-popper": "^2.2.5",
     "react-redux": "^7.2.4",

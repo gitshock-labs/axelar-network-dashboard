@@ -133,3 +133,7 @@ body {
 .string-value {
   @apply break-all;
 }
+
+.linkify a {
+  @apply text-blue-600 dark:text-blue-500 font-normal;
+}
