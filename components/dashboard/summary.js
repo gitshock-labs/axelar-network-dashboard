@@ -1,15 +1,16 @@
 import Link from 'next/link'
-
 import PropTypes from 'prop-types'
+
+import _ from 'lodash'
 import moment from 'moment'
 
 import Widget from '../widget'
 import Copy from '../copy'
 import { ProgressBarWithText } from '../progress-bars'
 
-import { numberFormat, ellipseAddress } from '../../lib/utils'
+import { numberFormat, ellipseAddress, randImage } from '../../lib/utils'
 
-const Summary = ({ data }) => {
+const Summary = ({ data, crosschainData }) => {
   return (
     <>
       <div className="w-full">
@@ -138,7 +139,7 @@ const Summary = ({ data }) => {
           title="Latest Block Height"
           className="bg-transparent sm:bg-white sm:dark:bg-gray-900 border-0 sm:border border-gray-100 dark:border-gray-800 p-0 sm:p-4"
         >
-          <span className="flex flex-col mt-1 space-y-1">
+          <span className="flex flex-col space-y-1 mt-1">
             {data ?
               <span className="h-8 text-3xl font-semibold">{typeof data.block_height === 'number' && numberFormat(data.block_height, '0,0')}</span>
               :
@@ -151,7 +152,7 @@ const Summary = ({ data }) => {
                   :
                   null
                 :
-                <div className="skeleton w-32 h-3 mt-1" />
+                <div className="skeleton w-32 h-3.5 mt-1" />
               }
             </span>
           </span>
@@ -160,7 +161,7 @@ const Summary = ({ data }) => {
           title="Average Block Time"
           className="bg-transparent sm:bg-white sm:dark:bg-gray-900 border-0 sm:border border-gray-100 dark:border-gray-800 p-0 sm:p-4"
         >
-          <span className="flex flex-col item mt-1 space-y-1">
+          <span className="flex flex-col item space-y-1 mt-1">
             {data ?
               <span className="h-8 text-3xl font-semibold">{typeof data.avg_block_time === 'number' && numberFormat(data.avg_block_time, '0.00')}</span>
               :
@@ -173,7 +174,7 @@ const Summary = ({ data }) => {
           title="Active Validators"
           className="bg-transparent sm:bg-white sm:dark:bg-gray-900 border-0 sm:border border-gray-100 dark:border-gray-800 p-0 sm:p-4"
         >
-          <span className="flex flex-col mt-1 space-y-1">
+          <span className="flex flex-col space-y-1 mt-1">
             {typeof data?.active_validators === 'number' ?
               <span className="h-8 text-3xl font-semibold">{numberFormat(data.active_validators, '0,0')}</span>
               :
@@ -194,7 +195,7 @@ const Summary = ({ data }) => {
           title="Online Voting Power (Now)"
           className="bg-transparent sm:bg-white sm:dark:bg-gray-900 border-0 sm:border border-gray-100 dark:border-gray-800 p-0 sm:p-4"
         >
-          <span className="flex flex-col mt-1 space-y-1">
+          <span className="flex flex-col space-y-1 mt-1">
             {data?.online_voting_power_now ?
               <span className="h-8 text-3xl font-semibold">{data.online_voting_power_now}</span>
               :
@@ -214,6 +215,249 @@ const Summary = ({ data }) => {
               }
               <span className="uppercase text-gray-500">{data && ellipseAddress(data.denom)}</span>
             </span>
+          </span>
+        </Widget>
+      </div>
+      <div className="text-gray-900 dark:text-gray-100 text-base font-semibold mt-8 sm:mt-2 sm:mx-3">Cross-chain transfer</div>
+      <div className="w-full grid grid-flow-row grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 mt-1.5 mb-4">
+        <Widget
+          title="Number of Transactions"
+          className="bg-transparent sm:bg-white sm:dark:bg-gray-900 border-0 sm:border border-gray-100 dark:border-gray-800 p-0 sm:p-4"
+        >
+          <span className="flex flex-col space-y-1.5 mt-1">
+            {crosschainData ?
+              <div className="max-h-36 sm:max-h-60 flex flex-col overflow-y-auto space-y-2.5 mt-1">
+                {crosschainData.total_transfers?.map((coinTrasfer, i) => (
+                  <div key={i} className="flex items-start">
+                    <div>
+                      <img
+                        src={coinTrasfer.image || randImage(i)}
+                        alt=""
+                        className="w-5 h-5 rounded-full"
+                      />
+                      <div className="uppercase text-xs font-semibold mt-0.5">
+                        {coinTrasfer.symbol}
+                      </div>
+                    </div>
+                    <div className="flex items-center space-x-1 ml-auto">
+                      <span className="font-mono text-gray-800 dark:text-gray-100 text-base font-semibold">{numberFormat(coinTrasfer.tx, coinTrasfer.tx >= 1000000 ? '0,0.00a' : '0,0')}</span>
+                      <span className="text-gray-400 dark:text-gray-600 text-xs">Txs</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              :
+              <div className="flex flex-col space-y-3 mt-2">
+                {[...Array(3).keys()].map(i => (
+                  <div key={i} className="flex items-start">
+                    <div>
+                      <div className="skeleton w-5 h-5 rounded-full" />
+                      <div className="skeleton w-12 h-3 mt-1.5" />
+                    </div>
+                    <div className="skeleton w-16 h-5 ml-auto" />
+                  </div>
+                ))}
+              </div>
+            }
+            <span className="flex items-center text-gray-400 dark:text-gray-600 text-sm font-normal space-x-1.5 ml-auto">
+              <span>total</span>
+              {crosschainData ?
+                <span className="font-mono text-gray-600 dark:text-gray-400 font-medium">{numberFormat(_.sumBy(crosschainData.total_transfers, 'tx'), '0,0')}</span>
+                :
+                <div className="skeleton w-6 h-3.5" />
+              }
+              <span>Txs</span>
+            </span>
+          </span>
+        </Widget>
+        <Widget
+          title="Transfer Volume"
+          className="bg-transparent sm:bg-white sm:dark:bg-gray-900 border-0 sm:border border-gray-100 dark:border-gray-800 p-0 sm:p-4"
+        >
+          <span className="flex flex-col space-y-1.5 mt-1">
+            {crosschainData ?
+              <div className="max-h-36 sm:max-h-60 flex flex-col overflow-y-auto space-y-2.5 mt-1">
+                {crosschainData.total_transfers?.map((coinTrasfer, i) => (
+                  <div key={i} className="flex items-start">
+                    <div>
+                      <img
+                        src={coinTrasfer.image || randImage(i)}
+                        alt=""
+                        className="w-5 h-5 rounded-full"
+                      />
+                      <div className="uppercase text-xs font-semibold mt-0.5">
+                        {coinTrasfer.symbol}
+                      </div>
+                    </div>
+                    <div className="text-right ml-auto">
+                      <div className="font-mono text-gray-800 dark:text-gray-100 text-base font-semibold">{numberFormat(coinTrasfer.amount, coinTrasfer.amount >= 1000000 ? '0,0.00a' : '0,0.00')}</div>
+                      <div className="uppercase text-gray-400 dark:text-gray-600 text-xs -mt-0.5">{coinTrasfer.denom}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              :
+              <div className="flex flex-col space-y-3 mt-2">
+                {[...Array(3).keys()].map(i => (
+                  <div key={i} className="flex items-start">
+                    <div>
+                      <div className="skeleton w-5 h-5 rounded-full" />
+                      <div className="skeleton w-12 h-3 mt-1.5" />
+                    </div>
+                    <div className="ml-auto">
+                      <div className="skeleton w-16 h-5 ml-auto" />
+                      <div className="skeleton w-8 h-3 mt-1.5 ml-auto" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            }
+          </span>
+        </Widget>
+        <Widget
+          title="Average size of Transfers"
+          className="bg-transparent sm:bg-white sm:dark:bg-gray-900 border-0 sm:border border-gray-100 dark:border-gray-800 p-0 sm:p-4"
+        >
+          <span className="flex flex-col space-y-1.5 mt-1">
+            {crosschainData ?
+              <div className="max-h-36 sm:max-h-60 flex flex-col overflow-y-auto space-y-2.5 mt-1">
+                {crosschainData.avg_transfers?.map((coinTrasfer, i) => (
+                  <div key={i} className="flex items-start">
+                    <div>
+                      <img
+                        src={coinTrasfer.image || randImage(i)}
+                        alt=""
+                        className="w-5 h-5 rounded-full"
+                      />
+                      <div className="uppercase text-xs font-semibold mt-0.5">
+                        {coinTrasfer.symbol}
+                      </div>
+                    </div>
+                    <div className="text-right ml-auto">
+                      <div className="font-mono text-gray-800 dark:text-gray-100 text-base font-semibold">{numberFormat(coinTrasfer.amount, coinTrasfer.amount >= 1000000 ? '0,0.00a' : '0,0.00')}</div>
+                      <div className="uppercase text-gray-400 dark:text-gray-600 text-xs -mt-0.5">{coinTrasfer.denom}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              :
+              <div className="flex flex-col space-y-3 mt-2">
+                {[...Array(3).keys()].map(i => (
+                  <div key={i} className="flex items-start">
+                    <div>
+                      <div className="skeleton w-5 h-5 rounded-full" />
+                      <div className="skeleton w-12 h-3 mt-1.5" />
+                    </div>
+                    <div className="ml-auto">
+                      <div className="skeleton w-16 h-5 ml-auto" />
+                      <div className="skeleton w-8 h-3 mt-1.5 ml-auto" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            }
+          </span>
+        </Widget>
+        <Widget
+          title={<div className="flex items-center space-x-1.5">
+            <span>Highest Transfer</span>
+            <span className="bg-gray-100 dark:bg-gray-800 rounded-lg uppercase text-gray-800 dark:text-gray-200 text-xs font-semibold px-2 py-0.5">
+              24h
+            </span>
+          </div>}
+          className="bg-transparent sm:bg-white sm:dark:bg-gray-900 border-0 sm:border border-gray-100 dark:border-gray-800 p-0 sm:p-4"
+        >
+          <span className="flex flex-col space-y-1.5 mt-1">
+            {crosschainData ?
+              <div className="max-h-36 sm:max-h-60 flex flex-col overflow-y-auto space-y-2.5 mt-1">
+                {crosschainData.highest_transfer_24h?.map((coinTrasfer, i) => (
+                  <div key={i} className="flex items-start">
+                    <div>
+                      <img
+                        src={coinTrasfer.image || randImage(i)}
+                        alt=""
+                        className="w-5 h-5 rounded-full"
+                      />
+                      <div className="uppercase text-xs font-semibold mt-0.5">
+                        {coinTrasfer.symbol}
+                      </div>
+                    </div>
+                    <div className="text-right ml-auto">
+                      <div className="font-mono text-gray-800 dark:text-gray-100 text-base font-semibold">{numberFormat(coinTrasfer.amount, coinTrasfer.amount >= 1000000 ? '0,0.00a' : '0,0.00')}</div>
+                      <div className="uppercase text-gray-400 dark:text-gray-600 text-xs -mt-0.5">{coinTrasfer.denom}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              :
+              <div className="flex flex-col space-y-3 mt-2">
+                {[...Array(3).keys()].map(i => (
+                  <div key={i} className="flex items-start">
+                    <div>
+                      <div className="skeleton w-5 h-5 rounded-full" />
+                      <div className="skeleton w-12 h-3 mt-1.5" />
+                    </div>
+                    <div className="ml-auto">
+                      <div className="skeleton w-16 h-5 ml-auto" />
+                      <div className="skeleton w-8 h-3 mt-1.5 ml-auto" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            }
+            <span className="flex items-center text-gray-400 dark:text-gray-600 text-sm font-normal space-x-1.5 ml-auto">
+              <span>total</span>
+              {crosschainData ?
+                <span className="font-mono text-gray-600 dark:text-gray-400 font-medium">{numberFormat(_.sumBy(crosschainData.highest_transfer_24h, 'tx'), '0,0')}</span>
+                :
+                <div className="skeleton w-6 h-3.5" />
+              }
+              <span>Txs</span>
+            </span>
+          </span>
+        </Widget>
+        <Widget
+          title={<>Total Value Locked<span className="text-gray-500 font-light italic ml-1">(Mock Data)</span></>}
+          className="bg-transparent sm:bg-white sm:dark:bg-gray-900 border-0 sm:border border-gray-100 dark:border-gray-800 p-0 sm:p-4"
+        >
+          <span className="flex flex-col space-y-1.5 mt-1">
+            {crosschainData ?
+              <div className="max-h-36 sm:max-h-60 flex flex-col overflow-y-auto space-y-2.5 mt-1">
+                {crosschainData.tvls?.map((coinTrasfer, i) => (
+                  <div key={i} className="flex items-start">
+                    <div>
+                      <img
+                        src={coinTrasfer.image || randImage(i)}
+                        alt=""
+                        className="w-5 h-5 rounded-full"
+                      />
+                      <div className="uppercase text-xs font-semibold mt-0.5">
+                        {coinTrasfer.symbol}
+                      </div>
+                    </div>
+                    <div className="text-right ml-auto">
+                      <div className="font-mono text-gray-800 dark:text-gray-100 text-base font-semibold">{numberFormat(coinTrasfer.amount, coinTrasfer.amount >= 1000000 ? '0,0.00a' : '0,0.00')}</div>
+                      <div className="uppercase text-gray-400 dark:text-gray-600 text-xs -mt-0.5">{coinTrasfer.denom}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              :
+              <div className="flex flex-col space-y-3 mt-2">
+                {[...Array(3).keys()].map(i => (
+                  <div key={i} className="flex items-start">
+                    <div>
+                      <div className="skeleton w-5 h-5 rounded-full" />
+                      <div className="skeleton w-12 h-3 mt-1.5" />
+                    </div>
+                    <div className="ml-auto">
+                      <div className="skeleton w-16 h-5 ml-auto" />
+                      <div className="skeleton w-8 h-3 mt-1.5 ml-auto" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            }
           </span>
         </Widget>
       </div>

@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { useState, useEffect } from 'react'
 import { useSelector, useDispatch, shallowEqual } from 'react-redux'
 
+import _ from 'lodash'
 import moment from 'moment'
 
 import Summary from './summary'
@@ -11,8 +12,9 @@ import Widget from '../widget'
 
 import { status as getStatus, consensusState } from '../../lib/api/rpc'
 import { allValidators, validatorProfile } from '../../lib/api/cosmos'
+import { transfers } from '../../lib/api/opensearch'
 import { hexToBech32 } from '../../lib/object/key'
-import { denomName } from '../../lib/object/denom'
+import { denomName, denomAmount, denomSymbol, denomImage } from '../../lib/object/denom'
 import { numberFormat, randImage } from '../../lib/utils'
 
 import { STATUS_DATA, VALIDATORS_DATA } from '../../reducers/types'
@@ -23,6 +25,7 @@ export default function Dashboard() {
   const { chain_data, status_data, validators_data } = { ...data }
 
   const [summaryData, setSummaryData] = useState(null)
+  const [crosschainSummaryData, setCrosschainSummaryData] = useState(null)
   const [consensusStateData, setConsensusStateData] = useState(null)
   const [loadValsProfile, setLoadValsProfile] = useState(false)
 
@@ -41,6 +44,102 @@ export default function Dashboard() {
     getData()
 
     const interval = setInterval(() => getData(), 5 * 1000)
+    return () => clearInterval(interval)
+  }, [])
+
+  useEffect(() => {
+    const getData = async () => {
+      let response = await transfers({
+        aggs: {
+          transfers: {
+            terms: { field: 'contract.name.keyword', size: 10000 },
+            aggs: {
+              amounts: {
+                sum: {
+                  field: 'amount',
+                },
+              },
+            },
+          },
+        },
+      })
+
+      const total_transfers = _.orderBy(response?.data?.map(transfer => {
+        return {
+          ...transfer,
+          symbol: denomSymbol(transfer.contract_name),
+          image: denomImage(transfer.contract_name),
+          denom: denomName(transfer.contract_name),
+          amount: denomAmount(transfer.amount, transfer.contract_name),
+        }
+      }), ['tx'], ['desc'])
+
+      response = await transfers({
+        aggs: {
+          transfers: {
+            terms: { field: 'contract.name.keyword', size: 10000 },
+            aggs: {
+              amounts: {
+                avg: {
+                  field: 'amount',
+                },
+              },
+            },
+          },
+        },
+      })
+
+      const avg_transfers = _.orderBy(response?.data?.map(transfer => {
+        return {
+          ...transfer,
+          symbol: denomSymbol(transfer.contract_name),
+          image: denomImage(transfer.contract_name),
+          denom: denomName(transfer.contract_name),
+          amount: denomAmount(transfer.amount, transfer.contract_name),
+        }
+      }), ['tx'], ['desc'])
+
+      response = await transfers({
+        aggs: {
+          transfers: {
+            terms: { field: 'contract.name.keyword', size: 10000 },
+            aggs: {
+              amounts: {
+                max: {
+                  field: 'amount',
+                },
+              },
+            },
+          },
+        },
+        query: { range: { 'created_at.ms': { gt: moment().subtract(24, 'hour').valueOf() } } },
+      })
+
+      const highest_transfer_24h = _.orderBy(response?.data?.map(transfer => {
+        return {
+          ...transfer,
+          symbol: denomSymbol(transfer.contract_name),
+          image: denomImage(transfer.contract_name),
+          denom: denomName(transfer.contract_name),
+          amount: denomAmount(transfer.amount, transfer.contract_name),
+        }
+      }), ['tx'], ['desc'])
+
+      const tvls = total_transfers
+
+      if (response) {
+        setCrosschainSummaryData({
+          total_transfers,
+          avg_transfers,
+          highest_transfer_24h,
+          tvls,
+        })
+      }
+    }
+
+    getData()
+
+    const interval = setInterval(() => getData(), 30 * 1000)
     return () => clearInterval(interval)
   }, [])
 
@@ -114,7 +213,7 @@ export default function Dashboard() {
 
   useEffect(() => {
     const getData = async () => {
-      if (consensusStateData && consensusStateData.validators && consensusStateData.validators.proposer && consensusStateData.validators.proposer.address) {
+      if (consensusStateData?.validators?.proposer?.address) {
         const validator_data = validators_data && validators_data[validators_data.findIndex(validator_data => validator_data.consensus_address === hexToBech32(consensusStateData.validators.proposer.address, process.env.NEXT_PUBLIC_PREFIX_CONSENSUS))]
 
         if (validator_data) {
@@ -132,7 +231,7 @@ export default function Dashboard() {
           consensusStateData.voting_power_percentage = consensusStateData.voting_power * 100 / Math.floor(chain_data.staking_pool.bonded_tokens)
         }
 
-        setSummaryData({ data: {
+        setSummaryData({
           latest_block: { ...consensusStateData },
           block_height: status_data && Number(status_data.latest_block_height),
           block_height_at: status_data && moment(status_data.latest_block_time).valueOf(),
@@ -143,7 +242,7 @@ export default function Dashboard() {
           online_voting_power_now: chain_data && chain_data.staking_pool && numberFormat(Math.floor(chain_data.staking_pool.bonded_tokens), '0,0.00a'),
           online_voting_power_now_percentage: chain_data && chain_data.staking_pool && chain_data.bank_supply && (Math.floor(chain_data.staking_pool.bonded_tokens) * 100 / chain_data.bank_supply.amount),
           total_voting_power: chain_data && chain_data.bank_supply && numberFormat(chain_data.bank_supply.amount, '0,0.00a'),
-        }})
+        })
       }
     }
 
@@ -152,7 +251,7 @@ export default function Dashboard() {
 
   return (
     <div className="my-4 mx-auto pb-2">
-      <Summary data={summaryData && summaryData.data} />
+      <Summary data={summaryData} crosschainData={crosschainSummaryData} />
       <div className="w-full grid grid-flow-row grid-cols-1 lg:grid-cols-2 gap-5 my-4">
         <div className="mt-3">
           <Link href="/blocks">
