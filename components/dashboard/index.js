@@ -26,6 +26,7 @@ export default function Dashboard() {
 
   const [summaryData, setSummaryData] = useState(null)
   const [crosschainSummaryData, setCrosschainSummaryData] = useState(null)
+  const [avgTransfersTimeRange, setAvgTransfersTimeRange] = useState(null)
   const [consensusStateData, setConsensusStateData] = useState(null)
   const [loadValsProfile, setLoadValsProfile] = useState(false)
 
@@ -48,23 +49,32 @@ export default function Dashboard() {
   }, [])
 
   useEffect(() => {
-    const getData = async () => {
-      let response = await transfers({
-        aggs: {
-          transfers: {
-            terms: { field: 'contract.name.keyword', size: 10000 },
-            aggs: {
-              amounts: {
-                sum: {
-                  field: 'amount',
+    const getData = async isInterval => {
+      let response
+
+      if (isInterval || !avgTransfersTimeRange) {
+        response = await transfers({
+          aggs: {
+            transfers: {
+              terms: { field: 'contract.name.keyword', size: 10000 },
+              aggs: {
+                amounts: {
+                  sum: {
+                    field: 'amount',
+                  },
+                },
+                since: {
+                  min: {
+                    field: 'created_at.ms',
+                  },
                 },
               },
             },
           },
-        },
-      })
+        })
+      }
 
-      const total_transfers = _.orderBy(response?.data?.map(transfer => {
+      const total_transfers = !(isInterval || !avgTransfersTimeRange) ? crosschainSummaryData?.total_transfers : _.orderBy(response?.data?.map(transfer => {
         return {
           ...transfer,
           symbol: denomSymbol(transfer.contract_name),
@@ -87,6 +97,7 @@ export default function Dashboard() {
             },
           },
         },
+        query: avgTransfersTimeRange?.split('').findIndex(c => !isNaN(c)) > -1 ? { range: { 'created_at.ms': { gt: moment().subtract(avgTransfersTimeRange.substring(0, avgTransfersTimeRange.split('').findIndex(c => isNaN(c))), [avgTransfersTimeRange.split('').find(c => isNaN(c))].map(timeRange => timeRange === 'y' ? 'year' : timeRange === 'm' ? 'month' : timeRange === 'h' ? 'hour' : 'day')).valueOf() } } } : undefined,
       })
 
       const avg_transfers = _.orderBy(response?.data?.map(transfer => {
@@ -99,23 +110,25 @@ export default function Dashboard() {
         }
       }), ['tx'], ['desc'])
 
-      response = await transfers({
-        aggs: {
-          transfers: {
-            terms: { field: 'contract.name.keyword', size: 10000 },
-            aggs: {
-              amounts: {
-                max: {
-                  field: 'amount',
+      if (isInterval || !avgTransfersTimeRange) {
+        response = await transfers({
+          aggs: {
+            transfers: {
+              terms: { field: 'contract.name.keyword', size: 10000 },
+              aggs: {
+                amounts: {
+                  max: {
+                    field: 'amount',
+                  },
                 },
               },
             },
           },
-        },
-        query: { range: { 'created_at.ms': { gt: moment().subtract(24, 'hour').valueOf() } } },
-      })
+          query: { range: { 'created_at.ms': { gt: moment().subtract(24, 'hour').valueOf() } } },
+        })
+      }
 
-      const highest_transfer_24h = _.orderBy(response?.data?.map(transfer => {
+      const highest_transfer_24h = !(isInterval || !avgTransfersTimeRange) ? crosschainSummaryData?.highest_transfer_24h : _.orderBy(response?.data?.map(transfer => {
         return {
           ...transfer,
           symbol: denomSymbol(transfer.contract_name),
@@ -125,23 +138,25 @@ export default function Dashboard() {
         }
       }), ['tx'], ['desc'])
 
-      const tvls = total_transfers
+      if (isInterval || !avgTransfersTimeRange) {
 
-      if (response) {
-        setCrosschainSummaryData({
-          total_transfers,
-          avg_transfers,
-          highest_transfer_24h,
-          tvls,
-        })
       }
+
+      const tvls = !(isInterval || !avgTransfersTimeRange) ? crosschainSummaryData?.tvls : total_transfers
+
+      setCrosschainSummaryData({
+        total_transfers,
+        avg_transfers,
+        highest_transfer_24h,
+        tvls,
+      })
     }
 
     getData()
 
-    const interval = setInterval(() => getData(), 30 * 1000)
+    const interval = setInterval(() => getData(true), 30 * 1000)
     return () => clearInterval(interval)
-  }, [])
+  }, [avgTransfersTimeRange])
 
   useEffect(() => {
     const getConsensusState = async () => {
@@ -251,7 +266,12 @@ export default function Dashboard() {
 
   return (
     <div className="my-4 mx-auto pb-2">
-      <Summary data={summaryData} crosschainData={crosschainSummaryData} />
+      <Summary
+        data={summaryData}
+        crosschainData={crosschainSummaryData}
+        avgTransfersTimeRange={avgTransfersTimeRange || 'all-time'}
+        setAvgTransfersTimeRange={timeRange => setAvgTransfersTimeRange(timeRange)}
+      />
       <div className="w-full grid grid-flow-row grid-cols-1 lg:grid-cols-2 gap-5 my-4">
         <div className="mt-3">
           <Link href="/blocks">

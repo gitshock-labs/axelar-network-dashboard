@@ -10,7 +10,9 @@ import { ProgressBarWithText } from '../progress-bars'
 
 import { numberFormat, ellipseAddress, randImage } from '../../lib/utils'
 
-const Summary = ({ data, crosschainData }) => {
+const timeRanges = ['all-time', '30d', '7d', '24h']
+
+const Summary = ({ data, crosschainData, avgTransfersTimeRange, setAvgTransfersTimeRange }) => {
   return (
     <>
       <div className="w-full">
@@ -312,6 +314,14 @@ const Summary = ({ data, crosschainData }) => {
                 ))}
               </div>
             }
+            <span className="flex items-center text-gray-400 dark:text-gray-600 text-sm font-normal space-x-1.5">
+              <span>since</span>
+              {crosschainData ?
+                <span className="font-medium">{moment(_.minBy(crosschainData.total_transfers, 'since')?.since).format('MMM D, YYYY')}</span>
+                :
+                <div className="skeleton w-20 h-3.5" />
+              }
+            </span>
           </span>
         </Widget>
         <Widget
@@ -356,6 +366,23 @@ const Summary = ({ data, crosschainData }) => {
                 ))}
               </div>
             }
+            <span className="text-gray-400 dark:text-gray-600 text-sm font-normal mx-auto">
+              {crosschainData ?
+                <div className="flex items-center space-x-0.5">
+                  {timeRanges.map((item, i) => (
+                    <div
+                      key={i}
+                      onClick={() => setAvgTransfersTimeRange(item)}
+                      className={`bg-transparent hover:bg-gray-50 dark:hover:bg-gray-800 rounded cursor-pointer flex items-center uppercase text-xs -mt-1 p-1 ${avgTransfersTimeRange === item ? 'bg-gray-100 dark:bg-gray-700 text-gray-900 hover:text-gray-800 dark:text-gray-100 dark:hover:text-gray-200 font-bold' : 'text-gray-500 hover:text-gray-700 dark:text-gray-500 dark:hover:text-gray-300 font-medium'}`}
+                    >
+                      <span>{item}</span>
+                    </div>
+                  ))}
+                </div>
+                :
+                <div className="skeleton w-32 h-4 mt-1" />
+              }
+            </span>
           </span>
         </Widget>
         <Widget
@@ -406,7 +433,7 @@ const Summary = ({ data, crosschainData }) => {
               </div>
             }
             <span className="flex items-center text-gray-400 dark:text-gray-600 text-sm font-normal space-x-1.5 ml-auto">
-              <span>total</span>
+              <span>from</span>
               {crosschainData ?
                 <span className="font-mono text-gray-600 dark:text-gray-400 font-medium">{numberFormat(_.sumBy(crosschainData.highest_transfer_24h, 'tx'), '0,0')}</span>
                 :
