@@ -138,6 +138,8 @@ export default function Dashboard() {
         }
       }), ['tx'], ['desc'])
 
+      const tvls_updated_at = moment().valueOf()
+
       if (isInterval || !avgTransfersTimeRange) {
 
       }
@@ -149,6 +151,7 @@ export default function Dashboard() {
         avg_transfers,
         highest_transfer_24h,
         tvls,
+        tvls_updated_at,
       })
     }
 
