@@ -26,8 +26,10 @@ export default function Dashboard() {
 
   const [summaryData, setSummaryData] = useState(null)
   const [crosschainSummaryData, setCrosschainSummaryData] = useState(null)
-  const [crosschainTVLData, setCrosschainTVLData] = useState(null)
   const [avgTransfersTimeRange, setAvgTransfersTimeRange] = useState(null)
+  const [crosschainTVLData, setCrosschainTVLData] = useState(null)
+  const [contractSelect, setContractSelect] = useState(null)
+  const [crosschainChartData, setCrosschainChartData] = useState(null)
   const [consensusStateData, setConsensusStateData] = useState(null)
   const [loadValsProfile, setLoadValsProfile] = useState(false)
 
@@ -144,6 +146,10 @@ export default function Dashboard() {
         avg_transfers,
         highest_transfer_24h,
       })
+
+      if (!isInterval) {
+        setContractSelect(total_transfers?.[0]?.contract_name)
+      }
     }
 
     getData()
@@ -151,6 +157,114 @@ export default function Dashboard() {
     const interval = setInterval(() => getData(true), 30 * 1000)
     return () => clearInterval(interval)
   }, [avgTransfersTimeRange])
+
+  useEffect(() => {
+    const getData = async () => {
+      if (contractSelect) {
+        const today = moment().utc().startOf('day')
+        const daily_time_range = 30
+        const day_ms = 24 * 60 * 60 * 1000
+
+        let response
+
+        response = await transfers({
+          aggs: {
+            transfers: {
+              terms: { field: 'contract.name.keyword', size: 10000 },
+              aggs: {
+                times: {
+                  terms: {
+                    field: 'created_at.day',
+                  },
+                  aggs: {
+                    amounts: {
+                      sum: {
+                        field: 'amount',
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        })
+
+        const total_transfers = _.orderBy(response?.data?.map(transfer => {
+          const times = []
+
+          for (let time = moment(today).subtract(daily_time_range, 'days').valueOf(); time <= today.valueOf(); time += day_ms) {
+            times.push(transfer.times?.find(_time => _time.time === time) || { time, tx: 0, amount: 0 })
+          }
+
+          return {
+            ...transfer,
+            symbol: denomSymbol(transfer.contract_name),
+            image: denomImage(transfer.contract_name),
+            denom: denomName(transfer.contract_name),
+            times: times.map(time => {
+              return {
+                ...time,
+                amount: denomAmount(time.amount, transfer.contract_name),
+              }
+            }),
+          }
+        }), ['tx'], ['desc'])
+
+        response = await transfers({
+          aggs: {
+            transfers: {
+              terms: { field: 'contract.name.keyword', size: 10000 },
+              aggs: {
+                times: {
+                  terms: {
+                    field: 'created_at.day',
+                  },
+                  aggs: {
+                    amounts: {
+                      max: {
+                        field: 'amount',
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        })
+
+        const highest_transfer_24h = _.orderBy(response?.data?.map(transfer => {
+          const times = []
+
+          for (let time = moment(today).subtract(daily_time_range, 'days').valueOf(); time <= today.valueOf(); time += day_ms) {
+            times.push(transfer.times?.find(_time => _time.time === time) || { time, tx: 0, amount: 0 })
+          }
+
+          return {
+            ...transfer,
+            symbol: denomSymbol(transfer.contract_name),
+            image: denomImage(transfer.contract_name),
+            denom: denomName(transfer.contract_name),
+            times: times.map(time => {
+              return {
+                ...time,
+                amount: denomAmount(time.amount, transfer.contract_name),
+              }
+            }),
+          }
+        }), ['tx'], ['desc'])
+
+        setCrosschainChartData({
+          total_transfers,
+          highest_transfer_24h,
+        })
+      }
+    }
+
+    getData()
+
+    const interval = setInterval(() => getData(), 30 * 1000)
+    return () => clearInterval(interval)
+  }, [contractSelect])
 
   useEffect(() => {
     const getData = async isInterval => {
@@ -335,6 +449,9 @@ export default function Dashboard() {
         avgTransfersTimeRange={avgTransfersTimeRange || 'all-time'}
         setAvgTransfersTimeRange={timeRange => setAvgTransfersTimeRange(timeRange)}
         tvlData={crosschainTVLData}
+        contractSelect={contractSelect || crosschainSummaryData?.total_transfers?.[0]?.contract_name}
+        setContractSelect={contract => setContractSelect(contract)}
+        chartData={crosschainChartData}
       />
       <div className="w-full grid grid-flow-row grid-cols-1 lg:grid-cols-2 gap-5 my-4">
         <div className="mt-3">

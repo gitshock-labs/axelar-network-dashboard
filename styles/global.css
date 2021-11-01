@@ -137,3 +137,27 @@ body {
 .linkify a {
   @apply text-blue-600 dark:text-blue-500 font-normal;
 }
+
+.recharts-cartesian-axis-tick-value {
+  @apply fill-current text-gray-900 dark:text-white text-2xs font-medium;
+}
+
+.mobile-hidden-x .recharts-cartesian-axis-tick-value {
+  @apply hidden sm:block;
+}
+
+.text-3xs {
+  font-size: .5rem;
+}
+
+.text-2xs {
+  font-size: .65rem;
+}
+
+.recharts-label {
+  @apply font-mono text-2xs sm:text-xs md:text-sm lg:text-sm xl:text-sm font-semibold;
+}
+
+.font-default .recharts-label {
+  @apply font-sans;
+}

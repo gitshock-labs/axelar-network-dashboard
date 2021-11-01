@@ -1,11 +1,16 @@
 import Link from 'next/link'
 import PropTypes from 'prop-types'
+import { useState } from 'react'
 import { useSelector, shallowEqual } from 'react-redux'
 
 import _ from 'lodash'
 import moment from 'moment'
 import Loader from 'react-loader-spinner'
 
+import ContractSelect from './contractSelect'
+import TimelyTransactions from './charts/timely-transactions'
+import TimelyVolume from './charts/timely-volume'
+import TimelyHighestTransfer from './charts/timely-highest-transfer'
 import Widget from '../widget'
 import Copy from '../copy'
 import { ProgressBarWithText } from '../progress-bars'
@@ -14,9 +19,11 @@ import { numberFormat, ellipseAddress, randImage } from '../../lib/utils'
 
 const timeRanges = ['all-time', '30d', '7d', '24h']
 
-const Summary = ({ data, crosschainData, avgTransfersTimeRange, setAvgTransfersTimeRange, tvlData }) => {
+const Summary = ({ data, crosschainData, avgTransfersTimeRange, setAvgTransfersTimeRange, tvlData, contractSelect, setContractSelect, chartData }) => {
   const { preferences } = useSelector(state => ({ preferences: state.preferences }), shallowEqual)
   const { theme } = { ...preferences }
+
+  const [timeFocus, setTimeFocus] = useState(moment().utc().startOf('day').valueOf())
 
   return (
     <>
@@ -527,6 +534,81 @@ const Summary = ({ data, crosschainData, avgTransfersTimeRange, setAvgTransfersT
               </span>
             </div>
           </span>
+        </Widget>
+      </div>
+      <div className="text-gray-900 dark:text-gray-100 text-base font-semibold mt-8 sm:mt-4">
+        {contractSelect && chartData ?
+          <div className="flex justify-start">
+            <ContractSelect
+              contracts={crosschainData?.total_transfers}
+              contractSelect={contractSelect}
+              setContractSelect={contract => setContractSelect(contract)}
+            />
+          </div>
+          :
+          <div className="skeleton w-20 h-6 mb-0.5" />
+        }
+      </div>
+      <div className="w-full grid grid-flow-row grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-2 mb-4">
+        <Widget
+          title="Transactions"
+          right={[contractSelect && chartData?.total_transfers?.find(transfer => transfer?.contract_name === contractSelect)?.times?.find(_time => _time.time === timeFocus)].filter(_time => _time).map(_time => (
+            <div className="min-w-max text-right">
+              <div className="flex items-center justify-end space-x-1">
+                <span className="font-mono text-base font-semibold">
+                  {typeof _time.tx === 'number' ? numberFormat(_time.tx, '0,0') : '- '}
+                </span>
+                <span className="text-gray-400 dark:text-gray-600 text-xs">Txs</span>
+              </div>
+              <div className="text-gray-400 dark:text-gray-500 font-medium" style={{ fontSize: '.65rem' }}>{moment(_time.time).utc().format('MMM, D YYYY [(UTC)]')}</div>
+            </div>
+          ))}
+          contentClassName="items-start"
+          className="px-0 sm:px-4"
+        >
+          <div>
+            <TimelyTransactions txsData={chartData && (chartData.total_transfers.find(transfer => transfer?.contract_name === contractSelect) || {})} setTimeFocus={_timeFocus => setTimeFocus(_timeFocus)} />
+          </div>
+        </Widget>
+        <Widget
+          title="Volume"
+          right={[contractSelect && chartData?.total_transfers?.find(transfer => transfer?.contract_name === contractSelect)?.times?.find(_time => _time.time === timeFocus)].filter(_time => _time).map(_time => (
+            <div className="min-w-max text-right">
+              <div className="flex items-center justify-end space-x-1">
+                <span className="font-mono text-base font-semibold">
+                  {typeof _time.amount === 'number' ? numberFormat(_time.amount, '0,0') : '- '}
+                </span>
+                <span className="uppercase text-gray-400 dark:text-gray-600 text-xs">{chartData.total_transfers.find(transfer => transfer?.contract_name === contractSelect)?.denom}</span>
+              </div>
+              <div className="text-gray-400 dark:text-gray-500 font-medium" style={{ fontSize: '.65rem' }}>{moment(_time.time).utc().format('MMM, D YYYY [(UTC)]')}</div>
+            </div>
+          ))}
+          contentClassName="items-start"
+          className="px-0 sm:px-4"
+        >
+          <div>
+            <TimelyVolume volumeData={chartData && (chartData.total_transfers.find(transfer => transfer?.contract_name === contractSelect) || {})} setTimeFocus={_timeFocus => setTimeFocus(_timeFocus)} />
+          </div>
+        </Widget>
+        <Widget
+          title="Highest Transfer"
+          right={[contractSelect && chartData?.highest_transfer_24h?.find(transfer => transfer?.contract_name === contractSelect)?.times?.find(_time => _time.time === timeFocus)].filter(_time => _time).map(_time => (
+            <div className="min-w-max text-right">
+              <div className="flex items-center justify-end space-x-1">
+                <span className="font-mono text-base font-semibold">
+                  {typeof _time.amount === 'number' ? numberFormat(_time.amount, '0,0') : '- '}
+                </span>
+                <span className="uppercase text-gray-400 dark:text-gray-600 text-xs">{chartData.highest_transfer_24h.find(transfer => transfer?.contract_name === contractSelect)?.denom}</span>
+              </div>
+              <div className="text-gray-400 dark:text-gray-500 font-medium" style={{ fontSize: '.65rem' }}>{moment(_time.time).utc().format('MMM, D YYYY [(UTC)]')}</div>
+            </div>
+          ))}
+          contentClassName="items-start"
+          className="px-0 sm:px-4"
+        >
+          <div>
+            <TimelyHighestTransfer highestTransferData={chartData && (chartData.highest_transfer_24h.find(transfer => transfer?.contract_name === contractSelect) || {})} setTimeFocus={_timeFocus => setTimeFocus(_timeFocus)} />
+          </div>
         </Widget>
       </div>
     </>
