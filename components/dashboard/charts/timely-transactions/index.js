@@ -35,7 +35,7 @@ export default function TimelyTransactions({ txsData, setTimeFocus }) {
   const loaded = data
 
   return (
-    <div className={`w-full h-56 bg-white dark:bg-gray-900 rounded-lg mt-2 ${loaded ? 'sm:pt-5 pb-0' : ''}`}>
+    <div className={`w-full h-56 bg-white dark:bg-gray-900 rounded-lg mt-2 ${loaded ? 'pb-0' : ''}`}>
       {loaded ?
         <ResponsiveContainer>
           <BarChart
@@ -61,7 +61,7 @@ export default function TimelyTransactions({ txsData, setTimeFocus }) {
                 }
               }
             }}
-            margin={{ top: 10, right: 2, left: 2, bottom: 10 }}
+            margin={{ top: 10, right: 2, left: 2, bottom: 4 }}
             className="mobile-hidden-x"
           >
             <defs>

@@ -233,7 +233,7 @@ const Summary = ({ data, crosschainData, avgTransfersTimeRange, setAvgTransfersT
         </Widget>
       </div>
       <div className="text-gray-900 dark:text-gray-100 text-base font-semibold mt-8 sm:mx-3">Cross-chain transfer</div>
-      <div className="w-full grid grid-flow-row grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 mt-1.5 mb-4">
+      <div className="w-full grid grid-flow-row grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-8 sm:gap-4 mt-1.5 mb-4">
         <Widget
           title="Number of Transactions"
           className="bg-transparent sm:bg-white sm:dark:bg-gray-900 border-0 sm:border border-gray-100 dark:border-gray-800 p-0 sm:p-4"
@@ -564,7 +564,7 @@ const Summary = ({ data, crosschainData, avgTransfersTimeRange, setAvgTransfersT
             </div>
           ))}
           contentClassName="items-start"
-          className="px-0 sm:px-4"
+          className="pb-0 px-2 sm:px-4"
         >
           <div>
             <TimelyTransactions txsData={chartData && (chartData.total_transfers.find(transfer => transfer?.contract_name === contractSelect) || {})} setTimeFocus={_timeFocus => setTimeFocus(_timeFocus)} />
@@ -584,7 +584,7 @@ const Summary = ({ data, crosschainData, avgTransfersTimeRange, setAvgTransfersT
             </div>
           ))}
           contentClassName="items-start"
-          className="px-0 sm:px-4"
+          className="pb-0 px-2 sm:px-4"
         >
           <div>
             <TimelyVolume volumeData={chartData && (chartData.total_transfers.find(transfer => transfer?.contract_name === contractSelect) || {})} setTimeFocus={_timeFocus => setTimeFocus(_timeFocus)} />
@@ -604,7 +604,7 @@ const Summary = ({ data, crosschainData, avgTransfersTimeRange, setAvgTransfersT
             </div>
           ))}
           contentClassName="items-start"
-          className="px-0 sm:px-4"
+          className="pb-0 px-2 sm:px-4"
         >
           <div>
             <TimelyHighestTransfer highestTransferData={chartData && (chartData.highest_transfer_24h.find(transfer => transfer?.contract_name === contractSelect) || {})} setTimeFocus={_timeFocus => setTimeFocus(_timeFocus)} />
