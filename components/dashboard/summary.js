@@ -576,7 +576,7 @@ const Summary = ({ data, crosschainData, avgTransfersTimeRange, setAvgTransfersT
             <div className="min-w-max text-right">
               <div className="flex items-center justify-end space-x-1">
                 <span className="font-mono text-base font-semibold">
-                  {typeof _time.amount === 'number' ? numberFormat(_time.amount, '0,0') : '- '}
+                  {typeof _time.amount === 'number' ? numberFormat(_time.amount, '0,0.000') : '- '}
                 </span>
                 <span className="uppercase text-gray-400 dark:text-gray-600 text-xs">{chartData.total_transfers.find(transfer => transfer?.contract_name === contractSelect)?.denom}</span>
               </div>
@@ -596,7 +596,7 @@ const Summary = ({ data, crosschainData, avgTransfersTimeRange, setAvgTransfersT
             <div className="min-w-max text-right">
               <div className="flex items-center justify-end space-x-1">
                 <span className="font-mono text-base font-semibold">
-                  {typeof _time.amount === 'number' ? numberFormat(_time.amount, '0,0') : '- '}
+                  {typeof _time.amount === 'number' ? numberFormat(_time.amount, '0,0.000') : '- '}
                 </span>
                 <span className="uppercase text-gray-400 dark:text-gray-600 text-xs">{chartData.highest_transfer_24h.find(transfer => transfer?.contract_name === contractSelect)?.denom}</span>
               </div>

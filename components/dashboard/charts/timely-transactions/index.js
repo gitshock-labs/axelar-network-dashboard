@@ -66,8 +66,8 @@ export default function TimelyTransactions({ txsData, setTimeFocus }) {
           >
             <defs>
               <linearGradient id="gradient-tx" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="50%" stopColor={theme === 'dark' ? '#4B5563' : '#D1D5DB'} stopOpacity={0.95} />
-                <stop offset="100%" stopColor={theme === 'dark' ? '#4B5563' : '#D1D5DB'} stopOpacity={0.75} />
+                <stop offset="50%" stopColor={theme === 'dark' ? '#374151' : '#E5E7EB'} stopOpacity={0.95} />
+                <stop offset="100%" stopColor={theme === 'dark' ? '#374151' : '#E5E7EB'} stopOpacity={0.75} />
               </linearGradient>
             </defs>
             <XAxis dataKey="day_string" axisLine={false} tickLine={false} />

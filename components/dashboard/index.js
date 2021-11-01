@@ -173,9 +173,7 @@ export default function Dashboard() {
               terms: { field: 'contract.name.keyword', size: 10000 },
               aggs: {
                 times: {
-                  terms: {
-                    field: 'created_at.day',
-                  },
+                  terms: { field: 'created_at.day', size: 10000 },
                   aggs: {
                     amounts: {
                       sum: {
@@ -216,9 +214,7 @@ export default function Dashboard() {
               terms: { field: 'contract.name.keyword', size: 10000 },
               aggs: {
                 times: {
-                  terms: {
-                    field: 'created_at.day',
-                  },
+                  terms: { field: 'created_at.day', size: 10000 },
                   aggs: {
                     amounts: {
                       max: {

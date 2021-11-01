@@ -65,12 +65,12 @@ export default function TimelyVolume({ volumeData, setTimeFocus }) {
           >
             <defs>
               <linearGradient id="gradient-vol" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="50%" stopColor={theme === 'dark' ? '#4B5563' : '#D1D5DB'} stopOpacity={0.95} />
-                <stop offset="100%" stopColor={theme === 'dark' ? '#4B5563' : '#D1D5DB'} stopOpacity={0.75} />
+                <stop offset="50%" stopColor={theme === 'dark' ? '#374151' : '#E5E7EB'} stopOpacity={0.95} />
+                <stop offset="100%" stopColor={theme === 'dark' ? '#374151' : '#E5E7EB'} stopOpacity={0.75} />
               </linearGradient>
             </defs>
             <XAxis dataKey="day_string" axisLine={false} tickLine={false} />
-            <Area type="basis" dataKey="amount" stroke={theme === 'dark' ? '#4B5563' : '#D1D5DB'} fillOpacity={1} fill="url(#gradient-vol)" />
+            <Area type="basis" dataKey="amount" stroke={theme === 'dark' ? '#374151' : '#E5E7EB'} fillOpacity={1} fill="url(#gradient-vol)" />
           </AreaChart>
         </ResponsiveContainer>
         :
