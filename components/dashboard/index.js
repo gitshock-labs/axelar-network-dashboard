@@ -11,7 +11,7 @@ import TransactionsTable from '../transactions/transactions-table'
 import Widget from '../widget'
 
 import { status as getStatus, consensusState } from '../../lib/api/rpc'
-import { allValidators, validatorProfile } from '../../lib/api/cosmos'
+import { allValidators, validatorProfile, allDelegations } from '../../lib/api/cosmos'
 import { transfers } from '../../lib/api/opensearch'
 import { hexToBech32 } from '../../lib/object/key'
 import { denomName, denomAmount, denomSymbol, denomImage } from '../../lib/object/denom'
@@ -26,6 +26,7 @@ export default function Dashboard() {
 
   const [summaryData, setSummaryData] = useState(null)
   const [crosschainSummaryData, setCrosschainSummaryData] = useState(null)
+  const [crosschainTVLData, setCrosschainTVLData] = useState(null)
   const [avgTransfersTimeRange, setAvgTransfersTimeRange] = useState(null)
   const [consensusStateData, setConsensusStateData] = useState(null)
   const [loadValsProfile, setLoadValsProfile] = useState(false)
@@ -138,20 +139,10 @@ export default function Dashboard() {
         }
       }), ['tx'], ['desc'])
 
-      const tvls_updated_at = moment().valueOf()
-
-      if (isInterval || !avgTransfersTimeRange) {
-
-      }
-
-      const tvls = !(isInterval || !avgTransfersTimeRange) ? crosschainSummaryData?.tvls : total_transfers
-
       setCrosschainSummaryData({
         total_transfers,
         avg_transfers,
         highest_transfer_24h,
-        tvls,
-        tvls_updated_at,
       })
     }
 
@@ -160,6 +151,72 @@ export default function Dashboard() {
     const interval = setInterval(() => getData(true), 30 * 1000)
     return () => clearInterval(interval)
   }, [avgTransfersTimeRange])
+
+  useEffect(() => {
+    const getData = async isInterval => {
+      if (validators_data && (!loadValsProfile || isInterval)) {
+        let tvls
+        const tvls_updated_at = moment().valueOf()
+
+        const _validators_data = validators_data.filter(validator_data => ['BOND_STATUS_BONDED'].includes(validator_data?.status))
+        const total_active_validators = _validators_data.length
+
+        for (let i = 0; i < _validators_data.length; i++) {
+          const validator_data = _validators_data[i]
+          const address = validator_data?.operator_address
+
+          const response = await allDelegations(address)
+
+          tvls = _.concat(tvls || [], Object.values(_.groupBy(response?.data?.map(delegation => {
+            return {
+              symbol: denomSymbol(delegation?.balance?.denom),
+              image: denomImage(delegation?.balance?.denom),
+              denom: denomName(delegation?.balance?.denom),
+              amount: denomAmount(delegation?.balance?.amount, delegation?.balance?.denom),
+            }
+          }) || [], 'denom')).map(value => {
+            return {
+              ...value?.[0],
+              amount: _.sumBy(value, 'amount'),
+            }
+          }))
+
+          if (!isInterval && (i % 3 === 0 || i === _validators_data.length - 1)) {
+            setCrosschainTVLData({
+              tvls: Object.values(_.groupBy(tvls, 'denom')).map(value => {
+                return {
+                  ...value?.[0],
+                  amount: _.sumBy(value, 'amount'),
+                }
+              }),
+              tvls_updated_at,
+              total_loaded_validators: tvls.length,
+              total_active_validators,
+            })
+          }
+        }
+
+        if (isInterval) {
+          setCrosschainTVLData({
+            tvls: (tvls && Object.values(_.groupBy(tvls, 'denom')).map(value => {
+              return {
+                ...value?.[0],
+                amount: _.sumBy(value, 'amount'),
+              }
+            })) || [],
+            tvls_updated_at,
+            total_loaded_validators: tvls?.length || 0,
+            total_active_validators,
+          })
+        }
+      }
+    }
+
+    getData()
+
+    const interval = setInterval(() => getData(true), 60 * 1000)
+    return () => clearInterval(interval)
+  }, [validators_data, loadValsProfile])
 
   useEffect(() => {
     const getConsensusState = async () => {
@@ -274,6 +331,7 @@ export default function Dashboard() {
         crosschainData={crosschainSummaryData}
         avgTransfersTimeRange={avgTransfersTimeRange || 'all-time'}
         setAvgTransfersTimeRange={timeRange => setAvgTransfersTimeRange(timeRange)}
+        tvlData={crosschainTVLData}
       />
       <div className="w-full grid grid-flow-row grid-cols-1 lg:grid-cols-2 gap-5 my-4">
         <div className="mt-3">

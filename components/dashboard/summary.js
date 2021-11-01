@@ -1,8 +1,10 @@
 import Link from 'next/link'
 import PropTypes from 'prop-types'
+import { useSelector, shallowEqual } from 'react-redux'
 
 import _ from 'lodash'
 import moment from 'moment'
+import Loader from 'react-loader-spinner'
 
 import Widget from '../widget'
 import Copy from '../copy'
@@ -12,7 +14,10 @@ import { numberFormat, ellipseAddress, randImage } from '../../lib/utils'
 
 const timeRanges = ['all-time', '30d', '7d', '24h']
 
-const Summary = ({ data, crosschainData, avgTransfersTimeRange, setAvgTransfersTimeRange }) => {
+const Summary = ({ data, crosschainData, avgTransfersTimeRange, setAvgTransfersTimeRange, tvlData }) => {
+  const { preferences } = useSelector(state => ({ preferences: state.preferences }), shallowEqual)
+  const { theme } = { ...preferences }
+
   return (
     <>
       <div className="w-full">
@@ -444,13 +449,18 @@ const Summary = ({ data, crosschainData, avgTransfersTimeRange, setAvgTransfersT
           </span>
         </Widget>
         <Widget
-          title={<>Total Value Locked<span className="text-gray-500 font-light italic ml-1">(Mock Data)</span></>}
+          title={<div className="flex items-center">
+            <span>Total Value Locked</span>
+            {(!tvlData || tvlData.total_loaded_validators !== tvlData.total_active_validators) && (
+              <Loader type="TailSpin" color={theme === 'dark' ? 'white' : '#acacac'} width="16" height="16" className="mb-0.5 ml-auto" />
+            )}
+          </div>}
           className="bg-transparent sm:bg-white sm:dark:bg-gray-900 border-0 sm:border border-gray-100 dark:border-gray-800 p-0 sm:p-4"
         >
           <span className="flex flex-col space-y-1.5 mt-1">
-            {crosschainData ?
-              <div className="max-h-36 sm:max-h-60 flex flex-col overflow-y-auto space-y-2.5 mt-1">
-                {crosschainData.tvls?.map((coinTrasfer, i) => (
+            {tvlData ?
+              <div className="max-h-36 sm:max-h-60 flex flex-col overflow-y-auto space-y-2.5 mt-1" style={{ minHeight: '134px' }}>
+                {tvlData.tvls?.map((coinTrasfer, i) => (
                   <div key={i} className="flex items-start">
                     <div>
                       <img
@@ -485,16 +495,37 @@ const Summary = ({ data, crosschainData, avgTransfersTimeRange, setAvgTransfersT
                 ))}
               </div>
             }
-            <span className="text-gray-400 dark:text-gray-600 text-sm font-normal">
-              {crosschainData ?
-                crosschainData.tvls_updated_at ?
-                  moment(crosschainData.tvls_updated_at).format('MMM D, YYYY h:mm:ss A z')
+            <div className="flex items-center">
+              {tvlData ?
+                tvlData.tvls_updated_at ?
+                  <span className="text-gray-400 dark:text-gray-600 text-xs font-normal pt-0.5">
+                    {moment(tvlData.tvls_updated_at).format('MMM D, h:mm A z')}
+                  </span>
                   :
                   null
                 :
-                <div className="skeleton w-32 h-3.5 mt-1" />
+                <div className="skeleton w-20 h-3.5" />
               }
-            </span>
+              <span className="flex items-center text-gray-400 dark:text-gray-600 text-xs font-normal space-x-1 ml-auto mt-0.5">
+                {tvlData ?
+                  tvlData.total_loaded_validators !== tvlData.total_active_validators ?
+                    <span className="font-mono text-gray-600 dark:text-gray-400 font-medium">{numberFormat(tvlData.total_loaded_validators, '0,0')}</span>
+                    :
+                    null
+                  :
+                  <div className="skeleton w-6 h-3.5" />
+                }
+                {(!tvlData || tvlData.total_loaded_validators !== tvlData.total_active_validators) && (
+                  <span>/</span>
+                )}
+                {tvlData ?
+                  <span className="font-mono text-gray-600 dark:text-gray-400 font-medium">{numberFormat(tvlData.total_active_validators, '0,0')}</span>
+                  :
+                  <div className="skeleton w-6 h-3.5" />
+                }
+                <span>validators</span>
+              </span>
+            </div>
           </span>
         </Widget>
       </div>
