@@ -449,7 +449,7 @@ export default function Dashboard() {
         setContractSelect={contract => setContractSelect(contract)}
         chartData={crosschainChartData}
       />
-      <div className="w-full grid grid-flow-row grid-cols-1 lg:grid-cols-2 gap-5 my-4">
+      <div className="w-full grid grid-flow-row grid-cols-1 lg:grid-cols-2 gap-5 mt-6 mb-4">
         <div className="mt-3">
           <Link href="/blocks">
             <a className="text-gray-900 dark:text-gray-100 text-base font-semibold mx-3">Latest Blocks</a>

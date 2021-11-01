@@ -232,7 +232,7 @@ const Summary = ({ data, crosschainData, avgTransfersTimeRange, setAvgTransfersT
           </span>
         </Widget>
       </div>
-      <div className="text-gray-900 dark:text-gray-100 text-base font-semibold mt-8 sm:mt-2 sm:mx-3">Cross-chain transfer</div>
+      <div className="text-gray-900 dark:text-gray-100 text-base font-semibold mt-8 sm:mx-3">Cross-chain transfer</div>
       <div className="w-full grid grid-flow-row grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 mt-1.5 mb-4">
         <Widget
           title="Number of Transactions"
@@ -536,7 +536,7 @@ const Summary = ({ data, crosschainData, avgTransfersTimeRange, setAvgTransfersT
           </span>
         </Widget>
       </div>
-      <div className="text-gray-900 dark:text-gray-100 text-base font-semibold mt-8 sm:mt-4">
+      <div className="text-gray-900 dark:text-gray-100 text-base font-semibold mt-8 sm:mt-4 sm:mx-2">
         {contractSelect && chartData ?
           <div className="flex justify-start">
             <ContractSelect
