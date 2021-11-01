@@ -25,15 +25,17 @@ export default function BlocksTable({ n, className = '' }) {
 
   useEffect(() => {
     const getValidators = async () => {
-      const response = await allValidators({}, validators_data)
+      if (typeof n !== 'number') {
+        const response = await allValidators({}, validators_data)
 
-      if (response) {
-        dispatch({
-          type: VALIDATORS_DATA,
-          value: response.data
-        })
+        if (response) {
+          dispatch({
+            type: VALIDATORS_DATA,
+            value: response.data
+          })
 
-        setLoadValsProfile(true)
+          setLoadValsProfile(true)
+        }
       }
     }
 
@@ -41,7 +43,7 @@ export default function BlocksTable({ n, className = '' }) {
 
     const interval = setInterval(() => getValidators(), 10 * 60 * 1000)
     return () => clearInterval(interval)
-  }, [])
+  }, [n])
 
   useEffect(() => {
     const getValidatorsProfile = async () => {

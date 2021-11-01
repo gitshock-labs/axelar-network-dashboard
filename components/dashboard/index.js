@@ -169,6 +169,7 @@ export default function Dashboard() {
 
           tvls = _.concat(tvls || [], Object.values(_.groupBy(response?.data?.map(delegation => {
             return {
+              delegator_address: delegation?.delegation?.delegator_address,
               symbol: denomSymbol(delegation?.balance?.denom),
               image: denomImage(delegation?.balance?.denom),
               denom: denomName(delegation?.balance?.denom),
@@ -177,18 +178,20 @@ export default function Dashboard() {
           }) || [], 'denom')).map(value => {
             return {
               ...value?.[0],
+              delegator_addresses: _.uniqBy(value, 'delegator_address'),
               amount: _.sumBy(value, 'amount'),
             }
           }))
 
           if (!isInterval && (i % 3 === 0 || i === _validators_data.length - 1)) {
             setCrosschainTVLData({
-              tvls: Object.values(_.groupBy(tvls, 'denom')).map(value => {
+              tvls: _.orderBy(Object.values(_.groupBy(tvls, 'denom')).map(value => {
                 return {
                   ...value?.[0],
                   amount: _.sumBy(value, 'amount'),
+                  num_delegators: _.uniq(value?.flatMap(delegate => delegate.delegator_addresses) || []).length,
                 }
-              }),
+              }), ['num_delegators'], ['desc']),
               tvls_updated_at,
               total_loaded_validators: tvls.length,
               total_active_validators,

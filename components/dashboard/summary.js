@@ -452,7 +452,7 @@ const Summary = ({ data, crosschainData, avgTransfersTimeRange, setAvgTransfersT
           title={<div className="flex items-center">
             <span>Total Value Locked</span>
             {(!tvlData || tvlData.total_loaded_validators !== tvlData.total_active_validators) && (
-              <Loader type="TailSpin" color={theme === 'dark' ? 'white' : '#acacac'} width="16" height="16" className="mb-0.5 ml-auto" />
+              <Loader type="BallTriangle" color={theme === 'dark' ? 'white' : '#9CA3AF'} width="18" height="18" className="mb-0.5 ml-auto" />
             )}
           </div>}
           className="bg-transparent sm:bg-white sm:dark:bg-gray-900 border-0 sm:border border-gray-100 dark:border-gray-800 p-0 sm:p-4"
