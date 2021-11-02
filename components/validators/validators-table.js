@@ -325,7 +325,7 @@ export default function ValidatorsTable({ status }) {
                   }
                 </div>
                 :
-                <div className="skeleton w-24 h-4 ml-auto" />
+                <div className="skeleton w-24 h-6 ml-auto" />
             ),
             headerClassName: 'justify-end text-right',
           },
@@ -336,16 +336,21 @@ export default function ValidatorsTable({ status }) {
             Cell: props => (
               !props.row.original.skeleton ?
                 <div className="text-right">
-                  {props.value ?
+                  {props.row.original.tombstoned ?
                     <span className="bg-red-600 rounded capitalize text-white font-semibold px-2 py-1">
-                      Jailed
+                      Tombstoned
                     </span>
                     :
-                    '-'
+                    props.value ?
+                      <span className="bg-red-600 rounded capitalize text-white font-semibold px-2 py-1">
+                        Jailed
+                      </span>
+                      :
+                      '-'
                   }
                 </div>
                 :
-                <div className="skeleton w-24 h-4 ml-auto" />
+                <div className="skeleton w-16 h-6 ml-auto" />
             ),
             headerClassName: 'justify-end text-right',
           },

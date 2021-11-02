@@ -46,6 +46,11 @@ export default function ValidatorDetail({ data, delegations, keygens, all_keygen
                     Jailed
                   </span>
                 )}
+                {data.tombstoned && (
+                  <span className="bg-red-600 rounded capitalize text-white font-semibold px-2 py-1">
+                    Tombstoned
+                  </span>
+                )}
               </div>
             </div>
             {data.illegible && data.tss_illegibility_info && (
@@ -100,12 +105,18 @@ export default function ValidatorDetail({ data, delegations, keygens, all_keygen
                 <span className="text-gray-600 dark:text-gray-400 font-semibold">{numberFormat(data.start_height, '0,0')}</span>
               </div>
             )}
-            {data.jailed_until > 0 && (
+            {typeof data.jailed_until === 'number' && (
               <div className="flex flex-col lg:flex-row items-start space-x-0 lg:space-x-2">
-                <span className="font-medium">Latest Unjail:</span>
+                <span className="font-medium">Latest Unjailed:</span>
                 <div className="flex flex-wrap items-start">
-                  <span className="text-gray-400 dark:text-gray-400 mr-2">{moment(data.jailed_until).fromNow()}</span>
-                  <span className="text-gray-500 dark:text-gray-300 font-medium">({moment(data.jailed_until).format('MMM D, YYYY h:mm:ss A')})</span>
+                  {data.jailed_until > 0 ?
+                    <>
+                      <span className="text-gray-400 dark:text-gray-400 mr-2">{moment(data.jailed_until).fromNow()}</span>
+                      <span className="text-gray-500 dark:text-gray-300 font-medium">({moment(data.jailed_until).format('MMM D, YYYY h:mm:ss A')})</span>
+                    </>
+                    :
+                    <span className="text-gray-400 dark:text-gray-400">Never Jailed</span>
+                  }
                 </div>
               </div>
             )}
