@@ -162,18 +162,26 @@ export default function ValidatorDetail({ data, delegations, keygens, all_keygen
               <span className="font-medium">Voting Power:</span>
               <span className="font-light">{chain_data && chain_data.staking_pool && chain_data.staking_pool.bonded_tokens ? numberFormat(Math.floor(data.delegator_shares / Number(process.env.NEXT_PUBLIC_POWER_REDUCTION)) * 100 / Math.floor(chain_data.staking_pool.bonded_tokens), '0,0.00') : ''}%</span>
             </div>
-          </div>
-          <div className="grid grid-flow-row grid-cols-1 md:grid-cols-2 gap-2 md:gap-4 text-base sm:text-xs lg:text-base mt-4">
-            <div className="flex items-center space-x-2">
+            <div className="md:col-span-2 flex items-center space-x-2">
               <span className="font-medium">Delegations:</span>
               {delegations ?
-                <span className="font-light">{numberFormat(delegations.length, '0,0')}</span>
+                <>
+                  <span className="font-light">{numberFormat(delegations.length, '0,0')}</span>
+                  {delegations.length > 0 && (
+                    <span className="flex flex-wrap uppercase font-light">
+                      ({Object.entries(_.groupBy(delegations, 'denom')).map(([key, value]) => [key, _.sumBy(value, 'amount')]).map(([key, value]) => `${numberFormat(value, value > 100000 ? '0,0.00a' : '0,0.00')} ${key}`).join(', ')})
+                    </span>
+                  )}
+                </>
                 :
                 <div className="skeleton w-12 h-4" />
               }
             </div>
+          </div>
+          <div className="text-gray-900 dark:text-white text-lg font-semibold mt-6">Participations</div>
+          <div className="grid grid-flow-row grid-cols-1 md:grid-cols-2 gap-2 md:gap-4 text-base sm:text-xs lg:text-base mt-2">
             <div className="flex items-center space-x-2">
-              <span className="font-medium">Keygen Participation:</span>
+              <span className="font-medium">Keygen:</span>
               {keygens ?
                 <span className="font-light">{numberFormat(keygens.length, '0,0')}</span>
                 :
@@ -181,7 +189,7 @@ export default function ValidatorDetail({ data, delegations, keygens, all_keygen
               }
             </div>
             <div className="flex items-center space-x-2">
-              <span className="max-w-max sm:max-w-min lg:max-w-max font-medium">Signing Participation:</span>
+              <span className="max-w-max sm:max-w-min lg:max-w-max font-medium">Signing:</span>
               {sign_events ?
                 <div className="flex space-x-1">
                   <span className="font-light">{numberFormat(sign_events.filter(event => event.participated).length, '0,0')}/{numberFormat(sign_events.length, '0,0')}</span>
@@ -192,7 +200,7 @@ export default function ValidatorDetail({ data, delegations, keygens, all_keygen
               }
             </div>
             {/*<div className="flex items-center space-x-2">
-              <span className="max-w-max sm:max-w-min lg:max-w-max font-medium">Keygen Participation:</span>
+              <span className="max-w-max sm:max-w-min lg:max-w-max font-medium">Keygen:</span>
               {keygens && all_keygens ?
                 <div className="flex space-x-1">
                   <span className="font-light">{numberFormat(keygens.length, '0,0')}/{numberFormat(all_keygens.length, '0,0')}</span>
@@ -211,8 +219,11 @@ export default function ValidatorDetail({ data, delegations, keygens, all_keygen
             <div className="skeleton w-48 md:w-28 lg:w-48 h-5" />
             <div className="skeleton w-48 md:w-28 lg:w-56 h-5" />
             <div className="skeleton w-48 md:w-28 lg:w-56 h-5" />
+            <div className="skeleton w-48 md:w-28 lg:w-56 h-5" />
+            <div className="skeleton w-48 md:w-28 lg:w-56 h-5" />
           </div>
-          <div className="grid grid-flow-row grid-cols-1 md:grid-cols-2 gap-2 md:gap-4 text-base mt-4">
+          <div className="text-gray-900 dark:text-white text-lg font-semibold mt-6">Participations</div>
+          <div className="grid grid-flow-row grid-cols-1 md:grid-cols-2 gap-2 md:gap-4 text-base mt-2">
             <div className="skeleton w-48 md:w-28 lg:w-48 h-5" />
             <div className="skeleton w-48 md:w-28 lg:w-48 h-5" />
             <div className="skeleton w-48 md:w-28 lg:w-56 h-5" />

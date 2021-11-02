@@ -161,6 +161,19 @@ export default function CoinInfo() {
         </span>
       </div>
       <div className="flex flex-col space-y-1 lg:space-y-0.5">
+        <span className="text-gray-700 dark:text-gray-500 font-semibold">Community Tax</span>
+        <span className="text-gray-900 dark:text-gray-300 font-light">
+          {chain_data ?
+            !isNaN(chain_data.distribution_params?.community_tax) ?
+              <>{numberFormat(Number(chain_data.distribution_params.community_tax) * 100, '0,0.00')}%</>
+              :
+              '-'
+            :
+            <div className="skeleton w-8 h-4" />
+          }
+        </span>
+      </div>
+      <div className="flex flex-col space-y-1 lg:space-y-0.5">
         <span className="text-gray-700 dark:text-gray-500 font-semibold">Community Pool</span>
         <span className="text-gray-900 dark:text-gray-300 font-light">
           {chain_data ?
@@ -177,19 +190,6 @@ export default function CoinInfo() {
               '-'
             :
             <div className="skeleton w-20 h-4" />
-          }
-        </span>
-      </div>
-      <div className="flex flex-col space-y-1 lg:space-y-0.5">
-        <span className="text-gray-700 dark:text-gray-500 font-semibold">Community Tax</span>
-        <span className="text-gray-900 dark:text-gray-300 font-light">
-          {chain_data ?
-            !isNaN(chain_data.distribution_params?.community_tax) ?
-              <>{numberFormat(Number(chain_data.distribution_params.community_tax) * 100, '0,0.00')}%</>
-              :
-              '-'
-            :
-            <div className="skeleton w-8 h-4" />
           }
         </span>
       </div>
