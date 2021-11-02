@@ -6,7 +6,7 @@ import { numberFormat } from '../../lib/utils'
 
 import { SLASHING_DATA } from '../../reducers/types'
 
-export default function CoinInfo() {
+export default function SlashingInfo() {
   const dispatch = useDispatch()
   const { data } = useSelector(state => ({ data: state.data }), shallowEqual)
   const { slashing_data } = { ...data }
