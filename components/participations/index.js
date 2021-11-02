@@ -401,7 +401,7 @@ export default function Participations() {
   }, [validators_data])
 
   return (
-    <div className={`max-w-${['keygen_failed', 'sign_success', 'sign_failed'].includes(table) ? '7xl' : 'full'} my-4 xl:my-6 mx-auto`}>
+    <div className={`max-w-${[/*'keygen_failed', 'sign_success', 'sign_failed'*/].includes(table) ? '7xl' : 'full'} my-4 xl:my-6 mx-auto`}>
       <Summary
         data={summaryData && summaryData.data}
         keygens={keygens && keygens.data}
