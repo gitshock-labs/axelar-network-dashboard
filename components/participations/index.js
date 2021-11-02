@@ -28,225 +28,256 @@ export default function Participations() {
   const [table, setTable] = useState('keygen_success')
 
   useEffect(() => {
-    const getValidators = async () => {
-      const response = await allValidators({}, validators_data, 'active')
+    const controller = new AbortController()
 
-      if (response) {
-        dispatch({
-          type: VALIDATORS_DATA,
-          value: response.data
-        })
+    const getValidators = async () => {
+      if (!controller.signal.aborted) {
+        const response = await allValidators({}, validators_data, 'active')
+
+        if (response) {
+          dispatch({
+            type: VALIDATORS_DATA,
+            value: response.data
+          })
+        }
       }
     }
 
     getValidators()
 
     const interval = setInterval(() => getValidators(), 10 * 60 * 1000)
-    return () => clearInterval(interval)
+    return () => {
+      controller?.abort()
+      clearInterval(interval)
+    }
   }, [])
 
   useEffect(() => {
-    const getData = async () => {
-      const response = await keygenSummary()
+    const controller = new AbortController()
 
-      setSummaryData({ data: response || {}})
+    const getData = async () => {
+      if (!controller.signal.aborted) {
+        const response = await keygenSummary()
+
+        setSummaryData({ data: response || {}})
+      }
     }
 
     getData()
 
     const interval = setInterval(() => getData(), 3 * 60 * 1000)
-    return () => clearInterval(interval)
+    return () => {
+      controller?.abort()
+      clearInterval(interval)
+    }
   }, [])
 
   useEffect(() => {
+    const controller = new AbortController()
+
     const getData = async () => {
-      // let response = await getKeygens()
+      let response, data
 
-      // if (response) {
-      //   dispatch({
-      //     type: KEYGENS_DATA,
-      //     value: response
+      // if (!controller.signal.aborted) {
+      //   response = await getKeygens()
+
+      //   if (response) {
+      //     dispatch({
+      //       type: KEYGENS_DATA,
+      //       value: response
+      //     })
+      //   }
+
+      //   let data = (response || []).map((key_id, i) => {
+      //     return {
+      //       key_id,
+      //       ...(keygens && keygens.data && keygens.data.findIndex(keygen => keygen.key_id === key_id) > -1 ?
+      //         keygens.data[keygens.data.findIndex(keygen => keygen.key_id === key_id)]
+      //         :
+      //         null
+      //       ),
+      //     }
       //   })
+
+      //   for (let i = 0; i < data.length; i++) {
+      //     let keygen = data[i]
+
+      //     if (keygen && keygen.key_id) {
+      //       keygen = await getKeygenById(keygen.key_id, { cache: true }) || keygen
+      //     }
+
+      //     data[i] = {
+      //       ...keygen,
+      //       key_chain: keygen.key_chain || (keygen && keygen.key_id && keygen.key_id.split('-').length > 1 && getName(keygen.key_id.split('-')[0])),
+      //       key_role: keygen.key_role || (keygen && keygen.key_id && keygen.key_id.split('-').length > 2 && `${keygen.key_id.split('-')[1].toUpperCase()}_KEY`),
+      //       validators: keygen.validators && keygen.validators.map(validator => {
+      //         return {
+      //           ...validator,
+      //           ...(validators_data && validators_data[validators_data.findIndex(validator_data => validator_data.operator_address === validator.address)]),
+      //         }
+      //       }),
+      //     }
+      //   }
+
+      //   data = _.orderBy(data, ['snapshot_block_number'], ['desc'])
+
+      //   setKeygens({ data })
       // }
 
-      // let data = (response || []).map((key_id, i) => {
-      //   return {
-      //     key_id,
-      //     ...(keygens && keygens.data && keygens.data.findIndex(keygen => keygen.key_id === key_id) > -1 ?
-      //       keygens.data[keygens.data.findIndex(keygen => keygen.key_id === key_id)]
-      //       :
-      //       null
-      //     ),
-      //   }
-      // })
+      if (!controller.signal.aborted) {
+        response = await getSuccessKeygens({ size: 100, sort: [{ height: 'desc' }] })
 
-      // for (let i = 0; i < data.length; i++) {
-      //   let keygen = data[i]
+        data = (response && response.data) || []
 
-      //   if (keygen && keygen.key_id) {
-      //     keygen = await getKeygenById(keygen.key_id, { cache: true }) || keygen
-      //   }
+        for (let i = 0; i < data.length; i++) {
+          let successKeygen = data[i]
 
-      //   data[i] = {
-      //     ...keygen,
-      //     key_chain: keygen.key_chain || (keygen && keygen.key_id && keygen.key_id.split('-').length > 1 && getName(keygen.key_id.split('-')[0])),
-      //     key_role: keygen.key_role || (keygen && keygen.key_id && keygen.key_id.split('-').length > 2 && `${keygen.key_id.split('-')[1].toUpperCase()}_KEY`),
-      //     validators: keygen.validators && keygen.validators.map(validator => {
-      //       return {
-      //         ...validator,
-      //         ...(validators_data && validators_data[validators_data.findIndex(validator_data => validator_data.operator_address === validator.address)]),
-      //       }
-      //     }),
-      //   }
-      // }
+          // if (successKeygen && successKeygen.key_id) {
+          //   const keygen = await getKeygenById(successKeygen.key_id, { cache: true })
 
-      // data = _.orderBy(data, ['snapshot_block_number'], ['desc'])
+          //   successKeygen = { ...keygen, ...successKeygen, validator_shares: keygen && keygen.validators }
+          // }
 
-      // setKeygens({ data })
-
-      let response = await getSuccessKeygens({ size: 100, sort: [{ height: 'desc' }] })
-
-      let data = (response && response.data) || []
-
-      for (let i = 0; i < data.length; i++) {
-        let successKeygen = data[i]
-
-        // if (successKeygen && successKeygen.key_id) {
-        //   const keygen = await getKeygenById(successKeygen.key_id, { cache: true })
-
-        //   successKeygen = { ...keygen, ...successKeygen, validator_shares: keygen && keygen.validators }
-        // }
-
-        data[i] = {
-          ...successKeygen,
-          key_chain: successKeygen.key_chain || (successKeygen && successKeygen.key_id && successKeygen.key_id.split('-').length > 1 && getName(successKeygen.key_id.split('-')[0])),
-          key_role: successKeygen.key_role || (successKeygen && successKeygen.key_id && successKeygen.key_id.split('-').length > 2 && `${successKeygen.key_id.split('-')[1].toUpperCase()}_KEY`),
-          validators: successKeygen.snapshot_validators && successKeygen.snapshot_validators.validators && successKeygen.snapshot_validators.validators.map((validator, j) => {
-            return {
-              ...validator,
-              address: validator.validator,
-              ...(validators_data && validators_data[validators_data.findIndex(validator_data => validator_data.operator_address === validator.validator)]),
-              share: validator.share_count,
-            }
-          }),
-          non_participant_validators: successKeygen.snapshot_non_participant_validators && successKeygen.snapshot_non_participant_validators.validators && successKeygen.snapshot_non_participant_validators.validators.map((validator, j) => {
-            return {
-              ...validator,
-              address: validator.validator,
-              ...(validators_data && validators_data[validators_data.findIndex(validator_data => validator_data.operator_address === validator.validator)]),
-              share: validator.share_count,
-            }
-          }),
+          data[i] = {
+            ...successKeygen,
+            key_chain: successKeygen.key_chain || (successKeygen && successKeygen.key_id && successKeygen.key_id.split('-').length > 1 && getName(successKeygen.key_id.split('-')[0])),
+            key_role: successKeygen.key_role || (successKeygen && successKeygen.key_id && successKeygen.key_id.split('-').length > 2 && `${successKeygen.key_id.split('-')[1].toUpperCase()}_KEY`),
+            validators: successKeygen.snapshot_validators && successKeygen.snapshot_validators.validators && successKeygen.snapshot_validators.validators.map((validator, j) => {
+              return {
+                ...validator,
+                address: validator.validator,
+                ...(validators_data && validators_data[validators_data.findIndex(validator_data => validator_data.operator_address === validator.validator)]),
+                share: validator.share_count,
+              }
+            }),
+            non_participant_validators: successKeygen.snapshot_non_participant_validators && successKeygen.snapshot_non_participant_validators.validators && successKeygen.snapshot_non_participant_validators.validators.map((validator, j) => {
+              return {
+                ...validator,
+                address: validator.validator,
+                ...(validators_data && validators_data[validators_data.findIndex(validator_data => validator_data.operator_address === validator.validator)]),
+                share: validator.share_count,
+              }
+            }),
+          }
         }
+
+        data = _.orderBy(data, ['height'], ['desc'])
+
+        setSuccessKeygens({ data, total: response && response.total })
       }
 
-      data = _.orderBy(data, ['height'], ['desc'])
+      if (!controller.signal.aborted) {
+        response = await getFailedKeygens({ size: 100, sort: [{ height: 'desc' }] })
 
-      setSuccessKeygens({ data, total: response && response.total })
+        data = (response && response.data) || []
 
-      response = await getFailedKeygens({ size: 100, sort: [{ height: 'desc' }] })
+        for (let i = 0; i < data.length; i++) {
+          const failedKeygen = data[i]
 
-      data = (response && response.data) || []
-
-      for (let i = 0; i < data.length; i++) {
-        const failedKeygen = data[i]
-
-        data[i] = {
-          ...failedKeygen,
-          key_chain: failedKeygen.key_chain || (failedKeygen && failedKeygen.key_id && failedKeygen.key_id.split('-').length > 1 && getName(failedKeygen.key_id.split('-')[0])),
-          key_role: failedKeygen.key_role || (failedKeygen && failedKeygen.key_id && failedKeygen.key_id.split('-').length > 2 && `${failedKeygen.key_id.split('-')[1].toUpperCase()}_KEY`),
-          validators: failedKeygen.snapshot_validators && failedKeygen.snapshot_validators.validators && failedKeygen.snapshot_validators.validators.map((validator, j) => {
-            return {
-              ...validator,
-              address: validator.validator,
-              ...(validators_data && validators_data[validators_data.findIndex(validator_data => validator_data.operator_address === validator.validator)]),
-              share: validator.share_count,
-            }
-          }),
-          non_participant_validators: failedKeygen.snapshot_non_participant_validators && failedKeygen.snapshot_non_participant_validators.validators && failedKeygen.snapshot_non_participant_validators.validators.map((validator, j) => {
-            return {
-              ...validator,
-              address: validator.validator,
-              ...(validators_data && validators_data[validators_data.findIndex(validator_data => validator_data.operator_address === validator.validator)]),
-              share: validator.share_count,
-            }
-          }),
+          data[i] = {
+            ...failedKeygen,
+            key_chain: failedKeygen.key_chain || (failedKeygen && failedKeygen.key_id && failedKeygen.key_id.split('-').length > 1 && getName(failedKeygen.key_id.split('-')[0])),
+            key_role: failedKeygen.key_role || (failedKeygen && failedKeygen.key_id && failedKeygen.key_id.split('-').length > 2 && `${failedKeygen.key_id.split('-')[1].toUpperCase()}_KEY`),
+            validators: failedKeygen.snapshot_validators && failedKeygen.snapshot_validators.validators && failedKeygen.snapshot_validators.validators.map((validator, j) => {
+              return {
+                ...validator,
+                address: validator.validator,
+                ...(validators_data && validators_data[validators_data.findIndex(validator_data => validator_data.operator_address === validator.validator)]),
+                share: validator.share_count,
+              }
+            }),
+            non_participant_validators: failedKeygen.snapshot_non_participant_validators && failedKeygen.snapshot_non_participant_validators.validators && failedKeygen.snapshot_non_participant_validators.validators.map((validator, j) => {
+              return {
+                ...validator,
+                address: validator.validator,
+                ...(validators_data && validators_data[validators_data.findIndex(validator_data => validator_data.operator_address === validator.validator)]),
+                share: validator.share_count,
+              }
+            }),
+          }
         }
+
+        data = _.orderBy(data, ['height'], ['desc'])
+
+        setFailedKeygens({ data, total: response && response.total })
       }
 
-      data = _.orderBy(data, ['height'], ['desc'])
+      if (!controller.signal.aborted) {
+        response = await getSignAttempts({ size: 100, query: { match: { result: true } }, sort: [{ height: 'desc' }] })
 
-      setFailedKeygens({ data, total: response && response.total })
+        data = (response && response.data) || []
 
-      response = await getSignAttempts({ size: 100, query: { match: { result: true } }, sort: [{ height: 'desc' }] })
+        for (let i = 0; i < data.length; i++) {
+          const signAttempt = data[i]
 
-      data = (response && response.data) || []
-
-      for (let i = 0; i < data.length; i++) {
-        const signAttempt = data[i]
-
-        data[i] = {
-          ...signAttempt,
-          key_chain: signAttempt.key_chain || (signAttempt && signAttempt.key_id && signAttempt.key_id.split('-').length > 1 && getName(signAttempt.key_id.split('-')[0])),
-          key_role: signAttempt.key_role || (signAttempt && signAttempt.key_id && signAttempt.key_id.split('-').length > 2 && `${signAttempt.key_id.split('-')[1].toUpperCase()}_KEY`),
-          validators: signAttempt.participants && signAttempt.participants.map((address, j) => {
-            return {
-              address,
-              ...(validators_data && validators_data[validators_data.findIndex(validator_data => validator_data.operator_address === address)]),
-              share: signAttempt.participant_shares && signAttempt.participant_shares[j],
-            }
-          }),
-          non_participant_validators: signAttempt.non_participants && signAttempt.non_participants.map((address, j) => {
-            return {
-              address,
-              ...(validators_data && validators_data[validators_data.findIndex(validator_data => validator_data.operator_address === address)]),
-              share: signAttempt.non_participant_shares && signAttempt.non_participant_shares[j],
-            }
-          }),
+          data[i] = {
+            ...signAttempt,
+            key_chain: signAttempt.key_chain || (signAttempt && signAttempt.key_id && signAttempt.key_id.split('-').length > 1 && getName(signAttempt.key_id.split('-')[0])),
+            key_role: signAttempt.key_role || (signAttempt && signAttempt.key_id && signAttempt.key_id.split('-').length > 2 && `${signAttempt.key_id.split('-')[1].toUpperCase()}_KEY`),
+            validators: signAttempt.participants && signAttempt.participants.map((address, j) => {
+              return {
+                address,
+                ...(validators_data && validators_data[validators_data.findIndex(validator_data => validator_data.operator_address === address)]),
+                share: signAttempt.participant_shares && signAttempt.participant_shares[j],
+              }
+            }),
+            non_participant_validators: signAttempt.non_participants && signAttempt.non_participants.map((address, j) => {
+              return {
+                address,
+                ...(validators_data && validators_data[validators_data.findIndex(validator_data => validator_data.operator_address === address)]),
+                share: signAttempt.non_participant_shares && signAttempt.non_participant_shares[j],
+              }
+            }),
+          }
         }
+
+        data = _.orderBy(data, ['height'], ['desc'])
+
+        setSignAttempts({ data, total: response && response.total })
       }
 
-      data = _.orderBy(data, ['height'], ['desc'])
+      if (!controller.signal.aborted) {
+        response = await getSignAttempts({ size: 100, query: { match: { result: false } }, sort: [{ height: 'desc' }] })
 
-      setSignAttempts({ data, total: response && response.total })
+        data = (response && response.data) || []
 
-      response = await getSignAttempts({ size: 100, query: { match: { result: false } }, sort: [{ height: 'desc' }] })
+        for (let i = 0; i < data.length; i++) {
+          const signAttempt = data[i]
 
-      data = (response && response.data) || []
-
-      for (let i = 0; i < data.length; i++) {
-        const signAttempt = data[i]
-
-        data[i] = {
-          ...signAttempt,
-          key_chain: signAttempt.key_chain || (signAttempt && signAttempt.key_id && signAttempt.key_id.split('-').length > 1 && getName(signAttempt.key_id.split('-')[0])),
-          key_role: signAttempt.key_role || (signAttempt && signAttempt.key_id && signAttempt.key_id.split('-').length > 2 && `${signAttempt.key_id.split('-')[1].toUpperCase()}_KEY`),
-          validators: signAttempt.participants && signAttempt.participants.map((address, j) => {
-            return {
-              address,
-              ...(validators_data && validators_data[validators_data.findIndex(validator_data => validator_data.operator_address === address)]),
-              share: signAttempt.participant_shares && signAttempt.participant_shares[j],
-            }
-          }),
-          non_participant_validators: signAttempt.non_participants && signAttempt.non_participants.map((address, j) => {
-            return {
-              address,
-              ...(validators_data && validators_data[validators_data.findIndex(validator_data => validator_data.operator_address === address)]),
-              share: signAttempt.non_participant_shares && signAttempt.non_participant_shares[j],
-            }
-          }),
+          data[i] = {
+            ...signAttempt,
+            key_chain: signAttempt.key_chain || (signAttempt && signAttempt.key_id && signAttempt.key_id.split('-').length > 1 && getName(signAttempt.key_id.split('-')[0])),
+            key_role: signAttempt.key_role || (signAttempt && signAttempt.key_id && signAttempt.key_id.split('-').length > 2 && `${signAttempt.key_id.split('-')[1].toUpperCase()}_KEY`),
+            validators: signAttempt.participants && signAttempt.participants.map((address, j) => {
+              return {
+                address,
+                ...(validators_data && validators_data[validators_data.findIndex(validator_data => validator_data.operator_address === address)]),
+                share: signAttempt.participant_shares && signAttempt.participant_shares[j],
+              }
+            }),
+            non_participant_validators: signAttempt.non_participants && signAttempt.non_participants.map((address, j) => {
+              return {
+                address,
+                ...(validators_data && validators_data[validators_data.findIndex(validator_data => validator_data.operator_address === address)]),
+                share: signAttempt.non_participant_shares && signAttempt.non_participant_shares[j],
+              }
+            }),
+          }
         }
+
+        data = _.orderBy(data, ['height'], ['desc'])
+
+        setFailedSignAttempts({ data, total: response && response.total })
       }
-
-      data = _.orderBy(data, ['height'], ['desc'])
-
-      setFailedSignAttempts({ data, total: response && response.total })
     }
 
     getData()
 
     const interval = setInterval(() => getData(), 5 * 60 * 1000)
-    return () => clearInterval(interval)
+    return () => {
+      controller?.abort()
+      clearInterval(interval)
+    }
   }, [validators_data])
 
   useEffect(() => {

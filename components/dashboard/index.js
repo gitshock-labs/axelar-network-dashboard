@@ -34,47 +34,58 @@ export default function Dashboard() {
   const [loadValsProfile, setLoadValsProfile] = useState(false)
 
   useEffect(() => {
-    const getData = async () => {
-      const response = await getStatus()
+    const controller = new AbortController()
 
-      if (response) {
-        dispatch({
-          type: STATUS_DATA,
-          value: response
-        })
+    const getData = async () => {
+      if (!controller.signal.aborted) {
+        const response = await getStatus()
+
+        if (response) {
+          dispatch({
+            type: STATUS_DATA,
+            value: response
+          })
+        }
       }
     }
 
     getData()
 
     const interval = setInterval(() => getData(), 5 * 1000)
-    return () => clearInterval(interval)
+    return () => {
+      controller?.abort()
+      clearInterval(interval)
+    }
   }, [])
 
   useEffect(() => {
+    const controller = new AbortController()
+
     const getData = async isInterval => {
       let response
 
-      if (isInterval || !avgTransfersTimeRange) {
-        response = await transfers({
-          aggs: {
-            transfers: {
-              terms: { field: 'contract.name.keyword', size: 10000 },
-              aggs: {
-                amounts: {
-                  sum: {
-                    field: 'amount',
+      if (!controller.signal.aborted) {
+        if (isInterval || !avgTransfersTimeRange) {
+          response = await transfers({
+            aggs: {
+              transfers: {
+                terms: { field: 'contract.name.keyword', size: 10000 },
+                aggs: {
+                  amounts: {
+                    sum: {
+                      field: 'amount',
+                    },
                   },
-                },
-                since: {
-                  min: {
-                    field: 'created_at.ms',
+                  since: {
+                    min: {
+                      field: 'created_at.ms',
+                    },
                   },
                 },
               },
             },
-          },
-        })
+          })
+        }
       }
 
       const total_transfers = !(isInterval || !avgTransfersTimeRange) ? crosschainSummaryData?.total_transfers : _.orderBy(response?.data?.map(transfer => {
@@ -87,21 +98,23 @@ export default function Dashboard() {
         }
       }), ['tx'], ['desc'])
 
-      response = await transfers({
-        aggs: {
-          transfers: {
-            terms: { field: 'contract.name.keyword', size: 10000 },
-            aggs: {
-              amounts: {
-                avg: {
-                  field: 'amount',
+      if (!controller.signal.aborted) {
+        response = await transfers({
+          aggs: {
+            transfers: {
+              terms: { field: 'contract.name.keyword', size: 10000 },
+              aggs: {
+                amounts: {
+                  avg: {
+                    field: 'amount',
+                  },
                 },
               },
             },
           },
-        },
-        query: avgTransfersTimeRange?.split('').findIndex(c => !isNaN(c)) > -1 ? { range: { 'created_at.ms': { gt: moment().subtract(avgTransfersTimeRange.substring(0, avgTransfersTimeRange.split('').findIndex(c => isNaN(c))), [avgTransfersTimeRange.split('').find(c => isNaN(c))].map(timeRange => timeRange === 'y' ? 'year' : timeRange === 'm' ? 'month' : timeRange === 'h' ? 'hour' : 'day')).valueOf() } } } : undefined,
-      })
+          query: avgTransfersTimeRange?.split('').findIndex(c => !isNaN(c)) > -1 ? { range: { 'created_at.ms': { gt: moment().subtract(avgTransfersTimeRange.substring(0, avgTransfersTimeRange.split('').findIndex(c => isNaN(c))), [avgTransfersTimeRange.split('').find(c => isNaN(c))].map(timeRange => timeRange === 'y' ? 'year' : timeRange === 'm' ? 'month' : timeRange === 'h' ? 'hour' : 'day')).valueOf() } } } : undefined,
+        })
+      }
 
       const avg_transfers = _.orderBy(response?.data?.map(transfer => {
         return {
@@ -113,22 +126,24 @@ export default function Dashboard() {
         }
       }), ['tx'], ['desc'])
 
-      if (isInterval || !avgTransfersTimeRange) {
-        response = await transfers({
-          aggs: {
-            transfers: {
-              terms: { field: 'contract.name.keyword', size: 10000 },
-              aggs: {
-                amounts: {
-                  max: {
-                    field: 'amount',
+      if (!controller.signal.aborted) {
+        if (isInterval || !avgTransfersTimeRange) {
+          response = await transfers({
+            aggs: {
+              transfers: {
+                terms: { field: 'contract.name.keyword', size: 10000 },
+                aggs: {
+                  amounts: {
+                    max: {
+                      field: 'amount',
+                    },
                   },
                 },
               },
             },
-          },
-          query: { range: { 'created_at.ms': { gt: moment().subtract(24, 'hour').valueOf() } } },
-        })
+            query: { range: { 'created_at.ms': { gt: moment().subtract(24, 'hour').valueOf() } } },
+          })
+        }
       }
 
       const highest_transfer_24h = !(isInterval || !avgTransfersTimeRange) ? crosschainSummaryData?.highest_transfer_24h : _.orderBy(response?.data?.map(transfer => {
@@ -155,10 +170,15 @@ export default function Dashboard() {
     getData()
 
     const interval = setInterval(() => getData(true), 30 * 1000)
-    return () => clearInterval(interval)
+    return () => {
+      controller?.abort()
+      clearInterval(interval)
+    }
   }, [avgTransfersTimeRange])
 
   useEffect(() => {
+    const controller = new AbortController()
+
     const getData = async () => {
       if (contractSelect) {
         const today = moment().utc().startOf('day')
@@ -167,25 +187,27 @@ export default function Dashboard() {
 
         let response
 
-        response = await transfers({
-          aggs: {
-            transfers: {
-              terms: { field: 'contract.name.keyword', size: 10000 },
-              aggs: {
-                times: {
-                  terms: { field: 'created_at.day', size: 10000 },
-                  aggs: {
-                    amounts: {
-                      sum: {
-                        field: 'amount',
+        if (!controller.signal.aborted) {
+          response = await transfers({
+            aggs: {
+              transfers: {
+                terms: { field: 'contract.name.keyword', size: 10000 },
+                aggs: {
+                  times: {
+                    terms: { field: 'created_at.day', size: 10000 },
+                    aggs: {
+                      amounts: {
+                        sum: {
+                          field: 'amount',
+                        },
                       },
                     },
                   },
                 },
               },
             },
-          },
-        })
+          })
+        }
 
         const total_transfers = _.orderBy(response?.data?.map(transfer => {
           const times = []
@@ -208,25 +230,27 @@ export default function Dashboard() {
           }
         }), ['tx'], ['desc'])
 
-        response = await transfers({
-          aggs: {
-            transfers: {
-              terms: { field: 'contract.name.keyword', size: 10000 },
-              aggs: {
-                times: {
-                  terms: { field: 'created_at.day', size: 10000 },
-                  aggs: {
-                    amounts: {
-                      max: {
-                        field: 'amount',
+        if (!controller.signal.aborted) {
+          response = await transfers({
+            aggs: {
+              transfers: {
+                terms: { field: 'contract.name.keyword', size: 10000 },
+                aggs: {
+                  times: {
+                    terms: { field: 'created_at.day', size: 10000 },
+                    aggs: {
+                      amounts: {
+                        max: {
+                          field: 'amount',
+                        },
                       },
                     },
                   },
                 },
               },
             },
-          },
-        })
+          })
+        }
 
         const highest_transfer_24h = _.orderBy(response?.data?.map(transfer => {
           const times = []
@@ -259,10 +283,15 @@ export default function Dashboard() {
     getData()
 
     const interval = setInterval(() => getData(), 30 * 1000)
-    return () => clearInterval(interval)
+    return () => {
+      controller?.abort()
+      clearInterval(interval)
+    }
   }, [contractSelect])
 
   useEffect(() => {
+    const controller = new AbortController()
+
     const getData = async isInterval => {
       if (validators_data && (!loadValsProfile || isInterval)) {
         let tvls
@@ -272,40 +301,42 @@ export default function Dashboard() {
         const total_active_validators = _validators_data.length
 
         for (let i = 0; i < _validators_data.length; i++) {
-          const validator_data = _validators_data[i]
-          const address = validator_data?.operator_address
+          if (!controller.signal.aborted) {
+            const validator_data = _validators_data[i]
+            const address = validator_data?.operator_address
 
-          const response = await allDelegations(address)
+            const response = await allDelegations(address)
 
-          tvls = _.concat(tvls || [], Object.values(_.groupBy(response?.data?.map(delegation => {
-            return {
-              delegator_address: delegation?.delegation?.delegator_address,
-              symbol: denomSymbol(delegation?.balance?.denom),
-              image: denomImage(delegation?.balance?.denom),
-              denom: denomName(delegation?.balance?.denom),
-              amount: denomAmount(delegation?.balance?.amount, delegation?.balance?.denom),
+            tvls = _.concat(tvls || [], Object.values(_.groupBy(response?.data?.map(delegation => {
+              return {
+                delegator_address: delegation?.delegation?.delegator_address,
+                symbol: denomSymbol(delegation?.balance?.denom),
+                image: denomImage(delegation?.balance?.denom),
+                denom: denomName(delegation?.balance?.denom),
+                amount: denomAmount(delegation?.balance?.amount, delegation?.balance?.denom),
+              }
+            }) || [], 'denom')).map(value => {
+              return {
+                ...value?.[0],
+                delegator_addresses: _.uniqBy(value, 'delegator_address'),
+                amount: _.sumBy(value, 'amount'),
+              }
+            }))
+
+            if (!isInterval && (i % 3 === 0 || i === _validators_data.length - 1)) {
+              setCrosschainTVLData({
+                tvls: _.orderBy(Object.values(_.groupBy(tvls, 'denom')).map(value => {
+                  return {
+                    ...value?.[0],
+                    amount: _.sumBy(value, 'amount'),
+                    num_delegators: _.uniq(value?.flatMap(delegate => delegate.delegator_addresses) || []).length,
+                  }
+                }), ['num_delegators'], ['desc']),
+                tvls_updated_at,
+                total_loaded_validators: tvls.length,
+                total_active_validators,
+              })
             }
-          }) || [], 'denom')).map(value => {
-            return {
-              ...value?.[0],
-              delegator_addresses: _.uniqBy(value, 'delegator_address'),
-              amount: _.sumBy(value, 'amount'),
-            }
-          }))
-
-          if (!isInterval && (i % 3 === 0 || i === _validators_data.length - 1)) {
-            setCrosschainTVLData({
-              tvls: _.orderBy(Object.values(_.groupBy(tvls, 'denom')).map(value => {
-                return {
-                  ...value?.[0],
-                  amount: _.sumBy(value, 'amount'),
-                  num_delegators: _.uniq(value?.flatMap(delegate => delegate.delegator_addresses) || []).length,
-                }
-              }), ['num_delegators'], ['desc']),
-              tvls_updated_at,
-              total_loaded_validators: tvls.length,
-              total_active_validators,
-            })
           }
         }
 
@@ -328,75 +359,102 @@ export default function Dashboard() {
     getData()
 
     const interval = setInterval(() => getData(true), 60 * 1000)
-    return () => clearInterval(interval)
+    return () => {
+      controller?.abort()
+      clearInterval(interval)
+    }
   }, [validators_data, loadValsProfile])
 
   useEffect(() => {
-    const getConsensusState = async () => {
-      const response = await consensusState()
+    const controller = new AbortController()
 
-      if (response) {
-        setConsensusStateData(response)
+    const getConsensusState = async () => {
+      if (!controller.signal.aborted) {
+        const response = await consensusState()
+
+        if (response) {
+          setConsensusStateData(response)
+        }
       }
     }
 
     getConsensusState()
 
     const interval = setInterval(() => getConsensusState(), 5 * 1000)
-    return () => clearInterval(interval)
+    return () => {
+      controller?.abort()
+      clearInterval(interval)
+    }
   }, [])
 
   useEffect(() => {
+    const controller = new AbortController()
+
     const getValidators = async () => {
-      const response = await allValidators({}, validators_data)
+      if (!controller.signal.aborted) {
+        const response = await allValidators({}, validators_data)
 
-      if (response) {
-        dispatch({
-          type: VALIDATORS_DATA,
-          value: response.data
-        })
+        if (response) {
+          dispatch({
+            type: VALIDATORS_DATA,
+            value: response.data
+          })
 
-        setLoadValsProfile(true)
+          setLoadValsProfile(true)
+        }
       }
     }
 
     getValidators()
 
     const interval = setInterval(() => getValidators(), 10 * 60 * 1000)
-    return () => clearInterval(interval)
+    return () => {
+      controller?.abort()
+      clearInterval(interval)
+    }
   }, [])
 
   useEffect(() => {
+    const controller = new AbortController()
+
     const getValidatorsProfile = async () => {
       if (loadValsProfile && validators_data?.findIndex(validator_data => validator_data?.description && !validator_data.description.image) > -1) {
         const data = _.cloneDeep(validators_data)
 
         for (let i = 0; i < data.length; i++) {
-          const validator_data = data[i]
+          if (!controller.signal.aborted) {
+            const validator_data = data[i]
 
-          if (validator_data?.description) {
-            if (validator_data.description.identity && !validator_data.description.image) {
-              const responseProfile = await validatorProfile({ key_suffix: validator_data.description.identity })
+            if (validator_data?.description) {
+              if (validator_data.description.identity && !validator_data.description.image) {
+                const responseProfile = await validatorProfile({ key_suffix: validator_data.description.identity })
 
-              if (responseProfile?.them?.[0]?.pictures?.primary?.url) {
-                validator_data.description.image = responseProfile.them[0].pictures.primary.url
+                if (responseProfile?.them?.[0]?.pictures?.primary?.url) {
+                  validator_data.description.image = responseProfile.them[0].pictures.primary.url
+                }
               }
+
+              validator_data.description.image = validator_data.description.image || randImage(i)
+
+              data[i] = validator_data
             }
-
-            validator_data.description.image = validator_data.description.image || randImage(i)
-
-            data[i] = validator_data
           }
         }
 
-        dispatch({
-          type: VALIDATORS_DATA,
-          value: data
-        })
+        if (!controller.signal.aborted) {
+          dispatch({
+            type: VALIDATORS_DATA,
+            value: data
+          })
+        }
       }
     }
 
     getValidatorsProfile()
+
+    return () => {
+      controller?.abort()
+    }
   }, [loadValsProfile])
 
   useEffect(() => {

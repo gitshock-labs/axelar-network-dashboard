@@ -16,50 +16,56 @@ export default function Bridge() {
   const [timer, setTimer] = useState(null)
 
   useEffect(() => {
+    const controller = new AbortController()
+
     const getData = async () => {
-      const response = await getBridgeAccounts()
+      if (!controller.signal.aborted) {
+        const response = await getBridgeAccounts()
 
-      let data = (response || []).map((bridgeAccount, i) => {
-        return {
-          ...bridgeAccount,
-          image: bridgeAccount.image || randImage(i),
-          exec_cmds: bridgeAccount.cmds && bridgeAccount.cmds.filter(cmd => cmd).map((cmd, j) => {
-            return {
-              cmd,
-              result: bridgeAccounts && bridgeAccounts.data && bridgeAccounts.data.findIndex(_bridgeAccount => _bridgeAccount.id === bridgeAccount.id) > -1 ?
-                bridgeAccounts.data[bridgeAccounts.data.findIndex(_bridgeAccount => _bridgeAccount.id === bridgeAccount.id)].exec_cmds[j].result
-                :
-                null,
+        let data = (response || []).map((bridgeAccount, i) => {
+          return {
+            ...bridgeAccount,
+            image: bridgeAccount.image || randImage(i),
+            exec_cmds: bridgeAccount.cmds && bridgeAccount.cmds.filter(cmd => cmd).map((cmd, j) => {
+              return {
+                cmd,
+                result: bridgeAccounts && bridgeAccounts.data && bridgeAccounts.data.findIndex(_bridgeAccount => _bridgeAccount.id === bridgeAccount.id) > -1 ?
+                  bridgeAccounts.data[bridgeAccounts.data.findIndex(_bridgeAccount => _bridgeAccount.id === bridgeAccount.id)].exec_cmds[j].result
+                  :
+                  null,
+              }
+            }),
+          }
+        })
+
+        setBridgeAccounts({ data })
+
+        for (let i = 0; i < data.length; i++) {
+          if (!controller.signal.aborted) {
+            const bridgeAccount = data[i]
+
+            if (bridgeAccount && bridgeAccount.exec_cmds) {
+              for (let j = 0; j < bridgeAccount.exec_cmds.length; j++) {
+                const exec_cmd = bridgeAccount.exec_cmds[j]
+
+                const execResponse = await axelard({ cmd: exec_cmd.cmd, cache: true })
+
+                if (execResponse && execResponse.data && execResponse.data.stdout) {
+                  exec_cmd.result = execResponse.data.stdout
+                }
+                else if (execResponse && execResponse.data && execResponse.data.stderr) {
+                  exec_cmd.result = execResponse.data.stderr
+                }
+                else {
+                  exec_cmd.result = ''
+                }
+
+                bridgeAccount.exec_cmds[j] = exec_cmd
+                data[i] = bridgeAccount
+
+                setBridgeAccounts({ data })
+              }
             }
-          }),
-        }
-      })
-
-      setBridgeAccounts({ data })
-
-      for (let i = 0; i < data.length; i++) {
-        const bridgeAccount = data[i]
-
-        if (bridgeAccount && bridgeAccount.exec_cmds) {
-          for (let j = 0; j < bridgeAccount.exec_cmds.length; j++) {
-            const exec_cmd = bridgeAccount.exec_cmds[j]
-
-            const execResponse = await axelard({ cmd: exec_cmd.cmd, cache: true })
-
-            if (execResponse && execResponse.data && execResponse.data.stdout) {
-              exec_cmd.result = execResponse.data.stdout
-            }
-            else if (execResponse && execResponse.data && execResponse.data.stderr) {
-              exec_cmd.result = execResponse.data.stderr
-            }
-            else {
-              exec_cmd.result = ''
-            }
-
-            bridgeAccount.exec_cmds[j] = exec_cmd
-            data[i] = bridgeAccount
-
-            setBridgeAccounts({ data })
           }
         }
       }
@@ -68,7 +74,10 @@ export default function Bridge() {
     getData()
 
     const interval = setInterval(() => getBridgeAccounts(), 5 * 60 * 1000)
-    return () => clearInterval(interval)
+    return () => {
+      controller?.abort()
+      clearInterval(interval)
+    }
   }, [])
 
   useEffect(() => {

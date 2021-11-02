@@ -22,64 +22,85 @@ export default function Block({ height }) {
   const [loadValsProfile, setLoadValsProfile] = useState(false)
 
   useEffect(() => {
+    const controller = new AbortController()
+
     const getValidators = async () => {
-      const response = await allValidators({}, validators_data)
+      if (!controller.signal.aborted) {
+        const response = await allValidators({}, validators_data)
 
-      if (response) {
-        dispatch({
-          type: VALIDATORS_DATA,
-          value: response.data
-        })
+        if (response) {
+          dispatch({
+            type: VALIDATORS_DATA,
+            value: response.data
+          })
 
-        setLoadValsProfile(true)
+          setLoadValsProfile(true)
+        }
       }
     }
 
     getValidators()
 
     const interval = setInterval(() => getValidators(), 10 * 60 * 1000)
-    return () => clearInterval(interval)
+    return () => {
+      controller?.abort()
+      clearInterval(interval)
+    }
   }, [])
 
   useEffect(() => {
+    const controller = new AbortController()
+
     const getValidatorsProfile = async () => {
       if (loadValsProfile && validators_data?.findIndex(validator_data => validator_data?.description && !validator_data.description.image) > -1) {
         const data = _.cloneDeep(validators_data)
 
         for (let i = 0; i < data.length; i++) {
-          const validator_data = data[i]
+          if (!controller.signal.aborted) {
+            const validator_data = data[i]
 
-          if (validator_data?.description) {
-            if (validator_data.description.identity && !validator_data.description.image) {
-              const responseProfile = await validatorProfile({ key_suffix: validator_data.description.identity })
+            if (validator_data?.description) {
+              if (validator_data.description.identity && !validator_data.description.image) {
+                const responseProfile = await validatorProfile({ key_suffix: validator_data.description.identity })
 
-              if (responseProfile?.them?.[0]?.pictures?.primary?.url) {
-                validator_data.description.image = responseProfile.them[0].pictures.primary.url
+                if (responseProfile?.them?.[0]?.pictures?.primary?.url) {
+                  validator_data.description.image = responseProfile.them[0].pictures.primary.url
+                }
               }
+
+              validator_data.description.image = validator_data.description.image || randImage(i)
+
+              data[i] = validator_data
             }
-
-            validator_data.description.image = validator_data.description.image || randImage(i)
-
-            data[i] = validator_data
           }
         }
 
-        dispatch({
-          type: VALIDATORS_DATA,
-          value: data
-        })
+        if (!controller.signal.aborted) {
+          dispatch({
+            type: VALIDATORS_DATA,
+            value: data
+          })
+        }
       }
     }
 
     getValidatorsProfile()
+
+    return () => {
+      controller?.abort()
+    }
   }, [loadValsProfile])
 
   useEffect(() => {
-    const getData = async () => {
-      const response = await getBlock(height)
+    const controller = new AbortController()
 
-      if (response) {
-        setBlock({ data: response.data || {}, height })
+    const getData = async () => {
+      if (!controller.signal.aborted) {
+        const response = await getBlock(height)
+
+        if (response) {
+          setBlock({ data: response.data || {}, height })
+        }
       }
     }
 
@@ -88,10 +109,15 @@ export default function Block({ height }) {
     }
 
     const interval = setInterval(() => getData(), 1 * 60 * 1000)
-    return () => clearInterval(interval)
+    return () => {
+      controller?.abort()
+      clearInterval(interval)
+    }
   }, [height])
 
   useEffect(() => {
+    const controller = new AbortController()
+
     const getData = async () => {
       // const response = await getTransactions({ query: { match: { height } }, size: 100, sort: [{ timestamp: 'desc' }] })
       let response
@@ -101,11 +127,16 @@ export default function Block({ height }) {
       let pageKey = true
 
       while (pageKey) {
-        response = await getTransactions({ events: `tx.height=${height}`, 'pagination.key': pageKey && typeof pageKey === 'string' ? pageKey : undefined })
+        if (!controller.signal.aborted) {
+          response = await getTransactions({ events: `tx.height=${height}`, 'pagination.key': pageKey && typeof pageKey === 'string' ? pageKey : undefined })
 
-        data = _.orderBy(_.uniqBy(_.concat(data, (response && response.data) || []), 'txhash'), ['timestamp'], ['desc'])
+          data = _.orderBy(_.uniqBy(_.concat(data, (response && response.data) || []), 'txhash'), ['timestamp'], ['desc'])
 
-        pageKey = response && response.pagination && response.pagination.next_key
+          pageKey = response && response.pagination && response.pagination.next_key
+        }
+        else {
+          pageKey = null
+        }
       }
 
       setTransactions({ data, total: response && response.total, height })
@@ -116,7 +147,10 @@ export default function Block({ height }) {
     }
 
     const interval = setInterval(() => getData(), 3 * 60 * 1000)
-    return () => clearInterval(interval)
+    return () => {
+      controller?.abort()
+      clearInterval(interval)
+    }
   }, [height])
 
   const validator_data = block && block.height === height && block.data && block.data.proposer_address && validators_data && _.head(validators_data.filter(validator_data => validator_data && validator_data.consensus_address === block.data.proposer_address))

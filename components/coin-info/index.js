@@ -17,45 +17,59 @@ export default function CoinInfo() {
   const { chain_data } = { ...data }
 
   useEffect(() => {
+    const controller = new AbortController()
+
     const getData = async () => {
       let chainData
 
-      let response = await stakingParams()
+      if (!controller.signal.aborted) {
+        let response = await stakingParams()
 
-      if (response && response.params) {
-        chainData = { ...chainData, staking_params: response.params }
-      }
-
-      response = await stakingPool()
-
-      if (response && response.pool) {
-        chainData = { ...chainData, staking_pool: Object.fromEntries(Object.entries(response.pool).map(([key, value]) => [key, isNaN(value) ? value : Number(value) / Number(process.env.NEXT_PUBLIC_POWER_REDUCTION)])) }
-      }
-
-      if (chainData && chainData.staking_params && chainData.staking_params.bond_denom) {
-        response = await bankSupply(chainData.staking_params.bond_denom)
-
-        if (response && response.amount) {
-          chainData = { ...chainData, bank_supply: Object.fromEntries(Object.entries(response.amount).map(([key, value]) => [key, key === 'denom' ? denomName(value) : denomAmount(value, response.amount.denom)])) }
+        if (response && response.params) {
+          chainData = { ...chainData, staking_params: response.params }
         }
       }
 
-      response = await communityPool()
+      if (!controller.signal.aborted) {
+        response = await stakingPool()
 
-      if (response && response.pool) {
-        chainData = { ...chainData, community_pool: response.pool.map(pool => Object.fromEntries(Object.entries(pool).map(([key, value]) => [key, key === 'denom' ? denomName(value) : denomAmount(value, pool.denom)]))) }
+        if (response && response.pool) {
+          chainData = { ...chainData, staking_pool: Object.fromEntries(Object.entries(response.pool).map(([key, value]) => [key, isNaN(value) ? value : Number(value) / Number(process.env.NEXT_PUBLIC_POWER_REDUCTION)])) }
+        }
       }
 
-      response = await mintInflation()
+      if (!controller.signal.aborted) {
+        if (chainData && chainData.staking_params && chainData.staking_params.bond_denom) {
+          response = await bankSupply(chainData.staking_params.bond_denom)
 
-      if (response && response.inflation) {
-        chainData = { ...chainData, inflation: Number(response.inflation) }
+          if (response && response.amount) {
+            chainData = { ...chainData, bank_supply: Object.fromEntries(Object.entries(response.amount).map(([key, value]) => [key, key === 'denom' ? denomName(value) : denomAmount(value, response.amount.denom)])) }
+          }
+        }
       }
 
-      response = await simplePrice({ ids: process.env.NEXT_PUBLIC_COINGECKO_ID, vs_currencies: CURRENCY, include_market_cap: true, include_24hr_vol: true, include_24hr_change: true, include_last_updated_at: true })
+      if (!controller.signal.aborted) {
+        response = await communityPool()
 
-      if (response && response[process.env.NEXT_PUBLIC_COINGECKO_ID]) {
-        chainData = { ...chainData, coin: response[process.env.NEXT_PUBLIC_COINGECKO_ID] }
+        if (response && response.pool) {
+          chainData = { ...chainData, community_pool: response.pool.map(pool => Object.fromEntries(Object.entries(pool).map(([key, value]) => [key, key === 'denom' ? denomName(value) : denomAmount(value, pool.denom)]))) }
+        }
+      }
+
+      if (!controller.signal.aborted) {
+        response = await mintInflation()
+
+        if (response && response.inflation) {
+          chainData = { ...chainData, inflation: Number(response.inflation) }
+        }
+      }
+
+      if (!controller.signal.aborted) {
+        response = await simplePrice({ ids: process.env.NEXT_PUBLIC_COINGECKO_ID, vs_currencies: CURRENCY, include_market_cap: true, include_24hr_vol: true, include_24hr_change: true, include_last_updated_at: true })
+
+        if (response && response[process.env.NEXT_PUBLIC_COINGECKO_ID]) {
+          chainData = { ...chainData, coin: response[process.env.NEXT_PUBLIC_COINGECKO_ID] }
+        }
       }
 
       if (chainData) {
@@ -69,7 +83,10 @@ export default function CoinInfo() {
     getData()
 
     const interval = setInterval(() => getData(), 3 * 60 * 1000)
-    return () => clearInterval(interval)
+    return () => {
+      controller?.abort()
+      clearInterval(interval)
+    }
   }, [])
 
   return (

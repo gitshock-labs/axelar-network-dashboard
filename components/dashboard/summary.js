@@ -552,8 +552,8 @@ const Summary = ({ data, crosschainData, avgTransfersTimeRange, setAvgTransfersT
       <div className="w-full grid grid-flow-row grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-2 mb-4">
         <Widget
           title="Transactions"
-          right={[contractSelect && chartData?.total_transfers?.find(transfer => transfer?.contract_name === contractSelect)?.times?.find(_time => _time.time === timeFocus)].filter(_time => _time).map(_time => (
-            <div className="min-w-max text-right">
+          right={[contractSelect && chartData?.total_transfers?.find(transfer => transfer?.contract_name === contractSelect)?.times?.find(_time => _time.time === timeFocus)].filter(_time => _time).map((_time, i) => (
+            <div key={i} className="min-w-max text-right">
               <div className="flex items-center justify-end space-x-1.5">
                 <span className="font-mono text-base font-semibold">
                   {typeof _time.tx === 'number' ? numberFormat(_time.tx, '0,0') : '- '}
@@ -572,8 +572,8 @@ const Summary = ({ data, crosschainData, avgTransfersTimeRange, setAvgTransfersT
         </Widget>
         <Widget
           title="Volume"
-          right={[contractSelect && chartData?.total_transfers?.find(transfer => transfer?.contract_name === contractSelect)?.times?.find(_time => _time.time === timeFocus)].filter(_time => _time).map(_time => (
-            <div className="min-w-max text-right">
+          right={[contractSelect && chartData?.total_transfers?.find(transfer => transfer?.contract_name === contractSelect)?.times?.find(_time => _time.time === timeFocus)].filter(_time => _time).map((_time, i) => (
+            <div key={i} className="min-w-max text-right">
               <div className="flex items-center justify-end space-x-1.5">
                 <span className="font-mono text-base font-semibold">
                   {typeof _time.amount === 'number' ? numberFormat(_time.amount, '0,0.000') : '- '}
@@ -592,8 +592,8 @@ const Summary = ({ data, crosschainData, avgTransfersTimeRange, setAvgTransfersT
         </Widget>
         <Widget
           title="Highest Transfer"
-          right={[contractSelect && chartData?.highest_transfer_24h?.find(transfer => transfer?.contract_name === contractSelect)?.times?.find(_time => _time.time === timeFocus)].filter(_time => _time).map(_time => (
-            <div className="min-w-max text-right">
+          right={[contractSelect && chartData?.highest_transfer_24h?.find(transfer => transfer?.contract_name === contractSelect)?.times?.find(_time => _time.time === timeFocus)].filter(_time => _time).map((_time, i) => (
+            <div key={i} className="min-w-max text-right">
               <div className="flex items-center justify-end space-x-1.5">
                 <span className="font-mono text-base font-semibold">
                   {typeof _time.amount === 'number' ? numberFormat(_time.amount, '0,0.000') : '- '}

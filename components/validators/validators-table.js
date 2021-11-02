@@ -21,63 +21,72 @@ export default function ValidatorsTable({ status }) {
   const { status_data, validators_data } = { ...data }
 
   useEffect(() => {
-    const getData = async () => {
-      const response = await getStatus()
+    const controller = new AbortController()
 
-      if (response) {
-        dispatch({
-          type: STATUS_DATA,
-          value: response
-        })
+    const getData = async () => {
+      if (!controller.signal.aborted) {
+        const response = await getStatus()
+
+        if (response) {
+          dispatch({
+            type: STATUS_DATA,
+            value: response
+          })
+        }
       }
     }
 
     getData()
 
     const interval = setInterval(() => getData(), 1 * 60 * 1000)
-    return () => clearInterval(interval)
+    return () => {
+      controller?.abort()
+      clearInterval(interval)
+    }
   }, [])
 
   useEffect(() => {
     const controller = new AbortController()
 
     const getValidators = async () => {
-      let response = await allValidators({}, validators_data, status, null, Number(status_data.latest_block_height))
+      if (!controller.signal.aborted) {
+        let response = await allValidators({}, validators_data, status, null, Number(status_data.latest_block_height))
 
-      if (response) {
-        dispatch({
-          type: VALIDATORS_DATA,
-          value: response.data
-        })
+        if (response) {
+          dispatch({
+            type: VALIDATORS_DATA,
+            value: response.data
+          })
 
-        if (response.data) {
-          const validators_data = response.data
+          if (response.data) {
+            const validators_data = response.data
 
-          for (let i = 0; i < validators_data.length; i++) {
-            if (!controller.signal.aborted) {
-              let validator_data = validators_data[i]
+            for (let i = 0; i < validators_data.length; i++) {
+              if (!controller.signal.aborted) {
+                let validator_data = validators_data[i]
 
-              validator_data = await validatorSelfDelegation(validator_data, validators_data, status)
+                validator_data = await validatorSelfDelegation(validator_data, validators_data, status)
 
-              if (validator_data) {
-                if (validator_data.description) {
-                  if (validator_data.description.identity && !validator_data.description.image) {
-                    const responseProfile = await validatorProfile({ key_suffix: validator_data.description.identity })
+                if (validator_data) {
+                  if (validator_data.description) {
+                    if (validator_data.description.identity && !validator_data.description.image) {
+                      const responseProfile = await validatorProfile({ key_suffix: validator_data.description.identity })
 
-                    if (responseProfile?.them?.[0]?.pictures?.primary?.url) {
-                      validator_data.description.image = responseProfile.them[0].pictures.primary.url
+                      if (responseProfile?.them?.[0]?.pictures?.primary?.url) {
+                        validator_data.description.image = responseProfile.them[0].pictures.primary.url
+                      }
                     }
+
+                    validator_data.description.image = validator_data.description.image || randImage(i)
                   }
 
-                  validator_data.description.image = validator_data.description.image || randImage(i)
+                  validators_data[i] = validator_data
+
+                  dispatch({
+                    type: VALIDATORS_DATA,
+                    value: validators_data
+                  })
                 }
-
-                validators_data[i] = validator_data
-
-                dispatch({
-                  type: VALIDATORS_DATA,
-                  value: validators_data
-                })
               }
             }
           }

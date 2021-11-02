@@ -24,17 +24,21 @@ export default function BlocksTable({ n, className = '' }) {
   const [loadValsProfile, setLoadValsProfile] = useState(false)
 
   useEffect(() => {
+    const controller = new AbortController()
+
     const getValidators = async () => {
-      if (typeof n !== 'number') {
-        const response = await allValidators({}, validators_data)
+      if (!controller.signal.aborted) {
+        if (typeof n !== 'number') {
+          const response = await allValidators({}, validators_data)
 
-        if (response) {
-          dispatch({
-            type: VALIDATORS_DATA,
-            value: response.data
-          })
+          if (response) {
+            dispatch({
+              type: VALIDATORS_DATA,
+              value: response.data
+            })
 
-          setLoadValsProfile(true)
+            setLoadValsProfile(true)
+          }
         }
       }
     }
@@ -42,55 +46,75 @@ export default function BlocksTable({ n, className = '' }) {
     getValidators()
 
     const interval = setInterval(() => getValidators(), 10 * 60 * 1000)
-    return () => clearInterval(interval)
+    return () => {
+      controller?.abort()
+      clearInterval(interval)
+    }
   }, [n])
 
   useEffect(() => {
+    const controller = new AbortController()
+
     const getValidatorsProfile = async () => {
       if (loadValsProfile && validators_data?.findIndex(validator_data => validator_data?.description && !validator_data.description.image) > -1) {
         const data = _.cloneDeep(validators_data)
 
         for (let i = 0; i < data.length; i++) {
-          const validator_data = data[i]
+          if (!controller.signal.aborted) {
+            const validator_data = data[i]
 
-          if (validator_data?.description) {
-            if (validator_data.description.identity && !validator_data.description.image) {
-              const responseProfile = await validatorProfile({ key_suffix: validator_data.description.identity })
+            if (validator_data?.description) {
+              if (validator_data.description.identity && !validator_data.description.image) {
+                const responseProfile = await validatorProfile({ key_suffix: validator_data.description.identity })
 
-              if (responseProfile?.them?.[0]?.pictures?.primary?.url) {
-                validator_data.description.image = responseProfile.them[0].pictures.primary.url
+                if (responseProfile?.them?.[0]?.pictures?.primary?.url) {
+                  validator_data.description.image = responseProfile.them[0].pictures.primary.url
+                }
               }
+
+              validator_data.description.image = validator_data.description.image || randImage(i)
+
+              data[i] = validator_data
             }
-
-            validator_data.description.image = validator_data.description.image || randImage(i)
-
-            data[i] = validator_data
           }
         }
 
-        dispatch({
-          type: VALIDATORS_DATA,
-          value: data
-        })
+        if (!controller.signal.aborted) {
+          dispatch({
+            type: VALIDATORS_DATA,
+            value: data
+          })
+        }
       }
     }
 
     getValidatorsProfile()
+
+    return () => {
+      controller?.abort()
+    }
   }, [loadValsProfile])
 
   useEffect(() => {
-    const getData = async () => {
-      const response = await getBlocks({ size: n || LATEST_SIZE, sort: [{ height: 'desc' }] })
+    const controller = new AbortController()
 
-      if (response) {
-        setBlocks({ data: response.data || [] })
+    const getData = async () => {
+      if (!controller.signal.aborted) {
+        const response = await getBlocks({ size: n || LATEST_SIZE, sort: [{ height: 'desc' }] })
+
+        if (response) {
+          setBlocks({ data: response.data || [] })
+        }
       }
     }
 
     getData()
 
     const interval = setInterval(() => getData(), (n ? 5 : 10) * 1000)
-    return () => clearInterval(interval)
+    return () => {
+      controller?.abort()
+      clearInterval(interval)
+    }
   }, [])
 
   return (

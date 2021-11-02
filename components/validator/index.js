@@ -34,32 +34,43 @@ export default function Validator({ address }) {
   const [table, setTable] = useState('delegations')
 
   useEffect(() => {
-    const getData = async () => {
-      const response = await getStatus()
+    const controller = new AbortController()
 
-      if (response) {
-        dispatch({
-          type: STATUS_DATA,
-          value: response
-        })
+    const getData = async () => {
+      if (!controller.signal.aborted) {
+        const response = await getStatus()
+
+        if (response) {
+          dispatch({
+            type: STATUS_DATA,
+            value: response
+          })
+        }
       }
     }
 
     getData()
 
     const interval = setInterval(() => getData(), 1 * 60 * 1000)
-    return () => clearInterval(interval)
+    return () => {
+      controller?.abort()
+      clearInterval(interval)
+    }
   }, [])
 
   useEffect(() => {
-    const getValidators = async () => {
-      const response = await allValidators({}, validators_data, null, address, Number(status_data.latest_block_height))
+    const controller = new AbortController()
 
-      if (response) {
-        dispatch({
-          type: VALIDATORS_DATA,
-          value: response.data
-        })
+    const getValidators = async () => {
+      if (!controller.signal.aborted) {
+        const response = await allValidators({}, validators_data, null, address, Number(status_data.latest_block_height))
+
+        if (response) {
+          dispatch({
+            type: VALIDATORS_DATA,
+            value: response.data
+          })
+        }
       }
     }
 
@@ -68,18 +79,25 @@ export default function Validator({ address }) {
     }
 
     const interval = setInterval(() => getValidators(), 10 * 60 * 1000)
-    return () => clearInterval(interval)
+    return () => {
+      controller?.abort()
+      clearInterval(interval)
+    }
   }, [address, status_data])
 
   // useEffect(() => {
-  //   const getAllKeygens = async () => {
-  //     const response = await getKeygens()
+  //   const controller = new AbortController()
 
-  //     if (response) {
-  //       dispatch({
-  //         type: KEYGENS_DATA,
-  //         value: response
-  //       })
+  //   const getAllKeygens = async () => {
+  //     if (!controller.signal.aborted) {
+  //       const response = await getKeygens()
+
+  //       if (response) {
+  //         dispatch({
+  //           type: KEYGENS_DATA,
+  //           value: response
+  //         })
+  //       }
   //     }
   //   }
 
@@ -88,67 +106,84 @@ export default function Validator({ address }) {
   //   }
 
   //   const interval = setInterval(() => getAllKeygens(), 10 * 60 * 1000)
-  //   return () => clearInterval(interval)
+  //   return () => {
+  //     controller?.abort()
+  //     clearInterval(interval)
+  //   }
   // }, [keygens_data])
 
   useEffect(() => {
+    const controller = new AbortController()
+
     const getData = async () => {
-      let validatorData
+      let validatorData, response
 
       const validator_data = validators_data && validators_data[validators_data.findIndex(validator_data => validator_data.operator_address === address)]
 
       if (validator_data) {
         validatorData = { ...validatorData, ...validator_data }
       
-        const response = await validatorSets()
+        if (!controller.signal.aborted) {
+          response = await validatorSets()
 
-        if (response && response.result && response.result.validators && response.result.validators.findIndex(validator_data => validator_data.address === validatorData.consensus_address) > -1) {
-          validatorData = { ...validatorData, proposer_priority: response.result.validators[response.result.validators.findIndex(validator_data => validator_data.address === validatorData.consensus_address)].proposer_priority }
+          if (response && response.result && response.result.validators && response.result.validators.findIndex(validator_data => validator_data.address === validatorData.consensus_address) > -1) {
+            validatorData = { ...validatorData, proposer_priority: response.result.validators[response.result.validators.findIndex(validator_data => validator_data.address === validatorData.consensus_address)].proposer_priority }
+          }
         }
       }
 
       setValidator({ data: validatorData || {}, address })
 
-      let response = await getUptime(Number(status_data.latest_block_height), validatorData && validatorData.consensus_address)
+      if (!controller.signal.aborted) {
+        response = await getUptime(Number(status_data.latest_block_height), validatorData && validatorData.consensus_address)
 
-      if (response) {
-        setUptime({ data: response.data || [], address })
+        if (response) {
+          setUptime({ data: response.data || [], address })
+        }
       }
 
-      response = await allDelegations(address)
+      if (!controller.signal.aborted) {
+        response = await allDelegations(address)
 
-      if (response) {
-        setDelegations({
-          data: _.orderBy((response.data && response.data.map(delegation => {
-            return {
-              ...delegation.delegation,
-              self: validatorData && delegation.delegation.delegator_address === validatorData.delegator_address,
-              shares: delegation.delegation && denomAmount(delegation.delegation.shares, delegation.balance && delegation.balance.denom),
-              ...delegation.balance,
-              denom: delegation.balance && denomName(delegation.balance.denom),
-              amount: delegation.balance && denomAmount(delegation.balance.amount, delegation.balance.denom),
-            }
-          })) || [], ['self', 'shares'], ['desc', 'desc']),
-          address
-        })
+        if (response) {
+          setDelegations({
+            data: _.orderBy((response.data && response.data.map(delegation => {
+              return {
+                ...delegation.delegation,
+                self: validatorData && delegation.delegation.delegator_address === validatorData.delegator_address,
+                shares: delegation.delegation && denomAmount(delegation.delegation.shares, delegation.balance && delegation.balance.denom),
+                ...delegation.balance,
+                denom: delegation.balance && denomName(delegation.balance.denom),
+                amount: delegation.balance && denomAmount(delegation.balance.amount, delegation.balance.denom),
+              }
+            })) || [], ['self', 'shares'], ['desc', 'desc']),
+            address
+          })
+        }
       }
 
-      response = await getKeygensByValidator(address)
+      if (!controller.signal.aborted) {
+        response = await getKeygensByValidator(address)
 
-      if (response) {
-        setKeygens({ data: response, address })
+        if (response) {
+          setKeygens({ data: response, address })
+        }
       }
 
-      response = await transactionsByEvents(`sign.action='decided'`, null, address, true)
+      if (!controller.signal.aborted) {
+        response = await transactionsByEvents(`sign.action='decided'`, null, address, true)
 
-      setSignEvents({ data: response || [], total: response ? response.length : 0, address })
+        setSignEvents({ data: response || [], total: response ? response.length : 0, address })
+      }
 
       let data = []
 
-      data = await transactionsByEvents(`depositConfirmation.action='vote'`, data, address)
-      data = await transactionsByEvents(`outpointConfirmation.action='voted'`, data, address)
+      if (!controller.signal.aborted) {
+        data = await transactionsByEvents(`depositConfirmation.action='vote'`, data, address)
+        data = await transactionsByEvents(`outpointConfirmation.action='voted'`, data, address)
 
-      setVotingEvents({ data, total: data.length, address })
+        setVotingEvents({ data, total: data.length, address })
+      }
     }
 
     if (address && status_data && validators_data) {
@@ -156,7 +191,10 @@ export default function Validator({ address }) {
     }
 
     const interval = setInterval(() => getData(), 3 * 60 * 1000)
-    return () => clearInterval(interval)
+    return () => {
+      controller?.abort()
+      clearInterval(interval)
+    }
   }, [address, status_data, validators_data])
 
   return (

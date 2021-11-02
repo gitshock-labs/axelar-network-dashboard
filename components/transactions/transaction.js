@@ -14,11 +14,15 @@ export default function Transaction({ tx }) {
   const [transaction, setTransaction] = useState(null)
 
   useEffect(() => {
-    const getData = async () => {
-      const response = await getTransaction(tx)
+    const controller = new AbortController()
 
-      if (response) {
-        setTransaction({ data: response.data || {}, tx })
+    const getData = async () => {
+      if (!controller.signal.aborted) {
+        const response = await getTransaction(tx)
+
+        if (response) {
+          setTransaction({ data: response.data || {}, tx })
+        }
       }
     }
 
@@ -27,7 +31,10 @@ export default function Transaction({ tx }) {
     }
 
     const interval = setInterval(() => getData(), 5 * 60 * 1000)
-    return () => clearInterval(interval)
+    return () => {
+      controller?.abort()
+      clearInterval(interval)
+    }
   }, [tx])
 
   return (

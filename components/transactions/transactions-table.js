@@ -16,11 +16,15 @@ export default function TransactionsTable({ data, noLoad, hasVote, page, classNa
   const [transactions, setTransactions] = useState(null)
 
   useEffect(() => {
-    const getData = async () => {
-      const response = await getTransactions({ size: page === 'index' ? 10 : LATEST_SIZE, sort: [{ timestamp: 'desc' }] })
+    const controller = new AbortController()
 
-      if (response) {
-        setTransactions({ data: response.data || [] })
+    const getData = async () => {
+      if (!controller.signal.aborted) {
+        const response = await getTransactions({ size: page === 'index' ? 10 : LATEST_SIZE, sort: [{ timestamp: 'desc' }] })
+
+        if (response) {
+          setTransactions({ data: response.data || [] })
+        }
       }
     }
 
@@ -33,7 +37,10 @@ export default function TransactionsTable({ data, noLoad, hasVote, page, classNa
 
     if (!noLoad) {
       const interval = setInterval(() => getData(), (page === 'index' ? 5 : 10) * 1000)
-      return () => clearInterval(interval)
+      return () => {
+        controller?.abort()
+        clearInterval(interval)
+      }
     }
   }, [data])
 
