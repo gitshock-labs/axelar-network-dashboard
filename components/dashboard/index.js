@@ -290,8 +290,6 @@ export default function Dashboard() {
   }, [contractSelect])
 
   useEffect(() => {
-    const controller = new AbortController()
-
     const getData = async isInterval => {
       if (validators_data && (!loadValsProfile || isInterval)) {
         let tvls
@@ -301,42 +299,40 @@ export default function Dashboard() {
         const total_active_validators = _validators_data.length
 
         for (let i = 0; i < _validators_data.length; i++) {
-          if (!controller.signal.aborted) {
-            const validator_data = _validators_data[i]
-            const address = validator_data?.operator_address
+          const validator_data = _validators_data[i]
+          const address = validator_data?.operator_address
 
-            const response = await allDelegations(address)
+          const response = await allDelegations(address)
 
-            tvls = _.concat(tvls || [], Object.values(_.groupBy(response?.data?.map(delegation => {
-              return {
-                delegator_address: delegation?.delegation?.delegator_address,
-                symbol: denomSymbol(delegation?.balance?.denom),
-                image: denomImage(delegation?.balance?.denom),
-                denom: denomName(delegation?.balance?.denom),
-                amount: denomAmount(delegation?.balance?.amount, delegation?.balance?.denom),
-              }
-            }) || [], 'denom')).map(value => {
-              return {
-                ...value?.[0],
-                delegator_addresses: _.uniqBy(value, 'delegator_address'),
-                amount: _.sumBy(value, 'amount'),
-              }
-            }))
-
-            if (!isInterval && (i % 3 === 0 || i === _validators_data.length - 1)) {
-              setCrosschainTVLData({
-                tvls: _.orderBy(Object.values(_.groupBy(tvls, 'denom')).map(value => {
-                  return {
-                    ...value?.[0],
-                    amount: _.sumBy(value, 'amount'),
-                    num_delegators: _.uniq(value?.flatMap(delegate => delegate.delegator_addresses) || []).length,
-                  }
-                }), ['num_delegators'], ['desc']),
-                tvls_updated_at,
-                total_loaded_validators: tvls.length,
-                total_active_validators,
-              })
+          tvls = _.concat(tvls || [], Object.values(_.groupBy(response?.data?.map(delegation => {
+            return {
+              delegator_address: delegation?.delegation?.delegator_address,
+              symbol: denomSymbol(delegation?.balance?.denom),
+              image: denomImage(delegation?.balance?.denom),
+              denom: denomName(delegation?.balance?.denom),
+              amount: denomAmount(delegation?.balance?.amount, delegation?.balance?.denom),
             }
+          }) || [], 'denom')).map(value => {
+            return {
+              ...value?.[0],
+              delegator_addresses: _.uniqBy(value, 'delegator_address'),
+              amount: _.sumBy(value, 'amount'),
+            }
+          }))
+
+          if (!isInterval && (i % 3 === 0 || i === _validators_data.length - 1)) {
+            setCrosschainTVLData({
+              tvls: _.orderBy(Object.values(_.groupBy(tvls, 'denom')).map(value => {
+                return {
+                  ...value?.[0],
+                  amount: _.sumBy(value, 'amount'),
+                  num_delegators: _.uniq(value?.flatMap(delegate => delegate.delegator_addresses) || []).length,
+                }
+              }), ['num_delegators'], ['desc']),
+              tvls_updated_at,
+              total_loaded_validators: tvls.length,
+              total_active_validators,
+            })
           }
         }
 
@@ -359,10 +355,7 @@ export default function Dashboard() {
     getData()
 
     const interval = setInterval(() => getData(true), 60 * 1000)
-    return () => {
-      controller?.abort()
-      clearInterval(interval)
-    }
+    return () => clearInterval(interval)
   }, [validators_data, loadValsProfile])
 
   useEffect(() => {
