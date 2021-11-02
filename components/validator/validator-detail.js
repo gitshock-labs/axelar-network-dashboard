@@ -82,24 +82,30 @@ export default function ValidatorDetail({ data, delegations, keygens, all_keygen
                 </span>
               </div>
             )}
-            {data.description && data.description.website && (
+            {data.description?.website && (
               <div className="flex flex-col lg:flex-row items-start space-x-0 lg:space-x-2">
                 <span className="font-medium">Website:</span>
                 <a href={data.description.website} target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-500 font-normal">{data.description.website}</a>
               </div>
             )}
-            {data.description && data.description.details && (
+            {data.description?.details && (
               <div className="flex flex-col lg:flex-row items-start space-x-0 lg:space-x-2">
                 <span className="font-medium">Details:</span>
                 <span className="linkify font-light"><Linkify>{data.description.details}</Linkify></span>
               </div>
             )}
-            {data.started_at && (
+            {typeof data.start_height === 'number' && (
               <div className="flex flex-col lg:flex-row items-start space-x-0 lg:space-x-2">
-                <span className="font-medium">First Seen:</span>
+                <span className="font-medium">Validator Since Block:</span>
+                <span className="text-gray-600 dark:text-gray-400 font-semibold">{numberFormat(data.start_height, '0,0')}</span>
+              </div>
+            )}
+            {data.jailed_until > 0 && (
+              <div className="flex flex-col lg:flex-row items-start space-x-0 lg:space-x-2">
+                <span className="font-medium">Latest Unjail:</span>
                 <div className="flex flex-wrap items-start">
-                  <span className="text-gray-400 dark:text-gray-400 mr-2">{moment(data.started_at).fromNow()}</span>
-                  <span className="text-gray-500 dark:text-gray-300 font-medium">({moment(data.started_at).format('MMM D, YYYY h:mm:ss A')})</span>
+                  <span className="text-gray-400 dark:text-gray-400 mr-2">{moment(data.jailed_until).fromNow()}</span>
+                  <span className="text-gray-500 dark:text-gray-300 font-medium">({moment(data.jailed_until).format('MMM D, YYYY h:mm:ss A')})</span>
                 </div>
               </div>
             )}

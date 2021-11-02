@@ -70,14 +70,15 @@ export default function Uptime({ data, validator_data }) {
                     </span>
                 }
               </div>}
+              className="w-7 h-7"
             >
               <div
                 title={block.height}
-                className={`w-6 md:w-8 h-6 md:h-8 ${block.up ? block.approved > block.denied ? 'bg-green-600' : block.denied > block.approved ? 'bg-red-500' : block.approved > 0 ? 'bg-yellow-500' : 'bg-green-500' : 'bg-gray-300 dark:bg-gray-500'} rounded m-1`}
+                className={`w-6 md:w-6 h-6 md:h-6 ${block.up ? block.approved > block.denied ? 'bg-green-600' : block.denied > block.approved ? 'bg-red-500' : block.approved > 0 ? 'bg-yellow-500' : 'bg-green-500' : 'bg-gray-300 dark:bg-gray-500'} rounded m-1`}
               />
             </Popover>
             :
-            <div key={i} className={`skeleton w-6 md:w-8 h-6 md:h-8 rounded m-1`} />
+            <div key={i} className={`skeleton w-6 md:w-6 h-6 md:h-6 rounded m-0.5`} />
         ))}
       </div>
     </Widget>

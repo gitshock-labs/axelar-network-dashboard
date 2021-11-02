@@ -118,7 +118,7 @@ export default function Validator({ address }) {
     const getData = async () => {
       let validatorData, response
 
-      const validator_data = validators_data && validators_data[validators_data.findIndex(validator_data => validator_data.operator_address === address)]
+      const validator_data = validators_data?.[validators_data.findIndex(validator_data => validator_data.operator_address === address)]
 
       if (validator_data) {
         validatorData = { ...validatorData, ...validator_data }
@@ -126,7 +126,7 @@ export default function Validator({ address }) {
         if (!controller.signal.aborted) {
           response = await validatorSets()
 
-          if (response && response.result && response.result.validators && response.result.validators.findIndex(validator_data => validator_data.address === validatorData.consensus_address) > -1) {
+          if (response?.result?.validators?.findIndex(validator_data => validator_data.address === validatorData.consensus_address) > -1) {
             validatorData = { ...validatorData, proposer_priority: response.result.validators[response.result.validators.findIndex(validator_data => validator_data.address === validatorData.consensus_address)].proposer_priority }
           }
         }
@@ -147,7 +147,7 @@ export default function Validator({ address }) {
 
         if (response) {
           setDelegations({
-            data: _.orderBy((response.data && response.data.map(delegation => {
+            data: _.orderBy(response.data?.map(delegation => {
               return {
                 ...delegation.delegation,
                 self: validatorData && delegation.delegation.delegator_address === validatorData.delegator_address,
@@ -156,7 +156,7 @@ export default function Validator({ address }) {
                 denom: delegation.balance && denomName(delegation.balance.denom),
                 amount: delegation.balance && denomAmount(delegation.balance.amount, delegation.balance.denom),
               }
-            })) || [], ['self', 'shares'], ['desc', 'desc']),
+            }) || [], ['self', 'shares'], ['desc', 'desc']),
             address
           })
         }

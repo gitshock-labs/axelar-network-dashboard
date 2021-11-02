@@ -3,6 +3,7 @@ import { useEffect } from 'react'
 import { useSelector, useDispatch, shallowEqual } from 'react-redux'
 
 import _ from 'lodash'
+import moment from 'moment'
 import { FiBox } from 'react-icons/fi'
 
 import Datatable from '../datatable'
@@ -257,21 +258,32 @@ export default function ValidatorsTable({ status }) {
             Cell: props => (
               !props.row.original.skeleton && typeof props.value === 'number' ?
                 props.value > 0 ?
-                  <div className="w-56 mt-0.5 ml-auto">
-                    <ProgressBarWithText
-                      width={props.value}
-                      text={<div className="text-white mx-1" style={{ fontSize: '.55rem' }}>
-                        {numberFormat(props.value, '0,0.00')}%
-                      </div>}
-                      color="bg-green-500 dark:bg-green-600 rounded"
-                      backgroundClassName="h-4 bg-gray-200 dark:bg-gray-800 rounded"
-                      className={`h-4 flex items-center justify-${props.value < 20 ? 'start' : 'end'}`}
-                    />
-                  </div>
+                  <>
+                    <div className="w-56 mt-0.5 ml-auto">
+                      <ProgressBarWithText
+                        width={props.value}
+                        text={<div className="text-white mx-1" style={{ fontSize: '.55rem' }}>
+                          {numberFormat(props.value, '0,0.00')}%
+                        </div>}
+                        color="bg-green-500 dark:bg-green-600 rounded"
+                        backgroundClassName="h-4 bg-gray-200 dark:bg-gray-800 rounded"
+                        className={`h-4 flex items-center justify-${props.value < 20 ? 'start' : 'end'}`}
+                      />
+                    </div>
+                    {typeof props.row.original.start_height === 'number' && (
+                      <div className="text-3xs text-right space-x-1 mt-1.5">
+                        <span className="text-gray-400 dark:text-gray-500 font-medium">Validator Since Block:</span>
+                        <span className="text-gray-600 dark:text-gray-400 font-semibold">{numberFormat(props.row.original.start_height, '0,0')}</span>
+                      </div>
+                    )}
+                  </>
                   :
                   <div className="w-56 text-right ml-auto">{/*-*/}</div>
                 :
-                <div className="skeleton w-56 h-4 rounded mt-0.5 ml-auto" />
+                <>
+                  <div className="skeleton w-56 h-4 rounded mt-0.5 ml-auto" />
+                  <div className="skeleton w-16 h-3 rounded mt-1.5 ml-auto" />
+                </>
             ),
             headerClassName: 'justify-end text-right',
           },
@@ -287,6 +299,12 @@ export default function ValidatorsTable({ status }) {
                       <span className={`bg-${props.value.includes('UN') ? props.value.endsWith('ED') ? 'gray-300 dark:bg-gray-600' : 'yellow-500' : 'green-500'} rounded capitalize text-white font-semibold px-2 py-1`}>
                         {props.value.replace('BOND_STATUS_', '')}
                       </span>
+                      {/*props.row.original.jailed_until > 0 && (
+                        <div className="text-3xs text-right space-y-1 mt-2">
+                          <div className="text-gray-400 dark:text-gray-600 font-medium">Latest Unjail</div>
+                          <div className="text-gray-600 dark:text-gray-400 font-semibold">{moment(props.row.original.jailed_until).format('MMM D, YYYY h:mm:ss A')}</div>
+                        </div>
+                      )*/}
                       {props.row.original.illegible && props.row.original.tss_illegibility_info && (
                         <div className="flex flex-col items-end space-y-1.5 mt-2">
                           {Object.entries(props.row.original.tss_illegibility_info).filter(([key, value]) => value).map(([key, value]) => (
