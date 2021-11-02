@@ -20,10 +20,10 @@ export default function CoinInfo() {
     const controller = new AbortController()
 
     const getData = async () => {
-      let chainData
+      let chainData, response
 
       if (!controller.signal.aborted) {
-        let response = await stakingParams()
+        response = await stakingParams()
 
         if (response && response.params) {
           chainData = { ...chainData, staking_params: response.params }
