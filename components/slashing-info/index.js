@@ -66,7 +66,7 @@ export default function SlashingInfo() {
               :
               '-'
             :
-            <div className="skeleton w-8 h-4" />
+            <div className="skeleton w-8 h-4 mx-auto" />
           }
         </span>
       </div>
@@ -79,7 +79,7 @@ export default function SlashingInfo() {
               :
               '-'
             :
-            <div className="skeleton w-8 h-4" />
+            <div className="skeleton w-8 h-4 mx-auto" />
           }
         </span>
       </div>
@@ -92,7 +92,7 @@ export default function SlashingInfo() {
               :
               '-'
             :
-            <div className="skeleton w-8 h-4" />
+            <div className="skeleton w-8 h-4 mx-auto" />
           }
         </span>
       </div>
@@ -105,7 +105,7 @@ export default function SlashingInfo() {
               :
               '-'
             :
-            <div className="skeleton w-8 h-4" />
+            <div className="skeleton w-8 h-4 mx-auto" />
           }
         </span>
       </div>
@@ -118,7 +118,7 @@ export default function SlashingInfo() {
               :
               '-'
             :
-            <div className="skeleton w-8 h-4" />
+            <div className="skeleton w-8 h-4 mx-auto" />
           }
         </span>
       </div>
@@ -131,7 +131,7 @@ export default function SlashingInfo() {
               :
               '-'
             :
-            <div className="skeleton w-8 h-4" />
+            <div className="skeleton w-8 h-4 mx-auto" />
           }
         </span>
       </div>
