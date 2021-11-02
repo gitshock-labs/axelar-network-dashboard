@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { useSelector, useDispatch, shallowEqual } from 'react-redux'
 
-import { stakingParams, stakingPool, bankSupply, communityPool, mintInflation } from '../../lib/api/cosmos'
+import { stakingParams, stakingPool, bankSupply, communityPool, mintInflation, distributionParams } from '../../lib/api/cosmos'
 import { simplePrice } from '../../lib/api/coingecko'
 import { denomName, denomAmount } from '../../lib/object/denom'
 import { numberFormat, ellipseAddress } from '../../lib/utils'
@@ -25,7 +25,7 @@ export default function CoinInfo() {
       if (!controller.signal.aborted) {
         response = await stakingParams()
 
-        if (response && response.params) {
+        if (response?.params) {
           chainData = { ...chainData, staking_params: response.params }
         }
       }
@@ -33,16 +33,16 @@ export default function CoinInfo() {
       if (!controller.signal.aborted) {
         response = await stakingPool()
 
-        if (response && response.pool) {
+        if (response?.pool) {
           chainData = { ...chainData, staking_pool: Object.fromEntries(Object.entries(response.pool).map(([key, value]) => [key, isNaN(value) ? value : Number(value) / Number(process.env.NEXT_PUBLIC_POWER_REDUCTION)])) }
         }
       }
 
       if (!controller.signal.aborted) {
-        if (chainData && chainData.staking_params && chainData.staking_params.bond_denom) {
+        if (chainData?.staking_params?.bond_denom) {
           response = await bankSupply(chainData.staking_params.bond_denom)
 
-          if (response && response.amount) {
+          if (response?.amount) {
             chainData = { ...chainData, bank_supply: Object.fromEntries(Object.entries(response.amount).map(([key, value]) => [key, key === 'denom' ? denomName(value) : denomAmount(value, response.amount.denom)])) }
           }
         }
@@ -51,7 +51,7 @@ export default function CoinInfo() {
       if (!controller.signal.aborted) {
         response = await communityPool()
 
-        if (response && response.pool) {
+        if (response?.pool) {
           chainData = { ...chainData, community_pool: response.pool.map(pool => Object.fromEntries(Object.entries(pool).map(([key, value]) => [key, key === 'denom' ? denomName(value) : denomAmount(value, pool.denom)]))) }
         }
       }
@@ -59,15 +59,23 @@ export default function CoinInfo() {
       if (!controller.signal.aborted) {
         response = await mintInflation()
 
-        if (response && response.inflation) {
+        if (response?.inflation) {
           chainData = { ...chainData, inflation: Number(response.inflation) }
+        }
+      }
+
+      if (!controller.signal.aborted) {
+        response = await distributionParams()
+
+        if (response?.params) {
+          chainData = { ...chainData, distribution_params: response.params }
         }
       }
 
       if (!controller.signal.aborted) {
         response = await simplePrice({ ids: process.env.NEXT_PUBLIC_COINGECKO_ID, vs_currencies: CURRENCY, include_market_cap: true, include_24hr_vol: true, include_24hr_change: true, include_last_updated_at: true })
 
-        if (response && response[process.env.NEXT_PUBLIC_COINGECKO_ID]) {
+        if (response?.[process.env.NEXT_PUBLIC_COINGECKO_ID]) {
           chainData = { ...chainData, coin: response[process.env.NEXT_PUBLIC_COINGECKO_ID] }
         }
       }
@@ -90,9 +98,9 @@ export default function CoinInfo() {
   }, [])
 
   return (
-    <div className="w-full sm:w-auto bg-gray-100 dark:bg-gray-900 rounded grid grid-flow-row grid-cols-2 sm:flex items-center gap-2 sm:gap-8 lg:gap-6 mt-2 sm:mt-auto py-3 px-4">
-      <div className="flex flex-col lg:flex-row lg:items-center lg:space-x-2">
-        <span className="text-gray-700 dark:text-gray-500 font-semibold">Price:</span>
+    <div className="w-full bg-gray-100 dark:bg-gray-900 rounded grid grid-flow-row grid-cols-2 sm:flex items-start text-2xs lg:text-xs gap-3 sm:gap-4 lg:gap-6 mt-0 sm:mt-auto mb-4 sm:mb-auto ml-0 sm:ml-2 py-3 px-4">
+      <div className="flex flex-col space-y-1 lg:space-y-0.5">
+        <span className="text-gray-700 dark:text-gray-500 font-semibold">Price</span>
         <span className="text-gray-900 dark:text-gray-300 font-light">
           {chain_data ?
             chain_data.coin ?
@@ -104,12 +112,12 @@ export default function CoinInfo() {
           }
         </span>
       </div>
-      <div className="flex flex-col lg:flex-row lg:items-center lg:space-x-2">
-        <span className="text-gray-700 dark:text-gray-500 font-semibold">Market Cap:</span>
-        <span className="text-gray-900 dark:text-gray-300 font-light">
+      <div className="flex flex-col space-y-1 lg:space-y-0.5">
+        <span className="text-gray-700 dark:text-gray-500 font-semibold">Market Cap</span>
+        <span className="uppoercase text-gray-900 dark:text-gray-300 font-light">
           {chain_data ?
             chain_data.coin ?
-              <>{CURRENCY_SYMBOL}{numberFormat(chain_data.coin[`${CURRENCY}_market_cap`], '0,0')}</>
+              <>{CURRENCY_SYMBOL}{numberFormat(chain_data.coin[`${CURRENCY}_market_cap`], '0,0.00a')}</>
               :
               '-'
             :
@@ -117,8 +125,8 @@ export default function CoinInfo() {
           }
         </span>
       </div>
-      <div className="flex flex-col lg:flex-row lg:items-center lg:space-x-2">
-        <span className="text-gray-700 dark:text-gray-500 font-semibold">Inflation:</span>
+      <div className="flex flex-col space-y-1 lg:space-y-0.5">
+        <span className="text-gray-700 dark:text-gray-500 font-semibold">Inflation</span>
         <span className="text-gray-900 dark:text-gray-300 font-light">
           {chain_data ?
             typeof chain_data.inflation === 'number' ?
@@ -130,8 +138,30 @@ export default function CoinInfo() {
           }
         </span>
       </div>
-      <div className="flex flex-col lg:flex-row lg:items-center lg:space-x-2">
-        <span className="text-gray-700 dark:text-gray-500 font-semibold">Community Pool:</span>
+      <div className="flex flex-col space-y-1 lg:space-y-0.5">
+        <span className="text-gray-700 dark:text-gray-500 font-semibold">Proposer Reward</span>
+        <span className="text-gray-900 dark:text-gray-300 font-light">
+          {chain_data ?
+            !isNaN(chain_data.distribution_params?.base_proposer_reward) ?
+              <div className="whitespace-nowrap">
+                <span className="mr-1">
+                  {numberFormat(Number(chain_data.distribution_params.base_proposer_reward) * 100, '0,0.00')}%
+                </span>
+                {!isNaN(chain_data.distribution_params?.bonus_proposer_reward) && (
+                  <span>
+                    (+{numberFormat(Number(chain_data.distribution_params.bonus_proposer_reward) * 100, '0,0.00')}% Bonus)
+                  </span>
+                )}
+              </div>
+              :
+              '-'
+            :
+            <div className="skeleton w-16 h-4" />
+          }
+        </span>
+      </div>
+      <div className="flex flex-col space-y-1 lg:space-y-0.5">
+        <span className="text-gray-700 dark:text-gray-500 font-semibold">Community Pool</span>
         <span className="text-gray-900 dark:text-gray-300 font-light">
           {chain_data ?
             chain_data.community_pool ?
@@ -147,6 +177,19 @@ export default function CoinInfo() {
               '-'
             :
             <div className="skeleton w-20 h-4" />
+          }
+        </span>
+      </div>
+      <div className="flex flex-col space-y-1 lg:space-y-0.5">
+        <span className="text-gray-700 dark:text-gray-500 font-semibold">Community Tax</span>
+        <span className="text-gray-900 dark:text-gray-300 font-light">
+          {chain_data ?
+            !isNaN(chain_data.distribution_params?.community_tax) ?
+              <>{numberFormat(Number(chain_data.distribution_params.community_tax) * 100, '0,0.00')}%</>
+              :
+              '-'
+            :
+            <div className="skeleton w-8 h-4" />
           }
         </span>
       </div>
