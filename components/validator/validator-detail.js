@@ -169,7 +169,7 @@ export default function ValidatorDetail({ data, delegations, keygens, all_keygen
                   <span className="font-light">{numberFormat(delegations.length, '0,0')}</span>
                   {delegations.length > 0 && (
                     <span className="flex flex-wrap uppercase font-light">
-                      ({Object.entries(_.groupBy(delegations, 'denom')).map(([key, value]) => [key, _.sumBy(value, 'amount')]).map(([key, value]) => `${numberFormat(value, value > 100000 ? '0,0.00a' : '0,0.00')} ${key}`).join(', ')})
+                      ({Object.entries(_.groupBy(delegations, 'denom')).map(([key, value]) => [key, _.sumBy(value, 'amount')]).map(([key, value]) => `${numberFormat(value, value >= 1000000 ? '0,0.00a' : '0,0.00000000')} ${key}`).join(', ')})
                     </span>
                   )}
                 </>

@@ -9,7 +9,7 @@ import TransactionsTable from '../transactions/transactions-table'
 import Widget from '../widget'
 
 import { allValidators, allBankBalances, allStakingDelegations, allStakingUnbonding, distributionRewards, distributionCommission, transactionsByEvents, validatorProfile } from '../../lib/api/cosmos'
-import { denomName, denomAmount } from '../../lib/object/denom'
+import { denomSymbol, denomAmount } from '../../lib/object/denom'
 import { numberFormat, randImage } from '../../lib/utils'
 
 import { VALIDATORS_DATA } from '../../reducers/types'
@@ -118,7 +118,7 @@ export default function Account({ address }) {
             balances: response.data && response.data.map(balance => {
               return {
                 ...balance,
-                denom: denomName(balance.denom),
+                denom: denomSymbol(balance.denom),
                 amount: denomAmount(balance.amount, balance.denom),
               }
             }),
@@ -138,7 +138,7 @@ export default function Account({ address }) {
                 validator_data: delegation.delegation && validators_data && validators_data.findIndex(validator_data => validator_data.operator_address === delegation.delegation.validator_address) > -1 ? validators_data[validators_data.findIndex(validator_data => validator_data.operator_address === delegation.delegation.validator_address)].description : {},
                 shares: delegation.delegation && delegation.delegation.shares && (isNaN(delegation.delegation.shares) ? -1 : denomAmount(delegation.delegation.shares, delegation.balance && delegation.balance.denom)),
                 ...delegation.balance,
-                denom: delegation.balance && delegation.balance.denom && denomName(delegation.balance.denom),
+                denom: delegation.balance && delegation.balance.denom && denomSymbol(delegation.balance.denom),
                 amount: delegation.balance && delegation.balance.amount && (isNaN(delegation.balance.amount) ? -1 : denomAmount(delegation.balance.amount, delegation.balance.denom)),
               }
             }),
@@ -175,8 +175,8 @@ export default function Account({ address }) {
             ...accountData,
             rewards: {
               ...response,
-              rewards: response.rewards && Object.entries(_.groupBy(response.rewards.flatMap(reward => reward.reward).map(reward => { return { ...reward, denom: denomName(reward.denom), amount: reward.amount && (isNaN(reward.amount) ? -1 : denomAmount(reward.amount, reward.denom)) } }), 'denom')).map(([key, value]) => { return { denom: key, amount: _.sumBy(value, 'amount') } }),
-              total: response.total && Object.entries(_.groupBy(response.total.map(total => { return { ...total, denom: denomName(total.denom), amount: total.amount && denomAmount(total.amount, total.denom) } }), 'denom')).map(([key, value]) => { return { denom: key, amount: _.sumBy(value, 'amount') } }),
+              rewards: response.rewards && Object.entries(_.groupBy(response.rewards.flatMap(reward => reward.reward).map(reward => { return { ...reward, denom: denomSymbol(reward.denom), amount: reward.amount && (isNaN(reward.amount) ? -1 : denomAmount(reward.amount, reward.denom)) } }), 'denom')).map(([key, value]) => { return { denom: key, amount: _.sumBy(value, 'amount') } }),
+              total: response.total && Object.entries(_.groupBy(response.total.map(total => { return { ...total, denom: denomSymbol(total.denom), amount: total.amount && denomAmount(total.amount, total.denom) } }), 'denom')).map(([key, value]) => { return { denom: key, amount: _.sumBy(value, 'amount') } }),
             },
           }
         }
@@ -192,7 +192,7 @@ export default function Account({ address }) {
               commission: response && response.commission && response.commission.commission && response.commission.commission.map(commission => {
                 return {
                   ...commission,
-                  denom: denomName(commission.denom),
+                  denom: denomSymbol(commission.denom),
                   amount: commission.amount && (isNaN(commission.amount) ? -1 : denomAmount(commission.amount, commission.denom)),
                 }
               }),

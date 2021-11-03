@@ -46,7 +46,7 @@ export default function DropdownContract({ contracts, contractSelect, setContrac
               alt=""
               className="w-6 h-6 rounded-full"
             />
-            <span className="uppercase text-sm font-semibold">{contract.symbol}</span>
+            <span className="uppercase text-sm font-semibold">{contract.name}</span>
             {hidden ?
               <MdExpandMore className="bg-gray-200 dark:bg-gray-800 rounded text-gray-600 dark:text-gray-400 -ml-0.5 mb-0.5" />
               :

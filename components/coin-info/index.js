@@ -3,7 +3,7 @@ import { useSelector, useDispatch, shallowEqual } from 'react-redux'
 
 import { stakingParams, stakingPool, bankSupply, communityPool, mintInflation, distributionParams } from '../../lib/api/cosmos'
 import { simplePrice } from '../../lib/api/coingecko'
-import { denomName, denomAmount } from '../../lib/object/denom'
+import { denomSymbol, denomAmount } from '../../lib/object/denom'
 import { numberFormat, ellipseAddress } from '../../lib/utils'
 
 import { CHAIN_DATA } from '../../reducers/types'
@@ -43,7 +43,7 @@ export default function CoinInfo() {
           response = await bankSupply(chainData.staking_params.bond_denom)
 
           if (response?.amount) {
-            chainData = { ...chainData, bank_supply: Object.fromEntries(Object.entries(response.amount).map(([key, value]) => [key, key === 'denom' ? denomName(value) : denomAmount(value, response.amount.denom)])) }
+            chainData = { ...chainData, bank_supply: Object.fromEntries(Object.entries(response.amount).map(([key, value]) => [key, key === 'denom' ? denomSymbol(value) : denomAmount(value, response.amount.denom)])) }
           }
         }
       }
@@ -52,7 +52,7 @@ export default function CoinInfo() {
         response = await communityPool()
 
         if (response?.pool) {
-          chainData = { ...chainData, community_pool: response.pool.map(pool => Object.fromEntries(Object.entries(pool).map(([key, value]) => [key, key === 'denom' ? denomName(value) : denomAmount(value, pool.denom)]))) }
+          chainData = { ...chainData, community_pool: response.pool.map(pool => Object.fromEntries(Object.entries(pool).map(([key, value]) => [key, key === 'denom' ? denomSymbol(value) : denomAmount(value, pool.denom)]))) }
         }
       }
 
@@ -181,7 +181,7 @@ export default function CoinInfo() {
               <div className="space-x-2">
                 {chain_data.community_pool.map((pool, i) => (
                   <span key={i} className="space-x-1">
-                    <span>{numberFormat(pool.amount, '0,0.00')}</span>
+                    <span>{numberFormat(pool.amount, '0,0.00000000')}</span>
                     <span className="uppercase font-medium">{ellipseAddress(pool.denom)}</span>
                   </span>
                 ))}

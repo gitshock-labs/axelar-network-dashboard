@@ -241,20 +241,20 @@ const Summary = ({ data, crosschainData, avgTransfersTimeRange, setAvgTransfersT
           <span className="flex flex-col space-y-1.5 mt-1">
             {crosschainData ?
               <div className="max-h-36 sm:max-h-60 flex flex-col overflow-y-auto space-y-2.5 mt-1">
-                {crosschainData.total_transfers?.map((coinTrasfer, i) => (
+                {crosschainData.total_transfers?.map((coinTransfer, i) => (
                   <div key={i} className="flex items-start">
                     <div>
                       <img
-                        src={coinTrasfer.image || randImage(i)}
+                        src={coinTransfer.image || randImage(i)}
                         alt=""
                         className="w-5 h-5 rounded-full"
                       />
-                      <div className="uppercase text-xs font-semibold mt-0.5">
-                        {coinTrasfer.symbol}
+                      <div className="text-xs font-semibold mt-0.5">
+                        {coinTransfer.name}
                       </div>
                     </div>
                     <div className="flex items-center space-x-1 ml-auto">
-                      <span className="font-mono text-gray-800 dark:text-gray-100 text-base font-semibold">{numberFormat(coinTrasfer.tx, coinTrasfer.tx >= 1000000 ? '0,0.00a' : '0,0')}</span>
+                      <span className="font-mono text-gray-800 dark:text-gray-100 text-base font-semibold">{numberFormat(coinTransfer.tx, coinTransfer.tx >= 1000000 ? '0,0.00a' : '0,0')}</span>
                       <span className="text-gray-400 dark:text-gray-600 text-xs">Txs</span>
                     </div>
                   </div>
@@ -291,21 +291,21 @@ const Summary = ({ data, crosschainData, avgTransfersTimeRange, setAvgTransfersT
           <span className="flex flex-col space-y-1.5 mt-1">
             {crosschainData ?
               <div className="max-h-36 sm:max-h-60 flex flex-col overflow-y-auto space-y-2.5 mt-1">
-                {crosschainData.total_transfers?.map((coinTrasfer, i) => (
+                {crosschainData.total_transfers?.map((coinTransfer, i) => (
                   <div key={i} className="flex items-start">
                     <div>
                       <img
-                        src={coinTrasfer.image || randImage(i)}
+                        src={coinTransfer.image || randImage(i)}
                         alt=""
                         className="w-5 h-5 rounded-full"
                       />
-                      <div className="uppercase text-xs font-semibold mt-0.5">
-                        {coinTrasfer.symbol}
+                      <div className="text-xs font-semibold mt-0.5">
+                        {coinTransfer.name}
                       </div>
                     </div>
                     <div className="text-right ml-auto">
-                      <div className="font-mono text-gray-800 dark:text-gray-100 text-base font-semibold">{numberFormat(coinTrasfer.amount, coinTrasfer.amount >= 1000000 ? '0,0.00a' : '0,0.00')}</div>
-                      <div className="uppercase text-gray-400 dark:text-gray-600 text-xs -mt-0.5">{coinTrasfer.denom}</div>
+                      <div className="font-mono text-gray-800 dark:text-gray-100 text-base font-semibold">{numberFormat(coinTransfer.amount, coinTransfer.amount >= 1000000 ? '0,0.00a' : '0,0.00000000')}</div>
+                      <div className="uppercase text-gray-400 dark:text-gray-600 text-xs -mt-0.5">{coinTransfer.denom}</div>
                     </div>
                   </div>
                 ))}
@@ -343,21 +343,21 @@ const Summary = ({ data, crosschainData, avgTransfersTimeRange, setAvgTransfersT
           <span className="flex flex-col space-y-1.5 mt-1">
             {crosschainData ?
               <div className="max-h-36 sm:max-h-60 flex flex-col overflow-y-auto space-y-2.5 mt-1">
-                {crosschainData.avg_transfers?.map((coinTrasfer, i) => (
+                {crosschainData.avg_transfers?.map((coinTransfer, i) => (
                   <div key={i} className="flex items-start">
                     <div>
                       <img
-                        src={coinTrasfer.image || randImage(i)}
+                        src={coinTransfer.image || randImage(i)}
                         alt=""
                         className="w-5 h-5 rounded-full"
                       />
-                      <div className="uppercase text-xs font-semibold mt-0.5">
-                        {coinTrasfer.symbol}
+                      <div className="text-xs font-semibold mt-0.5">
+                        {coinTransfer.name}
                       </div>
                     </div>
                     <div className="text-right ml-auto">
-                      <div className="font-mono text-gray-800 dark:text-gray-100 text-base font-semibold">{numberFormat(coinTrasfer.amount, coinTrasfer.amount >= 1000000 ? '0,0.00a' : '0,0.00')}</div>
-                      <div className="uppercase text-gray-400 dark:text-gray-600 text-xs -mt-0.5">{coinTrasfer.denom}</div>
+                      <div className="font-mono text-gray-800 dark:text-gray-100 text-base font-semibold">{numberFormat(coinTransfer.amount, coinTransfer.amount >= 1000000 ? '0,0.00a' : '0,0.00000000')}</div>
+                      <div className="uppercase text-gray-400 dark:text-gray-600 text-xs -mt-0.5">{coinTransfer.denom}</div>
                     </div>
                   </div>
                 ))}
@@ -409,21 +409,21 @@ const Summary = ({ data, crosschainData, avgTransfersTimeRange, setAvgTransfersT
           <span className="flex flex-col space-y-1.5 mt-1">
             {crosschainData ?
               <div className="max-h-36 sm:max-h-60 flex flex-col overflow-y-auto space-y-2.5 mt-1">
-                {crosschainData.highest_transfer_24h?.map((coinTrasfer, i) => (
+                {crosschainData.highest_transfer_24h?.map((coinTransfer, i) => (
                   <div key={i} className="flex items-start">
                     <div>
                       <img
-                        src={coinTrasfer.image || randImage(i)}
+                        src={coinTransfer.image || randImage(i)}
                         alt=""
                         className="w-5 h-5 rounded-full"
                       />
-                      <div className="uppercase text-xs font-semibold mt-0.5">
-                        {coinTrasfer.symbol}
+                      <div className="text-xs font-semibold mt-0.5">
+                        {coinTransfer.name}
                       </div>
                     </div>
                     <div className="text-right ml-auto">
-                      <div className="font-mono text-gray-800 dark:text-gray-100 text-base font-semibold">{numberFormat(coinTrasfer.amount, coinTrasfer.amount >= 1000000 ? '0,0.00a' : '0,0.00')}</div>
-                      <div className="uppercase text-gray-400 dark:text-gray-600 text-xs -mt-0.5">{coinTrasfer.denom}</div>
+                      <div className="font-mono text-gray-800 dark:text-gray-100 text-base font-semibold">{numberFormat(coinTransfer.amount, coinTransfer.amount >= 1000000 ? '0,0.00a' : '0,0.00000000')}</div>
+                      <div className="uppercase text-gray-400 dark:text-gray-600 text-xs -mt-0.5">{coinTransfer.denom}</div>
                     </div>
                   </div>
                 ))}
@@ -467,21 +467,21 @@ const Summary = ({ data, crosschainData, avgTransfersTimeRange, setAvgTransfersT
           <span className="flex flex-col space-y-1.5 mt-1">
             {tvlData ?
               <div className="max-h-36 sm:max-h-60 flex flex-col overflow-y-auto space-y-2.5 mt-1" style={{ minHeight: '134px' }}>
-                {tvlData.tvls?.map((coinTrasfer, i) => (
+                {tvlData.tvls?.map((coinTransfer, i) => (
                   <div key={i} className="flex items-start">
                     <div>
                       <img
-                        src={coinTrasfer.image || randImage(i)}
+                        src={coinTransfer.image || randImage(i)}
                         alt=""
                         className="w-5 h-5 rounded-full"
                       />
-                      <div className="uppercase text-xs font-semibold mt-0.5">
-                        {coinTrasfer.symbol}
+                      <div className="text-xs font-semibold mt-0.5">
+                        {coinTransfer.name}
                       </div>
                     </div>
                     <div className="text-right ml-auto">
-                      <div className="font-mono text-gray-800 dark:text-gray-100 text-base font-semibold">{numberFormat(coinTrasfer.amount, coinTrasfer.amount >= 1000000 ? '0,0.00a' : '0,0.00')}</div>
-                      <div className="uppercase text-gray-400 dark:text-gray-600 text-xs -mt-0.5">{coinTrasfer.denom}</div>
+                      <div className="font-mono text-gray-800 dark:text-gray-100 text-base font-semibold">{numberFormat(coinTransfer.amount, coinTransfer.amount >= 1000000 ? '0,0.00a' : '0,0.00000000')}</div>
+                      <div className="uppercase text-gray-400 dark:text-gray-600 text-xs -mt-0.5">{coinTransfer.denom}</div>
                     </div>
                   </div>
                 ))}
@@ -576,7 +576,7 @@ const Summary = ({ data, crosschainData, avgTransfersTimeRange, setAvgTransfersT
             <div key={i} className="min-w-max text-right">
               <div className="flex items-center justify-end space-x-1.5">
                 <span className="font-mono text-base font-semibold">
-                  {typeof _time.amount === 'number' ? numberFormat(_time.amount, '0,0.000') : '- '}
+                  {typeof _time.amount === 'number' ? numberFormat(_time.amount, '0,0.00000000') : '- '}
                 </span>
                 <span className="uppercase text-gray-400 dark:text-gray-600 text-xs">{chartData.total_transfers.find(transfer => transfer?.contract_name === contractSelect)?.denom}</span>
               </div>
@@ -596,7 +596,7 @@ const Summary = ({ data, crosschainData, avgTransfersTimeRange, setAvgTransfersT
             <div key={i} className="min-w-max text-right">
               <div className="flex items-center justify-end space-x-1.5">
                 <span className="font-mono text-base font-semibold">
-                  {typeof _time.amount === 'number' ? numberFormat(_time.amount, '0,0.000') : '- '}
+                  {typeof _time.amount === 'number' ? numberFormat(_time.amount, '0,0.00000000') : '- '}
                 </span>
                 <span className="uppercase text-gray-400 dark:text-gray-600 text-xs">{chartData.highest_transfer_24h.find(transfer => transfer?.contract_name === contractSelect)?.denom}</span>
               </div>

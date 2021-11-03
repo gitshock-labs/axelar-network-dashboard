@@ -15,7 +15,7 @@ import { getUptime, keygens as getKeygens } from '../../lib/api/query'
 import { status as getStatus } from '../../lib/api/rpc'
 import { allValidators, validatorSets, transactionsByEvents, allDelegations } from '../../lib/api/cosmos'
 import { getKeygensByValidator } from '../../lib/api/executor'
-import { denomName, denomAmount } from '../../lib/object/denom'
+import { denomSymbol, denomAmount } from '../../lib/object/denom'
 import { getName } from '../../lib/utils'
 
 import { STATUS_DATA, VALIDATORS_DATA/*, KEYGENS_DATA*/ } from '../../reducers/types'
@@ -153,7 +153,7 @@ export default function Validator({ address }) {
                 self: validatorData && delegation.delegation.delegator_address === validatorData.delegator_address,
                 shares: delegation.delegation && denomAmount(delegation.delegation.shares, delegation.balance && delegation.balance.denom),
                 ...delegation.balance,
-                denom: delegation.balance && denomName(delegation.balance.denom),
+                denom: delegation.balance && denomSymbol(delegation.balance.denom),
                 amount: delegation.balance && denomAmount(delegation.balance.amount, delegation.balance.denom),
               }
             }) || [], ['self', 'shares'], ['desc', 'desc']),

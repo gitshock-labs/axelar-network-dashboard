@@ -14,7 +14,7 @@ export default function Contracts({ contracts, handleDropdownClick }) {
             alt=""
             className="w-5 h-5 rounded-full"
           />
-          <span className="uppercase text-xs font-semibold">{item.symbol}</span>
+          <span className="uppercase text-xs font-semibold">{item.name}</span>
         </div>
       ))}
     </div>

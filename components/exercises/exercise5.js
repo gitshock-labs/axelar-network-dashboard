@@ -182,7 +182,7 @@ export default function Exercise1() {
 
           if (response?.data?.status === 'success' && response.data.activities?.findIndex(activity => activity.action === 'send' && activity.sender === data.axelar_address.toLowerCase() && activity.recipient?.length > 0 && activity.amount > 0 && ['axl', 'satoshi', 'photon'].includes(activity.symbol)) > -1) {
             data.token = response.data.activities[response.data.activities?.findIndex(activity => activity.action === 'send' && activity.sender === data.axelar_address.toLowerCase() && activity.recipient?.length > 0 && activity.amount > 0 && ['axl', 'satoshi', 'photon'].includes(activity.symbol))].symbol
-            data.contract_symbol = denoms.find(_denom => _denom?.name === data.token)?.contract_symbol || data.token
+            data.contract = denoms.find(_denom => _denom?.symbol === data.token)?.contract || data.token
             _processing[_processing.length - 1].commands[0].result = response.data
             _processing[_processing.length - 1].status = true
             _processing[_processing.length - 1].answer = `${process.env.NEXT_PUBLIC_SITE_URL}/tx/${data.tx_axelar_deposit}`
@@ -257,7 +257,7 @@ export default function Exercise1() {
         }
 
         if (!error) {
-          cmd = `axelard q evm token-address ethereum ${data.contract_symbol}`
+          cmd = `axelard q evm token-address ethereum ${data.contract}`
 
           _processing.push({
             label: `Check ${items?.[3]?.label}`,
@@ -308,7 +308,7 @@ export default function Exercise1() {
               }
             }
             else {
-              _processing[_processing.length - 1].commands[1].result = `Wrong contract (${data.contract_symbol} contract${data.eth_token_contract ? `: ${data.eth_token_contract}` : ''})`
+              _processing[_processing.length - 1].commands[1].result = `Wrong contract (${data.contract} contract${data.eth_token_contract ? `: ${data.eth_token_contract}` : ''})`
               _processing[_processing.length - 1].status = false
               error = true
             }

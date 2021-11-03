@@ -14,7 +14,7 @@ import { status as getStatus, consensusState } from '../../lib/api/rpc'
 import { allValidators, validatorProfile, allDelegations } from '../../lib/api/cosmos'
 import { transfers } from '../../lib/api/opensearch'
 import { hexToBech32 } from '../../lib/object/key'
-import { denomName, denomAmount, denomSymbol, denomImage } from '../../lib/object/denom'
+import { denomSymbol, denomName, denomAmount, denomImage } from '../../lib/object/denom'
 import { numberFormat, randImage } from '../../lib/utils'
 
 import { STATUS_DATA, VALIDATORS_DATA } from '../../reducers/types'
@@ -91,9 +91,9 @@ export default function Dashboard() {
       const total_transfers = !(isInterval || !avgTransfersTimeRange) ? crosschainSummaryData?.total_transfers : _.orderBy(response?.data?.map(transfer => {
         return {
           ...transfer,
-          symbol: denomSymbol(transfer.contract_name),
+          denom: denomSymbol(transfer.contract_name),
+          name: denomName(transfer.contract_name),
           image: denomImage(transfer.contract_name),
-          denom: denomName(transfer.contract_name),
           amount: denomAmount(transfer.amount, transfer.contract_name),
         }
       }), ['tx'], ['desc'])
@@ -119,9 +119,9 @@ export default function Dashboard() {
       const avg_transfers = _.orderBy(response?.data?.map(transfer => {
         return {
           ...transfer,
-          symbol: denomSymbol(transfer.contract_name),
+          denom: denomSymbol(transfer.contract_name),
+          name: denomName(transfer.contract_name),
           image: denomImage(transfer.contract_name),
-          denom: denomName(transfer.contract_name),
           amount: denomAmount(transfer.amount, transfer.contract_name),
         }
       }), ['tx'], ['desc'])
@@ -149,9 +149,9 @@ export default function Dashboard() {
       const highest_transfer_24h = !(isInterval || !avgTransfersTimeRange) ? crosschainSummaryData?.highest_transfer_24h : _.orderBy(response?.data?.map(transfer => {
         return {
           ...transfer,
-          symbol: denomSymbol(transfer.contract_name),
+          denom: denomSymbol(transfer.contract_name),
+          name: denomName(transfer.contract_name),
           image: denomImage(transfer.contract_name),
-          denom: denomName(transfer.contract_name),
           amount: denomAmount(transfer.amount, transfer.contract_name),
         }
       }), ['tx'], ['desc'])
@@ -218,9 +218,9 @@ export default function Dashboard() {
 
           return {
             ...transfer,
-            symbol: denomSymbol(transfer.contract_name),
+            denom: denomSymbol(transfer.contract_name),
+            name: denomName(transfer.contract_name),
             image: denomImage(transfer.contract_name),
-            denom: denomName(transfer.contract_name),
             times: times.map(time => {
               return {
                 ...time,
@@ -261,9 +261,9 @@ export default function Dashboard() {
 
           return {
             ...transfer,
-            symbol: denomSymbol(transfer.contract_name),
+            denom: denomSymbol(transfer.contract_name),
+            name: denomName(transfer.contract_name),
             image: denomImage(transfer.contract_name),
-            denom: denomName(transfer.contract_name),
             times: times.map(time => {
               return {
                 ...time,
@@ -307,9 +307,9 @@ export default function Dashboard() {
           tvls = _.concat(tvls || [], Object.values(_.groupBy(response?.data?.map(delegation => {
             return {
               delegator_address: delegation?.delegation?.delegator_address,
-              symbol: denomSymbol(delegation?.balance?.denom),
+              denom: denomSymbol(delegation?.balance?.denom),
+              name: denomName(delegation?.balance?.denom),
               image: denomImage(delegation?.balance?.denom),
-              denom: denomName(delegation?.balance?.denom),
               amount: denomAmount(delegation?.balance?.amount, delegation?.balance?.denom),
             }
           }) || [], 'denom')).map(value => {
@@ -477,7 +477,7 @@ export default function Dashboard() {
           avg_block_time: status_data && moment(status_data.latest_block_time).diff(moment(status_data.earliest_block_time), 'seconds') / Number(status_data.latest_block_height),
           active_validators: validators_data && validators_data.filter(validator_data => ['BOND_STATUS_BONDED'].includes(validator_data.status)).length,
           total_validators: validators_data && validators_data.length,
-          denom: chain_data && chain_data.staking_params && denomName(chain_data.staking_params.bond_denom),
+          denom: chain_data && chain_data.staking_params && denomSymbol(chain_data.staking_params.bond_denom),
           online_voting_power_now: chain_data && chain_data.staking_pool && numberFormat(Math.floor(chain_data.staking_pool.bonded_tokens), '0,0.00a'),
           online_voting_power_now_percentage: chain_data && chain_data.staking_pool && chain_data.bank_supply && (Math.floor(chain_data.staking_pool.bonded_tokens) * 100 / chain_data.bank_supply.amount),
           total_voting_power: chain_data && chain_data.bank_supply && numberFormat(chain_data.bank_supply.amount, '0,0.00a'),
