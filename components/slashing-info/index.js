@@ -63,7 +63,7 @@ export default function SlashingInfo() {
           {slashing_data ?
             slashing_data.signed_blocks_window && slashing_data.min_signed_per_window ?
               <div className="space-x-1">
-                <span className="whitespace-nowrap">{numberFormat(slashing_data.signed_blocks_window, '0,0.00000000')} - ({numberFormat(slashing_data.slash_fraction_double_sign, '0,0.00000000')} * {numberFormat(slashing_data.signed_blocks_window, '0,0.00000000')})</span>
+                <span className="whitespace-nowrap">{numberFormat(slashing_data.signed_blocks_window, '0,0.00000000')} - ({numberFormat(slashing_data.min_signed_per_window, '0,0.00000000')} * {numberFormat(slashing_data.signed_blocks_window, '0,0.00000000')})</span>
                 <span>=</span>
                 <span>{numberFormat(Number(slashing_data.signed_blocks_window) - (Number(slashing_data.min_signed_per_window) * Number(slashing_data.signed_blocks_window)), '0,0.00000000')}</span>
               </div>
