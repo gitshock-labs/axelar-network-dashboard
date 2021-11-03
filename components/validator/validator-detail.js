@@ -107,7 +107,7 @@ export default function ValidatorDetail({ data, delegations, keygens, all_keygen
             )}
             {typeof data.jailed_until === 'number' && (
               <div className="flex flex-col lg:flex-row items-start space-x-0 lg:space-x-2">
-                <span className="font-medium">Latest Unjailed:</span>
+                <span className="font-medium">Latest Jailed Until:</span>
                 <div className="flex flex-wrap items-start">
                   {data.jailed_until > 0 ?
                     <>

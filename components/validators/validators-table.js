@@ -301,7 +301,7 @@ export default function ValidatorsTable({ status }) {
                       </span>
                       {/*props.row.original.jailed_until > 0 && (
                         <div className="text-3xs text-right space-y-1 mt-2">
-                          <div className="text-gray-400 dark:text-gray-600 font-medium">Latest Unjail</div>
+                          <div className="text-gray-400 dark:text-gray-600 font-medium">Latest Jailed Until</div>
                           <div className="text-gray-600 dark:text-gray-400 font-semibold">{moment(props.row.original.jailed_until).format('MMM D, YYYY h:mm:ss A')}</div>
                         </div>
                       )*/}
