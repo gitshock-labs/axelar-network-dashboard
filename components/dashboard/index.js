@@ -161,10 +161,6 @@ export default function Dashboard() {
         avg_transfers,
         highest_transfer_24h,
       })
-
-      if (!isInterval) {
-        setContractSelect(total_transfers?.[0]?.contract_name)
-      }
     }
 
     getData()
