@@ -58,11 +58,15 @@ export default function SlashingInfo() {
   return (
     <div className="w-full bg-gray-100 dark:bg-gray-900 rounded grid grid-flow-row grid-cols-2 sm:flex items-start text-2xs lg:text-xs gap-3 sm:gap-4 lg:gap-6 mt-0 sm:mt-auto mb-4 sm:mb-auto ml-0 sm:ml-2 py-3 px-4">
       <div className="flex flex-col text-center space-y-1 lg:space-y-0.5">
-        <span className="text-gray-700 dark:text-gray-500 font-semibold">Signed Blocks Window</span>
+        <span className="text-gray-700 dark:text-gray-500 font-semibold">Max Missed</span>
         <span className="text-gray-900 dark:text-gray-300 text-xs font-light">
           {slashing_data ?
-            slashing_data.signed_blocks_window ?
-              <>{numberFormat(slashing_data.signed_blocks_window, '0,0.00000000')}</>
+            slashing_data.signed_blocks_window && slashing_data.min_signed_per_window ?
+              <div className="space-x-1">
+                <span className="whitespace-nowrap">{numberFormat(slashing_data.signed_blocks_window, '0,0.00000000')} - ({numberFormat(slashing_data.slash_fraction_double_sign, '0,0.00000000')} * {numberFormat(slashing_data.signed_blocks_window, '0,0.00000000')})</span>
+                <span>=</span>
+                <span>{numberFormat(Number(slashing_data.signed_blocks_window) - (Number(slashing_data.min_signed_per_window) * Number(slashing_data.signed_blocks_window)), '0,0.00000000')}</span>
+              </div>
               :
               '-'
             :
@@ -71,37 +75,11 @@ export default function SlashingInfo() {
         </span>
       </div>
       <div className="flex flex-col text-center space-y-1 lg:space-y-0.5">
-        <span className="text-gray-700 dark:text-gray-500 font-semibold">Min Signed / Window</span>
-        <span className="text-gray-900 dark:text-gray-300 text-xs font-light">
-          {slashing_data ?
-            slashing_data.min_signed_per_window ?
-              <>{numberFormat(slashing_data.min_signed_per_window, '0,0.00000000')}</>
-              :
-              '-'
-            :
-            <div className="skeleton w-8 h-4 mx-auto" />
-          }
-        </span>
-      </div>
-      <div className="flex flex-col text-center space-y-1 lg:space-y-0.5">
-        <span className="text-gray-700 dark:text-gray-500 font-semibold">Slash Fraction Double Sign</span>
-        <span className="text-gray-900 dark:text-gray-300 text-xs font-light">
-          {slashing_data ?
-            slashing_data.slash_fraction_double_sign ?
-              <>{numberFormat(slashing_data.slash_fraction_double_sign, '0,0.00000000')}</>
-              :
-              '-'
-            :
-            <div className="skeleton w-8 h-4 mx-auto" />
-          }
-        </span>
-      </div>
-      <div className="flex flex-col text-center space-y-1 lg:space-y-0.5">
-        <span className="text-gray-700 dark:text-gray-500 font-semibold">Slash Fraction Downtime</span>
+        <span className="text-gray-700 dark:text-gray-500 font-semibold">Slash Fraction Downtime / Double Sign</span>
         <span className="text-gray-900 dark:text-gray-300 text-xs font-light">
           {slashing_data ?
             slashing_data.slash_fraction_downtime ?
-              <>{numberFormat(slashing_data.slash_fraction_downtime, '0,0.00000000')}</>
+              <>{numberFormat(slashing_data.slash_fraction_downtime, '0,0.00000000')} / {numberFormat(slashing_data.slash_fraction_double_sign, '0,0.00000000')}</>
               :
               '-'
             :
