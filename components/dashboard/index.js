@@ -177,6 +177,12 @@ export default function Dashboard() {
   }, [avgTransfersTimeRange])
 
   useEffect(() => {
+    if (!contractSelect && crosschainSummaryData?.total_transfers?.[0]?.contract_name) {
+      setContractSelect(crosschainSummaryData.total_transfers[0].contract_name)
+    }
+  }, [crosschainSummaryData, contractSelect])
+
+  useEffect(() => {
     const controller = new AbortController()
 
     const getData = async () => {
