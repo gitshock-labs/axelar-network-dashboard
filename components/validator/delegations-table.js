@@ -55,10 +55,10 @@ export default function DelegationsTable({ data }) {
           :
           [...Array(10).keys()].map(i => { return { i, skeleton: true } })
         }
-        noPagination={data && data.length > 10 ? false : true}
+        noPagination={data?.length > 10 ? false : true}
         defaultPageSize={10}
       />
-      {data && data.length < 1 && (
+      {data?.length < 1 && (
         <div className="bg-gray-50 dark:bg-gray-800 text-gray-300 dark:text-gray-500 text-base font-medium italic text-center my-4 py-2">
           No Delegations
         </div>

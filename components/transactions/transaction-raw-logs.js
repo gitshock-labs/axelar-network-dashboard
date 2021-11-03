@@ -11,7 +11,7 @@ export default function TransactionRawLogs({ data }) {
   return (
     <>
       <div className="text-gray-900 dark:text-white text-lg font-semibold mt-6">Raw logs</div>
-      {data && data.raw_log && (
+      {data?.raw_log && (
         <div className="mt-2">
           {convertToJson(data.raw_log) ?
             <ReactJson src={convertToJson(data.raw_log)} theme={theme === 'dark' ? 'harmonic' : 'rjv-default'} />

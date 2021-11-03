@@ -22,7 +22,7 @@ export default function VotingPower({ data }) {
           <div className="w-60 h-28 bg-gray-900 dark:bg-gray-800 rounded-lg flex items-center justify-center">
             <div className="flex flex-col">
               <span className="text-gray-100 dark:text-gray-100 text-2xl font-semibold">{numberFormat(Math.floor(data.tokens / Number(process.env.NEXT_PUBLIC_POWER_REDUCTION)), '0,0')}</span>
-              {chain_data && chain_data.staking_pool && chain_data.staking_pool.bonded_tokens && (
+              {chain_data?.staking_pool?.bonded_tokens && (
                 <span className="text-gray-200 dark:text-gray-200 text-sm text-center">(~ {numberFormat(Math.floor(data.tokens / Number(process.env.NEXT_PUBLIC_POWER_REDUCTION)) * 100 / Math.floor(chain_data.staking_pool.bonded_tokens), '0,0.00')}%)</span>
               )}
             </div>
@@ -42,7 +42,7 @@ export default function VotingPower({ data }) {
               <span className="text-gray-400 dark:text-gray-600 space-x-1">
                 <span>(~</span>
                 <span>{numberFormat(Math.floor(data.self_delegation / Number(process.env.NEXT_PUBLIC_POWER_REDUCTION)), '0,0')}</span>
-                <span className="uppercase">{chain_data && chain_data.staking_params && denomSymbol(chain_data.staking_params.bond_denom)})</span>
+                <span className="uppercase">{chain_data?.staking_params && denomSymbol(chain_data.staking_params.bond_denom)})</span>
               </span>
             </span>
           </div>

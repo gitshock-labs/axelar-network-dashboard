@@ -75,7 +75,7 @@ export default function Datatable({ columns, data, rowSelectEnable = false, noPa
     }
   }, [pageIndex, pageCount])
 
-  const loading = data && data.findIndex(item => item.skeleton) > -1 ? true : false
+  const loading = data?.findIndex(item => item.skeleton) > -1 ? true : false
 
   return (
     <>
@@ -85,7 +85,7 @@ export default function Datatable({ columns, data, rowSelectEnable = false, noPa
             <tr { ...headerGroup.getHeaderGroupProps() }>
               {headerGroup.headers.map(column => (
                 <th { ...column.getHeaderProps(column.getSortByToggleProps()) } className={column.className}>
-                  <div className={`flex flex-row items-center ${column.headerClassName && column.headerClassName.includes('justify-') ? '' : 'justify-start'} ${column.headerClassName || ''}`}>
+                  <div className={`flex flex-row items-center ${column.headerClassName?.includes('justify-') ? '' : 'justify-start'} ${column.headerClassName || ''}`}>
                     <span>{column.render('Header')}</span>
                     <span className={`ml-${column.isSorted ? 2 : 0}`}>
                       {column.isSorted ? (
@@ -109,13 +109,13 @@ export default function Datatable({ columns, data, rowSelectEnable = false, noPa
             prepareRow(row)
             return (
               <tr { ...row.getRowProps() }>
-                {row.cells.map((cell, j) => (<td { ...cell.getCellProps() } className={headerGroups[0] && headerGroups[0].headers[j] && headerGroups[0].headers[j].className}>{cell.render('Cell')}</td>))}
+                {row.cells.map((cell, j) => (<td { ...cell.getCellProps() } className={headerGroups[0]?.headers[j]?.className}>{cell.render('Cell')}</td>))}
               </tr>
             )
           })}
         </tbody>
       </table>
-      {!noPagination && data && data.length > 0 && (
+      {!noPagination && data?.length > 0 && (
         <div className="flex flex-col sm:flex-row items-center justify-between my-4 mx-3">
           <select
             disabled={loading}

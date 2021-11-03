@@ -135,7 +135,7 @@ export default function Validator({ address }) {
       setValidator({ data: validatorData || {}, address })
 
       if (!controller.signal.aborted) {
-        response = await getUptime(Number(status_data.latest_block_height), validatorData && validatorData.consensus_address)
+        response = await getUptime(Number(status_data.latest_block_height), validatorData?.consensus_address)
 
         if (response) {
           setUptime({ data: response.data || [], address })
@@ -151,9 +151,9 @@ export default function Validator({ address }) {
               return {
                 ...delegation.delegation,
                 self: validatorData && delegation.delegation.delegator_address === validatorData.delegator_address,
-                shares: delegation.delegation && denomAmount(delegation.delegation.shares, delegation.balance && delegation.balance.denom),
+                shares: delegation.delegation && denomAmount(delegation.delegation.shares, delegation.balance?.denom),
                 ...delegation.balance,
-                denom: delegation.balance && denomSymbol(delegation.balance.denom),
+                denom: denomSymbol(delegation.balance?.denom),
                 amount: delegation.balance && denomAmount(delegation.balance.amount, delegation.balance.denom),
               }
             }) || [], ['self', 'shares'], ['desc', 'desc']),
@@ -202,20 +202,20 @@ export default function Validator({ address }) {
       <div className="grid grid-flow-row grid-cols-1 md:grid-cols-2 gap-4">
         <div className="my-2">
           <ValidatorDetail
-            data={validator && validator.address === address && validator.data}
-            delegations={delegations && delegations.address === address && delegations.data}
-            keygens={keygens && keygens.address === address && keygens.data}
+            data={validator?.address === address && validator?.data}
+            delegations={delegations?.address === address && delegations?.data}
+            keygens={keygens?.address === address && keygens?.data}
             all_keygens={keygens_data}
-            sign_events={signEvents && signEvents.address === address && signEvents.data}
+            sign_events={signEvents?.address === address && signEvents?.data}
           />
         </div>
         <div className="my-2">
-          <VotingPower data={validator && validator.address === address && validator.data} />
+          <VotingPower data={validator?.address === address && validator?.data} />
         </div>
       </div>
       <div className="flex flex-col md:flex-row items-start space-x-0 md:space-x-4">
         <div className="w-full md:w-1/2 xl:w-2/5 my-2">
-          <Uptime data={uptime && uptime.address === address && uptime.data} validator_data={validator && validator.address === address && validator.data} />
+          <Uptime data={uptime?.address === address && uptime?.data} validator_data={validator?.address === address && validator?.data} />
         </div>
         <div className="w-full md:w-1/2 xl:w-3/5 my-2">
           <Widget
@@ -238,10 +238,10 @@ export default function Validator({ address }) {
                 <TransactionsTable data={votingEvents} noLoad={true} hasVote={true} page="validator" />
                 :
                 table === 'delegations' ?
-                  <DelegationsTable data={delegations && delegations.address === address && delegations.data} />
+                  <DelegationsTable data={delegations?.address === address && delegations?.data} />
                   :
                   table === 'signing_events' ?
-                    <TransactionsTable data={signEvents && { ...signEvents, data: _.slice(signEvents.data.filter(transaction => transaction.participated), 0, 100) }} noLoad={true} page="validator" />
+                    <TransactionsTable data={signEvents && { ...signEvents, data: _.slice(signEvents.data?.filter(transaction => transaction.participated), 0, 100) }} noLoad={true} page="validator" />
                     :
                     <KeysTable data={keygens} page="validator" />
               }

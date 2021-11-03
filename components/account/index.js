@@ -99,9 +99,9 @@ export default function Account({ address }) {
     const getData = async () => {
       let accountData
 
-      const validator_data = validators_data && validators_data[validators_data.findIndex(validator_data => validator_data.delegator_address === address)]
+      const validator_data = validators_data?.find(validator_data => validator_data?.delegator_address === address)
 
-      const operator_address = validator_data && validator_data.operator_address
+      const operator_address = validator_data?.operator_address
 
       if (operator_address) {
         accountData = { ...accountData, operator_address }
@@ -115,7 +115,7 @@ export default function Account({ address }) {
         if (response) {
           accountData = {
             ...accountData,
-            balances: response.data && response.data.map(balance => {
+            balances: response.data?.map(balance => {
               return {
                 ...balance,
                 denom: denomSymbol(balance.denom),
@@ -132,14 +132,14 @@ export default function Account({ address }) {
         if (response) {
           accountData = {
             ...accountData,
-            stakingDelegations: response.data && response.data.map(delegation => {
+            stakingDelegations: response.data?.map(delegation => {
               return {
                 ...delegation.delegation,
-                validator_data: delegation.delegation && validators_data && validators_data.findIndex(validator_data => validator_data.operator_address === delegation.delegation.validator_address) > -1 ? validators_data[validators_data.findIndex(validator_data => validator_data.operator_address === delegation.delegation.validator_address)].description : {},
-                shares: delegation.delegation && delegation.delegation.shares && (isNaN(delegation.delegation.shares) ? -1 : denomAmount(delegation.delegation.shares, delegation.balance && delegation.balance.denom)),
+                validator_data: delegation.delegation && (validators_data?.find(validator_data => validator_data.operator_address === delegation.delegation.validator_address) || {}),
+                shares: delegation.delegation?.shares && (isNaN(delegation.delegation.shares) ? -1 : denomAmount(delegation.delegation.shares, delegation.balance?.denom)),
                 ...delegation.balance,
-                denom: delegation.balance && delegation.balance.denom && denomSymbol(delegation.balance.denom),
-                amount: delegation.balance && delegation.balance.amount && (isNaN(delegation.balance.amount) ? -1 : denomAmount(delegation.balance.amount, delegation.balance.denom)),
+                denom: denomSymbol(delegation?.balance?.denom),
+                amount: delegation.balance?.amount && (isNaN(delegation.balance.amount) ? -1 : denomAmount(delegation.balance.amount, delegation.balance.denom)),
               }
             }),
           }
@@ -152,10 +152,10 @@ export default function Account({ address }) {
         if (response) {
           accountData = {
             ...accountData,
-            stakingUnbonding: response.data && response.data.flatMap(unbonding => !(unbonding && unbonding.entries) ? [] : unbonding.entries.map(entry => {
+            stakingUnbonding: response.data?.flatMap(unbonding => !(unbonding?.entries) ? [] : unbonding.entries.map(entry => {
               return {
                 ...unbonding,
-                validator_data: unbonding && validators_data && validators_data.findIndex(validator_data => validator_data.operator_address === unbonding.validator_address) > -1 ? validators_data[validators_data.findIndex(validator_data => validator_data.operator_address === unbonding.validator_address)].description : {},
+                validator_data: unbonding && (validators_data?.find(validator_data => validator_data.operator_address === unbonding.validator_address)?.description : {}),
                 entries: undefined,
                 ...entry,
                 creation_height: Number(entry.creation_height),
@@ -189,7 +189,7 @@ export default function Account({ address }) {
           if (response) {
             accountData = {
               ...accountData,
-              commission: response && response.commission && response.commission.commission && response.commission.commission.map(commission => {
+              commission: response?.commission?.commission?.map(commission => {
                 return {
                   ...commission,
                   denom: denomSymbol(commission.denom),
@@ -205,11 +205,11 @@ export default function Account({ address }) {
         accountData = {
           ...accountData,
           total: Object.entries(_.groupBy(_.concat(
-            accountData.balances && accountData.balances.filter(balance => balance.amount > -1),
-            accountData.stakingDelegations && accountData.stakingDelegations.filter(delegation => delegation.amount > -1),
-            accountData.stakingUnbonding && accountData.stakingUnbonding.map(unbonding => { return { ...unbonding, denom: unbonding.denom || (chain_data && chain_data.staking_params && chain_data.staking_params.bond_denom), amount: unbonding.balance } }),
-            accountData.rewards && accountData.rewards.rewards && accountData.rewards.rewards.filter(reward => reward.amount > -1),
-            accountData.commission && accountData.commission.filter(commission => commission.amount > -1)
+            accountData.balances?.filter(balance => balance.amount > -1),
+            accountData.stakingDelegations?.filter(delegation => delegation.amount > -1),
+            accountData.stakingUnbonding?.map(unbonding => { return { ...unbonding, denom: unbonding.denom || chain_data?.staking_params?.bond_denom, amount: unbonding.balance } }),
+            accountData.rewards?.rewards?.filter(reward => reward.amount > -1),
+            accountData.commission?.filter(commission => commission.amount > -1)
           ), 'denom')).map(([key, value]) => { return { denom: key, amount: _.sumBy(value, 'amount') } }).filter(total => total.denom && !(['undefined'].includes(total.denom))),
         }
 
@@ -253,7 +253,7 @@ export default function Account({ address }) {
 
         data = _.slice(data, 0, 100)
 
-        setTransactions({ data, total: response && response.total, address })
+        setTransactions({ data, total: response?.total, address })
       }
     }
 

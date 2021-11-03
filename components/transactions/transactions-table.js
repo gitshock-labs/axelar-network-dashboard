@@ -131,7 +131,7 @@ export default function TransactionsTable({ data, noLoad, hasVote, page, classNa
                       <span className="uppercase font-medium">{props.row.original.symbol}</span>
                     </span>
                     :
-                    props.row.original.activities && props.row.original.activities.findIndex(activity => activity.amount/* && activity.symbol*/) > -1 ?
+                    props.row.original.activities?.findIndex(activity => activity.amount/* && activity.symbol*/) > -1 ?
                       props.row.original.activities.map((activity, i) => (
                         <div key={i} className="flex items-center justify-end space-x-1">
                           <span>{numberFormat(activity.amount, '0,0.00000000')}</span>
@@ -208,7 +208,7 @@ export default function TransactionsTable({ data, noLoad, hasVote, page, classNa
           },
         ].filter(column => ['blocks'].includes(page) ? !(['height', 'vote'].includes(column.accessor)) : ['index'].includes(page) ? !(['height', 'value', 'fee', 'vote'].includes(column.accessor)) : ['validator'].includes(page) ? !((hasVote ? ['value', 'fee'] : ['value', 'fee', 'vote']).includes(column.accessor)) : !(['vote'].includes(column.accessor)))}
         data={transactions ?
-          transactions.data && transactions.data.map((transaction, i) => { return { ...transaction, i } })
+          transactions.data?.map((transaction, i) => { return { ...transaction, i } })
           :
           [...Array(!page ? 25 : 10).keys()].map(i => { return { i, skeleton: true } })
         }
@@ -216,7 +216,7 @@ export default function TransactionsTable({ data, noLoad, hasVote, page, classNa
         defaultPageSize={!page ? LATEST_SIZE > 100 ? 50 : 25 : 10}
         className={`${!page || ['index'].includes(page) ? 'min-h-full' : ''} ${className}`}
       />
-      {transactions && !(transactions.data && transactions.data.length > 0) && (
+      {transactions && !(transactions.data?.length > 0) && (
         <div className={`bg-${!page ? 'white' : 'gray-50'} dark:bg-gray-800 text-gray-300 dark:text-gray-500 text-base font-medium italic text-center my-4 py-2`}>
           No Transactions
         </div>

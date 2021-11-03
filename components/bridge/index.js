@@ -26,11 +26,11 @@ export default function Bridge() {
           return {
             ...bridgeAccount,
             image: bridgeAccount.image || randImage(i),
-            exec_cmds: bridgeAccount.cmds && bridgeAccount.cmds.filter(cmd => cmd).map((cmd, j) => {
+            exec_cmds: bridgeAccount.cmds?.filter(cmd => cmd).map((cmd, j) => {
               return {
                 cmd,
-                result: bridgeAccounts && bridgeAccounts.data && bridgeAccounts.data.findIndex(_bridgeAccount => _bridgeAccount.id === bridgeAccount.id) > -1 ?
-                  bridgeAccounts.data[bridgeAccounts.data.findIndex(_bridgeAccount => _bridgeAccount.id === bridgeAccount.id)].exec_cmds[j].result
+                result: bridgeAccounts?.data?.findIndex(_bridgeAccount => _bridgeAccount.id === bridgeAccount.id) > -1 ?
+                  bridgeAccounts.data.find(_bridgeAccount => _bridgeAccount.id === bridgeAccount.id).exec_cmds?.[j]?.result
                   :
                   null,
               }
@@ -44,16 +44,16 @@ export default function Bridge() {
           if (!controller.signal.aborted) {
             const bridgeAccount = data[i]
 
-            if (bridgeAccount && bridgeAccount.exec_cmds) {
+            if (bridgeAccount?.exec_cmds) {
               for (let j = 0; j < bridgeAccount.exec_cmds.length; j++) {
                 const exec_cmd = bridgeAccount.exec_cmds[j]
 
                 const execResponse = await axelard({ cmd: exec_cmd.cmd, cache: true })
 
-                if (execResponse && execResponse.data && execResponse.data.stdout) {
+                if (execResponse?.data?.stdout) {
                   exec_cmd.result = execResponse.data.stdout
                 }
-                else if (execResponse && execResponse.data && execResponse.data.stderr) {
+                else if (execResponse?.data?.stderr) {
                   exec_cmd.result = execResponse.data.stderr
                 }
                 else {
@@ -92,7 +92,7 @@ export default function Bridge() {
   }, [timer])
 
   const widgets = (bridgeAccounts ?
-    bridgeAccounts.data && bridgeAccounts.data.map((bridgeAccount, i) => { return { ...bridgeAccount, i } })
+    bridgeAccounts.data?.map((bridgeAccount, i) => { return { ...bridgeAccount, i } })
     :
     [...Array(15).keys()].map(i => { return { i, skeleton: true } })
   ).map((bridgeAccount, i) => (
@@ -108,14 +108,14 @@ export default function Bridge() {
             <span className={`${bridgeAccount.name ? 'capitalize' : 'uppercase'} text-lg font-semibold my-0.5`}>{bridgeAccount.name || bridgeAccount.id}</span>
           </div>
           <div className="flex flex-col space-y-2">
-            {bridgeAccount.exec_cmds && bridgeAccount.exec_cmds.map((exec_cmd, j) => (
+            {bridgeAccount.exec_cmds?.map((exec_cmd, j) => (
               <div key={j} className="bg-gray-50 dark:bg-gray-800 rounded-lg flex flex-col space-y-2 p-3">
                 <div className="flex items-start text-gray-400 text-xs font-light space-x-1">
                   <span>>_</span>
                   <span>{exec_cmd.cmd}</span>
                 </div>
                 {typeof exec_cmd.result === 'string' ?
-                  exec_cmd.result && exec_cmd.result.includes('\n') ?
+                  exec_cmd.result?.includes('\n') ?
                     <div>
                       {exec_cmd.result.split('\n').filter((result, k) => exec_cmd.result.toLowerCase().includes('error') ? k < 1 : true).map((result, k) => (
                         <div key={k} className="break-all text-gray-500 dark:text-white text-xs font-medium">{result}</div>

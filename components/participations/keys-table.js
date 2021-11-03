@@ -187,13 +187,13 @@ export default function KeysTable({ data, corruption_signing_threshold, page }) 
             disableSortBy: true,
             Cell: props => (
               !props.row.original.skeleton ?
-                <div className={`flex flex-col space-y-2 mb-${props.value && props.value.length > COLLAPSE_VALIDATORS_SIZE ? 0.5 : 4}`}>
+                <div className={`flex flex-col space-y-2 mb-${props.value?.length > COLLAPSE_VALIDATORS_SIZE ? 0.5 : 4}`}>
                   {typeof props.row.original.snapshot === 'number' && (
                     <div className="uppercase text-gray-400 dark:text-gray-600 text-xs font-semibold">
                       Snapshot: #{props.row.original.snapshot}
                     </div>
                   )}
-                  {props.value && props.value.length > 0 ?
+                  {props.value?.length > 0 ?
                     <>
                       {['keygen_success', 'keygen_failed', 'sign_success', 'sign_failed'].includes(page) && (
                         <div className="space-x-1.5">
@@ -207,7 +207,7 @@ export default function KeysTable({ data, corruption_signing_threshold, page }) 
                       {_.slice(props.value, 0, keyIdsSeeMore.includes(props.row.original.key_id) ? props.value.length : COLLAPSE_VALIDATORS_SIZE).map((validator, i) => (
                         <div key={i} className="flex items-center text-xs space-x-1.5">
                           <div className="flex flex-col space-y-0.5">
-                            {validator.description && validator.description.moniker && (
+                            {validator.description?.moniker && (
                               <span className="flex items-center space-x-1.5">
                                 <Link href={`/validator/${validator.address}`}>
                                   <a className="text-blue-600 dark:text-blue-500 font-medium">
@@ -228,13 +228,13 @@ export default function KeysTable({ data, corruption_signing_threshold, page }) 
                             )}
                             <span className="flex items-center space-x-1">
                               <Link href={`/validator/${validator.address}`}>
-                                <a className={`${validator.description && validator.description.moniker ? 'text-gray-400 dark:text-gray-600' : 'text-blue-600 dark:text-blue-500 font-medium'}`}>
+                                <a className={`${validator.description?.moniker ? 'text-gray-400 dark:text-gray-600' : 'text-blue-600 dark:text-blue-500 font-medium'}`}>
                                   {ellipseAddress(validator.address, 16)}
                                 </a>
                               </Link>
                               <Copy text={validator.address} />
                             </span>
-                            {!(validator.description && validator.description.moniker) && (
+                            {!(validator.description?.moniker) && (
                               <span className="flex items-center space-x-1.5">
                                 {validator.status && !(['BOND_STATUS_BONDED'].includes(validator.status)) && (
                                   <span className={`bg-${validator.status.includes('UN') ? validator.status.endsWith('ED') ? 'gray-300 dark:bg-gray-600' : 'yellow-500' : 'green-500'} rounded capitalize text-white font-semibold px-1.5 py-0.5`} style={{ fontSize: '.65rem' }}>
@@ -288,13 +288,13 @@ export default function KeysTable({ data, corruption_signing_threshold, page }) 
             disableSortBy: true,
             Cell: props => (
               !props.row.original.skeleton ?
-                <div className={`flex flex-col space-y-2 mb-${props.value && props.value.length > COLLAPSE_VALIDATORS_SIZE ? 0.5 : 4}`}>
+                <div className={`flex flex-col space-y-2 mb-${props.value?.length > COLLAPSE_VALIDATORS_SIZE ? 0.5 : 4}`}>
                   {typeof props.row.original.snapshot === 'number' && (
                     <div className="uppercase text-gray-400 dark:text-gray-600 text-xs font-semibold">
                       Snapshot: #{props.row.original.snapshot}
                     </div>
                   )}
-                  {props.value && props.value.length > 0 ?
+                  {props.value?.length > 0 ?
                     <>
                       {['keygen_success', 'keygen_failed', 'sign_success', 'sign_failed'].includes(page) && (
                         <div className="space-x-1.5">
@@ -308,7 +308,7 @@ export default function KeysTable({ data, corruption_signing_threshold, page }) 
                       {_.slice(props.value, 0, keyIdsSeeMoreForNon.includes(props.row.original.key_id) ? props.value.length : COLLAPSE_VALIDATORS_SIZE).map((validator, i) => (
                         <div key={i} className="flex items-center text-xs space-x-1.5">
                           <div className="flex flex-col space-y-0.5">
-                            {validator.description && validator.description.moniker && (
+                            {validator.description?.moniker && (
                               <span className="flex items-center space-x-1.5">
                                 <Link href={`/validator/${validator.address}`}>
                                   <a className="text-blue-600 dark:text-blue-500 font-medium">
@@ -329,13 +329,13 @@ export default function KeysTable({ data, corruption_signing_threshold, page }) 
                             )}
                             <span className="flex items-center space-x-1">
                               <Link href={`/validator/${validator.address}`}>
-                                <a className={`${validator.description && validator.description.moniker ? 'text-gray-400 dark:text-gray-600' : 'text-blue-600 dark:text-blue-500 font-medium'}`}>
+                                <a className={`${validator.description?.moniker ? 'text-gray-400 dark:text-gray-600' : 'text-blue-600 dark:text-blue-500 font-medium'}`}>
                                   {ellipseAddress(validator.address, 16)}
                                 </a>
                               </Link>
                               <Copy text={validator.address} />
                             </span>
-                            {!(validator.description && validator.description.moniker) && (
+                            {!(validator.description?.moniker) && (
                               <span className="flex items-center space-x-1.5">
                                 {validator.status && !(['BOND_STATUS_BONDED'].includes(validator.status)) && (
                                   <span className={`bg-${validator.status.includes('UN') ? validator.status.endsWith('ED') ? 'gray-300 dark:bg-gray-600' : 'yellow-500' : 'green-500'} rounded capitalize text-white font-semibold px-1.5 py-0.5`} style={{ fontSize: '.65rem' }}>
@@ -394,14 +394,14 @@ export default function KeysTable({ data, corruption_signing_threshold, page }) 
           },
         ].filter(column => ['validator'].includes(page) ? !(['validators', 'corruption_signing_threshold', 'height', 'non_participant_validators'].includes(column.accessor)) : ['keygen_failed'].includes(page) ? !(['num_validator_shares', 'snapshot_block_number', 'corruption_signing_threshold'].includes(column.accessor)) : ['sign_success', 'sign_failed'].includes(page) ? !(['num_validator_shares', 'snapshot_block_number', 'corruption_signing_threshold'].includes(column.accessor)) : !(['num_validator_shares', 'snapshot_block_number'/*'height', 'non_participant_validators'*/].includes(column.accessor)))}
         data={data ?
-          data.data && data.data.map((key, i) => { return { ...key, i, corruption_signing_threshold: corruption_signing_threshold && typeof corruption_signing_threshold[key.key_id] === 'number' ? corruption_signing_threshold[key.key_id] : -1 } })
+          data.data?.map((key, i) => { return { ...key, i, corruption_signing_threshold: typeof corruption_signing_threshold?.[key.key_id] === 'number' ? corruption_signing_threshold[key.key_id] : -1 } })
           :
           [...Array(10).keys()].map(i => { return { i, skeleton: true } })
         }
-        noPagination={data && data.data && data.data.length > 10 ? false : true}
+        noPagination={data?.data?.length > 10 ? false : true}
         defaultPageSize={100}
       />
-      {data && !(data.data && data.data.length > 0) && (
+      {data && !(data.data?.length > 0) && (
         <div className={`bg-${['validator'].includes(page) ? 'gray-50' : 'white'} dark:bg-gray-800 text-gray-300 dark:text-gray-500 text-base font-medium italic text-center my-4 py-2`}>
           No Participations
         </div>

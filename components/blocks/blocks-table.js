@@ -245,7 +245,7 @@ export default function BlocksTable({ n, className = '' }) {
           blocks.data.filter((block, i) => !n || i < n).map((block, i) => {
             let proposer_name, proposer_image, operator_address
 
-            if (block && block.proposer_address && validators_data && validators_data.findIndex(validator_data => validator_data.consensus_address === block.proposer_address) > -1) {
+            if (block?.proposer_address && validators_data?.findIndex(validator_data => validator_data.consensus_address === block.proposer_address) > -1) {
               const validator_data = validators_data[validators_data.findIndex(validator_data => validator_data.consensus_address === block.proposer_address)]
 
               operator_address = validator_data.operator_address
@@ -265,7 +265,7 @@ export default function BlocksTable({ n, className = '' }) {
         defaultPageSize={100}
         className={`min-h-full ${className}`}
       />
-      {blocks && !(blocks.data && blocks.data.length > 0) && (
+      {blocks && !(blocks.data?.length > 0) && (
         <div className={`bg-${!n ? 'white' : 'gray-50'} dark:bg-gray-800 text-gray-300 dark:text-gray-500 text-base font-medium italic text-center my-4 py-2`}>
           No Blocks
         </div>

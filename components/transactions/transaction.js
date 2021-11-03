@@ -39,18 +39,18 @@ export default function Transaction({ tx }) {
 
   return (
     <div className="max-w-6xl my-4 xl:my-6 mx-auto">
-      <TransactionDetail data={transaction && transaction.tx === tx && transaction.data} />
+      <TransactionDetail data={transaction?.tx === tx && transaction?.data} />
       <Widget
         title={<div className="flex items-center text-gray-900 dark:text-white text-lg font-semibold space-x-1 mt-3">
           <span>Activities</span>
-          {transaction && transaction.tx === tx && transaction.data.activities && (
+          {transaction?.tx === tx && transaction?.data?.activities && (
             <span>({transaction.data.activities.length})</span>
           )}
         </div>}
         className="bg-transparent border-0 p-0 md:pt-4 md:pb-8 md:px-8"
       >
-        <TransactionLogs data={transaction && transaction.tx === tx && transaction.data} />
-        <TransactionRawLogs data={transaction && transaction.tx === tx && transaction.data} />
+        <TransactionLogs data={transaction?.tx === tx && transaction?.data} />
+        <TransactionRawLogs data={transaction?.tx === tx && transaction?.data} />
       </Widget>
     </div>
   )

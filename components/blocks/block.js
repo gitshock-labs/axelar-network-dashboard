@@ -130,16 +130,16 @@ export default function Block({ height }) {
         if (!controller.signal.aborted) {
           response = await getTransactions({ events: `tx.height=${height}`, 'pagination.key': pageKey && typeof pageKey === 'string' ? pageKey : undefined })
 
-          data = _.orderBy(_.uniqBy(_.concat(data, (response && response.data) || []), 'txhash'), ['timestamp'], ['desc'])
+          data = _.orderBy(_.uniqBy(_.concat(data, response?.data || []), 'txhash'), ['timestamp'], ['desc'])
 
-          pageKey = response && response.pagination && response.pagination.next_key
+          pageKey = response?.pagination?.next_key
         }
         else {
           pageKey = null
         }
       }
 
-      setTransactions({ data, total: response && response.total, height })
+      setTransactions({ data, total: response?.total, height })
     }
 
     if (height) {
@@ -153,11 +153,11 @@ export default function Block({ height }) {
     }
   }, [height])
 
-  const validator_data = block && block.height === height && block.data && block.data.proposer_address && validators_data && _.head(validators_data.filter(validator_data => validator_data && validator_data.consensus_address === block.data.proposer_address))
+  const validator_data = block?.height === height && block?.data?.proposer_address && validators_data && _.head(validators_data.filter(validator_data => validator_data?.consensus_address === block.data.proposer_address))
 
   return (
     <div className="max-w-6xl my-4 xl:my-6 mx-auto">
-      <BlockDetail data={block && block.height === height && block.data} validator_data={validator_data} />
+      <BlockDetail data={block?.height === height && block?.data} validator_data={validator_data} />
       <Widget
         title={<div className="flex items-center text-gray-900 dark:text-white text-lg font-semibold space-x-1 mt-3">
           <span>Transactions</span>

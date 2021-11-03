@@ -91,7 +91,7 @@ export default function Participations() {
       //   let data = (response || []).map((key_id, i) => {
       //     return {
       //       key_id,
-      //       ...(keygens && keygens.data && keygens.data.findIndex(keygen => keygen.key_id === key_id) > -1 ?
+      //       ...(keygens?.data?.findIndex(keygen => keygen.key_id === key_id) > -1 ?
       //         keygens.data[keygens.data.findIndex(keygen => keygen.key_id === key_id)]
       //         :
       //         null
@@ -102,18 +102,18 @@ export default function Participations() {
       //   for (let i = 0; i < data.length; i++) {
       //     let keygen = data[i]
 
-      //     if (keygen && keygen.key_id) {
+      //     if (keygen?.key_id) {
       //       keygen = await getKeygenById(keygen.key_id, { cache: true }) || keygen
       //     }
 
       //     data[i] = {
       //       ...keygen,
-      //       key_chain: keygen.key_chain || (keygen && keygen.key_id && keygen.key_id.split('-').length > 1 && getName(keygen.key_id.split('-')[0])),
-      //       key_role: keygen.key_role || (keygen && keygen.key_id && keygen.key_id.split('-').length > 2 && `${keygen.key_id.split('-')[1].toUpperCase()}_KEY`),
-      //       validators: keygen.validators && keygen.validators.map(validator => {
+      //       key_chain: keygen.key_chain || keygen?.key_id?.split('-')[0],
+      //       key_role: keygen.key_role || (keygen?.key_id?.split('-').length > 2 && `${keygen.key_id.split('-')[1].toUpperCase()}_KEY`),
+      //       validators: keygen.validators?.map(validator => {
       //         return {
       //           ...validator,
-      //           ...(validators_data && validators_data[validators_data.findIndex(validator_data => validator_data.operator_address === validator.address)]),
+      //           ...(validators_data?.find(validator_data => validator_data.operator_address === validator.address)),
       //         }
       //       }),
       //     }
@@ -127,34 +127,34 @@ export default function Participations() {
       if (!controller.signal.aborted) {
         response = await getSuccessKeygens({ size: 100, sort: [{ height: 'desc' }] })
 
-        data = (response && response.data) || []
+        data = response?.data || []
 
         for (let i = 0; i < data.length; i++) {
           let successKeygen = data[i]
 
-          // if (successKeygen && successKeygen.key_id) {
+          // if (successKeygen?.key_id) {
           //   const keygen = await getKeygenById(successKeygen.key_id, { cache: true })
 
-          //   successKeygen = { ...keygen, ...successKeygen, validator_shares: keygen && keygen.validators }
+          //   successKeygen = { ...keygen, ...successKeygen, validator_shares: keygen?.validators }
           // }
 
           data[i] = {
             ...successKeygen,
-            key_chain: successKeygen.key_chain || (successKeygen && successKeygen.key_id && successKeygen.key_id.split('-').length > 1 && getName(successKeygen.key_id.split('-')[0])),
-            key_role: successKeygen.key_role || (successKeygen && successKeygen.key_id && successKeygen.key_id.split('-').length > 2 && `${successKeygen.key_id.split('-')[1].toUpperCase()}_KEY`),
-            validators: successKeygen.snapshot_validators && successKeygen.snapshot_validators.validators && successKeygen.snapshot_validators.validators.map((validator, j) => {
+            key_chain: successKeygen.key_chain || (successKeygen?.key_id?.split('-').length > 1 && getName(successKeygen.key_id.split('-')[0])),
+            key_role: successKeygen.key_role || (successKeygen?.key_id?.split('-').length > 2 && `${successKeygen.key_id.split('-')[1].toUpperCase()}_KEY`),
+            validators: successKeygen.snapshot_validators?.validators?.map((validator, j) => {
               return {
                 ...validator,
                 address: validator.validator,
-                ...(validators_data && validators_data[validators_data.findIndex(validator_data => validator_data.operator_address === validator.validator)]),
+                ...(validators_data?.find(validator_data => validator_data.operator_address === validator.validator)),
                 share: validator.share_count,
               }
             }),
-            non_participant_validators: successKeygen.snapshot_non_participant_validators && successKeygen.snapshot_non_participant_validators.validators && successKeygen.snapshot_non_participant_validators.validators.map((validator, j) => {
+            non_participant_validators: successKeygen.snapshot_non_participant_validators?.validators?.map((validator, j) => {
               return {
                 ...validator,
                 address: validator.validator,
-                ...(validators_data && validators_data[validators_data.findIndex(validator_data => validator_data.operator_address === validator.validator)]),
+                ...(validators_data?.find(validator_data => validator_data.operator_address === validator.validator)),
                 share: validator.share_count,
               }
             }),
@@ -163,34 +163,34 @@ export default function Participations() {
 
         data = _.orderBy(data, ['height'], ['desc'])
 
-        setSuccessKeygens({ data, total: response && response.total })
+        setSuccessKeygens({ data, total: response?.total })
       }
 
       if (!controller.signal.aborted) {
         response = await getFailedKeygens({ size: 100, sort: [{ height: 'desc' }] })
 
-        data = (response && response.data) || []
+        data = response?.data || []
 
         for (let i = 0; i < data.length; i++) {
           const failedKeygen = data[i]
 
           data[i] = {
             ...failedKeygen,
-            key_chain: failedKeygen.key_chain || (failedKeygen && failedKeygen.key_id && failedKeygen.key_id.split('-').length > 1 && getName(failedKeygen.key_id.split('-')[0])),
-            key_role: failedKeygen.key_role || (failedKeygen && failedKeygen.key_id && failedKeygen.key_id.split('-').length > 2 && `${failedKeygen.key_id.split('-')[1].toUpperCase()}_KEY`),
-            validators: failedKeygen.snapshot_validators && failedKeygen.snapshot_validators.validators && failedKeygen.snapshot_validators.validators.map((validator, j) => {
+            key_chain: failedKeygen.key_chain || (failedKeygen?.key_id?.split('-').length > 1 && getName(failedKeygen.key_id.split('-')[0])),
+            key_role: failedKeygen.key_role || (failedKeygen?.key_id?.split('-').length > 2 && `${failedKeygen.key_id.split('-')[1].toUpperCase()}_KEY`),
+            validators: failedKeygen.snapshot_validators?.validators?.map((validator, j) => {
               return {
                 ...validator,
                 address: validator.validator,
-                ...(validators_data && validators_data[validators_data.findIndex(validator_data => validator_data.operator_address === validator.validator)]),
+                ...(validators_data?.find(validator_data => validator_data.operator_address === validator.validator)),
                 share: validator.share_count,
               }
             }),
-            non_participant_validators: failedKeygen.snapshot_non_participant_validators && failedKeygen.snapshot_non_participant_validators.validators && failedKeygen.snapshot_non_participant_validators.validators.map((validator, j) => {
+            non_participant_validators: failedKeygen.snapshot_non_participant_validators?.validators?.map((validator, j) => {
               return {
                 ...validator,
                 address: validator.validator,
-                ...(validators_data && validators_data[validators_data.findIndex(validator_data => validator_data.operator_address === validator.validator)]),
+                ...(validators_data?.find(validator_data => validator_data.operator_address === validator.validator)),
                 share: validator.share_count,
               }
             }),
@@ -199,33 +199,33 @@ export default function Participations() {
 
         data = _.orderBy(data, ['height'], ['desc'])
 
-        setFailedKeygens({ data, total: response && response.total })
+        setFailedKeygens({ data, total: response?.total })
       }
 
       if (!controller.signal.aborted) {
         response = await getSignAttempts({ size: 100, query: { match: { result: true } }, sort: [{ height: 'desc' }] })
 
-        data = (response && response.data) || []
+        data = response?.data || []
 
         for (let i = 0; i < data.length; i++) {
           const signAttempt = data[i]
 
           data[i] = {
             ...signAttempt,
-            key_chain: signAttempt.key_chain || (signAttempt && signAttempt.key_id && signAttempt.key_id.split('-').length > 1 && getName(signAttempt.key_id.split('-')[0])),
-            key_role: signAttempt.key_role || (signAttempt && signAttempt.key_id && signAttempt.key_id.split('-').length > 2 && `${signAttempt.key_id.split('-')[1].toUpperCase()}_KEY`),
-            validators: signAttempt.participants && signAttempt.participants.map((address, j) => {
+            key_chain: signAttempt.key_chain || (signAttempt?.key_id?.split('-').length > 1 && getName(signAttempt.key_id.split('-')[0])),
+            key_role: signAttempt.key_role || (signAttempt?.key_id?.split('-').length > 2 && `${signAttempt.key_id.split('-')[1].toUpperCase()}_KEY`),
+            validators: signAttempt.participants?.map((address, j) => {
               return {
                 address,
-                ...(validators_data && validators_data[validators_data.findIndex(validator_data => validator_data.operator_address === address)]),
-                share: signAttempt.participant_shares && signAttempt.participant_shares[j],
+                ...(validators_data?.find(validator_data => validator_data.operator_address === address)),
+                share: signAttempt.participant_shares?.[j],
               }
             }),
-            non_participant_validators: signAttempt.non_participants && signAttempt.non_participants.map((address, j) => {
+            non_participant_validators: signAttempt.non_participants?.map((address, j) => {
               return {
                 address,
-                ...(validators_data && validators_data[validators_data.findIndex(validator_data => validator_data.operator_address === address)]),
-                share: signAttempt.non_participant_shares && signAttempt.non_participant_shares[j],
+                ...(validators_data?.find(validator_data => validator_data.operator_address === address)),
+                share: signAttempt.non_participant_shares?.[j],
               }
             }),
           }
@@ -233,33 +233,33 @@ export default function Participations() {
 
         data = _.orderBy(data, ['height'], ['desc'])
 
-        setSignAttempts({ data, total: response && response.total })
+        setSignAttempts({ data, total: response?.total })
       }
 
       if (!controller.signal.aborted) {
         response = await getSignAttempts({ size: 100, query: { match: { result: false } }, sort: [{ height: 'desc' }] })
 
-        data = (response && response.data) || []
+        data = response?.data || []
 
         for (let i = 0; i < data.length; i++) {
           const signAttempt = data[i]
 
           data[i] = {
             ...signAttempt,
-            key_chain: signAttempt.key_chain || (signAttempt && signAttempt.key_id && signAttempt.key_id.split('-').length > 1 && getName(signAttempt.key_id.split('-')[0])),
-            key_role: signAttempt.key_role || (signAttempt && signAttempt.key_id && signAttempt.key_id.split('-').length > 2 && `${signAttempt.key_id.split('-')[1].toUpperCase()}_KEY`),
-            validators: signAttempt.participants && signAttempt.participants.map((address, j) => {
+            key_chain: signAttempt.key_chain || (signAttempt?.key_id?.split('-').length > 1 && getName(signAttempt.key_id.split('-')[0])),
+            key_role: signAttempt.key_role || (signAttempt?.key_id?.split('-').length > 2 && `${signAttempt.key_id.split('-')[1].toUpperCase()}_KEY`),
+            validators: signAttempt.participants?.map((address, j) => {
               return {
                 address,
-                ...(validators_data && validators_data[validators_data.findIndex(validator_data => validator_data.operator_address === address)]),
-                share: signAttempt.participant_shares && signAttempt.participant_shares[j],
+                ...(validators_data?.find(validator_data => validator_data.operator_address === address)),
+                share: signAttempt.participant_shares?.[j],
               }
             }),
-            non_participant_validators: signAttempt.non_participants && signAttempt.non_participants.map((address, j) => {
+            non_participant_validators: signAttempt.non_participants?.map((address, j) => {
               return {
                 address,
-                ...(validators_data && validators_data[validators_data.findIndex(validator_data => validator_data.operator_address === address)]),
-                share: signAttempt.non_participant_shares && signAttempt.non_participant_shares[j],
+                ...(validators_data?.find(validator_data => validator_data.operator_address === address)),
+                share: signAttempt.non_participant_shares?.[j],
               }
             }),
           }
@@ -267,7 +267,7 @@ export default function Participations() {
 
         data = _.orderBy(data, ['height'], ['desc'])
 
-        setFailedSignAttempts({ data, total: response && response.total })
+        setFailedSignAttempts({ data, total: response?.total })
       }
     }
 
@@ -282,14 +282,14 @@ export default function Participations() {
 
   useEffect(() => {
     if (validators_data) {
-      if (keygens && keygens.data) {
+      if (keygens?.data) {
         const data = keygens.data.map(keygen => {
           return {
             ...keygen,
-            validators: keygen.validators && keygen.validators.map(validator => {
+            validators: keygen.validators?.map(validator => {
               return {
                 ...validator,
-                ...validators_data[validators_data.findIndex(validator_data => validator_data.operator_address === validator.address)],
+                ...validators_data?.find(validator_data => validator_data.operator_address === validator.address),
               }
             }),
           }
@@ -298,23 +298,23 @@ export default function Participations() {
         setKeygens({ data })
       }
 
-      if (successKeygens && successKeygens.data) {
+      if (successKeygens?.data) {
         const data = successKeygens.data.map(successKeygen => {
           return {
             ...successKeygen,
-            validators: successKeygen.snapshot_validators && successKeygen.snapshot_validators.validators && successKeygen.snapshot_validators.validators.map((validator, j) => {
+            validators: successKeygen?.snapshot_validators.validators?.map((validator, j) => {
               return {
                 ...validator,
                 address: validator.validator,
-                ...(validators_data && validators_data[validators_data.findIndex(validator_data => validator_data.operator_address === validator.validator)]),
+                ...(validators_data?.find(validator_data => validator_data.operator_address === validator.validator)),
                 share: validator.share_count,
               }
             }),
-            non_participant_validators: successKeygen.snapshot_non_participant_validators && successKeygen.snapshot_non_participant_validators.validators && successKeygen.snapshot_non_participant_validators.validators.map((validator, j) => {
+            non_participant_validators: successKeygen.snapshot_non_participant_validators?.validators?.map((validator, j) => {
               return {
                 ...validator,
                 address: validator.validator,
-                ...(validators_data && validators_data[validators_data.findIndex(validator_data => validator_data.operator_address === validator.validator)]),
+                ...(validators_data?.find(validator_data => validator_data.operator_address === validator.validator)),
                 share: validator.share_count,
               }
             }),
@@ -324,23 +324,23 @@ export default function Participations() {
         setSuccessKeygens({ ...successKeygens, data })
       }
 
-      if (failedKeygens && failedKeygens.data) {
+      if (failedKeygens?.data) {
         const data = failedKeygens.data.map(failedKeygen => {
           return {
             ...failedKeygen,
-            validators: failedKeygen.snapshot_validators && failedKeygen.snapshot_validators.validators && failedKeygen.snapshot_validators.validators.map((validator, j) => {
+            validators: failedKeygen.snapshot_validators?.validators?.map((validator, j) => {
               return {
                 ...validator,
                 address: validator.validator,
-                ...(validators_data && validators_data[validators_data.findIndex(validator_data => validator_data.operator_address === validator.validator)]),
+                ...(validators_data?.find(validator_data => validator_data.operator_address === validator.validator)),
                 share: validator.share_count,
               }
             }),
-            non_participant_validators: failedKeygen.snapshot_non_participant_validators && failedKeygen.snapshot_non_participant_validators.validators && failedKeygen.snapshot_non_participant_validators.validators.map((validator, j) => {
+            non_participant_validators: failedKeygen.snapshot_non_participant_validators?.validators?.map((validator, j) => {
               return {
                 ...validator,
                 address: validator.validator,
-                ...(validators_data && validators_data[validators_data.findIndex(validator_data => validator_data.operator_address === validator.validator)]),
+                ...(validators_data?.find(validator_data => validator_data.operator_address === validator.validator)),
                 share: validator.share_count,
               }
             }),
@@ -350,22 +350,22 @@ export default function Participations() {
         setFailedKeygens({ ...failedKeygens, data })
       }
 
-      if (signAttempts && signAttempts.data) {
+      if (signAttempts?.data) {
         const data = signAttempts.data.map(signAttempt => {
           return {
             ...signAttempt,
-            validators: signAttempt.participants && signAttempt.participants.map((address, j) => {
+            validators: signAttempt.participants?.map((address, j) => {
               return {
                 address,
-                ...(validators_data && validators_data[validators_data.findIndex(validator_data => validator_data.operator_address === address)]),
-                share: signAttempt.participant_shares && signAttempt.participant_shares[j],
+                ...(validators_data?.find(validator_data => validator_data.operator_address === address)),
+                share: signAttempt.participant_shares?.[j],
               }
             }),
-            non_participant_validators: signAttempt.non_participants && signAttempt.non_participants.map((address, j) => {
+            non_participant_validators: signAttempt.non_participants?.map((address, j) => {
               return {
                 address,
-                ...(validators_data && validators_data[validators_data.findIndex(validator_data => validator_data.operator_address === address)]),
-                share: signAttempt.non_participant_shares && signAttempt.non_participant_shares[j],
+                ...(validators_data?.find(validator_data => validator_data.operator_address === address)),
+                share: signAttempt.non_participant_shares?.[j],
               }
             }),
           }
@@ -374,22 +374,22 @@ export default function Participations() {
         setSignAttempts({ ...signAttempts, data })
       }
 
-      if (failedSignAttempts && failedSignAttempts.data) {
+      if (failedSignAttempts?.data) {
         const data = failedSignAttempts.data.map(signAttempt => {
           return {
             ...signAttempt,
-            validators: signAttempt.participants && signAttempt.participants.map((address, j) => {
+            validators: signAttempt.participants?.map((address, j) => {
               return {
                 address,
-                ...(validators_data && validators_data[validators_data.findIndex(validator_data => validator_data.operator_address === address)]),
-                share: signAttempt.participant_shares && signAttempt.participant_shares[j],
+                ...(validators_data?.find(validator_data => validator_data.operator_address === address)),
+                share: signAttempt.participant_shares?.[j],
               }
             }),
-            non_participant_validators: signAttempt.non_participants && signAttempt.non_participants.map((address, j) => {
+            non_participant_validators: signAttempt.non_participants?.map((address, j) => {
               return {
                 address,
-                ...(validators_data && validators_data[validators_data.findIndex(validator_data => validator_data.operator_address === address)]),
-                share: signAttempt.non_participant_shares && signAttempt.non_participant_shares[j],
+                ...(validators_data?.find(validator_data => validator_data.operator_address === address)),
+                share: signAttempt.non_participant_shares?.[j],
               }
             }),
           }
@@ -403,12 +403,12 @@ export default function Participations() {
   return (
     <div className={`max-w-${[/*'keygen_failed', 'sign_success', 'sign_failed'*/].includes(table) ? '7xl' : 'full'} my-4 xl:my-6 mx-auto`}>
       <Summary
-        data={summaryData && summaryData.data}
-        keygens={keygens && keygens.data}
-        successKeygens={successKeygens && (typeof successKeygens.total === 'number' ? successKeygens.total : (successKeygens.data && successKeygens.data.length))}
-        failedKeygens={failedKeygens && (typeof failedKeygens.total === 'number' ? failedKeygens.total : (failedKeygens.data && failedKeygens.data.length))}
-        signAttempts={signAttempts && (typeof signAttempts.total === 'number' ? signAttempts.total : (signAttempts.data && signAttempts.data.length))}
-        failedSignAttempts={failedSignAttempts && (typeof failedSignAttempts.total === 'number' ? failedSignAttempts.total : (failedSignAttempts.data && failedSignAttempts.data.length))}
+        data={summaryData?.data}
+        keygens={keygens?.data}
+        successKeygens={successKeygens && (typeof successKeygens.total === 'number' ? successKeygens.total : successKeygens.data?.length)}
+        failedKeygens={failedKeygens && (typeof failedKeygens.total === 'number' ? failedKeygens.total : failedKeygens.data?.length)}
+        signAttempts={signAttempts && (typeof signAttempts.total === 'number' ? signAttempts.total : signAttempts.data?.length)}
+        failedSignAttempts={failedSignAttempts && (typeof failedSignAttempts.total === 'number' ? failedSignAttempts.total : failedSignAttempts.data?.length)}
       />
       <div className="flex flex-row items-center overflow-x-auto space-x-1 my-2">
         {['keygen_success', 'keygen_failed', 'sign_success', 'sign_failed'].map((_table, i) => (
@@ -430,7 +430,7 @@ export default function Participations() {
           table === 'sign_failed' ?
             <KeysTable data={failedSignAttempts} page={table} />
             :
-            <KeysTable data={keygens || successKeygens} page={table} corruption_signing_threshold={summaryData && summaryData.data && summaryData.data.corruption_signing_threshold} />
+            <KeysTable data={keygens || successKeygens} page={table} corruption_signing_threshold={summaryData?.data?.corruption_signing_threshold} />
       }
     </div>
   )

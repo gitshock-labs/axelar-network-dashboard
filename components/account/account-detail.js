@@ -22,12 +22,12 @@ export default function AccountDetail({ data }) {
         <div className="text-base font-semibold">Total:</div>
         {data ?
           <div className="flex items-center text-gray-700 dark:text-gray-100 space-x-2">
-            {data.total && data.total.length > 0 ?
+            {data.total?.length > 0 ?
               data.total.map((total, i) => (
                 <span key={i} className="bg-gray-200 dark:bg-gray-700 rounded text-normal font-medium space-x-1 px-2 py-1">
                   <span>{numberFormat(total.amount, '0,0.00000000')}</span>
                   <span className="uppercase font-light">{ellipseAddress(total.denom, 6)}</span>
-                  {chain_data && chain_data.coin && chain_data.staking_params && chain_data.staking_params.bond_denom === total.denom && (
+                  {chain_data?.coin && chain_data.staking_params?.bond_denom === total.denom && (
                     <span className="text-gray-500">
                       (
                       {CURRENCY_SYMBOL}
@@ -82,7 +82,7 @@ export default function AccountDetail({ data }) {
                             <Copy text={props.row.original.contract_address} />
                           </span>
                         )}
-                        {chain_data && chain_data.coin && chain_data.staking_params && chain_data.staking_params.bond_denom === props.value && (
+                        {chain_data?.coin && chain_data.staking_params?.bond_denom === props.value && (
                           <span className="text-gray-400 dark:text-gray-600">
                             {CURRENCY_SYMBOL}
                             {numberFormat(chain_data.coin[CURRENCY], '0,0.00000000')}
@@ -110,7 +110,7 @@ export default function AccountDetail({ data }) {
                       {props.value > -1 ?
                         <>
                           <span className="font-medium">{numberFormat(props.value, '0,0.00000000')}</span>
-                          {chain_data && chain_data.coin && chain_data.staking_params && chain_data.staking_params.bond_denom === props.row.original.denom && (
+                          {chain_data?.coin && chain_data.staking_params?.bond_denom === props.row.original.denom && (
                             <span className="text-gray-400 dark:text-gray-600">
                               {CURRENCY_SYMBOL}
                               {numberFormat(props.value * chain_data.coin[CURRENCY], '0,0.00000000')}
@@ -131,15 +131,15 @@ export default function AccountDetail({ data }) {
               },
             ]}
             data={data ?
-              (data.balances && data.balances.map((balance, i) => { return { ...balance, i } })) || []
+              (data.balances?.map((balance, i) => { return { ...balance, i } })) || []
               :
               [...Array(3).keys()].map(i => { return { i, skeleton: true } })
             }
-            noPagination={data && data.balances && data.balances.length > 10 ? false : true}
+            noPagination={data?.balances?.length > 10 ? false : true}
             defaultPageSize={10}
             className="no-border mt-4"
           />
-          {data && !(data.balances && data.balances.length > 0) && (
+          {data && !(data.balances?.length > 0) && (
             <div className="bg-gray-50 dark:bg-gray-800 text-gray-300 dark:text-gray-500 text-sm font-medium italic text-center my-2 py-2">
               No Balances
             </div>
@@ -181,7 +181,7 @@ export default function AccountDetail({ data }) {
                             <Copy text={props.row.original.contract_address} />
                           </span>
                         )}
-                        {chain_data && chain_data.coin && chain_data.staking_params && chain_data.staking_params.bond_denom === props.value && (
+                        {chain_data?.coin && chain_data.staking_params?.bond_denom === props.value && (
                           <span className="text-gray-400 dark:text-gray-600">
                             {CURRENCY_SYMBOL}
                             {numberFormat(chain_data.coin[CURRENCY], '0,0.00000000')}
@@ -209,7 +209,7 @@ export default function AccountDetail({ data }) {
                       {props.value > -1 ?
                         <>
                           <span className="font-medium">{numberFormat(props.value, '0,0.00000000')}</span>
-                          {chain_data && chain_data.coin && chain_data.staking_params && chain_data.staking_params.bond_denom === props.row.original.denom && (
+                          {chain_data?.coin && chain_data.staking_params?.bond_denom === props.row.original.denom && (
                             <span className="text-gray-400 dark:text-gray-600">
                               {CURRENCY_SYMBOL}
                               {numberFormat(props.value * chain_data.coin[CURRENCY], '0,0.00000000')}
@@ -230,21 +230,21 @@ export default function AccountDetail({ data }) {
               },
             ]}
             data={data ?
-              (data.rewards && data.rewards.rewards && data.rewards.rewards.map((reward, i) => { return { ...reward, i } })) || []
+              (data.rewards?.rewards?.map((reward, i) => { return { ...reward, i } })) || []
               :
               [...Array(3).keys()].map(i => { return { i, skeleton: true } })
             }
-            noPagination={data && data.rewards && data.rewards.rewards && data.rewards.rewards.length > 10 ? false : true}
+            noPagination={data?.rewards?.rewards?.length > 10 ? false : true}
             defaultPageSize={10}
             className="no-border mt-4"
           />
-          {data && !(data.rewards && data.rewards.rewards && data.rewards.rewards.length > 0) && (
+          {data && !(data.rewards?.rewards?.length > 0) && (
             <div className="bg-gray-50 dark:bg-gray-800 text-gray-300 dark:text-gray-500 text-sm font-medium italic text-center my-2 py-2">
               No Rewards
             </div>
           )}
         </Widget>
-        {/*data && data.operator_address*/true && (
+        {/*data?.operator_address*/true && (
           <Widget
             title={<span className="text-gray-900 dark:text-white text-lg font-semibold">Commissions</span>}
           >
@@ -281,7 +281,7 @@ export default function AccountDetail({ data }) {
                               <Copy text={props.row.original.contract_address} />
                             </span>
                           )}
-                          {chain_data && chain_data.coin && chain_data.staking_params && chain_data.staking_params.bond_denom === props.value && (
+                          {chain_data?.coin && chain_data.staking_params?.bond_denom === props.value && (
                             <span className="text-gray-400 dark:text-gray-600">
                               {CURRENCY_SYMBOL}
                               {numberFormat(chain_data.coin[CURRENCY], '0,0.00000000')}
@@ -309,7 +309,7 @@ export default function AccountDetail({ data }) {
                         {props.value > -1 ?
                           <>
                             <span className="font-medium">{numberFormat(props.value, '0,0.00000000')}</span>
-                            {chain_data && chain_data.coin && chain_data.staking_params && chain_data.staking_params.bond_denom === props.row.original.denom && (
+                            {chain_data?.coin && chain_data.staking_params?.bond_denom === props.row.original.denom && (
                               <span className="text-gray-400 dark:text-gray-600">
                                 {CURRENCY_SYMBOL}
                                 {numberFormat(props.value * chain_data.coin[CURRENCY], '0,0.00000000')}
@@ -330,15 +330,15 @@ export default function AccountDetail({ data }) {
                 },
               ]}
               data={data ?
-                (data.commission && data.commission.map((commission, i) => { return { ...commission, i } })) || []
+                (data.commission?.map((commission, i) => { return { ...commission, i } })) || []
                 :
                 [...Array(3).keys()].map(i => { return { i, skeleton: true } })
               }
-              noPagination={data && data.commission && data.commission.length > 10 ? false : true}
+              noPagination={data?.commission?.length > 10 ? false : true}
               defaultPageSize={10}
               className="no-border mt-4"
             />
-            {data && !(data.commission && data.commission.length > 0) && (
+            {data && !(data.commission?.length > 0) && (
               <div className="bg-gray-50 dark:bg-gray-800 text-gray-300 dark:text-gray-500 text-sm font-medium italic text-center my-2 py-2">
                 No Commissions
               </div>
@@ -433,7 +433,7 @@ export default function AccountDetail({ data }) {
                             <Copy text={props.row.original.contract_address} />
                           </span>
                         )}
-                        {chain_data && chain_data.coin && chain_data.staking_params && chain_data.staking_params.bond_denom === props.value && (
+                        {chain_data?.coin && chain_data.staking_params?.bond_denom === props.value && (
                           <span className="text-gray-400 dark:text-gray-600">
                             {CURRENCY_SYMBOL}
                             {numberFormat(chain_data.coin[CURRENCY], '0,0.00000000')}
@@ -461,7 +461,7 @@ export default function AccountDetail({ data }) {
                       {props.value > -1 ?
                         <>
                           <span className="font-medium">{numberFormat(props.value, '0,0.00000000')}</span>
-                          {chain_data && chain_data.coin && chain_data.staking_params && chain_data.staking_params.bond_denom === props.row.original.denom && (
+                          {chain_data?.coin && chain_data.staking_params?.bond_denom === props.row.original.denom && (
                             <span className="text-gray-400 dark:text-gray-600">
                               {CURRENCY_SYMBOL}
                               {numberFormat(props.value * chain_data.coin[CURRENCY], '0,0.00000000')}
@@ -482,15 +482,15 @@ export default function AccountDetail({ data }) {
               },
             ]}
             data={data ?
-              (data.stakingDelegations && data.stakingDelegations.map((delegation, i) => { return { ...delegation, i } })) || []
+              (data.stakingDelegations?.map((delegation, i) => { return { ...delegation, i } })) || []
               :
               [...Array(3).keys()].map(i => { return { i, skeleton: true } })
             }
-            noPagination={data && data.stakingDelegations && data.stakingDelegations.length > 10 ? false : true}
+            noPagination={data?.stakingDelegations?.length > 10 ? false : true}
             defaultPageSize={10}
             className="no-border mt-4"
           />
-          {data && !(data.stakingDelegations && data.stakingDelegations.length > 0) && (
+          {data && !(data.stakingDelegations?.length > 0) && (
             <div className="bg-gray-50 dark:bg-gray-800 text-gray-300 dark:text-gray-500 text-base font-medium italic text-center my-2 py-2">
               No Delegations
             </div>
@@ -608,15 +608,15 @@ export default function AccountDetail({ data }) {
               },
             ]}
             data={data ?
-              (data.stakingUnbonding && data.stakingUnbonding.map((unbonding, i) => { return { ...unbonding, i } })) || []
+              (data.stakingUnbonding?.map((unbonding, i) => { return { ...unbonding, i } })) || []
               :
               [...Array(3).keys()].map(i => { return { i, skeleton: true } })
             }
-            noPagination={data && data.stakingUnbonding && data.stakingUnbonding.length > 10 ? false : true}
+            noPagination={data?.stakingUnbonding?.length > 10 ? false : true}
             defaultPageSize={10}
             className="no-border mt-4"
           />
-          {data && !(data.stakingUnbonding && data.stakingUnbonding.length > 0) && (
+          {data && !(data.stakingUnbonding?.length > 0) && (
             <div className="bg-gray-50 dark:bg-gray-800 text-gray-300 dark:text-gray-500 text-base font-medium italic text-center my-2 py-2">
               No Unbonding
             </div>

@@ -8,7 +8,7 @@ import Copy from '../copy'
 import { numberFormat, ellipseAddress } from '../../lib/utils'
 
 export default function BlockDetail({ data, validator_data }) {
-  if (data && data.proposer_address && validator_data && validator_data.consensus_address === data.proposer_address) {
+  if (data?.proposer_address && validator_data?.consensus_address === data.proposer_address) {
     data.operator_address = validator_data.operator_address
 
     if (validator_data.description) {

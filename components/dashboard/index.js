@@ -26,8 +26,8 @@ export default function Dashboard() {
 
   const [summaryData, setSummaryData] = useState(null)
   const [crosschainSummaryData, setCrosschainSummaryData] = useState(null)
-  const [avgTransfersTimeRange, setAvgTransfersTimeRange] = useState(null)
   const [crosschainTVLData, setCrosschainTVLData] = useState(null)
+  const [avgTransfersTimeRange, setAvgTransfersTimeRange] = useState(null)
   const [contractSelect, setContractSelect] = useState(null)
   const [crosschainChartData, setCrosschainChartData] = useState(null)
   const [consensusStateData, setConsensusStateData] = useState(null)
@@ -453,7 +453,7 @@ export default function Dashboard() {
   useEffect(() => {
     const getData = async () => {
       if (consensusStateData?.validators?.proposer?.address) {
-        const validator_data = validators_data && validators_data[validators_data.findIndex(validator_data => validator_data.consensus_address === hexToBech32(consensusStateData.validators.proposer.address, process.env.NEXT_PUBLIC_PREFIX_CONSENSUS))]
+        const validator_data = validators_data?.find(validator_data => validator_data.consensus_address === hexToBech32(consensusStateData.validators.proposer.address, process.env.NEXT_PUBLIC_PREFIX_CONSENSUS))
 
         if (validator_data) {
           consensusStateData.operator_address = validator_data.operator_address
@@ -466,7 +466,7 @@ export default function Dashboard() {
 
         consensusStateData.voting_power = consensusStateData.validators.proposer.voting_power
 
-        if (chain_data && chain_data.staking_pool) {
+        if (chain_data?.staking_pool) {
           consensusStateData.voting_power_percentage = consensusStateData.voting_power * 100 / Math.floor(chain_data.staking_pool.bonded_tokens)
         }
 
@@ -475,12 +475,12 @@ export default function Dashboard() {
           block_height: status_data && Number(status_data.latest_block_height),
           block_height_at: status_data && moment(status_data.latest_block_time).valueOf(),
           avg_block_time: status_data && moment(status_data.latest_block_time).diff(moment(status_data.earliest_block_time), 'seconds') / Number(status_data.latest_block_height),
-          active_validators: validators_data && validators_data.filter(validator_data => ['BOND_STATUS_BONDED'].includes(validator_data.status)).length,
-          total_validators: validators_data && validators_data.length,
-          denom: chain_data && chain_data.staking_params && denomSymbol(chain_data.staking_params.bond_denom),
-          online_voting_power_now: chain_data && chain_data.staking_pool && numberFormat(Math.floor(chain_data.staking_pool.bonded_tokens), '0,0.00a'),
-          online_voting_power_now_percentage: chain_data && chain_data.staking_pool && chain_data.bank_supply && (Math.floor(chain_data.staking_pool.bonded_tokens) * 100 / chain_data.bank_supply.amount),
-          total_voting_power: chain_data && chain_data.bank_supply && numberFormat(chain_data.bank_supply.amount, '0,0.00a'),
+          active_validators: validators_data?.filter(validator_data => ['BOND_STATUS_BONDED'].includes(validator_data.status)).length,
+          total_validators: validators_data?.length,
+          denom: denomSymbol(chain_data?.staking_params?.bond_denom),
+          online_voting_power_now: chain_data?.staking_pool && numberFormat(Math.floor(chain_data.staking_pool.bonded_tokens), '0,0.00a'),
+          online_voting_power_now_percentage: chain_data?.staking_pool && chain_data.bank_supply && (Math.floor(chain_data.staking_pool.bonded_tokens) * 100 / chain_data.bank_supply.amount),
+          total_voting_power: chain_data?.bank_supply && numberFormat(chain_data.bank_supply.amount, '0,0.00a'),
         })
       }
     }
@@ -493,9 +493,9 @@ export default function Dashboard() {
       <Summary
         data={summaryData}
         crosschainData={crosschainSummaryData}
+        tvlData={crosschainTVLData}
         avgTransfersTimeRange={avgTransfersTimeRange || 'all-time'}
         setAvgTransfersTimeRange={timeRange => setAvgTransfersTimeRange(timeRange)}
-        tvlData={crosschainTVLData}
         contractSelect={contractSelect || crosschainSummaryData?.total_transfers?.[0]?.contract_name}
         setContractSelect={contract => setContractSelect(contract)}
         chartData={crosschainChartData}

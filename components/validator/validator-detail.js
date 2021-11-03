@@ -29,7 +29,7 @@ export default function ValidatorDetail({ data, delegations, keygens, all_keygen
           )}
           <div className="flex flex-col space-y-1.5 lg:space-y-1">
             <div className="flex flex-col lg:flex-row lg:items-center space-x-0 lg:space-x-2">
-              <span className="text-lg font-semibold">{(data.description && data.description.moniker) || data.operator_address}</span>
+              <span className="text-lg font-semibold">{data.description?.moniker || data.operator_address}</span>
               <div className="flex flex-row space-x-1.5">
                 {data.status && (
                   <span className={`bg-${data.status.includes('UN') ? data.status.endsWith('ED') ? 'gray-300 dark:bg-gray-600' : 'yellow-500' : 'green-500'} rounded capitalize text-white font-semibold px-2 py-1`}>
@@ -141,11 +141,11 @@ export default function ValidatorDetail({ data, delegations, keygens, all_keygen
           <div className="grid grid-flow-row grid-cols-1 md:grid-cols-2 gap-2 md:gap-4 text-base sm:text-xs lg:text-base mt-3">
             <div className="flex items-start space-x-2">
               <span className="font-medium">Commission:</span>
-              <span className="font-light">{data.commission && data.commission.commission_rates && !isNaN(data.commission.commission_rates.rate) ? numberFormat(data.commission.commission_rates.rate * 100, '0,0.00') : '-'}%</span>
+              <span className="font-light">{data.commission?.commission_rates && !isNaN(data.commission.commission_rates.rate) ? numberFormat(data.commission.commission_rates.rate * 100, '0,0.00') : '-'}%</span>
             </div>
             <div className="flex items-start space-x-2">
               <span className="font-medium">Max Commission:</span>
-              <span className="font-light">{data.commission && data.commission.commission_rates && !isNaN(data.commission.commission_rates.max_rate) ? numberFormat(data.commission.commission_rates.max_rate * 100, '0,0.00') : '-'}%</span>
+              <span className="font-light">{data.commission?.commission_rates && !isNaN(data.commission.commission_rates.max_rate) ? numberFormat(data.commission.commission_rates.max_rate * 100, '0,0.00') : '-'}%</span>
             </div>
             <div className="flex items-center space-x-2">
               <span className="font-medium">Uptime:</span>
@@ -160,7 +160,7 @@ export default function ValidatorDetail({ data, delegations, keygens, all_keygen
             </div>
             <div className="flex items-start space-x-2">
               <span className="font-medium">Voting Power:</span>
-              <span className="font-light">{chain_data && chain_data.staking_pool && chain_data.staking_pool.bonded_tokens ? numberFormat(Math.floor(data.delegator_shares / Number(process.env.NEXT_PUBLIC_POWER_REDUCTION)) * 100 / Math.floor(chain_data.staking_pool.bonded_tokens), '0,0.00') : ''}%</span>
+              <span className="font-light">{chain_data?.staking_pool?.bonded_tokens ? numberFormat(Math.floor(data.delegator_shares / Number(process.env.NEXT_PUBLIC_POWER_REDUCTION)) * 100 / Math.floor(chain_data.staking_pool.bonded_tokens), '0,0.00') : ''}%</span>
             </div>
             <div className="md:col-span-2 flex items-center space-x-2">
               <span className="font-medium">Delegations:</span>

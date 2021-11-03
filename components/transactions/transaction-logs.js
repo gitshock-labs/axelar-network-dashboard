@@ -158,7 +158,7 @@ export default function TransactionLogs({ data }) {
                   }
                 </div>
               )}
-              {(activity.skeleton || (activity.recipient && activity.recipient.length > 0 && !activity.validator)) && (
+              {(activity.skeleton || (activity.recipient?.length > 0 && !activity.validator)) && (
                 <div className="flex flex-col">
                   {!activity.skeleton ?
                     <>
@@ -217,9 +217,9 @@ export default function TransactionLogs({ data }) {
               )}
             </>
             :
-            data && data.tx ?
+            data?.tx ?
               <div className="max-w-3xl">
-                <ReactJson src={(data.tx.body && data.tx.body.messages) || data.tx} theme={theme === 'dark' ? 'harmonic' : 'rjv-default'} />
+                <ReactJson src={data.tx.body?.messages || data.tx} theme={theme === 'dark' ? 'harmonic' : 'rjv-default'} />
               </div>
               :
               <>{data.tx}</>
