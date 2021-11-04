@@ -237,16 +237,16 @@ export default function TransactionsTable({ data, noLoad, hasVote, location, cla
           :
           [...Array(!location ? 25 : 10).keys()].map(i => { return { i, skeleton: true } })
         }
-        noPagination={!location || ['index'].includes(location)}
+        noPagination={(!location && !noLoad) || ['index'].includes(location)}
         defaultPageSize={!location ? LATEST_SIZE > 100 ? 50 : 25 : 10}
-        className={`${!location || ['index'].includes(location) ? 'min-h-full' : ''} ${className}`}
+        className={`${(!location && !noLoad) || ['index'].includes(location) ? 'min-h-full' : ''} ${className}`}
       />
       {transactions && !(transactions.data?.length > 0) && (
         <div className={`bg-${!location ? 'white' : 'gray-50'} dark:bg-gray-800 text-gray-300 dark:text-gray-500 text-base font-medium italic text-center my-4 py-2`}>
           No Transactions
         </div>
       )}
-      {!location && transactions?.data?.length >= LATEST_SIZE * (page + 1) && page < MAX_PAGE && (
+      {!location && !noLoad && transactions?.data?.length >= LATEST_SIZE * (page + 1) && page < MAX_PAGE && (
         <div
           onClick={() => setPage(page + 1)}
           className="btn btn-default btn-rounded max-w-max bg-trasparent bg-gray-100 dark:bg-gray-900 hover:bg-gray-200 dark:hover:bg-gray-800 cursor-pointer text-gray-900 dark:text-white font-semibold mt-4 mx-auto"

@@ -251,7 +251,7 @@ export default function Account({ address }) {
           }
         }
 
-        data = _.slice(data, 0, 100)
+        // data = _.slice(data, 0, 100)
 
         setTransactions({ data, total: response?.total, address })
       }
