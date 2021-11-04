@@ -168,7 +168,7 @@ export default function Block({ height }) {
         className="mt-4"
       >
         <div className="mt-3">
-          <TransactionsTable data={transactions} noLoad={true} page="blocks" />
+          <TransactionsTable data={transactions} noLoad={true} location="blocks" />
         </div>
       </Widget>
     </div>

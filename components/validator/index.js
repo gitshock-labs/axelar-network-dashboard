@@ -235,13 +235,13 @@ export default function Validator({ address }) {
           >
             <div className="mt-3">
               {table === 'voting_events' ?
-                <TransactionsTable data={votingEvents} noLoad={true} hasVote={true} page="validator" />
+                <TransactionsTable data={votingEvents} noLoad={true} hasVote={true} location="validator" />
                 :
                 table === 'delegations' ?
                   <DelegationsTable data={delegations?.address === address && delegations?.data} />
                   :
                   table === 'signing_events' ?
-                    <TransactionsTable data={signEvents && { ...signEvents, data: _.slice(signEvents.data?.filter(transaction => transaction.participated), 0, 100) }} noLoad={true} page="validator" />
+                    <TransactionsTable data={signEvents && { ...signEvents, data: _.slice(signEvents.data?.filter(transaction => transaction.participated), 0, 100) }} noLoad={true} location="validator" />
                     :
                     <KeysTable data={keygens} page="validator" />
               }

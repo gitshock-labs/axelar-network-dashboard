@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react'
 import { useSelector, useDispatch, shallowEqual } from 'react-redux'
 
 import moment from 'moment'
+import Loader from 'react-loader-spinner'
 
 import Datatable from '../datatable'
 import Copy from '../copy'
@@ -14,12 +15,16 @@ import { numberFormat, ellipseAddress, randImage } from '../../lib/utils'
 import { VALIDATORS_DATA } from '../../reducers/types'
 
 const LATEST_SIZE = 100
+const MAX_PAGE = 10
 
 export default function BlocksTable({ n, className = '' }) {
   const dispatch = useDispatch()
-  const { data } = useSelector(state => ({ data: state.data }), shallowEqual)
+  const { data, preferences } = useSelector(state => ({ data: state.data, preferences: state.preferences }), shallowEqual)
   const { validators_data } = { ...data }
+  const { theme } = { ...preferences }
 
+  const [page, setPage] = useState(0)
+  const [moreLoading, setMoreLoading] = useState(false)
   const [blocks, setBlocks] = useState(null)
   const [loadValsProfile, setLoadValsProfile] = useState(false)
 
@@ -98,24 +103,32 @@ export default function BlocksTable({ n, className = '' }) {
   useEffect(() => {
     const controller = new AbortController()
 
-    const getData = async () => {
+    const getData = async isInterval => {
       if (!controller.signal.aborted) {
-        const response = await getBlocks({ size: n || LATEST_SIZE, sort: [{ height: 'desc' }] })
+        if (!n && page && !isInterval) {
+          setMoreLoading(true)
+        }
+
+        const response = await getBlocks({ size: n || (LATEST_SIZE * (page + 1)), sort: [{ height: 'desc' }] })
 
         if (response) {
           setBlocks({ data: response.data || [] })
+        }
+
+        if (!n && page && !isInterval) {
+          setMoreLoading(false)
         }
       }
     }
 
     getData()
 
-    const interval = setInterval(() => getData(), (n ? 5 : 10) * 1000)
+    const interval = setInterval(() => getData(true), (n ? 5 : 10) * 1000)
     return () => {
       controller?.abort()
       clearInterval(interval)
     }
-  }, [])
+  }, [page])
 
   return (
     <>
@@ -268,6 +281,19 @@ export default function BlocksTable({ n, className = '' }) {
       {blocks && !(blocks.data?.length > 0) && (
         <div className={`bg-${!n ? 'white' : 'gray-50'} dark:bg-gray-800 text-gray-300 dark:text-gray-500 text-base font-medium italic text-center my-4 py-2`}>
           No Blocks
+        </div>
+      )}
+      {!n && blocks?.data?.length >= LATEST_SIZE * (page + 1) && page < MAX_PAGE && (
+        <div
+          onClick={() => setPage(page + 1)}
+          className="btn btn-default btn-rounded max-w-max bg-trasparent bg-gray-100 dark:bg-gray-900 hover:bg-gray-200 dark:hover:bg-gray-800 cursor-pointer text-gray-900 dark:text-white font-semibold mt-4 mx-auto"
+        >
+          Load More
+        </div>
+      )}
+      {moreLoading && (
+        <div className="flex justify-center mt-4">
+          <Loader type="ThreeDots" color={theme === 'dark' ? 'white' : '#D1D5DB'} width="32" height="32" />
         </div>
       )}
     </>

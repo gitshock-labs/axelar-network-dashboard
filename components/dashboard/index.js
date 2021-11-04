@@ -518,7 +518,7 @@ export default function Dashboard() {
           </Link>
           <div className="h-1" />
           <Widget className="min-h-full contents p-0">
-            <TransactionsTable page="index" className="bg-white dark:bg-gray-900" />
+            <TransactionsTable location="index" className="bg-white dark:bg-gray-900" />
           </Widget>
         </div>
       </div>

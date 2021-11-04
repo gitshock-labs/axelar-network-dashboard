@@ -1,7 +1,9 @@
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
+import { useSelector, shallowEqual } from 'react-redux'
 
 import moment from 'moment'
+import Loader from 'react-loader-spinner'
 import { FaCheckCircle, FaClock, FaTimesCircle } from 'react-icons/fa'
 
 import Datatable from '../datatable'
@@ -11,19 +13,33 @@ import { transactions as getTransactions } from '../../lib/api/opensearch'
 import { numberFormat, getName, ellipseAddress } from '../../lib/utils'
 
 const LATEST_SIZE = 100
+const MAX_PAGE = 10
 
-export default function TransactionsTable({ data, noLoad, hasVote, page, className = '' }) {
+export default function TransactionsTable({ data, noLoad, hasVote, location, className = '' }) {
+  const { preferences } = useSelector(state => ({ preferences: state.preferences }), shallowEqual)
+  const { theme } = { ...preferences }
+
+  const [page, setPage] = useState(0)
+  const [moreLoading, setMoreLoading] = useState(false)
   const [transactions, setTransactions] = useState(null)
 
   useEffect(() => {
     const controller = new AbortController()
 
-    const getData = async () => {
+    const getData = async isInterval => {
       if (!controller.signal.aborted) {
-        const response = await getTransactions({ size: page === 'index' ? 10 : LATEST_SIZE, sort: [{ timestamp: 'desc' }] })
+        if (!location && page && !isInterval) {
+          setMoreLoading(true)
+        }
+
+        const response = await getTransactions({ size: location === 'index' ? 10 : LATEST_SIZE * (page + 1), sort: [{ timestamp: 'desc' }] })
 
         if (response) {
           setTransactions({ data: response.data || [] })
+        }
+
+        if (!location && page && !isInterval) {
+          setMoreLoading(false)
         }
       }
     }
@@ -36,13 +52,13 @@ export default function TransactionsTable({ data, noLoad, hasVote, page, classNa
     }
 
     if (!noLoad) {
-      const interval = setInterval(() => getData(), (page === 'index' ? 5 : 10) * 1000)
+      const interval = setInterval(() => getData(true), (location === 'index' ? 5 : 10) * 1000)
       return () => {
         controller?.abort()
         clearInterval(interval)
       }
     }
-  }, [data])
+  }, [data, page])
 
   return (
     <>
@@ -206,19 +222,32 @@ export default function TransactionsTable({ data, noLoad, hasVote, page, classNa
             ),
             headerClassName: 'justify-end text-right',
           },
-        ].filter(column => ['blocks'].includes(page) ? !(['height', 'vote'].includes(column.accessor)) : ['index'].includes(page) ? !(['height', 'value', 'fee', 'vote'].includes(column.accessor)) : ['validator'].includes(page) ? !((hasVote ? ['value', 'fee'] : ['value', 'fee', 'vote']).includes(column.accessor)) : !(['vote'].includes(column.accessor)))}
+        ].filter(column => ['blocks'].includes(location) ? !(['height', 'vote'].includes(column.accessor)) : ['index'].includes(location) ? !(['height', 'value', 'fee', 'vote'].includes(column.accessor)) : ['validator'].includes(location) ? !((hasVote ? ['value', 'fee'] : ['value', 'fee', 'vote']).includes(column.accessor)) : !(['vote'].includes(column.accessor)))}
         data={transactions ?
           transactions.data?.map((transaction, i) => { return { ...transaction, i } })
           :
-          [...Array(!page ? 25 : 10).keys()].map(i => { return { i, skeleton: true } })
+          [...Array(!location ? 25 : 10).keys()].map(i => { return { i, skeleton: true } })
         }
-        noPagination={!page || ['index'].includes(page)}
-        defaultPageSize={!page ? LATEST_SIZE > 100 ? 50 : 25 : 10}
-        className={`${!page || ['index'].includes(page) ? 'min-h-full' : ''} ${className}`}
+        noPagination={!location || ['index'].includes(location)}
+        defaultPageSize={!location ? LATEST_SIZE > 100 ? 50 : 25 : 10}
+        className={`${!location || ['index'].includes(location) ? 'min-h-full' : ''} ${className}`}
       />
       {transactions && !(transactions.data?.length > 0) && (
-        <div className={`bg-${!page ? 'white' : 'gray-50'} dark:bg-gray-800 text-gray-300 dark:text-gray-500 text-base font-medium italic text-center my-4 py-2`}>
+        <div className={`bg-${!location ? 'white' : 'gray-50'} dark:bg-gray-800 text-gray-300 dark:text-gray-500 text-base font-medium italic text-center my-4 py-2`}>
           No Transactions
+        </div>
+      )}
+      {!location && transactions?.data?.length >= LATEST_SIZE * (page + 1) && page < MAX_PAGE && (
+        <div
+          onClick={() => setPage(page + 1)}
+          className="btn btn-default btn-rounded max-w-max bg-trasparent bg-gray-100 dark:bg-gray-900 hover:bg-gray-200 dark:hover:bg-gray-800 cursor-pointer text-gray-900 dark:text-white font-semibold mt-4 mx-auto"
+        >
+          Load More
+        </div>
+      )}
+      {moreLoading && (
+        <div className="flex justify-center mt-4">
+          <Loader type="ThreeDots" color={theme === 'dark' ? 'white' : '#D1D5DB'} width="32" height="32" />
         </div>
       )}
     </>
