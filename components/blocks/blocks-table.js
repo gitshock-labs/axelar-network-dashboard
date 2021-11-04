@@ -148,7 +148,7 @@ export default function BlocksTable({ n, className = '' }) {
                   </a>
                 </Link>
                 :
-                <div className="skeleton w-48 h-4" />
+                <div className={`skeleton w-${n ? 24 : 48} h-4`} />
             ),
           },
           {
@@ -195,9 +195,9 @@ export default function BlocksTable({ n, className = '' }) {
                 :
                 <div className="flex items-start space-x-2">
                   <div className="skeleton w-6 h-6 rounded-full" />
-                  <div className="flex flex-col space-y-1.5">
+                  <div className="flex flex-col space-y-2.5">
                     <div className="skeleton w-24 h-4" />
-                    <div className="skeleton w-32 h-3" />
+                    <div className="skeleton w-56 h-3" />
                   </div>
                 </div>
             ),
@@ -216,7 +216,7 @@ export default function BlocksTable({ n, className = '' }) {
                   }
                 </div>
                 :
-                <div className="skeleton w-8 h-4 ml-auto" />
+                <div className={`skeleton w-${n ? 8 : 12} h-4 ml-auto`} />
             ),
             headerClassName: 'justify-end text-right',
           },
@@ -236,7 +236,7 @@ export default function BlocksTable({ n, className = '' }) {
                   </span>
                 </div>
                 :
-                <div className="skeleton w-12 h-4 ml-auto" />
+                <div className={`skeleton w-${n ? 16 : 24} h-4 ml-auto`} />
             ),
             headerClassName: 'justify-end text-right',
           },

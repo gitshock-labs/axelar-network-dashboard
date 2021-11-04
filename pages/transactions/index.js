@@ -11,7 +11,7 @@ export default function Transactions() {
         right={<CoinInfo />}
         className="flex-col sm:flex-row items-start sm:items-center"
       />
-      <div className="max-w-7xl my-4 xl:my-6 mx-auto">
+      <div className="max-w-5xl my-4 xl:my-6 mx-auto">
         <TransactionsTable />
       </div>
     </>

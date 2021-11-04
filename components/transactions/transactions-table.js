@@ -94,7 +94,7 @@ export default function TransactionsTable({ data, noLoad, hasVote, page, classNa
                   :
                   '-'
                 :
-                <div className="skeleton w-12 h-4" />
+                <div className="skeleton w-28 h-4" />
             ),
           },
           {
@@ -115,7 +115,7 @@ export default function TransactionsTable({ data, noLoad, hasVote, page, classNa
                   <span className="capitalize">{props.value}</span>
                 </div>
                 :
-                <div className="skeleton w-16 h-4" />
+                <div className="skeleton w-20 h-4" />
             ),
           },
           {
@@ -143,7 +143,7 @@ export default function TransactionsTable({ data, noLoad, hasVote, page, classNa
                   }
                 </div>
                 :
-                <div className="skeleton w-16 h-4 ml-auto" />
+                <div className="skeleton w-20 h-4 ml-auto" />
             ),
             headerClassName: 'justify-end text-right',
           },
@@ -202,7 +202,7 @@ export default function TransactionsTable({ data, noLoad, hasVote, page, classNa
                   </span>
                 </div>
                 :
-                <div className="skeleton w-32 h-4 ml-auto" />
+                <div className="skeleton w-24 h-4 ml-auto" />
             ),
             headerClassName: 'justify-end text-right',
           },
