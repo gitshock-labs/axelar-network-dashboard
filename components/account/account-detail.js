@@ -365,17 +365,17 @@ export default function AccountDetail({ data }) {
               },
               {
                 Header: 'Validator',
-                accessor: 'validator_data.moniker',
-                sortType: (rowA, rowB) => (rowA.original.validator_data.moniker || rowA.original.i) > (rowB.original.validator_data.moniker || rowB.original.i) ? 1 : -1,
+                accessor: 'validator_data.description.moniker',
+                sortType: (rowA, rowB) => (rowA.original.validator_data?.description?.moniker || rowA.original.i) > (rowB.original.validator_data?.description?.moniker || rowB.original.i) ? 1 : -1,
                 Cell: props => (
                   !props.row.original.skeleton ?
                     <div className={`min-w-max flex items-${props.value ? 'start' : 'center'} space-x-2`}>
                       {props.row.original.validator_data && (
                         <Link href={`/validator/${props.row.original.validator_address}`}>
                           <a>
-                            {props.row.original.validator_data.image ?
+                            {props.row.original.validator_data.description?.image ?
                               <img
-                                src={props.row.original.validator_data.image}
+                                src={props.row.original.validator_data.description.image}
                                 alt=""
                                 className="w-6 h-6 rounded-full"
                               />
@@ -514,17 +514,17 @@ export default function AccountDetail({ data }) {
               },
               {
                 Header: 'Validator',
-                accessor: 'validator_data.moniker',
-                sortType: (rowA, rowB) => (rowA.original.validator_data.moniker || rowA.original.i) > (rowB.original.validator_data.moniker || rowB.original.i) ? 1 : -1,
+                accessor: 'validator_data?.description?.moniker',
+                sortType: (rowA, rowB) => (rowA.original.validator_data?.description?.moniker || rowA.original.i) > (rowB.original.validator_data?.description?.moniker || rowB.original.i) ? 1 : -1,
                 Cell: props => (
                   !props.row.original.skeleton ?
                     <div className={`min-w-max flex items-${props.value ? 'start' : 'center'} space-x-2`}>
                       {props.row.original.validator_data && (
                         <Link href={`/validator/${props.row.original.validator_address}`}>
                           <a>
-                            {props.row.original.validator_data.image ?
+                            {props.row.original.validator_data.description?.image ?
                               <img
-                                src={props.row.original.validator_data.image}
+                                src={props.row.original.validator_data.description.image}
                                 alt=""
                                 className="w-6 h-6 rounded-full"
                               />
