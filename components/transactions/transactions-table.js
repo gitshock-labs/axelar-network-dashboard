@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { useState, useEffect } from 'react'
 import { useSelector, shallowEqual } from 'react-redux'
 
+import _ from 'lodash'
 import moment from 'moment'
 import Loader from 'react-loader-spinner'
 import { FaCheckCircle, FaClock, FaTimesCircle } from 'react-icons/fa'
@@ -32,11 +33,19 @@ export default function TransactionsTable({ data, noLoad, hasVote, location, cla
           setMoreLoading(true)
         }
 
-        const response = await getTransactions({ size: location === 'index' ? 10 : LATEST_SIZE * (page + 1), sort: [{ timestamp: 'desc' }] })
+        let _data, _page = 0
 
-        if (response) {
-          setTransactions({ data: response.data || [] })
+        while (_page <= page) {
+          if (!controller.signal.aborted) {
+            const response = await getTransactions({ size: location === 'index' ? 10 : LATEST_SIZE, from: _page * (location === 'index' ? 10 : LATEST_SIZE), sort: [{ timestamp: 'desc' }] })
+
+            _data = _.uniqBy(_.concat(_data || [], response?.data || []), 'txhash')
+          }
+
+          _page++
         }
+
+        setTransactions({ data: _data || [] })
 
         if (!location && page && !isInterval) {
           setMoreLoading(false)

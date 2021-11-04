@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { useState, useEffect } from 'react'
 import { useSelector, useDispatch, shallowEqual } from 'react-redux'
 
+import _ from 'lodash'
 import moment from 'moment'
 import Loader from 'react-loader-spinner'
 
@@ -109,11 +110,19 @@ export default function BlocksTable({ n, className = '' }) {
           setMoreLoading(true)
         }
 
-        const response = await getBlocks({ size: n || (LATEST_SIZE * (page + 1)), sort: [{ height: 'desc' }] })
+        let _data, _page = 0
 
-        if (response) {
-          setBlocks({ data: response.data || [] })
+        while (_page <= page) {
+          if (!controller.signal.aborted) {
+            const response = await getBlocks({ size: n || LATEST_SIZE, from: _page * (n || LATEST_SIZE), sort: [{ height: 'desc' }] })
+
+            _data = _.uniqBy(_.concat(_data || [], response?.data || []), 'height')
+          }
+
+          _page++
         }
+
+        setBlocks({ data: _data || [] })
 
         if (!n && page && !isInterval) {
           setMoreLoading(false)
