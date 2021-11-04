@@ -354,7 +354,7 @@ export default function ValidatorsTable({ status }) {
             ),
             headerClassName: 'justify-end text-right',
           },
-        ].filter(column => ['inactive'].includes(status) ? !(['uptime'].includes(column.accessor)) : ['illegible', 'deregistering'].includes(status) ? !(['uptime', 'jailed'].includes(column.accessor)) : !(['jailed'].includes(column.accessor)))}
+        ].filter(column => ['inactive'].includes(status) ? !(['uptime'].includes(column.accessor)) : ['illegible', 'deregistering'].includes(status) ? !([/*'uptime', */'jailed'].includes(column.accessor)) : !(['jailed'].includes(column.accessor)))}
         data={validators_data ?
           validators_data.filter(validator => status === 'inactive' ? !(['BOND_STATUS_BONDED'].includes(validator.status)) : status === 'illegible' ? validator.illegible : status === 'deregistering' ? validator.deregistering : !validator.jailed && ['BOND_STATUS_BONDED'].includes(validator.status)).map((validator, i) => { return { ...validator, i } })
           :
