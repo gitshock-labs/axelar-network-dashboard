@@ -15,7 +15,7 @@ import { VALIDATORS_DATA } from '../../reducers/types'
 export default function Block({ height }) {
   const dispatch = useDispatch()
   const { data } = useSelector(state => ({ data: state.data }), shallowEqual)
-  const { validators_data } = { ...data }
+  const { denoms_data, validators_data } = { ...data }
 
   const [block, setBlock] = useState(null)
   const [transactions, setTransactions] = useState(null)
@@ -119,7 +119,7 @@ export default function Block({ height }) {
     const controller = new AbortController()
 
     const getData = async () => {
-      // const response = await getTransactions({ query: { match: { height } }, size: 100, sort: [{ timestamp: 'desc' }] })
+      // const response = await getTransactions({ query: { match: { height } }, size: 100, sort: [{ timestamp: 'desc' }] }, null, denoms_data)
       let response
 
       let data = []
@@ -128,7 +128,7 @@ export default function Block({ height }) {
 
       while (pageKey) {
         if (!controller.signal.aborted) {
-          response = await getTransactions({ events: `tx.height=${height}`, 'pagination.key': pageKey && typeof pageKey === 'string' ? pageKey : undefined })
+          response = await getTransactions({ events: `tx.height=${height}`, 'pagination.key': pageKey && typeof pageKey === 'string' ? pageKey : undefined }, null, denoms_data)
 
           data = _.orderBy(_.uniqBy(_.concat(data, response?.data || []), 'txhash'), ['timestamp'], ['desc'])
 
@@ -142,7 +142,7 @@ export default function Block({ height }) {
       setTransactions({ data, total: response?.total, height })
     }
 
-    if (height) {
+    if (height && denoms_data) {
       getData()
     }
 
@@ -151,7 +151,7 @@ export default function Block({ height }) {
       controller?.abort()
       clearInterval(interval)
     }
-  }, [height])
+  }, [height, denoms_data])
 
   const validator_data = block?.height === height && block?.data?.proposer_address && validators_data && _.head(validators_data.filter(validator_data => validator_data?.consensus_address === block.data.proposer_address))
 

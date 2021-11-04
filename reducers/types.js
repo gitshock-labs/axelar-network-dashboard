@@ -2,6 +2,7 @@
 export const THEME = 'theme'
 
 // data
+export const DENOMS_DATA = 'denoms_data'
 export const CHAIN_DATA = 'chain_data'
 export const SLASHING_DATA = 'slashing_data'
 export const STATUS_DATA = 'status_data'

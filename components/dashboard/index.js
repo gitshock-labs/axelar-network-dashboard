@@ -22,7 +22,7 @@ import { STATUS_DATA, VALIDATORS_DATA } from '../../reducers/types'
 export default function Dashboard() {
   const dispatch = useDispatch()
   const { data } = useSelector(state => ({ data: state.data }), shallowEqual)
-  const { chain_data, status_data, validators_data } = { ...data }
+  const { denoms_data, chain_data, status_data, validators_data } = { ...data }
 
   const [summaryData, setSummaryData] = useState(null)
   const [crosschainSummaryData, setCrosschainSummaryData] = useState(null)
@@ -62,105 +62,107 @@ export default function Dashboard() {
     const controller = new AbortController()
 
     const getData = async isInterval => {
-      let response
+      if (denoms_data) {
+        let response
 
-      if (!controller.signal.aborted) {
-        if (isInterval || !avgTransfersTimeRange) {
+        if (!controller.signal.aborted) {
+          if (isInterval || !avgTransfersTimeRange) {
+            response = await transfers({
+              aggs: {
+                transfers: {
+                  terms: { field: 'contract.name.keyword', size: 10000 },
+                  aggs: {
+                    amounts: {
+                      sum: {
+                        field: 'amount',
+                      },
+                    },
+                    since: {
+                      min: {
+                        field: 'created_at.ms',
+                      },
+                    },
+                  },
+                },
+              },
+            })
+          }
+        }
+
+        const total_transfers = !(isInterval || !avgTransfersTimeRange) ? crosschainSummaryData?.total_transfers : _.orderBy(response?.data?.map(transfer => {
+          return {
+            ...transfer,
+            denom: denomSymbol(transfer.contract_name, denoms_data),
+            name: denomName(transfer.contract_name, denoms_data),
+            image: denomImage(transfer.contract_name, denoms_data),
+            amount: denomAmount(transfer.amount, transfer.contract_name, denoms_data),
+          }
+        }), ['tx'], ['desc'])
+
+        if (!controller.signal.aborted) {
           response = await transfers({
             aggs: {
               transfers: {
                 terms: { field: 'contract.name.keyword', size: 10000 },
                 aggs: {
                   amounts: {
-                    sum: {
+                    avg: {
                       field: 'amount',
                     },
                   },
-                  since: {
-                    min: {
-                      field: 'created_at.ms',
+                },
+              },
+            },
+            query: avgTransfersTimeRange?.split('').findIndex(c => !isNaN(c)) > -1 ? { range: { 'created_at.ms': { gt: moment().subtract(avgTransfersTimeRange.substring(0, avgTransfersTimeRange.split('').findIndex(c => isNaN(c))), [avgTransfersTimeRange.split('').find(c => isNaN(c))].map(timeRange => timeRange === 'y' ? 'year' : timeRange === 'm' ? 'month' : timeRange === 'h' ? 'hour' : 'day')).valueOf() } } } : undefined,
+          })
+        }
+
+        const avg_transfers = _.orderBy(response?.data?.map(transfer => {
+          return {
+            ...transfer,
+            denom: denomSymbol(transfer.contract_name, denoms_data),
+            name: denomName(transfer.contract_name, denoms_data),
+            image: denomImage(transfer.contract_name, denoms_data),
+            amount: denomAmount(transfer.amount, transfer.contract_name, denoms_data),
+          }
+        }), ['tx'], ['desc'])
+
+        if (!controller.signal.aborted) {
+          if (isInterval || !avgTransfersTimeRange) {
+            response = await transfers({
+              aggs: {
+                transfers: {
+                  terms: { field: 'contract.name.keyword', size: 10000 },
+                  aggs: {
+                    amounts: {
+                      max: {
+                        field: 'amount',
+                      },
                     },
                   },
                 },
               },
-            },
-          })
+              query: { range: { 'created_at.ms': { gt: moment().subtract(24, 'hour').valueOf() } } },
+            })
+          }
         }
-      }
 
-      const total_transfers = !(isInterval || !avgTransfersTimeRange) ? crosschainSummaryData?.total_transfers : _.orderBy(response?.data?.map(transfer => {
-        return {
-          ...transfer,
-          denom: denomSymbol(transfer.contract_name),
-          name: denomName(transfer.contract_name),
-          image: denomImage(transfer.contract_name),
-          amount: denomAmount(transfer.amount, transfer.contract_name),
-        }
-      }), ['tx'], ['desc'])
+        const highest_transfer_24h = !(isInterval || !avgTransfersTimeRange) ? crosschainSummaryData?.highest_transfer_24h : _.orderBy(response?.data?.map(transfer => {
+          return {
+            ...transfer,
+            denom: denomSymbol(transfer.contract_name, denoms_data),
+            name: denomName(transfer.contract_name, denoms_data),
+            image: denomImage(transfer.contract_name, denoms_data),
+            amount: denomAmount(transfer.amount, transfer.contract_name, denoms_data),
+          }
+        }), ['tx'], ['desc'])
 
-      if (!controller.signal.aborted) {
-        response = await transfers({
-          aggs: {
-            transfers: {
-              terms: { field: 'contract.name.keyword', size: 10000 },
-              aggs: {
-                amounts: {
-                  avg: {
-                    field: 'amount',
-                  },
-                },
-              },
-            },
-          },
-          query: avgTransfersTimeRange?.split('').findIndex(c => !isNaN(c)) > -1 ? { range: { 'created_at.ms': { gt: moment().subtract(avgTransfersTimeRange.substring(0, avgTransfersTimeRange.split('').findIndex(c => isNaN(c))), [avgTransfersTimeRange.split('').find(c => isNaN(c))].map(timeRange => timeRange === 'y' ? 'year' : timeRange === 'm' ? 'month' : timeRange === 'h' ? 'hour' : 'day')).valueOf() } } } : undefined,
+        setCrosschainSummaryData({
+          total_transfers,
+          avg_transfers,
+          highest_transfer_24h,
         })
       }
-
-      const avg_transfers = _.orderBy(response?.data?.map(transfer => {
-        return {
-          ...transfer,
-          denom: denomSymbol(transfer.contract_name),
-          name: denomName(transfer.contract_name),
-          image: denomImage(transfer.contract_name),
-          amount: denomAmount(transfer.amount, transfer.contract_name),
-        }
-      }), ['tx'], ['desc'])
-
-      if (!controller.signal.aborted) {
-        if (isInterval || !avgTransfersTimeRange) {
-          response = await transfers({
-            aggs: {
-              transfers: {
-                terms: { field: 'contract.name.keyword', size: 10000 },
-                aggs: {
-                  amounts: {
-                    max: {
-                      field: 'amount',
-                    },
-                  },
-                },
-              },
-            },
-            query: { range: { 'created_at.ms': { gt: moment().subtract(24, 'hour').valueOf() } } },
-          })
-        }
-      }
-
-      const highest_transfer_24h = !(isInterval || !avgTransfersTimeRange) ? crosschainSummaryData?.highest_transfer_24h : _.orderBy(response?.data?.map(transfer => {
-        return {
-          ...transfer,
-          denom: denomSymbol(transfer.contract_name),
-          name: denomName(transfer.contract_name),
-          image: denomImage(transfer.contract_name),
-          amount: denomAmount(transfer.amount, transfer.contract_name),
-        }
-      }), ['tx'], ['desc'])
-
-      setCrosschainSummaryData({
-        total_transfers,
-        avg_transfers,
-        highest_transfer_24h,
-      })
     }
 
     getData()
@@ -170,7 +172,7 @@ export default function Dashboard() {
       controller?.abort()
       clearInterval(interval)
     }
-  }, [avgTransfersTimeRange])
+  }, [denoms_data, avgTransfersTimeRange])
 
   useEffect(() => {
     if (!contractSelect && crosschainSummaryData?.total_transfers?.[0]?.contract_name) {
@@ -182,7 +184,7 @@ export default function Dashboard() {
     const controller = new AbortController()
 
     const getData = async () => {
-      if (contractSelect) {
+      if (denoms_data && contractSelect) {
         const today = moment().utc().startOf('day')
         const daily_time_range = 30
         const day_ms = 24 * 60 * 60 * 1000
@@ -220,13 +222,13 @@ export default function Dashboard() {
 
           return {
             ...transfer,
-            denom: denomSymbol(transfer.contract_name),
-            name: denomName(transfer.contract_name),
-            image: denomImage(transfer.contract_name),
+            denom: denomSymbol(transfer.contract_name, denoms_data),
+            name: denomName(transfer.contract_name, denoms_data),
+            image: denomImage(transfer.contract_name, denoms_data),
             times: times.map(time => {
               return {
                 ...time,
-                amount: denomAmount(time.amount, transfer.contract_name),
+                amount: denomAmount(time.amount, transfer.contract_name, denoms_data),
               }
             }),
           }
@@ -263,13 +265,13 @@ export default function Dashboard() {
 
           return {
             ...transfer,
-            denom: denomSymbol(transfer.contract_name),
-            name: denomName(transfer.contract_name),
-            image: denomImage(transfer.contract_name),
+            denom: denomSymbol(transfer.contract_name, denoms_data),
+            name: denomName(transfer.contract_name, denoms_data),
+            image: denomImage(transfer.contract_name, denoms_data),
             times: times.map(time => {
               return {
                 ...time,
-                amount: denomAmount(time.amount, transfer.contract_name),
+                amount: denomAmount(time.amount, transfer.contract_name, denoms_data),
               }
             }),
           }
@@ -289,11 +291,11 @@ export default function Dashboard() {
       controller?.abort()
       clearInterval(interval)
     }
-  }, [contractSelect])
+  }, [denoms_data, contractSelect])
 
   useEffect(() => {
     const getData = async isInterval => {
-      if (validators_data && (!loadValsProfile || isInterval)) {
+      if (denoms_data && validators_data && (!loadValsProfile || isInterval)) {
         let tvls
         const tvls_updated_at = moment().valueOf()
 
@@ -309,10 +311,10 @@ export default function Dashboard() {
           tvls = _.concat(tvls || [], Object.values(_.groupBy(response?.data?.map(delegation => {
             return {
               delegator_address: delegation?.delegation?.delegator_address,
-              denom: denomSymbol(delegation?.balance?.denom),
-              name: denomName(delegation?.balance?.denom),
-              image: denomImage(delegation?.balance?.denom),
-              amount: denomAmount(delegation?.balance?.amount, delegation?.balance?.denom),
+              denom: denomSymbol(delegation?.balance?.denom, denoms_data),
+              name: denomName(delegation?.balance?.denom, denoms_data),
+              image: denomImage(delegation?.balance?.denom, denoms_data),
+              amount: denomAmount(delegation?.balance?.amount, delegation?.balance?.denom, denoms_data),
             }
           }) || [], 'denom')).map(value => {
             return {
@@ -358,7 +360,7 @@ export default function Dashboard() {
 
     const interval = setInterval(() => getData(true), 60 * 1000)
     return () => clearInterval(interval)
-  }, [validators_data, loadValsProfile])
+  }, [denoms_data, validators_data, loadValsProfile])
 
   useEffect(() => {
     const controller = new AbortController()
@@ -454,7 +456,7 @@ export default function Dashboard() {
 
   useEffect(() => {
     const getData = async () => {
-      if (consensusStateData?.validators?.proposer?.address) {
+      if (denoms_data && consensusStateData?.validators?.proposer?.address) {
         const validator_data = validators_data?.find(validator_data => validator_data.consensus_address === hexToBech32(consensusStateData.validators.proposer.address, process.env.NEXT_PUBLIC_PREFIX_CONSENSUS))
 
         if (validator_data) {
@@ -479,7 +481,7 @@ export default function Dashboard() {
           avg_block_time: status_data && moment(status_data.latest_block_time).diff(moment(status_data.earliest_block_time), 'seconds') / Number(status_data.latest_block_height),
           active_validators: validators_data?.filter(validator_data => ['BOND_STATUS_BONDED'].includes(validator_data.status)).length,
           total_validators: validators_data?.length,
-          denom: denomSymbol(chain_data?.staking_params?.bond_denom),
+          denom: denomSymbol(chain_data?.staking_params?.bond_denom, denoms_data),
           online_voting_power_now: chain_data?.staking_pool && numberFormat(Math.floor(chain_data.staking_pool.bonded_tokens), '0,0.00a'),
           online_voting_power_now_percentage: chain_data?.staking_pool && chain_data.bank_supply && (Math.floor(chain_data.staking_pool.bonded_tokens) * 100 / chain_data.bank_supply.amount),
           total_voting_power: chain_data?.bank_supply && numberFormat(chain_data.bank_supply.amount, '0,0.00a'),
@@ -488,7 +490,7 @@ export default function Dashboard() {
     }
 
     getData()
-  }, [chain_data, status_data, validators_data, consensusStateData])
+  }, [denoms_data, chain_data, status_data, validators_data, consensusStateData])
 
   return (
     <div className="my-4 mx-auto pb-2">

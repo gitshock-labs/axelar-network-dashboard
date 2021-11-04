@@ -14,7 +14,8 @@ import { axelard, gaiad } from '../../lib/api/executor'
 import { convertToJson, sleep } from '../../lib/utils'
 
 export default function Exercise4() {
-  const { preferences } = useSelector(state => ({ preferences: state.preferences }), shallowEqual)
+  const { _data, preferences } = useSelector(state => ({ _data: state.data, preferences: state.preferences }), shallowEqual)
+  const { denoms_data } = { ..._data }
   const { theme } = { ...preferences }
 
   const { handleSubmit, register, setFocus, formState: { errors }, setError, clearErrors } = useForm()
@@ -173,7 +174,7 @@ export default function Exercise4() {
 
           await sleep(0.5 * 1000)
 
-          response = await transaction(data.tx_axelar_transfer)
+          response = await transaction(data.tx_axelar_transfer, null, denoms_data)
 
           if (response?.data?.status === 'success' && response.data.activities?.findIndex(activity => activity.action === 'transfer' && activity.sender === data.axelar_address.toLowerCase() && activity.receiver?.match(accountATOMRegEx) && activity.amount > 0 && activity.symbol === 'photon') > -1) {
             _processing[_processing.length - 1].commands[0].result = response.data

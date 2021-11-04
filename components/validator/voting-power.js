@@ -10,7 +10,7 @@ import { numberFormat } from '../../lib/utils'
 
 export default function VotingPower({ data }) {
   const { _data } = useSelector(state => ({ _data: state.data }), shallowEqual)
-  const { chain_data } = { ..._data }
+  const { denoms_data, chain_data } = { ..._data }
 
   return (
     <Widget
@@ -42,7 +42,7 @@ export default function VotingPower({ data }) {
               <span className="text-gray-400 dark:text-gray-600 space-x-1">
                 <span>(~</span>
                 <span>{numberFormat(Math.floor(data.self_delegation / Number(process.env.NEXT_PUBLIC_POWER_REDUCTION)), '0,0')}</span>
-                <span className="uppercase">{chain_data?.staking_params && denomSymbol(chain_data.staking_params.bond_denom)})</span>
+                <span className="uppercase">{chain_data?.staking_params && denomSymbol(chain_data.staking_params.bond_denom, denoms_data)})</span>
               </span>
             </span>
           </div>

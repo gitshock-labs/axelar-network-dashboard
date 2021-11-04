@@ -12,11 +12,11 @@ import Copy from '../copy'
 import { transaction } from '../../lib/api/cosmos'
 import { axelard } from '../../lib/api/executor'
 import { ethTx } from '../../lib/api/cryptoapis'
-import { denoms } from '../../lib/object/denom'
 import { convertToJson, sleep } from '../../lib/utils'
 
-export default function Exercise1() {
-  const { preferences } = useSelector(state => ({ preferences: state.preferences }), shallowEqual)
+export default function Exercise5() {
+  const { _data, preferences } = useSelector(state => ({ _data: state.data, preferences: state.preferences }), shallowEqual)
+  const { denoms_data } = { ..._data }
   const { theme } = { ...preferences }
 
   const { handleSubmit, register, setFocus, formState: { errors }, setError, clearErrors } = useForm()
@@ -178,11 +178,11 @@ export default function Exercise1() {
 
           await sleep(0.5 * 1000)
 
-          response = await transaction(data.tx_axelar_deposit)
+          response = await transaction(data.tx_axelar_deposit, null, denoms_data)
 
           if (response?.data?.status === 'success' && response.data.activities?.findIndex(activity => activity.action === 'send' && activity.sender === data.axelar_address.toLowerCase() && activity.recipient?.length > 0 && activity.amount > 0 && ['axl', 'satoshi', 'photon'].includes(activity.symbol)) > -1) {
             data.token = response.data.activities?.find(activity => activity.action === 'send' && activity.sender === data.axelar_address.toLowerCase() && activity.recipient?.length > 0 && activity.amount > 0 && ['axl', 'satoshi', 'photon'].includes(activity.symbol)).symbol
-            data.contract = denoms.find(_denom => _denom?.contract === data.token)?.contract || data.token
+            data.contract = denoms_data?.find(_denom => _denom?.contract === data.token)?.contract || data.token
             _processing[_processing.length - 1].commands[0].result = response.data
             _processing[_processing.length - 1].status = true
             _processing[_processing.length - 1].answer = `${process.env.NEXT_PUBLIC_SITE_URL}/tx/${data.tx_axelar_deposit}`
@@ -336,7 +336,7 @@ export default function Exercise1() {
 
           await sleep(0.5 * 1000)
 
-          response = await transaction(data.tx_axelar_burn_transfer)
+          response = await transaction(data.tx_axelar_burn_transfer, null, denoms_data)
 
           if (response?.data?.status === 'success' && response.data.activities?.findIndex(activity => (activity.action === 'ExecutePendingTransfers' || activity.type === 'transfer') && activity.recipient?.includes(data.axelar_address.toLowerCase()) && activity.sender && activity.amount > 0 && activity.symbol === data.token) > -1) {
             _processing[_processing.length - 1].commands[0].result = response.data

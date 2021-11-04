@@ -15,7 +15,8 @@ import { transaction as btcTx } from '../../lib/api/btc_explorer'
 import { convertToJson, sleep } from '../../lib/utils'
 
 export default function Exercise3() {
-  const { preferences } = useSelector(state => ({ preferences: state.preferences }), shallowEqual)
+  const { _data, preferences } = useSelector(state => ({ _data: state.data, preferences: state.preferences }), shallowEqual)
+  const { denoms_data } = { ..._data }
   const { theme } = { ...preferences }
 
   const { handleSubmit, register, setFocus, formState: { errors }, setError, clearErrors } = useForm()
@@ -156,7 +157,7 @@ export default function Exercise3() {
           await sleep(0.5 * 1000)
 
           // response = await axelard({ cmd: `${cmd} -oj` })
-          response = await transactionsByEvents(`message.destinationAddress='${data.axelar_address}'`)
+          response = await transactionsByEvents(`message.destinationAddress='${data.axelar_address}'`, null, null, null, denoms_data)
           response = response?.filter(tx => tx?.logs?.[0].events?.[0]?.attributes?.findIndex(attr => attr?.key === 'action' && attr.value === 'Link') > -1).map(tx => tx.logs[0].events[0].attributes.find(attr => attr?.key === 'depositAddress' && attr.value)?.value).filter(address => address) || []
 
           // if (response?.data?.stdout) {
@@ -220,7 +221,7 @@ export default function Exercise3() {
 
           await sleep(0.5 * 1000)
 
-          response = await transaction(data.tx_axelar_burn)
+          response = await transaction(data.tx_axelar_burn, null, denoms_data)
 
           if (response?.data?.status === 'success' && response.data.activities?.findIndex(activity => activity.action === 'send' && activity.sender === data.axelar_address.toLowerCase() && activity.recipient?.length > 0 && activity.amount > 0 && activity.symbol === 'satoshi') > -1) {
             _processing[_processing.length - 1].commands[0].result = response.data

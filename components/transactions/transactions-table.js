@@ -17,7 +17,8 @@ const LATEST_SIZE = 100
 const MAX_PAGE = 10
 
 export default function TransactionsTable({ data, noLoad, hasVote, location, className = '' }) {
-  const { preferences } = useSelector(state => ({ preferences: state.preferences }), shallowEqual)
+  const { _data, preferences } = useSelector(state => ({ _data: state.data, preferences: state.preferences }), shallowEqual)
+  const { denoms_data } = { ..._data }
   const { theme } = { ...preferences }
 
   const [page, setPage] = useState(0)
@@ -28,27 +29,29 @@ export default function TransactionsTable({ data, noLoad, hasVote, location, cla
     const controller = new AbortController()
 
     const getData = async isInterval => {
-      if (!controller.signal.aborted) {
-        if (!location && page && !isInterval) {
-          setMoreLoading(true)
-        }
-
-        let _data, _page = 0
-
-        while (_page <= page) {
-          if (!controller.signal.aborted) {
-            const response = await getTransactions({ size: location === 'index' ? 10 : LATEST_SIZE, from: _page * (location === 'index' ? 10 : LATEST_SIZE), sort: [{ timestamp: 'desc' }] })
-
-            _data = _.uniqBy(_.concat(_data || [], response?.data || []), 'txhash')
+      if (denoms_data) {
+        if (!controller.signal.aborted) {
+          if (!location && page && !isInterval) {
+            setMoreLoading(true)
           }
 
-          _page++
-        }
+          let _data, _page = 0
 
-        setTransactions({ data: _data || [] })
+          while (_page <= page) {
+            if (!controller.signal.aborted) {
+              const response = await getTransactions({ size: location === 'index' ? 10 : LATEST_SIZE, from: _page * (location === 'index' ? 10 : LATEST_SIZE), sort: [{ timestamp: 'desc' }] }, denoms_data)
 
-        if (!location && page && !isInterval) {
-          setMoreLoading(false)
+              _data = _.uniqBy(_.concat(_data || [], response?.data || []), 'txhash')
+            }
+
+            _page++
+          }
+
+          setTransactions({ data: _data || [] })
+
+          if (!location && page && !isInterval) {
+            setMoreLoading(false)
+          }
         }
       }
     }
@@ -67,7 +70,7 @@ export default function TransactionsTable({ data, noLoad, hasVote, location, cla
         clearInterval(interval)
       }
     }
-  }, [data, page])
+  }, [data, page, denoms_data])
 
   return (
     <>

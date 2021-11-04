@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useSelector, shallowEqual } from 'react-redux'
 
 import moment from 'moment'
 
@@ -13,6 +14,9 @@ import { getTxStatus, getTxType, getTxFee, getTxSymbol, getTxGasUsed, getTxGasLi
 import { numberFormat, convertToJson } from '../../lib/utils'
 
 export default function Transaction({ tx }) {
+  const { data } = useSelector(state => ({ data: state.data }), shallowEqual)
+  const { denoms_data } = { ...data }
+
   const [transaction, setTransaction] = useState(null)
 
   useEffect(() => {
@@ -20,7 +24,7 @@ export default function Transaction({ tx }) {
 
     const getData = async () => {
       if (!controller.signal.aborted) {
-        let response = await getTransaction(tx)
+        let response = await getTransaction(tx, null, denoms_data)
 
         if (!response?.data) {
           response = await gaiad({ cmd: `gaiad q tx ${tx} -oj` })
@@ -30,12 +34,12 @@ export default function Transaction({ tx }) {
 
             response.data.status = getTxStatus(response.data)
             response.data.type = getTxType(response.data)
-            response.data.fee = getTxFee(response.data)
-            response.data.symbol = getTxSymbol(response.data)
+            response.data.fee = getTxFee(response.data, denoms_data)
+            response.data.symbol = getTxSymbol(response.data, denoms_data)
             response.data.gas_used = getTxGasUsed(response.data)
             response.data.gas_limit = getTxGasLimit(response.data)
             response.data.memo = getTxMemo(response.data)
-            response.data.activities = getTxActivities(response.data)
+            response.data.activities = getTxActivities(response.data, denoms_data)
           }
         }
 
@@ -45,7 +49,7 @@ export default function Transaction({ tx }) {
       }
     }
 
-    if (tx) {
+    if (tx && denoms_data) {
       getData()
     }
 
@@ -54,7 +58,7 @@ export default function Transaction({ tx }) {
       controller?.abort()
       clearInterval(interval)
     }
-  }, [tx])
+  }, [tx, denoms_data])
 
   return (
     <div className="max-w-6xl my-4 xl:my-6 mx-auto">

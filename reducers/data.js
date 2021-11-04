@@ -1,7 +1,8 @@
-import { CHAIN_DATA, SLASHING_DATA, STATUS_DATA, VALIDATORS_DATA, KEYGENS_DATA } from './types'
+import { DENOMS_DATA, CHAIN_DATA, SLASHING_DATA, STATUS_DATA, VALIDATORS_DATA, KEYGENS_DATA } from './types'
 
 export default function data(
   state = {
+    [`${DENOMS_DATA}`]: null,
     [`${CHAIN_DATA}`]: null,
     [`${SLASHING_DATA}`]: null,
     [`${STATUS_DATA}`]: null,
@@ -11,6 +12,11 @@ export default function data(
   action
 ) {
   switch (action.type) {
+    case DENOMS_DATA:
+      return {
+        ...state,
+        [`${DENOMS_DATA}`]: action.value
+      }
     case CHAIN_DATA:
       return {
         ...state,

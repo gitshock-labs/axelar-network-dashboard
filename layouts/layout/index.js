@@ -1,18 +1,49 @@
 import Head from 'next/head'
 import { useRouter } from 'next/router'
-import { useSelector, shallowEqual } from 'react-redux'
+import { useEffect } from 'react'
+import { useSelector, useDispatch, shallowEqual } from 'react-redux'
 
 import Navbar from '../../components/navbar'
 import Footer from '../../components/footer'
 
+import { denoms as getDenoms } from '../../lib/api/query'
 import meta from '../../lib/meta'
 
+import { DENOMS_DATA } from '../../reducers/types'
+
 export default function Layout({ children }) {
-  const { preferences } = useSelector(state => ({ preferences: state.preferences }), shallowEqual)
+  const dispatch = useDispatch()
+  const { data, preferences } = useSelector(state => ({ data: state.data, preferences: state.preferences }), shallowEqual)
+  const { denoms_data } = { ...data }
   const { theme } = { ...preferences }
 
   const router = useRouter()
   const { asPath } = { ...router }
+
+  useEffect(() => {
+    const controller = new AbortController()
+
+    const getData = async () => {
+      if (!controller.signal.aborted) {
+        const response = await getDenoms()
+
+        if (response) {
+          dispatch({
+            type: DENOMS_DATA,
+            value: response
+          })
+        }
+      }
+    }
+
+    getData()
+
+    const interval = setInterval(() => getData(), 10 * 60 * 1000)
+    return () => {
+      controller?.abort()
+      clearInterval(interval)
+    }
+  }, [])
 
   const headMeta = meta(asPath)
 

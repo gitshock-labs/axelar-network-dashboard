@@ -17,7 +17,7 @@ import { VALIDATORS_DATA } from '../../reducers/types'
 export default function Account({ address }) {
   const dispatch = useDispatch()
   const { data } = useSelector(state => ({ data: state.data }), shallowEqual)
-  const { chain_data, validators_data } = { ...data }
+  const { denoms_data, chain_data, validators_data } = { ...data }
 
   const [account, setAccount] = useState(null)
   const [transactions, setTransactions] = useState(null)
@@ -118,8 +118,8 @@ export default function Account({ address }) {
             balances: response.data?.map(balance => {
               return {
                 ...balance,
-                denom: denomSymbol(balance.denom),
-                amount: denomAmount(balance.amount, balance.denom),
+                denom: denomSymbol(balance.denom, denoms_data),
+                amount: denomAmount(balance.amount, balance.denom, denoms_data),
               }
             }),
           }
@@ -136,10 +136,10 @@ export default function Account({ address }) {
               return {
                 ...delegation.delegation,
                 validator_data: delegation.delegation && (validators_data?.find(validator_data => validator_data.operator_address === delegation.delegation.validator_address) || {}),
-                shares: delegation.delegation?.shares && (isNaN(delegation.delegation.shares) ? -1 : denomAmount(delegation.delegation.shares, delegation.balance?.denom)),
+                shares: delegation.delegation?.shares && (isNaN(delegation.delegation.shares) ? -1 : denomAmount(delegation.delegation.shares, delegation.balance?.denom, denoms_data)),
                 ...delegation.balance,
-                denom: denomSymbol(delegation?.balance?.denom),
-                amount: delegation.balance?.amount && (isNaN(delegation.balance.amount) ? -1 : denomAmount(delegation.balance.amount, delegation.balance.denom)),
+                denom: denomSymbol(delegation?.balance?.denom, denoms_data),
+                amount: delegation.balance?.amount && (isNaN(delegation.balance.amount) ? -1 : denomAmount(delegation.balance.amount, delegation.balance.denom, denoms_data)),
               }
             }),
           }
@@ -175,8 +175,8 @@ export default function Account({ address }) {
             ...accountData,
             rewards: {
               ...response,
-              rewards: response.rewards && Object.entries(_.groupBy(response.rewards.flatMap(reward => reward.reward).map(reward => { return { ...reward, denom: denomSymbol(reward.denom), amount: reward.amount && (isNaN(reward.amount) ? -1 : denomAmount(reward.amount, reward.denom)) } }), 'denom')).map(([key, value]) => { return { denom: key, amount: _.sumBy(value, 'amount') } }),
-              total: response.total && Object.entries(_.groupBy(response.total.map(total => { return { ...total, denom: denomSymbol(total.denom), amount: total.amount && denomAmount(total.amount, total.denom) } }), 'denom')).map(([key, value]) => { return { denom: key, amount: _.sumBy(value, 'amount') } }),
+              rewards: response.rewards && Object.entries(_.groupBy(response.rewards.flatMap(reward => reward.reward).map(reward => { return { ...reward, denom: denomSymbol(reward.denom, denoms_data), amount: reward.amount && (isNaN(reward.amount) ? -1 : denomAmount(reward.amount, reward.denom, denoms_data)) } }), 'denom')).map(([key, value]) => { return { denom: key, amount: _.sumBy(value, 'amount') } }),
+              total: response.total && Object.entries(_.groupBy(response.total.map(total => { return { ...total, denom: denomSymbol(total.denom, denoms_data), amount: total.amount && denomAmount(total.amount, total.denom, denoms_data) } }), 'denom')).map(([key, value]) => { return { denom: key, amount: _.sumBy(value, 'amount') } }),
             },
           }
         }
@@ -192,8 +192,8 @@ export default function Account({ address }) {
               commission: response?.commission?.commission?.map(commission => {
                 return {
                   ...commission,
-                  denom: denomSymbol(commission.denom),
-                  amount: commission.amount && (isNaN(commission.amount) ? -1 : denomAmount(commission.amount, commission.denom)),
+                  denom: denomSymbol(commission.denom, denoms_data),
+                  amount: commission.amount && (isNaN(commission.amount) ? -1 : denomAmount(commission.amount, commission.denom, denoms_data)),
                 }
               }),
             }
@@ -221,33 +221,33 @@ export default function Account({ address }) {
       if (!controller.signal.aborted) {
         if (address.startsWith('cosmos')) {
           if (!controller.signal.aborted) {
-            data = await transactionsByEvents(`ibc_transfer.sender='${address}'`, data)
+            data = await transactionsByEvents(`ibc_transfer.sender='${address}'`, data, null, null, denoms_data)
           }
           if (!controller.signal.aborted) {
-            data = await transactionsByEvents(`ibc_transfer.receiver='${address}'`, data)
+            data = await transactionsByEvents(`ibc_transfer.receiver='${address}'`, data, null, null, denoms_data)
           }
         }
         else {
           if (!controller.signal.aborted) {
-            data = await transactionsByEvents(`message.sender='${address}'`, data)
+            data = await transactionsByEvents(`message.sender='${address}'`, data, null, null, denoms_data)
           }
           if (!controller.signal.aborted) {
-            data = await transactionsByEvents(`message.address='${address}'`, data)
+            data = await transactionsByEvents(`message.address='${address}'`, data, null, null, denoms_data)
           }
           if (!controller.signal.aborted) {
-            data = await transactionsByEvents(`message.destinationAddress='${address}'`, data)
+            data = await transactionsByEvents(`message.destinationAddress='${address}'`, data, null, null, denoms_data)
           }
           if (!controller.signal.aborted) {
-            data = await transactionsByEvents(`transfer.sender='${address}'`, data)
+            data = await transactionsByEvents(`transfer.sender='${address}'`, data, null, null, denoms_data)
           }
           if (!controller.signal.aborted) {
-            data = await transactionsByEvents(`transfer.recipient='${address}'`, data)
+            data = await transactionsByEvents(`transfer.recipient='${address}'`, data, null, null, denoms_data)
           }
           if (!controller.signal.aborted) {
-            data = await transactionsByEvents(`outpointConfirmation.destinationAddress='${address}'`, data)
+            data = await transactionsByEvents(`outpointConfirmation.destinationAddress='${address}'`, data, null, null, denoms_data)
           }
           if (!controller.signal.aborted) {
-            data = await transactionsByEvents(`depositConfirmation.destinationAddress='${address}'`, data)
+            data = await transactionsByEvents(`depositConfirmation.destinationAddress='${address}'`, data, null, null, denoms_data)
           }
         }
 
@@ -257,7 +257,7 @@ export default function Account({ address }) {
       }
     }
 
-    if (address && validators_data) {
+    if (address && denoms_data && validators_data) {
       getData()
     }
 
@@ -266,7 +266,7 @@ export default function Account({ address }) {
       controller?.abort()
       clearInterval(interval)
     }
-  }, [address, validators_data])
+  }, [address, denoms_data, validators_data])
 
   return (
     <div className="max-w-6xl my-4 xl:my-6 mx-auto">

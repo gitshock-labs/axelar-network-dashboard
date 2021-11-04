@@ -14,77 +14,79 @@ const CURRENCY_SYMBOL = '$'
 export default function CoinInfo() {
   const dispatch = useDispatch()
   const { data } = useSelector(state => ({ data: state.data }), shallowEqual)
-  const { chain_data } = { ...data }
+  const { denoms_data, chain_data } = { ...data }
 
   useEffect(() => {
     const controller = new AbortController()
 
     const getData = async () => {
-      let chainData, response
+      if (denoms_data) {
+        let chainData, response
 
-      if (!controller.signal.aborted) {
-        response = await stakingParams()
+        if (!controller.signal.aborted) {
+          response = await stakingParams()
 
-        if (response?.params) {
-          chainData = { ...chainData, staking_params: response.params }
-        }
-      }
-
-      if (!controller.signal.aborted) {
-        response = await stakingPool()
-
-        if (response?.pool) {
-          chainData = { ...chainData, staking_pool: Object.fromEntries(Object.entries(response.pool).map(([key, value]) => [key, isNaN(value) ? value : Number(value) / Number(process.env.NEXT_PUBLIC_POWER_REDUCTION)])) }
-        }
-      }
-
-      if (!controller.signal.aborted) {
-        if (chainData?.staking_params?.bond_denom) {
-          response = await bankSupply(chainData.staking_params.bond_denom)
-
-          if (response?.amount) {
-            chainData = { ...chainData, bank_supply: Object.fromEntries(Object.entries(response.amount).map(([key, value]) => [key, key === 'denom' ? denomSymbol(value) : denomAmount(value, response.amount.denom)])) }
+          if (response?.params) {
+            chainData = { ...chainData, staking_params: response.params }
           }
         }
-      }
 
-      if (!controller.signal.aborted) {
-        response = await communityPool()
+        if (!controller.signal.aborted) {
+          response = await stakingPool()
 
-        if (response?.pool) {
-          chainData = { ...chainData, community_pool: response.pool.map(pool => Object.fromEntries(Object.entries(pool).map(([key, value]) => [key, key === 'denom' ? denomSymbol(value) : denomAmount(value, pool.denom)]))) }
+          if (response?.pool) {
+            chainData = { ...chainData, staking_pool: Object.fromEntries(Object.entries(response.pool).map(([key, value]) => [key, isNaN(value) ? value : Number(value) / Number(process.env.NEXT_PUBLIC_POWER_REDUCTION)])) }
+          }
         }
-      }
 
-      if (!controller.signal.aborted) {
-        response = await mintInflation()
+        if (!controller.signal.aborted) {
+          if (chainData?.staking_params?.bond_denom) {
+            response = await bankSupply(chainData.staking_params.bond_denom)
 
-        if (response?.inflation) {
-          chainData = { ...chainData, inflation: Number(response.inflation) }
+            if (response?.amount) {
+              chainData = { ...chainData, bank_supply: Object.fromEntries(Object.entries(response.amount).map(([key, value]) => [key, key === 'denom' ? denomSymbol(value, denoms_data) : denomAmount(value, response.amount.denom, denoms_data)])) }
+            }
+          }
         }
-      }
 
-      if (!controller.signal.aborted) {
-        response = await distributionParams()
+        if (!controller.signal.aborted) {
+          response = await communityPool()
 
-        if (response?.params) {
-          chainData = { ...chainData, distribution_params: response.params }
+          if (response?.pool) {
+            chainData = { ...chainData, community_pool: response.pool.map(pool => Object.fromEntries(Object.entries(pool).map(([key, value]) => [key, key === 'denom' ? denomSymbol(value, denoms_data) : denomAmount(value, pool.denom, denoms_data)]))) }
+          }
         }
-      }
 
-      if (!controller.signal.aborted) {
-        response = await simplePrice({ ids: process.env.NEXT_PUBLIC_COINGECKO_ID, vs_currencies: CURRENCY, include_market_cap: true, include_24hr_vol: true, include_24hr_change: true, include_last_updated_at: true })
+        if (!controller.signal.aborted) {
+          response = await mintInflation()
 
-        if (response?.[process.env.NEXT_PUBLIC_COINGECKO_ID]) {
-          chainData = { ...chainData, coin: response[process.env.NEXT_PUBLIC_COINGECKO_ID] }
+          if (response?.inflation) {
+            chainData = { ...chainData, inflation: Number(response.inflation) }
+          }
         }
-      }
 
-      if (chainData) {
-        dispatch({
-          type: CHAIN_DATA,
-          value: chainData
-        })
+        if (!controller.signal.aborted) {
+          response = await distributionParams()
+
+          if (response?.params) {
+            chainData = { ...chainData, distribution_params: response.params }
+          }
+        }
+
+        if (!controller.signal.aborted) {
+          response = await simplePrice({ ids: process.env.NEXT_PUBLIC_COINGECKO_ID, vs_currencies: CURRENCY, include_market_cap: true, include_24hr_vol: true, include_24hr_change: true, include_last_updated_at: true })
+
+          if (response?.[process.env.NEXT_PUBLIC_COINGECKO_ID]) {
+            chainData = { ...chainData, coin: response[process.env.NEXT_PUBLIC_COINGECKO_ID] }
+          }
+        }
+
+        if (chainData) {
+          dispatch({
+            type: CHAIN_DATA,
+            value: chainData
+          })
+        }
       }
     }
 
@@ -95,7 +97,7 @@ export default function CoinInfo() {
       controller?.abort()
       clearInterval(interval)
     }
-  }, [])
+  }, [denoms_data])
 
   return (
     <div className="w-full bg-gray-100 dark:bg-gray-900 rounded grid grid-flow-row grid-cols-2 sm:flex items-start text-2xs lg:text-xs gap-3 sm:gap-4 lg:gap-6 mt-0 sm:mt-auto mb-4 sm:mb-auto ml-0 sm:ml-2 py-3 px-4">

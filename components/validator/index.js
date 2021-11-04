@@ -23,7 +23,7 @@ import { STATUS_DATA, VALIDATORS_DATA/*, KEYGENS_DATA*/ } from '../../reducers/t
 export default function Validator({ address }) {
   const dispatch = useDispatch()
   const { data } = useSelector(state => ({ data: state.data }), shallowEqual)
-  const { chain_data, status_data, validators_data, keygens_data } = { ...data }
+  const { denoms_data, chain_data, status_data, validators_data, keygens_data } = { ...data }
 
   const [validator, setValidator] = useState(null)
   const [uptime, setUptime] = useState(null)
@@ -151,10 +151,10 @@ export default function Validator({ address }) {
               return {
                 ...delegation.delegation,
                 self: validatorData && delegation.delegation.delegator_address === validatorData.delegator_address,
-                shares: delegation.delegation && denomAmount(delegation.delegation.shares, delegation.balance?.denom),
+                shares: delegation.delegation && denomAmount(delegation.delegation.shares, delegation.balance?.denom, denoms_data),
                 ...delegation.balance,
-                denom: denomSymbol(delegation.balance?.denom),
-                amount: delegation.balance && denomAmount(delegation.balance.amount, delegation.balance.denom),
+                denom: denomSymbol(delegation.balance?.denom, denoms_data),
+                amount: delegation.balance && denomAmount(delegation.balance.amount, delegation.balance.denom, denoms_data),
               }
             }) || [], ['self', 'shares'], ['desc', 'desc']),
             address
@@ -171,7 +171,7 @@ export default function Validator({ address }) {
       }
 
       if (!controller.signal.aborted) {
-        response = await transactionsByEvents(`sign.action='decided'`, null, address, true)
+        response = await transactionsByEvents(`sign.action='decided'`, null, address, true, denoms_data)
 
         setSignEvents({ data: response || [], total: response ? response.length : 0, address })
       }
@@ -179,14 +179,14 @@ export default function Validator({ address }) {
       let data = []
 
       if (!controller.signal.aborted) {
-        data = await transactionsByEvents(`depositConfirmation.action='vote'`, data, address)
-        data = await transactionsByEvents(`outpointConfirmation.action='voted'`, data, address)
+        data = await transactionsByEvents(`depositConfirmation.action='vote'`, data, address, null, denoms_data)
+        data = await transactionsByEvents(`outpointConfirmation.action='voted'`, data, address, null, denoms_data)
 
         setVotingEvents({ data, total: data.length, address })
       }
     }
 
-    if (address && status_data && validators_data) {
+    if (address && denoms_data && status_data && validators_data) {
       getData()
     }
 
@@ -195,7 +195,7 @@ export default function Validator({ address }) {
       controller?.abort()
       clearInterval(interval)
     }
-  }, [address, status_data, validators_data])
+  }, [address, denoms_data, status_data, validators_data])
 
   return (
     <>
