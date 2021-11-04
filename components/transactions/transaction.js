@@ -8,7 +8,9 @@ import TransactionRawLogs from './transaction-raw-logs'
 import Widget from '../widget'
 
 import { transaction as getTransaction } from '../../lib/api/cosmos'
-import { numberFormat } from '../../lib/utils'
+import { gaiad } from '../../lib/api/executor'
+import { getTxStatus, getTxType, getTxFee, getTxSymbol, getTxGasUsed, getTxGasLimit, getTxMemo, getTxActivities } from '../../lib/object/tx'
+import { numberFormat, convertToJson } from '../../lib/utils'
 
 export default function Transaction({ tx }) {
   const [transaction, setTransaction] = useState(null)
@@ -18,7 +20,24 @@ export default function Transaction({ tx }) {
 
     const getData = async () => {
       if (!controller.signal.aborted) {
-        const response = await getTransaction(tx)
+        let response = await getTransaction(tx)
+
+        if (!response?.data) {
+          response = await gaiad({ cmd: `gaiad q tx ${tx} -oj` })
+
+          if (response?.data?.stdout && convertToJson(response.data.stdout)) {
+            response.data = convertToJson(response.data.stdout)
+
+            response.data.status = getTxStatus(response.data)
+            response.data.type = getTxType(response.data)
+            response.data.fee = getTxFee(response.data)
+            response.data.symbol = getTxSymbol(response.data)
+            response.data.gas_used = getTxGasUsed(response.data)
+            response.data.gas_limit = getTxGasLimit(response.data)
+            response.data.memo = getTxMemo(response.data)
+            response.data.activities = getTxActivities(response.data)
+          }
+        }
 
         if (response) {
           setTransaction({ data: response.data || {}, tx })
