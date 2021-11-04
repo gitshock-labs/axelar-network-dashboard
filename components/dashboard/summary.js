@@ -339,9 +339,9 @@ const Summary = ({ data, crosschainData, tvlData, avgTransfersTimeRange, setAvgT
         <Widget
           title={<div className="flex items-center">
             <span>Total Value Locked</span>
-            {(!tvlData || tvlData.total_loaded_validators !== tvlData.total_active_validators) && (
+            {/*(!tvlData || tvlData.total_loaded_validators !== tvlData.total_active_validators) && (
               <Loader type="BallTriangle" color={theme === 'dark' ? 'white' : '#9CA3AF'} width="18" height="18" className="mb-0.5 ml-auto" />
-            )}
+            )*/}
           </div>}
           className="bg-transparent sm:bg-white sm:dark:bg-gray-900 border-0 sm:border border-gray-100 dark:border-gray-800 p-0 sm:p-4"
         >
@@ -386,15 +386,15 @@ const Summary = ({ data, crosschainData, tvlData, avgTransfersTimeRange, setAvgT
             <div className="flex items-center">
               {tvlData ?
                 tvlData.tvls_updated_at ?
-                  <span className="text-gray-400 dark:text-gray-600 text-xs font-normal pt-0.5">
-                    {moment(tvlData.tvls_updated_at).format('MMM D, h:mm A z')}
+                  <span className="text-gray-400 dark:text-gray-600 text-xs font-medium pt-0.5">
+                    {moment(tvlData.tvls_updated_at).format('MMM D YYYY, h:mm A z')}
                   </span>
                   :
                   null
                 :
                 <div className="skeleton w-20 h-3.5" />
               }
-              <span className="flex items-center text-gray-400 dark:text-gray-600 text-xs font-normal space-x-1 ml-auto mt-0.5">
+              {/*<span className="flex items-center text-gray-400 dark:text-gray-600 text-xs font-normal space-x-1 ml-auto mt-0.5">
                 {tvlData ?
                   tvlData.total_loaded_validators !== tvlData.total_active_validators ?
                     <span className="font-mono text-gray-600 dark:text-gray-400 font-medium">{numberFormat(tvlData.total_loaded_validators, '0,0')}</span>
@@ -412,7 +412,7 @@ const Summary = ({ data, crosschainData, tvlData, avgTransfersTimeRange, setAvgT
                   <div className="skeleton w-6 h-3.5" />
                 }
                 <span>validators</span>
-              </span>
+              </span>*/}
             </div>
           </span>
         </Widget>

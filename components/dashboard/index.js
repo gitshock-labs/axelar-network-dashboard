@@ -294,63 +294,89 @@ export default function Dashboard() {
   }, [denoms_data, contractSelect])
 
   useEffect(() => {
-    const getData = async isInterval => {
-      if (denoms_data && validators_data && (!loadValsProfile || isInterval)) {
-        let tvls
+    const controller = new AbortController()
+
+    const getData = async () => {
+      if (denoms_data) {
         const tvls_updated_at = moment().valueOf()
 
-        const _validators_data = validators_data.filter(validator_data => ['BOND_STATUS_BONDED'].includes(validator_data?.status))
-        const total_active_validators = _validators_data.length
+        let response
 
-        for (let i = 0; i < _validators_data.length; i++) {
-          const validator_data = _validators_data[i]
-          const address = validator_data?.operator_address
+        if (!controller.signal.aborted) {
+          response = await transfers({
+            query: {
+              bool: {
+                should: [
+                  { match: { 'logs.events.type': 'outpointConfirmation' } },
+                  { match: { 'source': 'cosmos' } },
+                ],
+              },
+            },
+            aggs: {
+              transfers: {
+                terms: { field: 'contract.name.keyword', size: 10000 },
+                aggs: {
+                  amounts: {
+                    sum: {
+                      field: 'amount',
+                    },
+                  },
+                },
+              },
+            },
+          })
 
-          const response = await allDelegations(address)
-
-          tvls = _.concat(tvls || [], Object.values(_.groupBy(response?.data?.map(delegation => {
+          const mints = _.orderBy(response?.data?.map(transfer => {
             return {
-              delegator_address: delegation?.delegation?.delegator_address,
-              denom: denomSymbol(delegation?.balance?.denom, denoms_data),
-              name: denomName(delegation?.balance?.denom, denoms_data),
-              image: denomImage(delegation?.balance?.denom, denoms_data),
-              amount: denomAmount(delegation?.balance?.amount, delegation?.balance?.denom, denoms_data),
+              ...transfer,
+              denom: denomSymbol(transfer.contract_name, denoms_data),
+              name: denomName(transfer.contract_name, denoms_data),
+              image: denomImage(transfer.contract_name, denoms_data),
+              amount: denomAmount(transfer.amount, transfer.contract_name, denoms_data),
+              action: 'mint',
             }
-          }) || [], 'denom')).map(value => {
+          }), ['tx'], ['desc'])
+
+          response = await transfers({
+            query: {
+              match: { 'logs.events.type': 'depositConfirmation' }
+            },
+            aggs: {
+              transfers: {
+                terms: { field: 'contract.name.keyword', size: 10000 },
+                aggs: {
+                  amounts: {
+                    sum: {
+                      field: 'amount',
+                    },
+                  },
+                },
+              },
+            },
+          })
+
+          const burns = _.orderBy(response?.data?.map(transfer => {
+            return {
+              ...transfer,
+              denom: denomSymbol(transfer.contract_name, denoms_data),
+              name: denomName(transfer.contract_name, denoms_data),
+              image: denomImage(transfer.contract_name, denoms_data),
+              amount: denomAmount(transfer.amount, transfer.contract_name, denoms_data),
+              action: 'burn',
+            }
+          }), ['tx'], ['desc'])
+
+          const tvls = _.orderBy(Object.entries(_.groupBy(_.concat(mints, burns), 'denom')).map(([key, value]) => {
             return {
               ...value?.[0],
-              delegator_addresses: _.uniqBy(value, 'delegator_address'),
-              amount: _.sumBy(value, 'amount'),
+              tx: _.sumBy(value, 'tx'),
+              amount: _.sumBy(value.filter(v => v.action === 'mint'), 'amount') - _.sumBy(value.filter(v => v.action === 'burn'), 'amount'),
             }
-          }))
+          }).filter(tvl => tvl.amount > 0), ['tx'], ['desc'])
 
-          if (!isInterval && (i % 3 === 0 || i === _validators_data.length - 1)) {
-            setCrosschainTVLData({
-              tvls: _.orderBy(Object.values(_.groupBy(tvls, 'denom')).map(value => {
-                return {
-                  ...value?.[0],
-                  amount: _.sumBy(value, 'amount'),
-                  num_delegators: _.uniq(value?.flatMap(delegate => delegate.delegator_addresses) || []).length,
-                }
-              }), ['num_delegators'], ['desc']),
-              tvls_updated_at,
-              total_loaded_validators: tvls.length,
-              total_active_validators,
-            })
-          }
-        }
-
-        if (isInterval) {
           setCrosschainTVLData({
-            tvls: (tvls && Object.values(_.groupBy(tvls, 'denom')).map(value => {
-              return {
-                ...value?.[0],
-                amount: _.sumBy(value, 'amount'),
-              }
-            })) || [],
+            tvls,
             tvls_updated_at,
-            total_loaded_validators: tvls?.length || 0,
-            total_active_validators,
           })
         }
       }
@@ -358,9 +384,81 @@ export default function Dashboard() {
 
     getData()
 
-    const interval = setInterval(() => getData(true), 60 * 1000)
-    return () => clearInterval(interval)
-  }, [denoms_data, validators_data, loadValsProfile])
+    const interval = setInterval(() => getData(), 60 * 1000)
+    return () => {
+      controller?.abort()
+      clearInterval(interval)
+    }
+  }, [denoms_data])
+
+  // useEffect(() => {
+  //   const getData = async isInterval => {
+  //     if (denoms_data && validators_data && (!loadValsProfile || isInterval)) {
+  //       let tvls
+  //       const tvls_updated_at = moment().valueOf()
+
+  //       const _validators_data = validators_data.filter(validator_data => ['BOND_STATUS_BONDED'].includes(validator_data?.status))
+  //       const total_active_validators = _validators_data.length
+
+  //       for (let i = 0; i < _validators_data.length; i++) {
+  //         const validator_data = _validators_data[i]
+  //         const address = validator_data?.operator_address
+
+  //         const response = await allDelegations(address)
+
+  //         tvls = _.concat(tvls || [], Object.values(_.groupBy(response?.data?.map(delegation => {
+  //           return {
+  //             delegator_address: delegation?.delegation?.delegator_address,
+  //             denom: denomSymbol(delegation?.balance?.denom, denoms_data),
+  //             name: denomName(delegation?.balance?.denom, denoms_data),
+  //             image: denomImage(delegation?.balance?.denom, denoms_data),
+  //             amount: denomAmount(delegation?.balance?.amount, delegation?.balance?.denom, denoms_data),
+  //           }
+  //         }) || [], 'denom')).map(value => {
+  //           return {
+  //             ...value?.[0],
+  //             delegator_addresses: _.uniqBy(value, 'delegator_address'),
+  //             amount: _.sumBy(value, 'amount'),
+  //           }
+  //         }))
+
+  //         if (!isInterval && (i % 3 === 0 || i === _validators_data.length - 1)) {
+  //           setCrosschainTVLData({
+  //             tvls: _.orderBy(Object.values(_.groupBy(tvls, 'denom')).map(value => {
+  //               return {
+  //                 ...value?.[0],
+  //                 amount: _.sumBy(value, 'amount'),
+  //                 num_delegators: _.uniq(value?.flatMap(delegate => delegate.delegator_addresses) || []).length,
+  //               }
+  //             }), ['num_delegators'], ['desc']),
+  //             tvls_updated_at,
+  //             total_loaded_validators: tvls.length,
+  //             total_active_validators,
+  //           })
+  //         }
+  //       }
+
+  //       if (isInterval) {
+  //         setCrosschainTVLData({
+  //           tvls: (tvls && Object.values(_.groupBy(tvls, 'denom')).map(value => {
+  //             return {
+  //               ...value?.[0],
+  //               amount: _.sumBy(value, 'amount'),
+  //             }
+  //           })) || [],
+  //           tvls_updated_at,
+  //           total_loaded_validators: tvls?.length || 0,
+  //           total_active_validators,
+  //         })
+  //       }
+  //     }
+  //   }
+
+  //   getData()
+
+  //   const interval = setInterval(() => getData(true), 60 * 1000)
+  //   return () => clearInterval(interval)
+  // }, [denoms_data, validators_data, loadValsProfile])
 
   useEffect(() => {
     const controller = new AbortController()
