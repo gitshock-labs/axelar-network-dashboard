@@ -418,7 +418,7 @@ export default function KeysTable({ data, corruption_signing_threshold, page }) 
             headerClassName: 'justify-end text-right',
           },
           {
-            Header: <MdOutlineHowToVote size={20} />,
+            Header: <MdOutlineHowToVote title="Participated" size={20} />,
             accessor: 'participated',
             sortType: (rowA, rowB) => rowA.original.participated > rowB.original.participated ? 1 : -1,
             Cell: props => (
