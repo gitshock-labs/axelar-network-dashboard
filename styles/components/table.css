@@ -1,5 +1,9 @@
 .table {
   @apply block lg:inline-table overflow-x-scroll;
+
+  &.small {
+    display: block !important;
+  }
   &.inline-table {
     display: inline-table;
   }

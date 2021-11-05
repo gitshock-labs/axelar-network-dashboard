@@ -29,10 +29,10 @@ export default function KeysTable({ data, corruption_signing_threshold, page }) 
             sortType: (rowA, rowB) => rowA.original.key_id > rowB.original.key_id ? 1 : -1,
             Cell: props => (
               !props.row.original.skeleton ?
-                <>
+                <div className="my-1">
                   <div className="flex items-center text-gray-900 dark:text-gray-100 space-x-1">
                     {['keygen_failed'].includes(page) ? <MdCancel size={16} className="text-red-500" /> : <FiKey size={16} />}
-                    <span className="font-medium">{ellipseAddress(props.value, ['validator'].includes(page) ? 10 : 20)}</span>
+                    <span className="font-medium">{ellipseAddress(props.value, ['validator'].includes(page) ? 12 : 20)}</span>
                     {props.value && (<Copy text={props.value} />)}
                   </div>
                   {['sign_success', 'sign_failed'].includes(page) && props.row.original.sig_id && (
@@ -50,9 +50,9 @@ export default function KeysTable({ data, corruption_signing_threshold, page }) 
                       {props.row.original.reason}
                     </div>
                   )}
-                </>
+                </div>
                 :
-                <div className="skeleton w-48 h-4" />
+                <div className="skeleton w-48 h-5 my-1" />
             ),
           },
           {
@@ -61,14 +61,17 @@ export default function KeysTable({ data, corruption_signing_threshold, page }) 
             sortType: (rowA, rowB) => rowA.original.key_chain > rowB.original.key_chain ? 1 : -1,
             Cell: props => (
               !props.row.original.skeleton ?
-                props.value ?
-                  <span className="bg-gray-100 dark:bg-gray-800 rounded capitalize text-gray-900 dark:text-gray-100 font-semibold px-1.5 py-0.5" style={{ fontSize: ['validator'].includes(page) ? '.65rem' : '.85rem' }}>
-                    {props.value}
-                  </span>
-                  :
-                  '-'
+                <div className="my-1">
+                  {props.value ?
+                    <span className="bg-gray-100 dark:bg-gray-800 rounded capitalize text-gray-900 dark:text-gray-100 font-semibold px-1.5 py-0.5" style={{ fontSize: ['validator'].includes(page) ? '.65rem' : '.85rem' }}>
+                      {props.value}
+                    </span>
+                    :
+                    '-'
+                  }
+                </div>
                 :
-                <div className="skeleton w-12 h-4" />
+                <div className="skeleton w-12 h-5 my-1" />
             ),
           },
           {
@@ -77,23 +80,26 @@ export default function KeysTable({ data, corruption_signing_threshold, page }) 
             sortType: (rowA, rowB) => rowA.original.key_role > rowB.original.key_role ? 1 : -1,
             Cell: props => (
               !props.row.original.skeleton ?
-                props.value ?
-                  <span className="bg-gray-100 dark:bg-gray-800 rounded capitalize text-gray-900 dark:text-gray-100 font-semibold px-1.5 py-0.5" style={{ fontSize: ['validator'].includes(page) ? '.65rem' : '.85rem' }}>
-                    {props.value.replace('KEY_ROLE_', '')}
-                  </span>
-                  :
-                  '-'
+                <div className="my-1">
+                  {props.value ?
+                    <span className="bg-gray-100 dark:bg-gray-800 rounded capitalize text-gray-900 dark:text-gray-100 font-semibold px-1.5 py-0.5" style={{ fontSize: ['validator'].includes(page) ? '.65rem' : '.85rem' }}>
+                      {props.value.replace('KEY_ROLE_', '')}
+                    </span>
+                    :
+                    '-'
+                  }
+                </div>
                 :
-                <div className="skeleton w-12 h-4" />
+                <div className="skeleton w-12 h-5 my-1" />
             ),
           },
           {
-            Header: 'Snapshot Block',
+            Header: ['validator'].includes(page) ? 'Block' : 'Snapshot Block',
             accessor: 'snapshot_block_number',
             sortType: (rowA, rowB) => rowA.original.snapshot_block_number > rowB.original.snapshot_block_number ? 1 : -1,
             Cell: props => (
               !props.row.original.skeleton ?
-                <div className="text-right">
+                <div className="text-right my-1">
                   {props.value ?
                     <Link href={`/blocks/${props.value}`}>
                       <a className="text-blue-600 dark:text-blue-500">
@@ -105,7 +111,7 @@ export default function KeysTable({ data, corruption_signing_threshold, page }) 
                   }
                 </div>
                 :
-                <div className="skeleton w-16 h-4 ml-auto" />
+                <div className="skeleton w-16 h-5 my-1 ml-auto" />
             ),
             headerClassName: 'justify-end text-right',
           },
@@ -115,7 +121,7 @@ export default function KeysTable({ data, corruption_signing_threshold, page }) 
             sortType: (rowA, rowB) => rowA.original.height > rowB.original.height ? 1 : -1,
             Cell: props => (
               !props.row.original.skeleton ?
-                <div className="text-right">
+                <div className="text-right my-1">
                   {props.value ?
                     <>
                       <Link href={`/blocks/${props.value}`}>
@@ -134,7 +140,7 @@ export default function KeysTable({ data, corruption_signing_threshold, page }) 
                   }
                 </div>
                 :
-                <div className="skeleton w-16 h-4 ml-auto" />
+                <div className="skeleton w-16 h-5 my-1 ml-auto" />
             ),
             headerClassName: 'justify-end text-right',
           },
@@ -144,7 +150,7 @@ export default function KeysTable({ data, corruption_signing_threshold, page }) 
             sortType: (rowA, rowB) => rowA.original.num_validator_shares > rowB.original.num_validator_shares ? 1 : -1,
             Cell: props => (
               !props.row.original.skeleton ?
-                <div className="flex flex-col text-right space-y-0.5">
+                <div className="flex flex-col text-right space-y-0.5 my-1">
                   {typeof props.value === 'number' ?
                     <>
                       <span className="font-semibold">{numberFormat(props.value, '0,0')} / {numberFormat(props.row.original.num_total_shares, '0,0')}</span>
@@ -155,7 +161,7 @@ export default function KeysTable({ data, corruption_signing_threshold, page }) 
                   }
                 </div>
                 :
-                <div className="skeleton w-12 h-4 ml-auto" />
+                <div className="skeleton w-12 h-5 my-1 ml-auto" />
             ),
             headerClassName: 'justify-end text-right',
           },
@@ -166,7 +172,7 @@ export default function KeysTable({ data, corruption_signing_threshold, page }) 
             sortType: (rowA, rowB) => rowA.original.corruption_signing_threshold > rowB.original.corruption_signing_threshold ? 1 : -1,
             Cell: props => (
               !props.row.original.skeleton && corruption_signing_threshold ?
-                <div className="flex flex-col text-right space-y-0.5">
+                <div className="flex flex-col text-right space-y-0.5 my-1">
                   {props.value > -1 ?
                     <>
                       <span className="font-semibold">{numberFormat(props.value, '0,0')} / {numberFormat(_.sumBy(props.row.original.validator_shares || props.row.original.validators, 'share'), '0,0')}</span>
@@ -177,7 +183,7 @@ export default function KeysTable({ data, corruption_signing_threshold, page }) 
                   }
                 </div>
                 :
-                <div className="skeleton w-12 h-4 ml-auto" />
+                <div className="skeleton w-12 h-5 my-1 ml-auto" />
             ),
             headerClassName: 'justify-end text-right',
           },
@@ -187,7 +193,7 @@ export default function KeysTable({ data, corruption_signing_threshold, page }) 
             disableSortBy: true,
             Cell: props => (
               !props.row.original.skeleton ?
-                <div className={`flex flex-col space-y-2 mb-${props.value?.length > COLLAPSE_VALIDATORS_SIZE ? 0.5 : 4}`}>
+                <div className={`flex flex-col space-y-2 my-1 mb-${props.value?.length > COLLAPSE_VALIDATORS_SIZE ? 0.5 : 4}`}>
                   {typeof props.row.original.snapshot === 'number' && (
                     <div className="uppercase text-gray-400 dark:text-gray-600 text-xs font-semibold">
                       Snapshot: #{props.row.original.snapshot}
@@ -275,9 +281,9 @@ export default function KeysTable({ data, corruption_signing_threshold, page }) 
                   }
                 </div>
                 :
-                <div className="flex flex-col space-y-2 mb-4">
+                <div className="flex flex-col space-y-2 my-1 mb-4">
                   {[...Array(5).keys()].map(i => (
-                    <div key={i} className="skeleton w-48 h-4" />
+                    <div key={i} className="skeleton w-48 h-5" />
                   ))}
                 </div>
             ),
@@ -392,17 +398,18 @@ export default function KeysTable({ data, corruption_signing_threshold, page }) 
                 </div>
             ),
           },
-        ].filter(column => ['validator'].includes(page) ? !(['validators', 'corruption_signing_threshold', 'height', 'non_participant_validators'].includes(column.accessor)) : ['keygen_failed'].includes(page) ? !(['num_validator_shares', 'snapshot_block_number', 'corruption_signing_threshold'].includes(column.accessor)) : ['sign_success', 'sign_failed'].includes(page) ? !(['num_validator_shares', 'snapshot_block_number', 'corruption_signing_threshold'].includes(column.accessor)) : !(['num_validator_shares', 'snapshot_block_number'/*'height', 'non_participant_validators'*/].includes(column.accessor)))}
+        ].filter(column => ['validator'].includes(page) ? !(['key_chain', 'key_role', 'validators', 'corruption_signing_threshold', 'height', 'non_participant_validators'].includes(column.accessor)) : ['keygen_failed'].includes(page) ? !(['num_validator_shares', 'snapshot_block_number', 'corruption_signing_threshold'].includes(column.accessor)) : ['sign_success', 'sign_failed'].includes(page) ? !(['num_validator_shares', 'snapshot_block_number', 'corruption_signing_threshold'].includes(column.accessor)) : !(['num_validator_shares', 'snapshot_block_number'/*'height', 'non_participant_validators'*/].includes(column.accessor)))}
         data={data ?
           data.data?.map((key, i) => { return { ...key, i, corruption_signing_threshold: typeof corruption_signing_threshold?.[key.key_id] === 'number' ? corruption_signing_threshold[key.key_id] : -1 } })
           :
           [...Array(10).keys()].map(i => { return { i, skeleton: true } })
         }
         noPagination={data?.data?.length > 10 ? false : true}
-        defaultPageSize={100}
+        defaultPageSize={['validator'].includes(page) ? 10 : 100}
+        className={`${[].includes(page) ? 'small' : ''}`}
       />
       {data && !(data.data?.length > 0) && (
-        <div className={`bg-${['validator'].includes(page) ? 'gray-50' : 'white'} dark:bg-gray-800 text-gray-300 dark:text-gray-500 text-base font-medium italic text-center my-4 py-2`}>
+        <div className={`bg-${['validator'].includes(page) ? 'gray-50' : 'white'} dark:bg-gray-800 text-gray-300 dark:text-gray-500 text-base font-medium italic text-center my-${['validator'].includes(page) ? 2 : 4} py-2`}>
           No Participations
         </div>
       )}

@@ -5,22 +5,11 @@ import _ from 'lodash'
 import Widget from '../widget'
 import Copy from '../copy'
 
-import { denomSymbol } from '../../lib/object/denom'
 import { numberFormat } from '../../lib/utils'
 
-export default function AxelarSpecific({ data }) {
+export default function AxelarSpecific({ data, keygens, signs }) {
   const { _data } = useSelector(state => ({ _data: state.data }), shallowEqual)
-  const { denoms_data, chain_data, status_data } = { ..._data }
-
-  const numMissedBlocks = typeof data?.uptime === 'number' && data?.start_height && status_data?.latest_block_height && (
-    (Number(process.env.NEXT_PUBLIC_NUM_UPTIME_BLOCKS) * (1 - data.uptime / 100))
-    -
-    (Number(status_data.latest_block_height) - data.start_height > Number(process.env.NEXT_PUBLIC_NUM_UPTIME_BLOCKS) ?
-      0
-      :
-      Number(process.env.NEXT_PUBLIC_NUM_UPTIME_BLOCKS) - (Number(status_data.latest_block_height) - data.start_height)
-    )
-  )
+  const { status_data } = { ..._data }
 
   return (
     <Widget
@@ -28,11 +17,11 @@ export default function AxelarSpecific({ data }) {
       className="min-h-full"
     >
       <div className={`grid grid-flow-row grid-cols-1 sm:grid-cols-2 text-base sm:text-sm lg:text-base gap-4 ${data ? 'my-3' : 'my-4'}`}>
-        {typeof data?.uptime === 'number' ?
+        {keygens ?
           <div className="flex flex-col space-y-1">
             <span className="font-semibold">Keygen Participated</span>
             <span className="text-gray-600 dark:text-gray-400">
-              {numberFormat(data.uptime, '0,0.00')}%
+              {numberFormat(keygens.filter(_keygen => _keygen?.participated).length, '0,0')}
             </span>
           </div>
           :
@@ -41,11 +30,11 @@ export default function AxelarSpecific({ data }) {
             <div className="skeleton w-28 h-5" />
           </div>
         }
-        {typeof numMissedBlocks === 'number' ?
+        {keygens ?
           <div className="flex flex-col space-y-1">
             <span className="font-semibold">Keygen Not Participated</span>
             <span className="text-gray-600 dark:text-gray-400">
-              {numberFormat(numMissedBlocks, '0,0')}
+              {numberFormat(keygens.filter(_keygen => _keygen?.not_participated).length, '0,0')}
             </span>
           </div>
           :
@@ -54,11 +43,11 @@ export default function AxelarSpecific({ data }) {
             <div className="skeleton w-28 h-5" />
           </div>
         }
-        {data ?
+        {signs ?
           <div className="flex flex-col space-y-1">
             <span className="font-semibold">Sign Participated</span>
             <span className="text-gray-600 dark:text-gray-400">
-              {typeof data.times_jailed === 'number' ? numberFormat(data.times_jailed, '0,0') : '-'}
+              {numberFormat(signs.filter(_sign => _sign?.participated).length, '0,0')}
             </span>
           </div>
           :
@@ -67,11 +56,11 @@ export default function AxelarSpecific({ data }) {
             <div className="skeleton w-20 h-5" />
           </div>
         }
-        {data ?
+        {signs ?
           <div className="flex flex-col space-y-1">
             <span className="font-semibold">Sign Not Participated</span>
             <span className="text-gray-600 dark:text-gray-400">
-              {typeof data.avg_jail_response_time === 'number' ? numberFormat(data.times_jailed, '0,0') : '-'}
+              {numberFormat(signs.filter(_sign => _sign?.not_participated).length, '0,0')}
             </span>
           </div>
           :

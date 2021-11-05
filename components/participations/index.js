@@ -9,7 +9,7 @@ import KeysTable from './keys-table'
 import { keygenSummary, keygens as getKeygens } from '../../lib/api/query'
 import { allValidators } from '../../lib/api/cosmos'
 import { getKeygenById } from '../../lib/api/executor'
-import { signAttempts as getSignAttempts, successKeygens as getSuccessKeygens, failedKeygens as getFailedKeygens } from '../../lib/api/opensearch'
+import { successKeygens as getSuccessKeygens, failedKeygens as getFailedKeygens, signAttempts as getSignAttempts } from '../../lib/api/opensearch'
 import { getName } from '../../lib/utils'
 
 import { VALIDATORS_DATA, KEYGENS_DATA } from '../../reducers/types'

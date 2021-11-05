@@ -5,12 +5,11 @@ import _ from 'lodash'
 import Widget from '../widget'
 import Copy from '../copy'
 
-import { denomSymbol } from '../../lib/object/denom'
 import { numberFormat } from '../../lib/utils'
 
 export default function CosmosGeneric({ data }) {
   const { _data } = useSelector(state => ({ _data: state.data }), shallowEqual)
-  const { denoms_data, chain_data, status_data } = { ..._data }
+  const { status_data } = { ..._data }
 
   const numMissedBlocks = typeof data?.uptime === 'number' && data?.start_height && status_data?.latest_block_height && (
     (Number(process.env.NEXT_PUBLIC_NUM_UPTIME_BLOCKS) * (1 - data.uptime / 100))
