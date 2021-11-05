@@ -1,13 +1,10 @@
 import { useSelector, shallowEqual } from 'react-redux'
 
-import _ from 'lodash'
-
 import Widget from '../widget'
-import Copy from '../copy'
 
 import { numberFormat } from '../../lib/utils'
 
-export default function CosmosGeneric({ data }) {
+export default function CosmosGeneric({ data, health }) {
   const { _data } = useSelector(state => ({ _data: state.data }), shallowEqual)
   const { status_data } = { ..._data }
 
@@ -71,13 +68,55 @@ export default function CosmosGeneric({ data }) {
           <div className="flex flex-col space-y-1">
             <span className="font-semibold">Avg. Jail Response Time</span>
             <span className="text-gray-600 dark:text-gray-400">
-              {typeof data.avg_jail_response_time === 'number' ? numberFormat(data.times_jailed, '0,0') : '-'}
+              {typeof data.avg_jail_response_time === 'number' ? numberFormat(data.avg_jail_response_time, '0,0') : '-'}
             </span>
           </div>
           :
           <div className="flex flex-col space-y-3">
             <div className="skeleton w-40 h-6" />
             <div className="skeleton w-20 h-5" />
+          </div>
+        }
+      </div>
+      <div className="text-gray-500 text-lg font-medium">Health Check</div>
+      <div className={`grid grid-flow-row grid-cols-1 sm:grid-cols-2 text-base sm:text-sm lg:text-base gap-4 ${health ? 'my-3' : 'my-4'}`}>
+        {health ?
+          <div className="flex flex-col space-y-1">
+            <span className="font-semibold">Broadcaster Registration</span>
+            <span className="text-gray-600 dark:text-gray-400">
+              {health.broadcaster_registration ? health.broadcaster_registration : '-'}
+            </span>
+          </div>
+          :
+          <div className="flex flex-col space-y-3">
+            <div className="skeleton w-40 h-6" />
+            <div className="skeleton w-28 h-5" />
+          </div>
+        }
+        {health ?
+          <div className="flex flex-col space-y-1">
+            <span className="font-semibold">Broadcaster Funded</span>
+            <span className="text-gray-600 dark:text-gray-400">
+              {health.broadcaster_funded ? health.broadcaster_funded : '-'}
+            </span>
+          </div>
+          :
+          <div className="flex flex-col space-y-3">
+            <div className="skeleton w-40 h-6" />
+            <div className="skeleton w-28 h-5" />
+          </div>
+        }
+        {health ?
+          <div className="flex flex-col space-y-1">
+            <span className="font-semibold">Tofnd Ping</span>
+            <span className="text-gray-600 dark:text-gray-400">
+              {health.tofnd_ping ? health.tofnd_ping : '-'}
+            </span>
+          </div>
+          :
+          <div className="flex flex-col space-y-3">
+            <div className="skeleton w-40 h-6" />
+            <div className="skeleton w-28 h-5" />
           </div>
         }
       </div>

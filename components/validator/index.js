@@ -35,6 +35,9 @@ export default function Validator({ address }) {
   const [keygens, setKeygens] = useState(null)
   const [signs, setSigns] = useState(null)
   const [delegations, setDelegations] = useState(null)
+  const [health, setHealth] = useState(null)
+  const [chainsSupported, setChainsSupported] = useState(null)
+  const [rewards, setRewards] = useState(null)
 
   useEffect(() => {
     const controller = new AbortController()
@@ -145,13 +148,19 @@ export default function Validator({ address }) {
           })
         }
       }
+
+      setHealth({ data: {}, address })
+
+      setChainsSupported({ data: {}, address })
+
+      setRewards({ data: {}, address })
     }
 
     if (address && denoms_data && status_data && validators_data) {
       getData()
     }
 
-    const interval = setInterval(() => getData(), 3 * 60 * 1000)
+    const interval = setInterval(() => getData(), 2 * 60 * 1000)
     return () => {
       controller?.abort()
       clearInterval(interval)
@@ -253,7 +262,7 @@ export default function Validator({ address }) {
       getData()
     }
 
-    const interval = setInterval(() => getData(), 5 * 60 * 1000)
+    const interval = setInterval(() => getData(), 4 * 60 * 1000)
     return () => {
       controller?.abort()
       clearInterval(interval)
@@ -268,11 +277,16 @@ export default function Validator({ address }) {
         />
       </div>
       <div className="grid grid-flow-row grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 my-4">
-        <CosmosGeneric data={validator?.address === address && validator?.data} />
+        <CosmosGeneric
+          data={validator?.address === address && validator?.data}
+          health={health?.address === address && health?.data}
+        />
         <AxelarSpecific
           data={validator?.address === address && validator?.data}
           keygens={keygens?.address === address && keygens?.data}
           signs={signs?.address === address && signs?.data}
+          chainsSupported={chainsSupported?.address === address && chainsSupported?.data}
+          rewards={rewards?.address === address && rewards?.data}
         />
         <VotingPower data={validator?.address === address && validator?.data} />
         <Uptime data={uptime?.address === address && uptime?.data} validator_data={validator?.address === address && validator?.data} />

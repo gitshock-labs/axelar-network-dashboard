@@ -65,12 +65,13 @@ export const Pagination = ({
   previous = 'Previous',
   next = 'Next',
   onClick,
+  className = '',
 }) => {
   previous = active - 1 > 0 && previous
   next = active + 1 <= items.length && next
 
   return (
-    <div className="pagination flex flex-wrap items-center justify-center space-x-2">
+    <div className={`pagination flex flex-wrap items-center justify-center ${className.includes('space-x-') ? '' : 'space-x-2'} ${className}`}>
       {previous && (icons ?
         <Page disabled={disabled} onClick={() => onClick(active - 1)}>{previous}</Page>
         :
@@ -94,4 +95,5 @@ Pagination.propTypes = {
   previous: PropTypes.any,
   next: PropTypes.any,
   onClick: PropTypes.any,
+  className: PropTypes.string,
 }

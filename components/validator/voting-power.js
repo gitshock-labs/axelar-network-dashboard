@@ -18,7 +18,7 @@ export default function VotingPower({ data }) {
       className="min-h-full"
     >
       {data ?
-        <div className="flex items-center sm:justify-center mt-4 mb-5">
+        <div className="flex items-center sm:justify-center mt-5 mb-6">
           <div className="w-60 h-32 bg-gray-900 dark:bg-black rounded-lg flex items-center justify-center">
             <div className="flex flex-col text-center space-y-1">
               <span className="text-white text-2xl font-semibold">{numberFormat(Math.floor(data.tokens / Number(process.env.NEXT_PUBLIC_POWER_REDUCTION)), '0,0')}</span>
@@ -29,7 +29,7 @@ export default function VotingPower({ data }) {
           </div>
         </div>
         :
-        <div className="flex items-center justify-center mt-4 mb-5">
+        <div className="flex items-center justify-center mt-5 mb-6">
           <div className="skeleton w-60 h-32 rounded-lg" />
         </div>
       }

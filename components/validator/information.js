@@ -75,15 +75,15 @@ export default function Information({ data }) {
       contentClassName={`flex-col sm:flex-row ${data?.illegible ? 'items-start' : 'items-start sm:items-center'} space-y-2 sm:space-y-0`}
       className="min-h-full"
     >
-      <div className="grid grid-flow-row grid-cols-1 sm:grid-cols-2 gap-4 text-sm lg:text-base mt-3">
+      <div className="grid grid-flow-row grid-cols-1 sm:grid-cols-2 gap-4 text-sm xl:text-base mt-3">
         {data ?
           data.operator_address && (
             <div className="flex flex-col xl:flex-row items-start space-x-0 xl:space-x-2">
-              <span className="font-semibold">Operator Address:</span>
-              <span className="flex items-center text-gray-600 dark:text-gray-400 space-x-1">
+              <span className="max-w-min whitespace-nowrap font-semibold">Operator Address:</span>
+              <span className="flex flex-wrap items-center text-gray-600 dark:text-gray-400 space-x-1">
                 <span className="lg:hidden">{ellipseAddress(data.operator_address, 16)}</span>
-                <span className="hidden lg:block lg:pr-1">{ellipseAddress(data.operator_address, 32)}</span>
-                <Copy size={20} text={data.operator_address} />
+                <span className="hidden lg:block">{ellipseAddress(data.operator_address, 32)}</span>
+                <Copy size={18} text={data.operator_address} />
               </span>
             </div>
           )
@@ -101,11 +101,11 @@ export default function Information({ data }) {
                   </a>
                 </Link>
                 <Link href={`/account/${data.delegator_address}`}>
-                  <a className="hidden lg:block text-blue-600 dark:text-blue-500 lg:pr-1">
+                  <a className="hidden lg:block text-blue-600 dark:text-blue-500">
                     {ellipseAddress(data.delegator_address, 24)}
                   </a>
                 </Link>
-                <Copy size={20} text={data.delegator_address} />
+                <Copy size={18} text={data.delegator_address} />
               </span>
             </div>
           )

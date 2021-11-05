@@ -4,7 +4,7 @@ import { useState } from 'react'
 import _ from 'lodash'
 import moment from 'moment'
 import { FiKey } from 'react-icons/fi'
-import { MdCancel } from 'react-icons/md'
+import { MdCancel, MdOutlineHowToVote } from 'react-icons/md'
 import { FaSignature, FaCheckCircle, FaTimesCircle } from 'react-icons/fa'
 import { IoCaretUpOutline, IoCaretDownOutline } from 'react-icons/io5'
 
@@ -410,7 +410,7 @@ export default function KeysTable({ data, corruption_signing_threshold, page }) 
                     :
                     <FaTimesCircle size={16} className="text-red-500" />
                   }
-                  {/*<span className="capitalize">{props.value ? 'success' : 'failed'}</span>*/}
+                  <span className="capitalize">{props.value ? 'success' : 'failed'}</span>
                 </div>
                 :
                 <div className="skeleton w-16 h-5 my-1 ml-auto" />
@@ -418,17 +418,17 @@ export default function KeysTable({ data, corruption_signing_threshold, page }) 
             headerClassName: 'justify-end text-right',
           },
           {
-            Header: 'Participated',
+            Header: <MdOutlineHowToVote size={20} />,
             accessor: 'participated',
             sortType: (rowA, rowB) => rowA.original.participated > rowB.original.participated ? 1 : -1,
             Cell: props => (
               !props.row.original.skeleton ?
                 <div className="flex items-center justify-end space-x-1 my-1">
-                  {props.value ?
+                  {/*props.value ?
                     <FaCheckCircle size={16} className="text-green-500" />
                     :
                     <FaTimesCircle size={16} className="text-red-500" />
-                  }
+                  */}
                   <span className="capitalize">{props.value ? 'Yes' : 'No'}</span>
                 </div>
                 :
@@ -456,8 +456,9 @@ export default function KeysTable({ data, corruption_signing_threshold, page }) 
           [...Array(10).keys()].map(i => { return { i, skeleton: true } })
         }
         noPagination={data?.data?.length > 10 ? false : true}
+        noRecordPerPage={['validator', 'validator-keygen', 'validator-sign'].includes(page)}
         defaultPageSize={['validator', 'validator-keygen', 'validator-sign'].includes(page) ? 10 : 100}
-        className={`${['validator-keygen', 'validator-sign'].includes(page) ? 'small' : ''}`}
+        className={`${[].includes(page) ? 'small' : ''}`}
       />
       {data && !(data.data?.length > 0) && (
         <div className={`bg-${['validator', 'validator-keygen', 'validator-sign'].includes(page) ? 'gray-50' : 'white'} dark:bg-gray-800 text-gray-300 dark:text-gray-500 text-base font-medium italic text-center my-${['validator', 'validator-keygen', 'validator-sign'].includes(page) ? 2 : 4} py-2`}>

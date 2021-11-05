@@ -2,6 +2,7 @@ import { useState, useEffect, forwardRef, useRef } from 'react'
 
 import { useTable, useSortBy, usePagination, useRowSelect } from 'react-table'
 import { FiChevronDown, FiChevronUp } from 'react-icons/fi'
+import { BiLeftArrowAlt, BiRightArrowAlt } from 'react-icons/bi'
 
 import { PageWithText, Pagination } from '../pagination'
 
@@ -23,7 +24,7 @@ const IndeterminateCheckbox = forwardRef(({ indeterminate, ...rest }, ref) => {
   )
 })
 
-export default function Datatable({ columns, data, rowSelectEnable = false, noPagination = false, defaultPageSize = 10, className = '' }) {
+export default function Datatable({ columns, data, rowSelectEnable = false, noPagination = false, defaultPageSize = 10, noRecordPerPage = false, className = '' }) {
   const tableRef = useRef()
 
   const {
@@ -116,19 +117,21 @@ export default function Datatable({ columns, data, rowSelectEnable = false, noPa
         </tbody>
       </table>
       {!noPagination && data?.length > 0 && (
-        <div className="flex flex-col sm:flex-row items-center justify-between my-4 mx-3">
-          <select
-            disabled={loading}
-            value={pageSize}
-            onChange={event => setPageSize(Number(event.target.value))}
-            className="form-select dark:bg-gray-800 outline-none border-gray-200 dark:border-gray-800 shadow-none focus:shadow-none text-xs"
-          >
-            {[10, 25, 50, 100].map(pageSize => (
-              <option key={pageSize} value={pageSize}>
-                Show {pageSize}
-              </option>
-            ))}
-          </select>
+        <div className={`flex flex-col sm:flex-row items-center justify-${noRecordPerPage ? 'center' : 'between'} my-4 mx-3`}>
+          {!noRecordPerPage && (
+            <select
+              disabled={loading}
+              value={pageSize}
+              onChange={event => setPageSize(Number(event.target.value))}
+              className="form-select dark:bg-gray-800 outline-none border-gray-200 dark:border-gray-800 shadow-none focus:shadow-none text-xs"
+            >
+              {[10, 25, 50, 100].map(pageSize => (
+                <option key={pageSize} value={pageSize}>
+                  Show {pageSize}
+                </option>
+              ))}
+            </select>
+          )}
           {pageCount <= 4 && (
             <span className="my-2 sm:my-0">
               Page <span className="font-bold">{pageIndex + 1}</span> of <span className="font-bold">{pageOptions.length}</span>
@@ -141,12 +144,14 @@ export default function Datatable({ columns, data, rowSelectEnable = false, noPa
                   items={[...Array(pageCount).keys()]}
                   disabled={loading}
                   active={pageIndex + 1}
-                  previous="Previous"
-                  next="Next"
+                  previous={noRecordPerPage ? <BiLeftArrowAlt size={16} /> : 'Previous'}
+                  next={noRecordPerPage ? <BiRightArrowAlt size={16} /> : 'Next'}
                   onClick={_page => {
                     gotoPage(_page - 1)
                     tableRef.current.scrollIntoView() 
                   }}
+                  icons={noRecordPerPage ? true : false}
+                  className={noRecordPerPage ? 'space-x-0.5' : ''}
                 />
               </div>
               :
