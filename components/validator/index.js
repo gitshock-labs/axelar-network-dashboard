@@ -178,6 +178,7 @@ export default function Validator({ address }) {
             key_role: _keygen.key_role || (_keygen?.key_id?.split('-').length > 2 && `${_keygen.key_id.split('-')[1].toUpperCase()}_KEY`),
             participated: _keygen.snapshot_validators?.validators?.findIndex(_validator => _validator?.validator?.toLowerCase() === address?.toLowerCase()) > -1 ? true : false,
             not_participated: _keygen.snapshot_non_participant_validators?.validators?.findIndex(_validator => _validator?.validator?.toLowerCase() === address?.toLowerCase()) > -1 ? true : false,
+            success: true,
           }
         }
 
@@ -196,6 +197,7 @@ export default function Validator({ address }) {
             key_role: _keygen.key_role || (_keygen?.key_id?.split('-').length > 2 && `${_keygen.key_id.split('-')[1].toUpperCase()}_KEY`),
             participated: _keygen.snapshot_validators?.validators?.findIndex(_validator => _validator?.validator?.toLowerCase() === address?.toLowerCase()) > -1 ? true : false,
             not_participated: _keygen.snapshot_non_participant_validators?.validators?.findIndex(_validator => _validator?.validator?.toLowerCase() === address?.toLowerCase()) > -1 ? true : false,
+            success: false,
           }
         }
 
@@ -218,6 +220,7 @@ export default function Validator({ address }) {
             key_role: _sign.key_role || (_sign?.key_id?.split('-').length > 2 && `${_sign.key_id.split('-')[1].toUpperCase()}_KEY`),
             participated: _sign.participants?.findIndex(_address => _address?.toLowerCase() === address?.toLowerCase()) > -1 ? true : false,
             not_participated: _sign.non_participants?.findIndex(_address => _address?.toLowerCase() === address?.toLowerCase()) > -1 ? true : false,
+            success: true,
           }
         }
 
@@ -236,6 +239,7 @@ export default function Validator({ address }) {
             key_role: _sign.key_role || (_sign?.key_id?.split('-').length > 2 && `${_sign.key_id.split('-')[1].toUpperCase()}_KEY`),
             participated: _sign.participants?.findIndex(_address => _address?.toLowerCase() === address?.toLowerCase()) > -1 ? true : false,
             not_participated: _sign.non_participants?.findIndex(_address => _address?.toLowerCase() === address?.toLowerCase()) > -1 ? true : false,
+            success: false,
           }
         }
 
@@ -288,10 +292,10 @@ export default function Validator({ address }) {
         >
           <div className="mt-1">
             {tab === 'keygen' ?
-              <KeysTable data={keygens} page="validator" />
+              <KeysTable data={keygens} page="validator-keygen" />
               :
               tab === 'sign' ?
-                <KeysTable data={signs} page="validator" />
+                <KeysTable data={signs} page="validator-sign" />
                 :
                 <KeysTable data={keyShares} page="validator" />
             }

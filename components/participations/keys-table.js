@@ -5,7 +5,7 @@ import _ from 'lodash'
 import moment from 'moment'
 import { FiKey } from 'react-icons/fi'
 import { MdCancel } from 'react-icons/md'
-import { FaSignature } from 'react-icons/fa'
+import { FaSignature, FaCheckCircle, FaClock, FaTimesCircle } from 'react-icons/fa'
 import { IoCaretUpOutline, IoCaretDownOutline } from 'react-icons/io5'
 
 import Datatable from '../datatable'
@@ -94,7 +94,7 @@ export default function KeysTable({ data, corruption_signing_threshold, page }) 
             ),
           },
           {
-            Header: ['validator'].includes(page) ? 'Block' : 'Snapshot Block',
+            Header: ['validator'].includes(page) ? 'Height' : 'Snapshot Block',
             accessor: 'snapshot_block_number',
             sortType: (rowA, rowB) => rowA.original.snapshot_block_number > rowB.original.snapshot_block_number ? 1 : -1,
             Cell: props => (
@@ -398,18 +398,60 @@ export default function KeysTable({ data, corruption_signing_threshold, page }) 
                 </div>
             ),
           },
-        ].filter(column => ['validator'].includes(page) ? !(['key_chain', 'key_role', 'validators', 'corruption_signing_threshold', 'height', 'non_participant_validators'].includes(column.accessor)) : ['keygen_failed'].includes(page) ? !(['num_validator_shares', 'snapshot_block_number', 'corruption_signing_threshold'].includes(column.accessor)) : ['sign_success', 'sign_failed'].includes(page) ? !(['num_validator_shares', 'snapshot_block_number', 'corruption_signing_threshold'].includes(column.accessor)) : !(['num_validator_shares', 'snapshot_block_number'/*'height', 'non_participant_validators'*/].includes(column.accessor)))}
+          {
+            Header: 'Result',
+            accessor: 'success',
+            sortType: (rowA, rowB) => rowA.original.success > rowB.original.success ? 1 : -1,
+            Cell: props => (
+              !props.row.original.skeleton ?
+                <div className="text-right my-1">
+                  {props.value ?
+                    <>
+                      <Link href={`/blocks/${props.value}`}>
+                        <a className="text-blue-600 dark:text-blue-500">
+                          {numberFormat(props.value, '0,0')}
+                        </a>
+                      </Link>
+                      {/*props.row.original.timestamp && (
+                        <div className="text-gray-400 dark:text-gray-600 text-xs font-normal mt-1" style={{ fontSize: '.65rem' }}>
+                          {moment(props.row.original.timestamp * 1000).format('MMM D, YYYY h:mm:ss A z')}
+                        </div>
+                      )*/}
+                    </>
+                    :
+                    '-'
+                  }
+                </div>
+                :
+                <div className="skeleton w-16 h-5 my-1 ml-auto" />
+            ),
+            headerClassName: 'justify-end text-right',
+          },
+        ].filter(column => ['validator'].includes(page) ?
+          !(['key_chain', 'key_role', 'validators', 'corruption_signing_threshold', 'height', 'non_participant_validators', 'success', 'participated'].includes(column.accessor))
+          :
+          ['validator-keygen', 'validator-sign'].includes(page) ?
+            !(['key_chain', 'key_role', 'num_validator_shares', 'snapshot_block_number', 'corruption_signing_threshold', 'validators', 'corruption_signing_threshold', 'non_participant_validators'].includes(column.accessor))
+            :
+            ['keygen_failed'].includes(page) ?
+              !(['num_validator_shares', 'snapshot_block_number', 'corruption_signing_threshold', 'success', 'participated'].includes(column.accessor))
+              :
+              ['sign_success', 'sign_failed'].includes(page) ?
+                !(['num_validator_shares', 'snapshot_block_number', 'corruption_signing_threshold', 'success', 'participated'].includes(column.accessor))
+                :
+                !(['num_validator_shares', 'snapshot_block_number'/*'height', 'non_participant_validators'*/, 'success', 'participated'].includes(column.accessor))
+        )}
         data={data ?
           data.data?.map((key, i) => { return { ...key, i, corruption_signing_threshold: typeof corruption_signing_threshold?.[key.key_id] === 'number' ? corruption_signing_threshold[key.key_id] : -1 } })
           :
           [...Array(10).keys()].map(i => { return { i, skeleton: true } })
         }
         noPagination={data?.data?.length > 10 ? false : true}
-        defaultPageSize={['validator'].includes(page) ? 10 : 100}
+        defaultPageSize={['validator', 'validator-keygen', 'validator-sign'].includes(page) ? 10 : 100}
         className={`${[].includes(page) ? 'small' : ''}`}
       />
       {data && !(data.data?.length > 0) && (
-        <div className={`bg-${['validator'].includes(page) ? 'gray-50' : 'white'} dark:bg-gray-800 text-gray-300 dark:text-gray-500 text-base font-medium italic text-center my-${['validator'].includes(page) ? 2 : 4} py-2`}>
+        <div className={`bg-${['validator', 'validator-keygen', 'validator-sign'].includes(page) ? 'gray-50' : 'white'} dark:bg-gray-800 text-gray-300 dark:text-gray-500 text-base font-medium italic text-center my-${['validator', 'validator-keygen', 'validator-sign'].includes(page) ? 2 : 4} py-2`}>
           No Participations
         </div>
       )}

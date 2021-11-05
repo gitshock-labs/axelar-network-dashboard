@@ -7,7 +7,7 @@ import Copy from '../copy'
 
 import { numberFormat } from '../../lib/utils'
 
-export default function AxelarSpecific({ data, keygens, signs }) {
+export default function AxelarSpecific({ data, keygens, signs, chainsSupported }) {
   const { _data } = useSelector(state => ({ _data: state.data }), shallowEqual)
   const { status_data } = { ..._data }
 
@@ -71,9 +71,9 @@ export default function AxelarSpecific({ data, keygens, signs }) {
         }
         {data ?
           <div className="sm:col-span-2 flex flex-col space-y-1">
-            <span className="font-semibold">Chain Supported</span>
+            <span className="font-semibold">Chains Supported</span>
             <span className="text-gray-600 dark:text-gray-400">
-              {typeof data.avg_jail_response_time === 'number' ? numberFormat(data.times_jailed, '0,0') : '-'}
+              {chainsSupported ? chainsSupported : '-'}
             </span>
           </div>
           :
