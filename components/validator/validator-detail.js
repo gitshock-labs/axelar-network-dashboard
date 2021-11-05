@@ -75,7 +75,7 @@ export default function ValidatorDetail({ data, delegations, keygens, all_keygen
             )}
             {data.delegator_address && (
               <div className="flex flex-col xl:flex-row items-start space-x-0 xl:space-x-2">
-                <span className="font-medium">Self-Delegate Address:</span>
+                <span className="font-medium">Delegator Address:</span>
                 <span className="flex items-center space-x-1 lg:space-x-0">
                   <Link href={`/account/${data.delegator_address}`}>
                     <a className="lg:hidden text-blue-600 dark:text-blue-500 font-normal">{ellipseAddress(data.delegator_address, 16)}</a>

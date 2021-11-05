@@ -3,7 +3,9 @@ import { useSelector, useDispatch, shallowEqual } from 'react-redux'
 
 import moment from 'moment'
 
+import Information from './information'
 import ValidatorDetail from './validator-detail'
+import CosmosGeneric from './cosmos-generic'
 import VotingPower from './voting-power'
 import Uptime from './uptime'
 import DelegationsTable from './delegations-table'
@@ -199,19 +201,14 @@ export default function Validator({ address }) {
 
   return (
     <>
-      <div className="grid grid-flow-row grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="my-2">
-          <ValidatorDetail
-            data={validator?.address === address && validator?.data}
-            delegations={delegations?.address === address && delegations?.data}
-            keygens={keygens?.address === address && keygens?.data}
-            all_keygens={keygens_data}
-            sign_events={signEvents?.address === address && signEvents?.data}
-          />
-        </div>
-        <div className="my-2">
-          <VotingPower data={validator?.address === address && validator?.data} />
-        </div>
+      <div className="my-4">
+        <Information
+          data={validator?.address === address && validator?.data}
+        />
+      </div>
+      <div className="grid grid-flow-row grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 my-4">
+        <CosmosGeneric data={validator?.address === address && validator?.data} />
+        <VotingPower data={validator?.address === address && validator?.data} />
       </div>
       <div className="flex flex-col md:flex-row items-start space-x-0 md:space-x-4">
         <div className="w-full md:w-1/2 xl:w-2/5 my-2">
