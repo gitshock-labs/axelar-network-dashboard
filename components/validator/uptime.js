@@ -12,21 +12,10 @@ import { numberFormat } from '../../lib/utils'
 export default function Uptime({ data, validator_data }) {
   return (
     <Widget
-      title={<span className="text-gray-900 dark:text-white text-lg font-semibold">Uptime</span>}
-      description={<div className="flex items-center mt-2">
-        <span className="text-gray-500 dark:text-gray-300">Last {numberFormat(process.env.NEXT_PUBLIC_NUM_UPTIME_BLOCKS, '0,0')} Blocks</span>
-        {data ?
-          <span className="ml-auto">{validator_data && numberFormat(validator_data.uptime, '0,0.00')}%</span>
-          :
-          <div className="skeleton w-10 h-4 ml-auto" />
-        }
-      </div>}
+      title={<span className="text-lg font-medium">Uptime</span>}
     >
-      <div className="flex flex-wrap items-center">
-        {(data ?
-          data
-          :
-          [...Array(Number(process.env.NEXT_PUBLIC_NUM_UPTIME_DISPLAY_BLOCKS)).keys()].map(i => { return { i, skeleton: true } })
+      <div className="flex flex-wrap items-center mt-1 -ml-0.5">
+        {(data || [...Array(Number(process.env.NEXT_PUBLIC_NUM_UPTIME_DISPLAY_BLOCKS)).keys()].map(i => { return { i, skeleton: true } })
         ).map((block, i) => (
           !block.skeleton ?
             <Popover

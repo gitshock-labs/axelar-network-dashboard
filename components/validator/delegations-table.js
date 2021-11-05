@@ -15,8 +15,8 @@ export default function DelegationsTable({ data }) {
             Cell: props => (
               !props.row.original.skeleton ?
                 props.value ?
-                  <div className="flex items-center space-x-1">
-                    <span className="font-medium">{ellipseAddress(props.value, 16)}</span>
+                  <div className="flex items-center space-x-1 my-1">
+                    <span className="font-medium">{ellipseAddress(props.value, 10)}</span>
                     <Copy text={props.value} />
                     {props.row.original.self && (
                       <span className="bg-indigo-600 rounded-full capitalize text-white font-semibold px-2 py-0.5">
@@ -27,7 +27,7 @@ export default function DelegationsTable({ data }) {
                   :
                   '-'
                 :
-                <div className="skeleton w-48 h-4" />
+                <div className="skeleton w-48 h-5 my-1" />
             ),
           },
           {
@@ -37,7 +37,7 @@ export default function DelegationsTable({ data }) {
             Cell: props => (
               !props.row.original.skeleton ?
                 typeof props.value === 'number' ?
-                  <span className="flex items-center space-x-1">
+                  <span className="flex items-center space-x-1 my-1">
                     <span>{numberFormat(props.value, '0,0.00000000')}</span>
                     {props.row.original.denom && (
                       <span className="uppercase font-medium">{ellipseAddress(props.row.original.denom)}</span>
@@ -46,7 +46,7 @@ export default function DelegationsTable({ data }) {
                   :
                   '-'
                 :
-                <div className="skeleton w-16 h-4" />
+                <div className="skeleton w-16 h-5 my-1" />
             ),
           },
         ]}

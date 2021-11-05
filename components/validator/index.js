@@ -4,13 +4,13 @@ import { useSelector, useDispatch, shallowEqual } from 'react-redux'
 import moment from 'moment'
 
 import Information from './information'
-import ValidatorDetail from './validator-detail'
 import CosmosGeneric from './cosmos-generic'
+import AxelarSpecific from './axelar-specific'
 import VotingPower from './voting-power'
 import Uptime from './uptime'
-import DelegationsTable from './delegations-table'
-import TransactionsTable from '../transactions/transactions-table'
 import KeysTable from '../participations/keys-table'
+import TransactionsTable from '../transactions/transactions-table'
+import DelegationsTable from './delegations-table'
 import Widget from '../widget'
 
 import { getUptime, keygens as getKeygens } from '../../lib/api/query'
@@ -29,11 +29,10 @@ export default function Validator({ address }) {
 
   const [validator, setValidator] = useState(null)
   const [uptime, setUptime] = useState(null)
-  const [signEvents, setSignEvents] = useState(null)
-  const [votingEvents, setVotingEvents] = useState(null)
-  const [delegations, setDelegations] = useState(null)
+  const [tab, setTab] = useState('key_share')
   const [keygens, setKeygens] = useState(null)
-  const [table, setTable] = useState('delegations')
+  const [signs, setSigns] = useState(null)
+  const [delegations, setDelegations] = useState(null)
 
   useEffect(() => {
     const controller = new AbortController()
@@ -175,16 +174,7 @@ export default function Validator({ address }) {
       if (!controller.signal.aborted) {
         response = await transactionsByEvents(`sign.action='decided'`, null, address, true, denoms_data)
 
-        setSignEvents({ data: response || [], total: response ? response.length : 0, address })
-      }
-
-      let data = []
-
-      if (!controller.signal.aborted) {
-        data = await transactionsByEvents(`depositConfirmation.action='vote'`, data, address, null, denoms_data)
-        data = await transactionsByEvents(`outpointConfirmation.action='voted'`, data, address, null, denoms_data)
-
-        setVotingEvents({ data, total: data.length, address })
+        setSigns({ data: response || [], total: response ? response.length : 0, address })
       }
     }
 
@@ -208,43 +198,38 @@ export default function Validator({ address }) {
       </div>
       <div className="grid grid-flow-row grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 my-4">
         <CosmosGeneric data={validator?.address === address && validator?.data} />
+        <AxelarSpecific data={validator?.address === address && validator?.data} />
         <VotingPower data={validator?.address === address && validator?.data} />
-      </div>
-      <div className="flex flex-col md:flex-row items-start space-x-0 md:space-x-4">
-        <div className="w-full md:w-1/2 xl:w-2/5 my-2">
-          <Uptime data={uptime?.address === address && uptime?.data} validator_data={validator?.address === address && validator?.data} />
-        </div>
-        <div className="w-full md:w-1/2 xl:w-3/5 my-2">
-          <Widget
-            title={<div className="grid grid-flow-row grid-cols-2 sm:grid-cols-4 md:grid-cols-2 xl:flex flex-row items-center space-x-1">
-              {['delegations', 'voting_events', 'keygen', 'signing_events'].map((_table, i) => (
-                <div
-                  key={i}
-                  onClick={() => setTable(_table)}
-                  className={`max-w-min sm:max-w-max md:max-w-min lg:max-w-max btn btn-default btn-rounded cursor-pointer bg-trasparent ${_table === table ? 'bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white font-semibold' : 'hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-500 hover:text-gray-700 text-white dark:hover:text-gray-100'}`}
-                >
-                  {getName(_table)}
-                  {_table === 'voting_events' && (<span className="text-gray-500 font-light italic ml-1">(Mock Data)</span>)}
-                </div>
-              ))}
-            </div>}
-            className="px-2 md:px-4"
-          >
-            <div className="mt-3">
-              {table === 'voting_events' ?
-                <TransactionsTable data={votingEvents} noLoad={true} hasVote={true} location="validator" />
-                :
-                table === 'delegations' ?
-                  <DelegationsTable data={delegations?.address === address && delegations?.data} />
-                  :
-                  table === 'signing_events' ?
-                    <TransactionsTable data={signEvents && { ...signEvents, data: _.slice(signEvents.data?.filter(transaction => transaction.participated), 0, 100) }} noLoad={true} location="validator" />
-                    :
-                    <KeysTable data={keygens} page="validator" />
-              }
-            </div>
-          </Widget>
-        </div>
+        <Uptime data={uptime?.address === address && uptime?.data} validator_data={validator?.address === address && validator?.data} />
+        <Widget
+          title={<div className="grid grid-flow-row grid-cols-2 sm:grid-cols-4 md:grid-cols-2 xl:flex flex-row items-center space-x-1">
+            {['key_share', 'keygen', 'sign'].map((_tab, i) => (
+              <div
+                key={i}
+                onClick={() => setTab(_tab)}
+                className={`max-w-min sm:max-w-max md:max-w-min lg:max-w-max btn btn-default btn-rounded cursor-pointer bg-trasparent ${_tab === tab ? 'bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white font-semibold' : 'hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-500 hover:text-gray-700 text-white dark:hover:text-gray-100'}`}
+              >
+                {getName(_tab)}
+              </div>
+            ))}
+          </div>}
+          className="px-2 md:px-4"
+        >
+          <div className="mt-3">
+            {tab === 'sign' ?
+              <TransactionsTable data={signs && { ...signs, data: _.slice(signs.data?.filter(transaction => transaction.participated), 0, 100) }} noLoad={true} location="validator" />
+              :
+              <KeysTable data={keygens} page="validator" />
+            }
+          </div>
+        </Widget>
+        <Widget
+          title={<span className="text-lg font-medium">Delegations</span>}
+        >
+          <div className="mt-2">
+            <DelegationsTable data={delegations?.address === address && delegations?.data} />
+          </div>
+        </Widget>
       </div>
     </>
   )
