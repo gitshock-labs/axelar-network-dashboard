@@ -106,7 +106,13 @@ export default function Validator({ address }) {
           response = await validatorSets()
 
           if (response?.result?.validators?.findIndex(validator_data => validator_data.address === validatorData.consensus_address) > -1) {
-            validatorData = { ...validatorData, proposer_priority: response.result.validators[response.result.validators.findIndex(validator_data => validator_data.address === validatorData.consensus_address)].proposer_priority }
+            const _validatorData = response.result.validators?.find(validator_data => validator_data.address === validatorData.consensus_address)
+
+            validatorData = {
+              ...validatorData,
+              proposer_priority: _validatorData?.proposer_priority,
+              voting_power: Number(_validatorData?.voting_power),
+            }
           }
         }
       }

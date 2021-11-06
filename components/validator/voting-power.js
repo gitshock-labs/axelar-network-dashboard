@@ -21,9 +21,9 @@ export default function VotingPower({ data }) {
         <div className="flex items-center sm:justify-center mt-5 mb-6">
           <div className="w-60 h-32 bg-gray-900 dark:bg-black rounded-lg flex items-center justify-center">
             <div className="flex flex-col text-center space-y-1">
-              <span className="text-white text-2xl font-semibold">{numberFormat(Math.floor(data.tokens / Number(process.env.NEXT_PUBLIC_POWER_REDUCTION)), '0,0')}</span>
+              <span className="text-white text-2xl font-semibold">{numberFormat(data.voting_power || Math.floor(data.tokens / Number(process.env.NEXT_PUBLIC_POWER_REDUCTION)), '0,0')}</span>
               {chain_data?.staking_pool?.bonded_tokens && (
-                <span className="text-gray-200 dark:text-gray-200 text-sm">(~ {numberFormat(Math.floor(data.tokens / Number(process.env.NEXT_PUBLIC_POWER_REDUCTION)) * 100 / Math.floor(chain_data.staking_pool.bonded_tokens), '0,0.00')}%)</span>
+                <span className="text-gray-200 dark:text-gray-200 text-sm">(~ {numberFormat((data.voting_power || Math.floor(data.tokens / Number(process.env.NEXT_PUBLIC_POWER_REDUCTION))) * 100 / Math.floor(chain_data.staking_pool.bonded_tokens), '0,0.00')}%)</span>
               )}
             </div>
           </div>

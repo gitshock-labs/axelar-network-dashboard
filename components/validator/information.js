@@ -113,6 +113,20 @@ export default function Information({ data }) {
           <div className="skeleton w-60 sm:w-72 lg:w-96 h-6" />
         }
         {data ?
+          data.consensus_address && (
+            <div className="flex flex-col xl:flex-row items-start space-x-0 xl:space-x-2">
+              <span className="max-w-min whitespace-nowrap font-semibold">Consensus Address:</span>
+              <span className="flex flex-wrap items-center text-gray-600 dark:text-gray-400 space-x-1">
+                <span className="lg:hidden">{ellipseAddress(data.consensus_address, 16)}</span>
+                <span className="hidden lg:block">{ellipseAddress(data.consensus_address, 32)}</span>
+                <Copy size={18} text={data.consensus_address} />
+              </span>
+            </div>
+          )
+          :
+          <div className="skeleton w-60 sm:w-72 lg:w-96 h-6" />
+        }
+        {data ?
           data.description?.details && (
             <div className="flex flex-col xl:flex-row items-start space-x-0 xl:space-x-2">
               <span className="font-semibold">Description:</span>
