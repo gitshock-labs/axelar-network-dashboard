@@ -125,8 +125,6 @@ export default function Validator({ address }) {
 
       setHealth({ data: _health, address })
 
-      setChainsSupported({ data: {}, address })
-
       if (!controller.signal.aborted) {
         response = await getUptime(Number(status_data.latest_block_height), validatorData?.consensus_address)
 
@@ -134,6 +132,8 @@ export default function Validator({ address }) {
           setUptime({ data: response.data || [], address })
         }
       }
+
+      setChainsSupported({ data: {}, address })
 
       let _delegations
 

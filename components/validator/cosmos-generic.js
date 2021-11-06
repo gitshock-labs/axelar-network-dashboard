@@ -20,7 +20,7 @@ export default function CosmosGeneric({ data, health }) {
     )
   )
 
-  const numBlocksBeforeProxyRegistered = typeof data?.uptime === 'number' && health ? health.broadcaster_registration ? typeof data?.start_proxy_height === 'number' && typeof data?.start_height === 'number' && data.start_proxy_height >= data.start_height ? data.start_proxy_height - data.start_height : '-' : 'No Proxy' : null
+  const numBlocksBeforeProxyRegistered = data && 'tss_illegibility_info' in data && health ? health.broadcaster_registration ? typeof data?.start_proxy_height === 'number' && typeof data?.start_height === 'number' ? data.start_proxy_height >= data.start_height ? data.start_proxy_height - data.start_height : 0 : '-' : 'No Proxy' : null
 
   return (
     <Widget
@@ -100,7 +100,7 @@ export default function CosmosGeneric({ data, health }) {
       </div>
       <div className="text-gray-500 text-lg font-medium">Health Check</div>
       <div className={`grid grid-flow-row grid-cols-1 sm:grid-cols-2 text-base sm:text-sm lg:text-base gap-4 ${health ? 'my-3' : 'my-4'}`}>
-        {typeof data?.uptime === 'number' && health ?
+        {data && 'tss_illegibility_info' in data && health ?
           <div className="flex flex-col space-y-1">
             <span className="font-semibold">Broadcaster Registration</span>
             <span className="text-gray-600 dark:text-gray-400">
