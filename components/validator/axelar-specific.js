@@ -94,7 +94,7 @@ export default function AxelarSpecific({ data, keygens, signs, chainsSupported, 
               {rewards.length > 0 ?
                 <div className="grid grid-flow-row grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 gap-2">
                   {rewards.map((reward, i) => (
-                    <div key={i} className="space-y-0.5">
+                    <div key={i} className={`${reward?.rewards_per_stake?.length > 1 ? 'sm:col-span-2 lg:col-span-1 xl:col-span-2' : ''} space-y-0.5`}>
                       <div className="text-sm font-light">{reward?.name}</div>
                       <div className="flex items-center">
                         {reward?.rewards_per_stake?.map((_reward, j) => (
@@ -116,7 +116,7 @@ export default function AxelarSpecific({ data, keygens, signs, chainsSupported, 
           :
           <div className="sm:col-span-2 flex flex-col space-y-3">
             <div className="skeleton w-40 h-6" />
-            <div className="skeleton w-20 h-5" />
+            <div className="skeleton w-60 h-6" />
           </div>
         }
       </div>
