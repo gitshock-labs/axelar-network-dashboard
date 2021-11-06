@@ -15,7 +15,7 @@ import Widget from '../widget'
 
 import { getUptime, keygens as getKeygens } from '../../lib/api/query'
 import { status as getStatus } from '../../lib/api/rpc'
-import { allValidators, validatorSets, allDelegations } from '../../lib/api/cosmos'
+import { allValidators, validatorSets, allDelegations, distributionRewards } from '../../lib/api/cosmos'
 import { getKeygensByValidator } from '../../lib/api/executor'
 import { signAttempts as getSignAttempts, successKeygens as getSuccessKeygens, failedKeygens as getFailedKeygens } from '../../lib/api/opensearch'
 import { denomSymbol, denomAmount } from '../../lib/object/denom'
@@ -117,7 +117,70 @@ export default function Validator({ address }) {
         }
       }
 
+      if (validatorData) {
+        validatorData.start_proxy_height = -1
+      }
+
       setValidator({ data: validatorData || {}, address })
+
+      const _health = {
+        broadcaster_registration: !(validator_data?.tss_illegibility_info?.no_proxy_registered),
+      }
+
+      setHealth({ data: _health, address })
+
+      setChainsSupported({ data: {}, address })
+
+      let _delegations
+
+      if (!controller.signal.aborted) {
+        response = await allDelegations(address)
+
+        if (response) {
+          _delegations = _.orderBy(response.data?.map(delegation => {
+            return {
+              ...delegation.delegation,
+              self: validatorData && delegation.delegation.delegator_address === validatorData.delegator_address,
+              shares: delegation.delegation && denomAmount(delegation.delegation.shares, delegation.balance?.denom, denoms_data),
+              ...delegation.balance,
+              denom: denomSymbol(delegation.balance?.denom, denoms_data),
+              amount: delegation.balance && denomAmount(delegation.balance.amount, delegation.balance.denom, denoms_data),
+            }
+          }) || [], ['self', 'shares'], ['desc', 'desc'])
+
+          setDelegations({ data: _delegations, address })
+        }
+      }
+
+      if (!controller.signal.aborted) {
+        response = await distributionRewards(validatorData?.delegator_address)
+
+         let _rewards = []
+
+        if (response && !response.error) {
+          _rewards.push({
+            ...response,
+            rewards: response.rewards && Object.entries(_.groupBy(response.rewards.flatMap(reward => reward.reward).map(reward => { return { ...reward, denom: denomSymbol(reward.denom, denoms_data), amount: reward.amount && (isNaN(reward.amount) ? -1 : denomAmount(reward.amount, reward.denom, denoms_data)) } }), 'denom')).map(([key, value]) => { return { denom: key, amount: _.sumBy(value, 'amount') } }),
+            total: response.total && Object.entries(_.groupBy(response.total.map(total => { return { ...total, denom: denomSymbol(total.denom, denoms_data), amount: total.amount && denomAmount(total.amount, total.denom, denoms_data) } }), 'denom')).map(([key, value]) => { return { denom: key, amount: _.sumBy(value, 'amount') } }),
+          })
+        }
+
+        _rewards = _rewards.map(_reward => {
+          return {
+            ..._reward,
+            rewards_per_stake: _reward.total?.map(_denom => {
+              const stake = _.sumBy(_delegations?.filter(_delegation => _delegation.denom === _denom.denom) || [], 'amount')
+
+              return {
+                ..._denom,
+                amount: _denom.amount / (stake > 0 ? stake : 1),
+              }
+            }),
+          }
+        })
+
+        setRewards({ data: _rewards, address })
+      }
 
       if (!controller.signal.aborted) {
         response = await getUptime(Number(status_data.latest_block_height), validatorData?.consensus_address)
@@ -134,32 +197,6 @@ export default function Validator({ address }) {
           setKeyShares({ data: response, address })
         }
       }
-
-      if (!controller.signal.aborted) {
-        response = await allDelegations(address)
-
-        if (response) {
-          setDelegations({
-            data: _.orderBy(response.data?.map(delegation => {
-              return {
-                ...delegation.delegation,
-                self: validatorData && delegation.delegation.delegator_address === validatorData.delegator_address,
-                shares: delegation.delegation && denomAmount(delegation.delegation.shares, delegation.balance?.denom, denoms_data),
-                ...delegation.balance,
-                denom: denomSymbol(delegation.balance?.denom, denoms_data),
-                amount: delegation.balance && denomAmount(delegation.balance.amount, delegation.balance.denom, denoms_data),
-              }
-            }) || [], ['self', 'shares'], ['desc', 'desc']),
-            address
-          })
-        }
-      }
-
-      setHealth({ data: {}, address })
-
-      setChainsSupported({ data: {}, address })
-
-      setRewards({ data: {}, address })
     }
 
     if (address && denoms_data && status_data && validators_data) {

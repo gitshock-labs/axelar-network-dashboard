@@ -1,7 +1,7 @@
 import Widget from '../widget'
 import Copy from '../copy'
 
-import { numberFormat } from '../../lib/utils'
+import { numberFormat, ellipseAddress } from '../../lib/utils'
 
 export default function AxelarSpecific({ data, keygens, signs, chainsSupported, rewards }) {
   const keygenParticipated = keygens && keygens.filter(_keygen => _keygen?.participated).length
@@ -11,7 +11,7 @@ export default function AxelarSpecific({ data, keygens, signs, chainsSupported, 
   const signParticipated = signs && signs.filter(_sign => _sign?.participated).length
   const signNotParticipated = signs && signs.filter(_sign => _sign?.not_participated).length
   const totalSign = signParticipated + signNotParticipated
-
+console.log(rewards)
   return (
     <Widget
       title={<span className="text-lg font-medium">Axelar Specific</span>}
@@ -82,7 +82,7 @@ export default function AxelarSpecific({ data, keygens, signs, chainsSupported, 
             </span>
           </div>
           :
-          <div className="flex flex-col space-y-3">
+          <div className="sm:col-span-2 flex flex-col space-y-3">
             <div className="skeleton w-40 h-6" />
             <div className="skeleton w-20 h-5" />
           </div>
@@ -91,11 +91,22 @@ export default function AxelarSpecific({ data, keygens, signs, chainsSupported, 
           <div className="sm:col-span-2 flex flex-col space-y-1">
             <span className="font-semibold">Rewards / Stake</span>
             <span className="text-gray-600 dark:text-gray-400">
-              {rewards.length > 0 ? rewards : '-'}
+              {rewards.length > 0 ?
+                <div className="flex items-center">
+                  {rewards.flatMap(reward => reward?.rewards_per_stake).map((reward, i) => (
+                    <span key={i} className="bg-gray-100 dark:bg-gray-800 rounded font-medium space-x-1 px-2 py-1 mr-2">
+                      <span>{numberFormat(reward.amount, '0,0.00000000')}</span>
+                      <span className="uppercase font-light">{ellipseAddress(reward.denom, 16)}</span>
+                    </span>
+                  ))}
+                </div>
+                :
+                '-'
+              }
             </span>
           </div>
           :
-          <div className="flex flex-col space-y-3">
+          <div className="sm:col-span-2 flex flex-col space-y-3">
             <div className="skeleton w-40 h-6" />
             <div className="skeleton w-20 h-5" />
           </div>
