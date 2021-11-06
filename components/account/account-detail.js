@@ -42,7 +42,7 @@ export default function AccountDetail({ data }) {
             }
           </div>
           :
-          <div className="skeleton w-20 h-5 ml-0 md:ml-auto" />
+          <div className="skeleton w-16 h-7 ml-0 md:ml-auto" />
         }
       </div>
       <div className="w-full grid grid-flow-row grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 md:gap-4 my-4">

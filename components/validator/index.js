@@ -120,7 +120,7 @@ export default function Validator({ address }) {
       setValidator({ data: validatorData || {}, address })
 
       const _health = {
-        broadcaster_registration: !(validatorData?.tss_illegibility_info?.no_proxy_registered) && (validatorData?.broadcaster_address ? true : false),
+        broadcaster_registration: !(validatorData?.tss_illegibility_info?.no_proxy_registered) && validatorData?.broadcaster_address ? true : false,
       }
 
       setHealth({ data: _health, address })
