@@ -92,12 +92,20 @@ export default function AxelarSpecific({ data, keygens, signs, chainsSupported, 
             <span className="font-semibold">Rewards / Stake</span>
             <span className="text-gray-600 dark:text-gray-400">
               {rewards.length > 0 ?
-                <div className="flex items-center">
-                  {rewards.flatMap(reward => reward?.rewards_per_stake).map((reward, i) => (
-                    <span key={i} className="bg-gray-100 dark:bg-gray-800 rounded font-medium space-x-1 px-2 py-1 mr-2">
-                      <span>{numberFormat(reward.amount, '0,0.00000000')}</span>
-                      <span className="uppercase font-light">{ellipseAddress(reward.denom, 16)}</span>
-                    </span>
+                <div className="grid grid-flow-row grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 gap-2">
+                  {rewards.map((reward, i) => (
+                    <div key={i} className="space-y-0.5">
+                      <div className="text-sm font-light">{reward?.name}</div>
+                      <div className="flex items-center">
+                        {reward?.rewards_per_stake?.map((_reward, j) => (
+                          <span key={j} className="bg-gray-100 dark:bg-gray-800 rounded flex items-center font-medium space-x-1 px-2 py-1 mr-2">
+                            <span>{numberFormat(_reward.amount_per_stake, '0,0.000')}</span>
+                            <span className="uppercase font-light">{ellipseAddress(_reward.denom, 16)}</span>
+                            <span className="whitespace-nowrap text-xs font-light">({numberFormat(_reward.amount, '0,0.000')} / {numberFormat(_reward.stake, '0,0.000')})</span>
+                          </span>
+                        ))}
+                      </div>
+                    </div>
                   ))}
                 </div>
                 :

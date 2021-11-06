@@ -15,7 +15,7 @@ import Widget from '../widget'
 
 import { getUptime, keygens as getKeygens } from '../../lib/api/query'
 import { status as getStatus } from '../../lib/api/rpc'
-import { allValidators, validatorSets, allDelegations, distributionRewards } from '../../lib/api/cosmos'
+import { allValidators, validatorSets, allDelegations, distributionRewards, distributionCommission } from '../../lib/api/cosmos'
 import { getKeygensByValidator } from '../../lib/api/executor'
 import { signAttempts as getSignAttempts, successKeygens as getSuccessKeygens, failedKeygens as getFailedKeygens } from '../../lib/api/opensearch'
 import { denomSymbol, denomAmount } from '../../lib/object/denom'
@@ -120,7 +120,7 @@ export default function Validator({ address }) {
       setValidator({ data: validatorData || {}, address })
 
       const _health = {
-        broadcaster_registration: !(validatorData?.tss_illegibility_info?.no_proxy_registered) && validatorData?.broadcaster_address,
+        broadcaster_registration: !(validatorData?.tss_illegibility_info?.no_proxy_registered) && (validatorData?.broadcaster_address ? true : false),
       }
 
       setHealth({ data: _health, address })
@@ -149,15 +149,32 @@ export default function Validator({ address }) {
       }
 
       if (!controller.signal.aborted) {
-        response = await distributionRewards(validatorData?.delegator_address)
+        let _rewards = []
 
-         let _rewards = []
+        response = await distributionRewards(validatorData?.delegator_address)
 
         if (response && !response.error) {
           _rewards.push({
             ...response,
+            name: 'Distribution Rewards',
             rewards: response.rewards && Object.entries(_.groupBy(response.rewards.flatMap(reward => reward.reward).map(reward => { return { ...reward, denom: denomSymbol(reward.denom, denoms_data), amount: reward.amount && (isNaN(reward.amount) ? -1 : denomAmount(reward.amount, reward.denom, denoms_data)) } }), 'denom')).map(([key, value]) => { return { denom: key, amount: _.sumBy(value, 'amount') } }),
             total: response.total && Object.entries(_.groupBy(response.total.map(total => { return { ...total, denom: denomSymbol(total.denom, denoms_data), amount: total.amount && denomAmount(total.amount, total.denom, denoms_data) } }), 'denom')).map(([key, value]) => { return { denom: key, amount: _.sumBy(value, 'amount') } }),
+          })
+        }
+
+        response = await distributionCommission(validatorData?.operator_address)
+
+        if (response && !response.error) {
+          _rewards.push({
+            ...response,
+            name: 'Distribution Commission',
+            total: response?.commission?.commission?.map(commission => {
+              return {
+                ...commission,
+                denom: denomSymbol(commission.denom, denoms_data),
+                amount: commission.amount && (isNaN(commission.amount) ? -1 : denomAmount(commission.amount, commission.denom, denoms_data)),
+              }
+            }),
           })
         }
 
@@ -169,7 +186,8 @@ export default function Validator({ address }) {
 
               return {
                 ..._denom,
-                amount: _denom.amount / (stake > 0 ? stake : 1),
+                stake,
+                amount_per_stake: _denom.amount / (stake > 0 ? stake : 1),
               }
             }),
           }
