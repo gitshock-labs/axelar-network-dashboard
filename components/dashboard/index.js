@@ -487,7 +487,7 @@ export default function Dashboard() {
 
     const getValidators = async () => {
       if (!controller.signal.aborted) {
-        const response = await allValidators({}, validators_data)
+        const response = await allValidators({}, validators_data, null, null, null, denoms_data)
 
         if (response) {
           dispatch({
@@ -500,14 +500,16 @@ export default function Dashboard() {
       }
     }
 
-    getValidators()
+    if (denoms_data) {
+      getValidators()
+    }
 
     const interval = setInterval(() => getValidators(), 10 * 60 * 1000)
     return () => {
       controller?.abort()
       clearInterval(interval)
     }
-  }, [])
+  }, [denoms_data])
 
   useEffect(() => {
     const controller = new AbortController()

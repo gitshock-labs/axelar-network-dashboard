@@ -84,8 +84,11 @@ export default function CosmosGeneric({ data, health }) {
         {numBlocksBeforeProxyRegistered || typeof numBlocksBeforeProxyRegistered === 'number' ?
           <div className="sm:col-span-2 flex flex-col space-y-1">
             <span className="font-semibold"># Blocks Before Proxy Registered</span>
-            <span className="text-gray-600 dark:text-gray-400">
-              {typeof numBlocksBeforeProxyRegistered === 'number' ? numberFormat(numBlocksBeforeProxyRegistered, '0,0') : numBlocksBeforeProxyRegistered}
+            <span className="flex items-center text-gray-600 dark:text-gray-400 space-x-1.5">
+              <span>{typeof numBlocksBeforeProxyRegistered === 'number' ? numberFormat(numBlocksBeforeProxyRegistered, '0,0') : numBlocksBeforeProxyRegistered}</span>
+              {typeof numBlocksBeforeProxyRegistered === 'number' && (
+                <span>(Register-proxy Block: {numberFormat(data.start_proxy_height, '0,0')})</span>
+              )}
             </span>
           </div>
           :

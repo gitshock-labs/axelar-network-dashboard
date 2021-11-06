@@ -21,7 +21,7 @@ const MAX_PAGE = 10
 export default function BlocksTable({ n, className = '' }) {
   const dispatch = useDispatch()
   const { data, preferences } = useSelector(state => ({ data: state.data, preferences: state.preferences }), shallowEqual)
-  const { validators_data } = { ...data }
+  const { denoms_data, validators_data } = { ...data }
   const { theme } = { ...preferences }
 
   const [page, setPage] = useState(0)
@@ -35,7 +35,7 @@ export default function BlocksTable({ n, className = '' }) {
     const getValidators = async () => {
       if (!controller.signal.aborted) {
         if (typeof n !== 'number') {
-          const response = await allValidators({}, validators_data)
+          const response = await allValidators({}, validators_data, null, null, null, denoms_data)
 
           if (response) {
             dispatch({
@@ -49,14 +49,16 @@ export default function BlocksTable({ n, className = '' }) {
       }
     }
 
-    getValidators()
+    if (denoms_data) {
+      getValidators()
+    }
 
     const interval = setInterval(() => getValidators(), 10 * 60 * 1000)
     return () => {
       controller?.abort()
       clearInterval(interval)
     }
-  }, [n])
+  }, [n, denoms_data])
 
   useEffect(() => {
     const controller = new AbortController()

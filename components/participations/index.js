@@ -17,7 +17,7 @@ import { VALIDATORS_DATA, KEYGENS_DATA } from '../../reducers/types'
 export default function Participations() {
   const dispatch = useDispatch()
   const { data } = useSelector(state => ({ data: state.data }), shallowEqual)
-  const { validators_data } = { ...data }
+  const { denoms_data, validators_data } = { ...data }
 
   const [summaryData, setSummaryData] = useState(null)
   const [keygens, setKeygens] = useState(null)
@@ -32,7 +32,7 @@ export default function Participations() {
 
     const getValidators = async () => {
       if (!controller.signal.aborted) {
-        const response = await allValidators({}, validators_data, 'active')
+        const response = await allValidators({}, validators_data, 'active', null, null, denoms_data)
 
         if (response) {
           dispatch({
@@ -43,14 +43,16 @@ export default function Participations() {
       }
     }
 
-    getValidators()
+    if (denoms_data) {
+      getValidators()
+    }
 
     const interval = setInterval(() => getValidators(), 10 * 60 * 1000)
     return () => {
       controller?.abort()
       clearInterval(interval)
     }
-  }, [])
+  }, [denoms_data])
 
   useEffect(() => {
     const controller = new AbortController()

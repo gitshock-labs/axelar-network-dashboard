@@ -11,7 +11,7 @@ export default function AxelarSpecific({ data, keygens, signs, chainsSupported, 
   const signParticipated = signs && signs.filter(_sign => _sign?.participated).length
   const signNotParticipated = signs && signs.filter(_sign => _sign?.not_participated).length
   const totalSign = signParticipated + signNotParticipated
-console.log(rewards)
+
   return (
     <Widget
       title={<span className="text-lg font-medium">Axelar Specific</span>}

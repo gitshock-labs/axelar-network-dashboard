@@ -69,7 +69,7 @@ export default function Validator({ address }) {
 
     const getValidators = async () => {
       if (!controller.signal.aborted) {
-        const response = await allValidators({}, validators_data, null, address, Number(status_data.latest_block_height))
+        const response = await allValidators({}, validators_data, null, address, Number(status_data.latest_block_height), denoms_data)
 
         if (response) {
           dispatch({
@@ -80,7 +80,7 @@ export default function Validator({ address }) {
       }
     }
 
-    if (address && status_data) {
+    if (address && status_data && denoms_data) {
       getValidators()
     }
 
@@ -89,7 +89,7 @@ export default function Validator({ address }) {
       controller?.abort()
       clearInterval(interval)
     }
-  }, [address, status_data])
+  }, [address, status_data, denoms_data])
 
   useEffect(() => {
     const controller = new AbortController()
@@ -117,14 +117,10 @@ export default function Validator({ address }) {
         }
       }
 
-      if (validatorData) {
-        validatorData.start_proxy_height = -1
-      }
-
       setValidator({ data: validatorData || {}, address })
 
       const _health = {
-        broadcaster_registration: !(validator_data?.tss_illegibility_info?.no_proxy_registered),
+        broadcaster_registration: !(validatorData?.tss_illegibility_info?.no_proxy_registered) && validatorData?.broadcaster_address,
       }
 
       setHealth({ data: _health, address })

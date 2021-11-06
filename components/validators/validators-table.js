@@ -19,7 +19,7 @@ import { STATUS_DATA, VALIDATORS_DATA } from '../../reducers/types'
 export default function ValidatorsTable({ status }) {
   const dispatch = useDispatch()
   const { data } = useSelector(state => ({ data: state.data }), shallowEqual)
-  const { status_data, validators_data } = { ...data }
+  const { denoms_data, status_data, validators_data } = { ...data }
 
   useEffect(() => {
     const controller = new AbortController()
@@ -51,7 +51,7 @@ export default function ValidatorsTable({ status }) {
 
     const getValidators = async () => {
       if (!controller.signal.aborted) {
-        let response = await allValidators({}, validators_data, status, null, Number(status_data.latest_block_height))
+        let response = await allValidators({}, validators_data, status, null, Number(status_data.latest_block_height), denoms_data)
 
         if (response) {
           dispatch({
@@ -95,7 +95,7 @@ export default function ValidatorsTable({ status }) {
       }
     }
 
-    if (status && status_data) {
+    if (status && status_data && denoms_data) {
       getValidators()
     }
 
@@ -104,7 +104,7 @@ export default function ValidatorsTable({ status }) {
       controller?.abort()
       clearInterval(interval)
     }
-  }, [status, status_data])
+  }, [status, status_data, denoms_data])
 
   return (
     <div className="max-w-6xl my-4 xl:my-6 mx-auto">
