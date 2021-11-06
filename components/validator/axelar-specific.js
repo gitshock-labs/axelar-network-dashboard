@@ -84,7 +84,7 @@ export default function AxelarSpecific({ data, keygens, signs, chainsSupported, 
           :
           <div className="sm:col-span-2 flex flex-col space-y-3">
             <div className="skeleton w-40 h-6" />
-            <div className="skeleton w-20 h-5" />
+            <div className="skeleton w-full h-6" />
           </div>
         }
         {rewards ?
@@ -116,7 +116,7 @@ export default function AxelarSpecific({ data, keygens, signs, chainsSupported, 
           :
           <div className="sm:col-span-2 flex flex-col space-y-3">
             <div className="skeleton w-40 h-6" />
-            <div className="skeleton w-60 h-6" />
+            <div className="skeleton w-full h-6" />
           </div>
         }
       </div>
