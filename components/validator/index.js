@@ -127,6 +127,14 @@ export default function Validator({ address }) {
 
       setChainsSupported({ data: {}, address })
 
+      if (!controller.signal.aborted) {
+        response = await getUptime(Number(status_data.latest_block_height), validatorData?.consensus_address)
+
+        if (response) {
+          setUptime({ data: response.data || [], address })
+        }
+      }
+
       let _delegations
 
       if (!controller.signal.aborted) {
@@ -195,22 +203,6 @@ export default function Validator({ address }) {
 
         setRewards({ data: _rewards, address })
       }
-
-      if (!controller.signal.aborted) {
-        response = await getUptime(Number(status_data.latest_block_height), validatorData?.consensus_address)
-
-        if (response) {
-          setUptime({ data: response.data || [], address })
-        }
-      }
-
-      if (!controller.signal.aborted) {
-        response = await getKeygensByValidator(address)
-
-        if (response) {
-          setKeyShares({ data: response, address })
-        }
-      }
     }
 
     if (address && denoms_data && status_data && validators_data) {
@@ -229,6 +221,14 @@ export default function Validator({ address }) {
 
     const getData = async () => {
       let response, keygensData, signsData
+
+      if (!controller.signal.aborted) {
+        response = await getKeygensByValidator(address)
+
+        if (response) {
+          setKeyShares({ data: response, address })
+        }
+      }
 
       if (!controller.signal.aborted) {
         response = await getSuccessKeygens({ size: 1000, sort: [{ height: 'desc' }] })
