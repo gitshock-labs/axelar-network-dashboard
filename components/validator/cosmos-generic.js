@@ -30,35 +30,29 @@ export default function CosmosGeneric({ data, health, jailed }) {
       className="min-h-full"
     >
       <div className={`grid grid-flow-row grid-cols-1 sm:grid-cols-2 text-base sm:text-sm lg:text-base gap-4 ${data ? 'my-3' : 'my-4'}`}>
-        {typeof data?.uptime === 'number' ?
-          <div className="flex flex-col space-y-1">
-            <span className="font-semibold">Uptime</span>
+        <div className={`flex flex-col space-y-${typeof data?.uptime === 'number' ? 1 : 2}`}>
+          <span className="font-semibold">Uptime</span>
+          {typeof data?.uptime === 'number' ?
             <span className="text-gray-500 dark:text-gray-400">
               {numberFormat(data.uptime, '0,0.00')}%
             </span>
-          </div>
-          :
-          <div className="flex flex-col space-y-3">
-            <div className="skeleton w-40 h-6" />
-            <div className="skeleton w-28 h-5" />
-          </div>
-        }
-        {typeof numMissedBlocks === 'number' ?
-          <div className="flex flex-col space-y-1">
-            <span className="font-semibold"># Missed Blocks</span>
+            :
+            <div className="skeleton w-28 h-6" />
+          }
+        </div>
+        <div className={`flex flex-col space-y-${typeof numMissedBlocks === 'number' ? 1 : 2}`}>
+          <span className="font-semibold"># Missed Blocks</span>
+          {typeof numMissedBlocks === 'number' ?
             <span className="text-gray-500 dark:text-gray-400">
               {numberFormat(numMissedBlocks, '0,0')}
             </span>
-          </div>
-          :
-          <div className="flex flex-col space-y-3">
-            <div className="skeleton w-40 h-6" />
-            <div className="skeleton w-28 h-5" />
-          </div>
-        }
-        {jailed ?
-          <div className="flex flex-col space-y-1">
-            <span className="font-semibold"># Times Jailed</span>
+            :
+            <div className="skeleton w-28 h-6" />
+          }
+        </div>
+        <div className={`flex flex-col space-y-${jailed ? 1 : 2}`}>
+          <span className="font-semibold"># Times Jailed</span>
+          {jailed ?
             <span className="text-gray-500 dark:text-gray-400">
               {typeof jailed.times_jailed === 'number' ?
                 jailed.times_jailed > 0 ?
@@ -72,16 +66,13 @@ export default function CosmosGeneric({ data, health, jailed }) {
                 '-'
               }
             </span>
-          </div>
-          :
-          <div className="flex flex-col space-y-3">
-            <div className="skeleton w-40 h-6" />
-            <div className="skeleton w-20 h-5" />
-          </div>
-        }
-        {jailed ?
-          <div className="flex flex-col space-y-1">
-            <span className="font-semibold">Avg. Jail Response Time</span>
+            :
+            <div className="skeleton w-20 h-6" />
+          }
+        </div>
+        <div className={`flex flex-col space-y-${jailed ? 1 : 2}`}>
+          <span className="font-semibold">Avg. Jail Response Time</span>
+          {jailed ?
             <span className="capitalize text-gray-500 dark:text-gray-400">
               {typeof jailed.avg_jail_response_time === 'number' ?
                 jailed.times_jailed > 0 ?
@@ -101,35 +92,29 @@ export default function CosmosGeneric({ data, health, jailed }) {
                 '-'
               }
             </span>
-          </div>
-          :
-          <div className="flex flex-col space-y-3">
-            <div className="skeleton w-40 h-6" />
-            <div className="skeleton w-20 h-5" />
-          </div>
-        }
-        {numBlocksBeforeProxyRegistered || typeof numBlocksBeforeProxyRegistered === 'number' ?
-          <div className="sm:col-span-2 flex flex-col space-y-1">
-            <span className="font-semibold"># Blocks Before Proxy Registered</span>
+            :
+            <div className="skeleton w-20 h-6" />
+          }
+        </div>
+        <div className={`sm:col-span-2 flex flex-col space-y-${numBlocksBeforeProxyRegistered || typeof numBlocksBeforeProxyRegistered === 'number' ? 1 : 2}`}>
+          <span className="font-semibold"># Blocks Before Proxy Registered</span>
+          {numBlocksBeforeProxyRegistered || typeof numBlocksBeforeProxyRegistered === 'number' ?
             <span className="flex items-center text-gray-500 dark:text-gray-400 space-x-1.5">
               <span>{typeof numBlocksBeforeProxyRegistered === 'number' ? numberFormat(numBlocksBeforeProxyRegistered, '0,0') : numBlocksBeforeProxyRegistered}</span>
               {typeof numBlocksBeforeProxyRegistered === 'number' && (
                 <span>(Register-proxy Block: {numberFormat(data.start_proxy_height, '0,0')})</span>
               )}
             </span>
-          </div>
-          :
-          <div className="sm:col-span-2 flex flex-col space-y-3">
-            <div className="skeleton w-40 h-6" />
-            <div className="skeleton w-20 h-5" />
-          </div>
-        }
+            :
+            <div className="skeleton w-20 h-6" />
+          }
+        </div>
       </div>
       <div className="text-gray-500 text-lg font-medium">Health Check</div>
       <div className={`grid grid-flow-row grid-cols-1 sm:grid-cols-2 text-base sm:text-sm lg:text-base gap-4 ${health ? 'my-3' : 'my-4'}`}>
-        {data && 'tss_illegibility_info' in data && health ?
-          <div className="flex flex-col space-y-1">
-            <span className="font-semibold">Broadcaster Registration</span>
+        <div className={`flex flex-col space-y-${data && 'tss_illegibility_info' in data && health ? 1 : 2}`}>
+          <span className="font-semibold">Broadcaster Registration</span>
+          {data && 'tss_illegibility_info' in data && health ?
             <span className="text-gray-500 dark:text-gray-400">
               {typeof health.broadcaster_registration === 'boolean' ?
                 <div className="flex items-center space-x-1.5">
@@ -144,39 +129,30 @@ export default function CosmosGeneric({ data, health, jailed }) {
                 '-'
               }
             </span>
-          </div>
-          :
-          <div className="flex flex-col space-y-3">
-            <div className="skeleton w-40 h-6" />
-            <div className="skeleton w-28 h-5" />
-          </div>
-        }
-        {health ?
-          <div className="flex flex-col space-y-1">
-            <span className="font-semibold">Broadcaster Funded</span>
+            :
+            <div className="skeleton w-28 h-6" />
+          }
+        </div>
+        <div className={`flex flex-col space-y-${health ? 1 : 2}`}>
+          <span className="font-semibold">Broadcaster Funded</span>
+          {health ?
             <span className="text-gray-500 dark:text-gray-400">
               {health.broadcaster_funded ? health.broadcaster_funded : '-'}
             </span>
-          </div>
-          :
-          <div className="flex flex-col space-y-3">
-            <div className="skeleton w-40 h-6" />
-            <div className="skeleton w-28 h-5" />
-          </div>
-        }
-        {health ?
-          <div className="flex flex-col space-y-1">
-            <span className="font-semibold"># Missed Heartbeats</span>
+            :
+            <div className="skeleton w-28 h-6" />
+          }
+        </div>
+        <div className={`flex flex-col space-y-${health ? 1 : 2}`}>
+          <span className="font-semibold"># Missed Heartbeats</span>
+          {health ?
             <span className="text-gray-500 dark:text-gray-400">
               {typeof health.missed_heartbeats === 'number' ? numberFormat(health.missed_heartbeats, '0,0') : '-'}
             </span>
-          </div>
-          :
-          <div className="flex flex-col space-y-3">
-            <div className="skeleton w-40 h-6" />
-            <div className="skeleton w-20 h-5" />
-          </div>
-        }
+            :
+            <div className="skeleton w-20 h-6" />
+          }
+        </div>
       </div>
     </Widget>
   )

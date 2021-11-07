@@ -34,9 +34,9 @@ export default function VotingPower({ data }) {
         </div>
       }
       <div className={`grid grid-flow-row grid-cols-1 sm:grid-cols-2 text-base sm:text-sm lg:text-base gap-4 ${data ? '' : 'my-1.5'}`}>
-        {data ?
-          <div className="flex flex-col space-y-1">
-            <span className="font-semibold">Self Delegation Ratio</span>
+        <div className={`flex flex-col space-y-${data ? 1 : 2}`}>
+          <span className="font-semibold">Self Delegation Ratio</span>
+          {data ?
             <span className="flex items-center text-gray-500 dark:text-gray-400 space-x-1.5">
               <span>{numberFormat(data.self_delegation * 100 / data.delegator_shares, '0,0.00')}%</span>
               <span className="text-gray-500 space-x-1">
@@ -45,52 +45,40 @@ export default function VotingPower({ data }) {
                 <span className="uppercase">{chain_data?.staking_params && denomSymbol(chain_data.staking_params.bond_denom, denoms_data)})</span>
               </span>
             </span>
-          </div>
-          :
-          <div className="flex flex-col space-y-3">
-            <div className="skeleton w-40 h-6" />
-            <div className="skeleton w-28 h-5" />
-          </div>
-        }
-        {data ?
-          <div className="flex flex-col space-y-1">
-            <span className="font-semibold">Delegator Shares</span>
+            :
+            <div className="skeleton w-28 h-6" />
+          }
+        </div>
+        <div className={`flex flex-col space-y-${data ? 1 : 2}`}>
+          <span className="font-semibold">Delegator Shares</span>
+          {data ?
             <span className="text-gray-500 dark:text-gray-400">
               {numberFormat(data.delegator_shares / Number(process.env.NEXT_PUBLIC_POWER_REDUCTION), '0,0')}
             </span>
-          </div>
-          :
-          <div className="flex flex-col space-y-3">
-            <div className="skeleton w-40 h-6" />
-            <div className="skeleton w-20 h-5" />
-          </div>
-        }
-        {data ?
-          <div className="flex flex-col space-y-1">
-            <span className="font-semibold">Proposer Priority</span>
+            :
+            <div className="skeleton w-20 h-6" />
+          }
+        </div>
+        <div className={`flex flex-col space-y-${data ? 1 : 2}`}>
+          <span className="font-semibold">Proposer Priority</span>
+          {data ?
             <span className="text-gray-500 dark:text-gray-400">
               {!isNaN(data.proposer_priority) ? numberFormat(data.proposer_priority, '0,0') : '-'}
             </span>
-          </div>
-          :
-          <div className="flex flex-col space-y-3">
-            <div className="skeleton w-40 h-6" />
-            <div className="skeleton w-20 h-5" />
-          </div>
-        }
-        {data ?
-          <div className="flex flex-col space-y-1">
-            <span className="font-semibold">Tokens</span>
+            :
+            <div className="skeleton w-20 h-6" />
+          }
+        </div>
+        <div className={`flex flex-col space-y-${data ? 1 : 2}`}>
+          <span className="font-semibold">Tokens</span>
+          {data ?
             <span className="text-gray-500 dark:text-gray-400">
               {numberFormat(Math.floor(data.tokens / Number(process.env.NEXT_PUBLIC_POWER_REDUCTION)), '0,0')}
             </span>
-          </div>
-          :
-          <div className="flex flex-col space-y-3">
-            <div className="skeleton w-40 h-6" />
-            <div className="skeleton w-20 h-5" />
-          </div>
-        }
+            :
+            <div className="skeleton w-20 h-6" />
+          }
+        </div>
       </div>
     </Widget>
   )
