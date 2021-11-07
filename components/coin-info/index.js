@@ -84,7 +84,7 @@ export default function CoinInfo() {
         if (chainData) {
           dispatch({
             type: CHAIN_DATA,
-            value: chainData
+            value: chainData,
           })
         }
       }

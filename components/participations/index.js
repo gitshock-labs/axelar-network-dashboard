@@ -37,7 +37,7 @@ export default function Participations() {
         if (response) {
           dispatch({
             type: VALIDATORS_DATA,
-            value: response.data
+            value: response.data,
           })
         }
       }
@@ -86,7 +86,7 @@ export default function Participations() {
       //   if (response) {
       //     dispatch({
       //       type: KEYGENS_DATA,
-      //       value: response
+      //       value: response,
       //     })
       //   }
 

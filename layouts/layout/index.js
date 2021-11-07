@@ -30,7 +30,7 @@ export default function Layout({ children }) {
         if (response) {
           dispatch({
             type: DENOMS_DATA,
-            value: response
+            value: response,
           })
         }
       }

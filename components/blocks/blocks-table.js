@@ -40,7 +40,7 @@ export default function BlocksTable({ n, className = '' }) {
           if (response) {
             dispatch({
               type: VALIDATORS_DATA,
-              value: response.data
+              value: response.data,
             })
 
             setLoadValsProfile(true)
@@ -90,7 +90,7 @@ export default function BlocksTable({ n, className = '' }) {
         if (!controller.signal.aborted) {
           dispatch({
             type: VALIDATORS_DATA,
-            value: data
+            value: data,
           })
         }
       }

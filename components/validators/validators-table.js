@@ -31,7 +31,7 @@ export default function ValidatorsTable({ status }) {
         if (response) {
           dispatch({
             type: STATUS_DATA,
-            value: response
+            value: response,
           })
         }
       }
@@ -56,7 +56,7 @@ export default function ValidatorsTable({ status }) {
         if (response) {
           dispatch({
             type: VALIDATORS_DATA,
-            value: response.data
+            value: response.data,
           })
 
           if (response.data) {
@@ -85,7 +85,7 @@ export default function ValidatorsTable({ status }) {
 
                   dispatch({
                     type: VALIDATORS_DATA,
-                    value: validators_data
+                    value: validators_data,
                   })
                 }
               }

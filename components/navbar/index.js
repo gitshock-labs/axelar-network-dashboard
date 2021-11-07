@@ -28,7 +28,7 @@ export default function Navbar() {
             onClick={() =>
               dispatch({
                 type: THEME,
-                value: theme === 'light' ? 'dark' : 'light'
+                value: theme === 'light' ? 'dark' : 'light',
               })
             }
             className="w-10 sm:w-12 h-16 btn-transparent flex items-center justify-center"

@@ -43,7 +43,7 @@ export default function Dashboard() {
         if (response) {
           dispatch({
             type: STATUS_DATA,
-            value: response
+            value: response,
           })
         }
       }
@@ -492,7 +492,7 @@ export default function Dashboard() {
         if (response) {
           dispatch({
             type: VALIDATORS_DATA,
-            value: response.data
+            value: response.data,
           })
 
           setLoadValsProfile(true)
@@ -541,7 +541,7 @@ export default function Dashboard() {
         if (!controller.signal.aborted) {
           dispatch({
             type: VALIDATORS_DATA,
-            value: data
+            value: data,
           })
         }
       }

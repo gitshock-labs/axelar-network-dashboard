@@ -31,7 +31,7 @@ export default function Block({ height }) {
         if (response) {
           dispatch({
             type: VALIDATORS_DATA,
-            value: response.data
+            value: response.data,
           })
 
           setLoadValsProfile(true)
@@ -80,7 +80,7 @@ export default function Block({ height }) {
         if (!controller.signal.aborted) {
           dispatch({
             type: VALIDATORS_DATA,
-            value: data
+            value: data,
           })
         }
       }
