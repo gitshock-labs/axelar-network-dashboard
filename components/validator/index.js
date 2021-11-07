@@ -235,7 +235,13 @@ export default function Validator({ address }) {
 
           const numBlock = Number(status_data.latest_block_height) - beginBlock
 
-          if (numBlock * (1 - (validatorData?.uptime / 100)) > maxMissed) {
+          if (!(validatorData?.uptime)) {
+            jailedData = {
+              times_jailed: -1,
+              avg_jail_response_time: -1,
+            }
+          }
+          else if (numBlock * (1 - (validatorData?.uptime / 100)) > maxMissed) {
             response = await uptimeForJailedInfo(
               beginBlock,
               validatorData?.consensus_address,

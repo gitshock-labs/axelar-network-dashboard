@@ -60,7 +60,17 @@ export default function CosmosGeneric({ data, health, jailed }) {
           <div className="flex flex-col space-y-1">
             <span className="font-semibold"># Times Jailed</span>
             <span className="text-gray-500 dark:text-gray-400">
-              {typeof jailed.times_jailed === 'number' ? jailed.times_jailed > 0 ? numberFormat(jailed.times_jailed, '0,0') : 'Never Jailed' : '-'}
+              {typeof jailed.times_jailed === 'number' ?
+                jailed.times_jailed > 0 ?
+                  numberFormat(jailed.times_jailed, '0,0')
+                  :
+                  jailed.times_jailed < 0 ?
+                    'Long Time Jailed'
+                    :
+                    'Never Jailed'
+                :
+                '-'
+              }
             </span>
           </div>
           :
