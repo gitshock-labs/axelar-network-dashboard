@@ -13,9 +13,9 @@ import TransactionsTable from '../transactions/transactions-table'
 import DelegationsTable from './delegations-table'
 import Widget from '../widget'
 
-import { getUptime, keygens as getKeygens } from '../../lib/api/query'
+import { getUptime, uptimeForJailedInfo, keygens as getKeygens } from '../../lib/api/query'
 import { status as getStatus } from '../../lib/api/rpc'
-import { allValidators, validatorSets, allDelegations, distributionRewards, distributionCommission } from '../../lib/api/cosmos'
+import { allValidators, validatorSets, slashingParams, allDelegations, distributionRewards, distributionCommission } from '../../lib/api/cosmos'
 import { getKeygensByValidator } from '../../lib/api/executor'
 import { signAttempts as getSignAttempts, successKeygens as getSuccessKeygens, failedKeygens as getFailedKeygens } from '../../lib/api/opensearch'
 import { denomSymbol, denomAmount } from '../../lib/object/denom'
@@ -30,6 +30,7 @@ export default function Validator({ address }) {
 
   const [validator, setValidator] = useState(null)
   const [uptime, setUptime] = useState(null)
+  const [jailed, setJailed] = useState(null)
   const [tab, setTab] = useState('key_share')
   const [keyShares, setKeyShares] = useState(null)
   const [keygens, setKeygens] = useState(null)
@@ -220,6 +221,83 @@ export default function Validator({ address }) {
     const controller = new AbortController()
 
     const getData = async () => {
+      if (!controller.signal.aborted) {
+        const validatorData = validator?.data
+
+        let jailedData, response
+
+        if (validatorData?.jailed_until > 0) {
+          response = await uptimeForJailedInfo(
+            Number(status_data.latest_block_height) - Number(process.env.NEXT_PUBLIC_NUM_UPTIME_BLOCKS) > validatorData?.start_height ? Number(status_data.latest_block_height) - Number(process.env.NEXT_PUBLIC_NUM_UPTIME_BLOCKS) : validatorData?.start_height,
+            validatorData?.consensus_address,
+            status_data && (moment(status_data.latest_block_time).diff(moment(status_data.earliest_block_time), 'milliseconds') / Number(status_data.latest_block_height))
+          )
+
+          if (response?.data) {
+            const uptimeData = response.data
+
+            response = await slashingParams()
+
+            const maxMissed = response?.params ? Number(response.params.signed_blocks_window) - (Number(response.params.min_signed_per_window) * Number(response.params.signed_blocks_window)) : Number(NEXT_PUBLIC_DEFAULT_MAX_MISSED)
+
+            const _jailedData = []
+
+            let numMissed = 0, _jailed = false
+
+            for (let i = 0; i < uptimeData.length; i++) {
+              const block = uptimeData[i]
+
+              if (block?.up) {
+                if (_jailed) {
+                  if (_jailedData.length - 1 >= 0) {
+                    _jailedData[_jailedData.length - 1].unjail_time = block.time
+                  }
+                }
+
+                numMissed = 0
+                _jailed = false
+              }
+              else {
+                numMissed++
+              }
+
+              if (numMissed > maxMissed && !_jailed) {
+                _jailedData.push(block)
+
+                _jailed = true
+              }
+            }
+
+            jailedData = {
+              times_jailed: _jailedData.length,
+              avg_jail_response_time: _jailedData.filter(_block => _block.unjail_time).length > 0 ? _.meanBy(_jailedData.filter(_block => _block.unjail_time).map(_block => { return { ..._block, response_time: _block.unjail_time - _block.time }}), 'response_time') : -1,
+            }
+          }
+        }
+        else {
+          jailedData = {
+            times_jailed: 0,
+            avg_jail_response_time: 0,
+          }
+        }
+
+        setJailed({ data: jailedData || {}, address })
+      }
+    }
+
+    if (address && validator?.address === address) {
+      getData()
+    }
+
+    return () => {
+      controller?.abort()
+    }
+  }, [address, validator])
+
+  useEffect(() => {
+    const controller = new AbortController()
+
+    const getData = async () => {
       let response, keygensData, signsData
 
       if (!controller.signal.aborted) {
@@ -337,6 +415,7 @@ export default function Validator({ address }) {
         <CosmosGeneric
           data={validator?.address === address && validator?.data}
           health={health?.address === address && health?.data}
+          jailed={jailed?.address === address && jailed?.data}
         />
         <AxelarSpecific
           data={validator?.address === address && validator?.data}

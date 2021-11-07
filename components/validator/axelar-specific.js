@@ -21,7 +21,7 @@ export default function AxelarSpecific({ data, keygens, signs, chainsSupported, 
         {keygens ?
           <div className="flex flex-col space-y-1">
             <span className="font-semibold">Keygen Participated</span>
-            <span className="flex items-center text-gray-600 dark:text-gray-400 space-x-1.5">
+            <span className="flex items-center text-gray-500 dark:text-gray-400 space-x-1.5">
               <span>{numberFormat(keygenParticipated, '0,0')}</span>
               <span>({numberFormat((totalKeygen > 0 ? keygenParticipated / totalKeygen : 0) * 100, '0,0.00')}%)</span>
             </span>
@@ -35,7 +35,7 @@ export default function AxelarSpecific({ data, keygens, signs, chainsSupported, 
         {keygens ?
           <div className="flex flex-col space-y-1">
             <span className="font-semibold">Keygen Not Participated</span>
-            <span className="flex items-center text-gray-600 dark:text-gray-400 space-x-1.5">
+            <span className="flex items-center text-gray-500 dark:text-gray-400 space-x-1.5">
               <span>{numberFormat(keygenNotParticipated, '0,0')}</span>
               <span>({numberFormat((totalKeygen > 0 ? keygenNotParticipated / totalKeygen : 0) * 100, '0,0.00')}%)</span>
             </span>
@@ -49,7 +49,7 @@ export default function AxelarSpecific({ data, keygens, signs, chainsSupported, 
         {signs ?
           <div className="flex flex-col space-y-1">
             <span className="font-semibold">Sign Participated</span>
-            <span className="flex items-center text-gray-600 dark:text-gray-400 space-x-1.5">
+            <span className="flex items-center text-gray-500 dark:text-gray-400 space-x-1.5">
               <span>{numberFormat(signParticipated, '0,0')}</span>
               <span>({numberFormat((totalSign > 0 ? signParticipated / totalSign : 0) * 100, '0,0.00')}%)</span>
             </span>
@@ -63,7 +63,7 @@ export default function AxelarSpecific({ data, keygens, signs, chainsSupported, 
         {signs ?
           <div className="flex flex-col space-y-1">
             <span className="font-semibold">Sign Not Participated</span>
-            <span className="flex items-center text-gray-600 dark:text-gray-400 space-x-1.5">
+            <span className="flex items-center text-gray-500 dark:text-gray-400 space-x-1.5">
               <span>{numberFormat(signNotParticipated, '0,0')}</span>
               <span>({numberFormat((totalSign > 0 ? signNotParticipated / totalSign : 0) * 100, '0,0.00')}%)</span>
             </span>
@@ -77,7 +77,7 @@ export default function AxelarSpecific({ data, keygens, signs, chainsSupported, 
         {chainsSupported ?
           <div className="sm:col-span-2 flex flex-col space-y-1">
             <span className="font-semibold">Chains Supported</span>
-            <span className="text-gray-600 dark:text-gray-400">
+            <span className="text-gray-500 dark:text-gray-400">
               {chainsSupported.length > 0 ? chainsSupported : '-'}
             </span>
           </div>
@@ -90,7 +90,7 @@ export default function AxelarSpecific({ data, keygens, signs, chainsSupported, 
         {rewards ?
           <div className="sm:col-span-2 flex flex-col space-y-1">
             <span className="font-semibold">Rewards / Stake</span>
-            <span className="text-gray-600 dark:text-gray-400">
+            <span className="text-gray-500 dark:text-gray-400">
               {rewards.length > 0 ?
                 <div className="grid grid-flow-row grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 gap-2">
                   {rewards.map((reward, i) => (

@@ -1,12 +1,13 @@
 import { useSelector, shallowEqual } from 'react-redux'
 
+import moment from 'moment'
 import { FaCheckCircle, FaTimesCircle } from 'react-icons/fa'
 
 import Widget from '../widget'
 
 import { getName, numberFormat } from '../../lib/utils'
 
-export default function CosmosGeneric({ data, health }) {
+export default function CosmosGeneric({ data, health, jailed }) {
   const { _data } = useSelector(state => ({ _data: state.data }), shallowEqual)
   const { status_data } = { ..._data }
 
@@ -32,7 +33,7 @@ export default function CosmosGeneric({ data, health }) {
         {typeof data?.uptime === 'number' ?
           <div className="flex flex-col space-y-1">
             <span className="font-semibold">Uptime</span>
-            <span className="text-gray-600 dark:text-gray-400">
+            <span className="text-gray-500 dark:text-gray-400">
               {numberFormat(data.uptime, '0,0.00')}%
             </span>
           </div>
@@ -45,7 +46,7 @@ export default function CosmosGeneric({ data, health }) {
         {typeof numMissedBlocks === 'number' ?
           <div className="flex flex-col space-y-1">
             <span className="font-semibold"># Missed Blocks</span>
-            <span className="text-gray-600 dark:text-gray-400">
+            <span className="text-gray-500 dark:text-gray-400">
               {numberFormat(numMissedBlocks, '0,0')}
             </span>
           </div>
@@ -55,11 +56,11 @@ export default function CosmosGeneric({ data, health }) {
             <div className="skeleton w-28 h-5" />
           </div>
         }
-        {data ?
+        {jailed ?
           <div className="flex flex-col space-y-1">
             <span className="font-semibold"># Times Jailed</span>
-            <span className="text-gray-600 dark:text-gray-400">
-              {typeof data.times_jailed === 'number' ? numberFormat(data.times_jailed, '0,0') : '-'}
+            <span className="text-gray-500 dark:text-gray-400">
+              {typeof jailed.times_jailed === 'number' ? jailed.times_jailed > 0 ? numberFormat(jailed.times_jailed, '0,0') : 'Never Jailed' : '-'}
             </span>
           </div>
           :
@@ -68,11 +69,27 @@ export default function CosmosGeneric({ data, health }) {
             <div className="skeleton w-20 h-5" />
           </div>
         }
-        {data ?
+        {jailed ?
           <div className="flex flex-col space-y-1">
             <span className="font-semibold">Avg. Jail Response Time</span>
-            <span className="text-gray-600 dark:text-gray-400">
-              {typeof data.avg_jail_response_time === 'number' ? numberFormat(data.avg_jail_response_time, '0,0') : '-'}
+            <span className="capitalize text-gray-500 dark:text-gray-400">
+              {typeof jailed.avg_jail_response_time === 'number' ?
+                jailed.times_jailed > 0 ?
+                  jailed.avg_jail_response_time < 0 ?
+                    'Never Unjailed'
+                    :
+                    moment(jailed.avg_jail_response_time).diff(moment(0), 'seconds') < 60 ?
+                      `${moment(jailed.avg_jail_response_time).diff(moment(0), 'seconds')} sec`
+                      :
+                      moment(jailed.avg_jail_response_time).diff(moment(0), 'minutes') < 60 ?
+                        `${moment(jailed.avg_jail_response_time).diff(moment(0), 'minutes')} min`
+                        :
+                        `${moment(jailed.avg_jail_response_time).diff(moment(0), 'hours')} hrs`
+                  :
+                  'Never Jailed'
+                :
+                '-'
+              }
             </span>
           </div>
           :
@@ -84,7 +101,7 @@ export default function CosmosGeneric({ data, health }) {
         {numBlocksBeforeProxyRegistered || typeof numBlocksBeforeProxyRegistered === 'number' ?
           <div className="sm:col-span-2 flex flex-col space-y-1">
             <span className="font-semibold"># Blocks Before Proxy Registered</span>
-            <span className="flex items-center text-gray-600 dark:text-gray-400 space-x-1.5">
+            <span className="flex items-center text-gray-500 dark:text-gray-400 space-x-1.5">
               <span>{typeof numBlocksBeforeProxyRegistered === 'number' ? numberFormat(numBlocksBeforeProxyRegistered, '0,0') : numBlocksBeforeProxyRegistered}</span>
               {typeof numBlocksBeforeProxyRegistered === 'number' && (
                 <span>(Register-proxy Block: {numberFormat(data.start_proxy_height, '0,0')})</span>
@@ -103,7 +120,7 @@ export default function CosmosGeneric({ data, health }) {
         {data && 'tss_illegibility_info' in data && health ?
           <div className="flex flex-col space-y-1">
             <span className="font-semibold">Broadcaster Registration</span>
-            <span className="text-gray-600 dark:text-gray-400">
+            <span className="text-gray-500 dark:text-gray-400">
               {typeof health.broadcaster_registration === 'boolean' ?
                 <div className="flex items-center space-x-1.5">
                   {health.broadcaster_registration ?
@@ -127,7 +144,7 @@ export default function CosmosGeneric({ data, health }) {
         {health ?
           <div className="flex flex-col space-y-1">
             <span className="font-semibold">Broadcaster Funded</span>
-            <span className="text-gray-600 dark:text-gray-400">
+            <span className="text-gray-500 dark:text-gray-400">
               {health.broadcaster_funded ? health.broadcaster_funded : '-'}
             </span>
           </div>
@@ -140,7 +157,7 @@ export default function CosmosGeneric({ data, health }) {
         {health ?
           <div className="flex flex-col space-y-1">
             <span className="font-semibold"># Missed Heartbeats</span>
-            <span className="text-gray-600 dark:text-gray-400">
+            <span className="text-gray-500 dark:text-gray-400">
               {typeof health.missed_heartbeats === 'number' ? numberFormat(health.missed_heartbeats, '0,0') : '-'}
             </span>
           </div>

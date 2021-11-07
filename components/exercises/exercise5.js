@@ -182,7 +182,7 @@ export default function Exercise5() {
 
           if (response?.data?.status === 'success' && response.data.activities?.findIndex(activity => activity.action === 'send' && activity.sender === data.axelar_address.toLowerCase() && activity.recipient?.length > 0 && activity.amount > 0 && ['axl', 'satoshi', 'photon'].includes(activity.symbol)) > -1) {
             data.token = response.data.activities?.find(activity => activity.action === 'send' && activity.sender === data.axelar_address.toLowerCase() && activity.recipient?.length > 0 && activity.amount > 0 && ['axl', 'satoshi', 'photon'].includes(activity.symbol)).symbol
-            data.contract = denoms_data?.find(_denom => _denom?.contract === data.token)?.contract || data.token
+            data.contract = denoms_data?.find(_denom => _denom?.symbol === data.token)?.contract || data.token
             _processing[_processing.length - 1].commands[0].result = response.data
             _processing[_processing.length - 1].status = true
             _processing[_processing.length - 1].answer = `${process.env.NEXT_PUBLIC_SITE_URL}/tx/${data.tx_axelar_deposit}`

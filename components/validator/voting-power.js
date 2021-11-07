@@ -37,7 +37,7 @@ export default function VotingPower({ data }) {
         {data ?
           <div className="flex flex-col space-y-1">
             <span className="font-semibold">Self Delegation Ratio</span>
-            <span className="flex items-center text-gray-600 dark:text-gray-400 space-x-1.5">
+            <span className="flex items-center text-gray-500 dark:text-gray-400 space-x-1.5">
               <span>{numberFormat(data.self_delegation * 100 / data.delegator_shares, '0,0.00')}%</span>
               <span className="text-gray-500 space-x-1">
                 <span>(~</span>
@@ -55,7 +55,7 @@ export default function VotingPower({ data }) {
         {data ?
           <div className="flex flex-col space-y-1">
             <span className="font-semibold">Delegator Shares</span>
-            <span className="text-gray-600 dark:text-gray-400">
+            <span className="text-gray-500 dark:text-gray-400">
               {numberFormat(data.delegator_shares / Number(process.env.NEXT_PUBLIC_POWER_REDUCTION), '0,0')}
             </span>
           </div>
@@ -68,7 +68,7 @@ export default function VotingPower({ data }) {
         {data ?
           <div className="flex flex-col space-y-1">
             <span className="font-semibold">Proposer Priority</span>
-            <span className="text-gray-600 dark:text-gray-400">
+            <span className="text-gray-500 dark:text-gray-400">
               {!isNaN(data.proposer_priority) ? numberFormat(data.proposer_priority, '0,0') : '-'}
             </span>
           </div>
@@ -81,7 +81,7 @@ export default function VotingPower({ data }) {
         {data ?
           <div className="flex flex-col space-y-1">
             <span className="font-semibold">Tokens</span>
-            <span className="text-gray-600 dark:text-gray-400">
+            <span className="text-gray-500 dark:text-gray-400">
               {numberFormat(Math.floor(data.tokens / Number(process.env.NEXT_PUBLIC_POWER_REDUCTION)), '0,0')}
             </span>
           </div>
