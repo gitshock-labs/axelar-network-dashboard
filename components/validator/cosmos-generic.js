@@ -87,7 +87,10 @@ export default function CosmosGeneric({ data, health, jailed }) {
                         :
                         `${moment(jailed.avg_jail_response_time).diff(moment(0), 'hours')} hrs`
                   :
-                  'Never Jailed'
+                  jailed.times_jailed < 0 ?
+                    'Never Unjailed'
+                    :
+                    'Never Jailed'
                 :
                 '-'
               }
