@@ -227,54 +227,59 @@ export default function Validator({ address }) {
         let jailedData, response
 
         if (validatorData?.jailed_until > 0) {
-          response = await uptimeForJailedInfo(
-            Number(status_data.latest_block_height) - Number(process.env.NEXT_PUBLIC_NUM_UPTIME_BLOCKS) > validatorData?.start_height ? Number(status_data.latest_block_height) - Number(process.env.NEXT_PUBLIC_NUM_UPTIME_BLOCKS) : validatorData?.start_height,
-            validatorData?.consensus_address,
-            status_data && (moment(status_data.latest_block_time).diff(moment(status_data.earliest_block_time), 'milliseconds') / Number(status_data.latest_block_height))
-          )
+          response = await slashingParams()
 
-          if (response?.data) {
-            const uptimeData = response.data
+          const maxMissed = response?.params ? Number(response.params.signed_blocks_window) - (Number(response.params.min_signed_per_window) * Number(response.params.signed_blocks_window)) : Number(NEXT_PUBLIC_DEFAULT_MAX_MISSED)
 
-            response = await slashingParams()
+          const beginBlock = Number(status_data.latest_block_height) - Number(process.env.NEXT_PUBLIC_NUM_UPTIME_BLOCKS) > validatorData?.start_height ? Number(status_data.latest_block_height) - Number(process.env.NEXT_PUBLIC_NUM_UPTIME_BLOCKS) : validatorData?.start_height
 
-            const maxMissed = response?.params ? Number(response.params.signed_blocks_window) - (Number(response.params.min_signed_per_window) * Number(response.params.signed_blocks_window)) : Number(NEXT_PUBLIC_DEFAULT_MAX_MISSED)
+          if (validatorData?.uptime * (Number(status_data.latest_block_height) - beginBlock) / 100 > maxMissed) {
+            response = await uptimeForJailedInfo(
+              beginBlock,
+              validatorData?.consensus_address,
+              status_data && (moment(status_data.latest_block_time).diff(moment(status_data.earliest_block_time), 'milliseconds') / Number(status_data.latest_block_height))
+            )
 
-            const _jailedData = []
+            if (response?.data) {
+              const uptimeData = response.data
 
-            let numMissed = 0, _jailed = false
+              const _jailedData = []
 
-            for (let i = 0; i < uptimeData.length; i++) {
-              const block = uptimeData[i]
+              let numMissed = 0, _jailed = false
 
-              if (block?.up) {
-                if (_jailed) {
-                  if (_jailedData.length - 1 >= 0) {
-                    _jailedData[_jailedData.length - 1].unjail_time = block.time
+              for (let i = 0; i < uptimeData.length; i++) {
+                const block = uptimeData[i]
+
+                if (block?.up) {
+                  if (_jailed) {
+                    if (_jailedData.length - 1 >= 0) {
+                      _jailedData[_jailedData.length - 1].unjail_time = block.time
+                    }
                   }
+
+                  numMissed = 0
+                  _jailed = false
+                }
+                else {
+                  numMissed++
                 }
 
-                numMissed = 0
-                _jailed = false
-              }
-              else {
-                numMissed++
+                if (numMissed > maxMissed && !_jailed) {
+                  _jailedData.push(block)
+
+                  _jailed = true
+                }
               }
 
-              if (numMissed > maxMissed && !_jailed) {
-                _jailedData.push(block)
-
-                _jailed = true
+              jailedData = {
+                times_jailed: _jailedData.length,
+                avg_jail_response_time: _jailedData.filter(_block => _block.unjail_time).length > 0 ? _.meanBy(_jailedData.filter(_block => _block.unjail_time).map(_block => { return { ..._block, response_time: _block.unjail_time - _block.time }}), 'response_time') : -1,
               }
-            }
-
-            jailedData = {
-              times_jailed: _jailedData.length,
-              avg_jail_response_time: _jailedData.filter(_block => _block.unjail_time).length > 0 ? _.meanBy(_jailedData.filter(_block => _block.unjail_time).map(_block => { return { ..._block, response_time: _block.unjail_time - _block.time }}), 'response_time') : -1,
             }
           }
         }
-        else {
+
+        if (!jailedData) {
           jailedData = {
             times_jailed: 0,
             avg_jail_response_time: 0,
