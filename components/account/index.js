@@ -217,49 +217,99 @@ export default function Account({ address }) {
 
         setAccount({ data: accountData || {}, address })
       }
+    }
 
+    if (address && denoms_data && validators_data) {
+      getData()
+    }
+
+    const interval = setInterval(() => getData(), 3 * 60 * 1000)
+    return () => {
+      controller?.abort()
+      clearInterval(interval)
+    }
+  }, [address, denoms_data, validators_data])
+
+  useEffect(() => {
+    const controller = new AbortController()
+
+    const getData = async () => {
       let data = []
 
       if (!controller.signal.aborted) {
         if (address.startsWith('cosmos')) {
           if (!controller.signal.aborted) {
             data = await transactionsByEvents(`ibc_transfer.sender='${address}'`, data, null, null, denoms_data)
+
+            if (data.length > 0) {
+              setTransactions({ data, total: data.length, address })
+            }
           }
           if (!controller.signal.aborted) {
             data = await transactionsByEvents(`ibc_transfer.receiver='${address}'`, data, null, null, denoms_data)
+
+            if (data.length > 0) {
+              setTransactions({ data, total: data.length, address })
+            }
           }
         }
         else {
           if (!controller.signal.aborted) {
             data = await transactionsByEvents(`message.sender='${address}'`, data, null, null, denoms_data)
+
+            if (data.length > 0) {
+              setTransactions({ data, total: data.length, address })
+            }
           }
           if (!controller.signal.aborted) {
             data = await transactionsByEvents(`message.address='${address}'`, data, null, null, denoms_data)
+
+            if (data.length > 0) {
+              setTransactions({ data, total: data.length, address })
+            }
           }
           if (!controller.signal.aborted) {
             data = await transactionsByEvents(`message.destinationAddress='${address}'`, data, null, null, denoms_data)
+
+            if (data.length > 0) {
+              setTransactions({ data, total: data.length, address })
+            }
           }
           if (!controller.signal.aborted) {
             data = await transactionsByEvents(`transfer.sender='${address}'`, data, null, null, denoms_data)
+
+            if (data.length > 0) {
+              setTransactions({ data, total: data.length, address })
+            }
           }
           if (!controller.signal.aborted) {
             data = await transactionsByEvents(`transfer.recipient='${address}'`, data, null, null, denoms_data)
+
+            if (data.length > 0) {
+              setTransactions({ data, total: data.length, address })
+            }
           }
           if (!controller.signal.aborted) {
             data = await transactionsByEvents(`outpointConfirmation.destinationAddress='${address}'`, data, null, null, denoms_data)
+
+            if (data.length > 0) {
+              setTransactions({ data, total: data.length, address })
+            }
           }
           if (!controller.signal.aborted) {
             data = await transactionsByEvents(`depositConfirmation.destinationAddress='${address}'`, data, null, null, denoms_data)
+
+            if (data.length > 0) {
+              setTransactions({ data, total: data.length, address })
+            }
           }
+
+          setTransactions({ data, total: data.length, address })
         }
-
-        // data = _.slice(data, 0, 100)
-
-        setTransactions({ data, total: response?.total, address })
       }
     }
 
-    if (address && denoms_data && validators_data) {
+    if (address && denoms_data) {
       getData()
     }
 

@@ -24,7 +24,7 @@ export default function AccountDetail({ data }) {
           <div className="flex items-center text-gray-700 dark:text-gray-100 space-x-2">
             {data.total?.length > 0 ?
               data.total.map((total, i) => (
-                <span key={i} className="bg-gray-200 dark:bg-gray-700 rounded-xl font-medium space-x-1 px-2 py-1">
+                <span key={i} className="bg-gray-200 dark:bg-gray-700 rounded font-medium space-x-1 px-2 py-1">
                   <span>{numberFormat(total.amount, '0,0.00000000')}</span>
                   <span className="uppercase font-light">{ellipseAddress(total.denom, 6)}</span>
                   {chain_data?.coin && chain_data.staking_params?.bond_denom === total.denom && (
