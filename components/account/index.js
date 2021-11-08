@@ -8,7 +8,7 @@ import AccountDetail from './account-detail'
 import TransactionsTable from '../transactions/transactions-table'
 import Widget from '../widget'
 
-import { allValidators, allBankBalances, allStakingDelegations, allStakingUnbonding, distributionRewards, distributionCommission, transactionsByEvents, validatorProfile } from '../../lib/api/cosmos'
+import { allValidators, allBankBalances, allStakingDelegations, allStakingUnbonding, distributionRewards, distributionCommissions, transactionsByEvents, validatorProfile } from '../../lib/api/cosmos'
 import { denomSymbol, denomAmount } from '../../lib/object/denom'
 import { numberFormat, randImage } from '../../lib/utils'
 
@@ -186,7 +186,7 @@ export default function Account({ address }) {
 
       if (!controller.signal.aborted) {
         if (operator_address) {
-          response = await distributionCommission(operator_address)
+          response = await distributionCommissions(operator_address)
 
           if (response) {
             accountData = {

@@ -15,7 +15,7 @@ import Widget from '../widget'
 
 import { getUptime, uptimeForJailedInfo, keygens as getKeygens } from '../../lib/api/query'
 import { status as getStatus } from '../../lib/api/rpc'
-import { allValidators, validatorSets, slashingParams, allDelegations, distributionRewards, distributionCommission } from '../../lib/api/cosmos'
+import { allValidators, validatorSets, slashingParams, allDelegations, distributionRewards, distributionCommissions } from '../../lib/api/cosmos'
 import { getKeygensByValidator } from '../../lib/api/executor'
 import { signAttempts as getSignAttempts, successKeygens as getSuccessKeygens, failedKeygens as getFailedKeygens } from '../../lib/api/opensearch'
 import { denomSymbol, denomAmount } from '../../lib/object/denom'
@@ -171,12 +171,12 @@ export default function Validator({ address }) {
           })
         }
 
-        response = await distributionCommission(validatorData?.operator_address)
+        response = await distributionCommissions(validatorData?.operator_address)
 
         if (response && !response.error) {
           _rewards.push({
             ...response,
-            name: 'Distribution Commission',
+            name: 'Distribution Commissions',
             total: response?.commission?.commission?.map(commission => {
               return {
                 ...commission,
