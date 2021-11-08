@@ -281,8 +281,8 @@ export default function ValidatorsTable({ status }) {
                   <div className="w-56 text-right ml-auto">{/*-*/}</div>
                 :
                 <>
-                  <div className="skeleton w-56 h-4 rounded mt-0.5 ml-auto" />
-                  <div className="skeleton w-16 h-3 rounded mt-1.5 ml-auto" />
+                  <div className="skeleton w-56 h-4 mt-0.5 ml-auto" />
+                  <div className="skeleton w-16 h-3 mt-1.5 ml-auto" />
                 </>
             ),
             headerClassName: 'justify-end text-right',
@@ -296,7 +296,7 @@ export default function ValidatorsTable({ status }) {
                 <div className="text-right">
                   {props.value ?
                     <>
-                      <span className={`bg-${props.value.includes('UN') ? props.value.endsWith('ED') ? 'gray-300 dark:bg-gray-600' : 'yellow-500' : 'green-500'} rounded capitalize text-white font-semibold px-2 py-1`}>
+                      <span className={`bg-${props.value.includes('UN') ? props.value.endsWith('ED') ? 'gray-300 dark:bg-gray-600' : 'yellow-500' : 'green-500'} rounded-xl capitalize text-white font-semibold px-2 py-1`}>
                         {props.value.replace('BOND_STATUS_', '')}
                       </span>
                       {/*props.row.original.jailed_until > 0 && (
@@ -308,7 +308,7 @@ export default function ValidatorsTable({ status }) {
                       {props.row.original.illegible && props.row.original.tss_illegibility_info && (
                         <div className="flex flex-col items-end space-y-1.5 mt-2">
                           {Object.entries(props.row.original.tss_illegibility_info).filter(([key, value]) => value).map(([key, value]) => (
-                            <span key={key} className="max-w-min bg-gray-100 dark:bg-gray-700 rounded capitalize text-gray-800 dark:text-gray-200 text-xs font-semibold px-1.5 py-0.5">
+                            <span key={key} className="max-w-min bg-gray-100 dark:bg-gray-700 rounded-xl capitalize text-gray-800 dark:text-gray-200 text-xs font-semibold px-1.5 py-0.5">
                               {getName(key)}
                             </span>
                           ))}
@@ -337,12 +337,12 @@ export default function ValidatorsTable({ status }) {
               !props.row.original.skeleton ?
                 <div className="text-right">
                   {props.row.original.tombstoned ?
-                    <span className="bg-red-600 rounded capitalize text-white font-semibold px-2 py-1">
+                    <span className="bg-red-600 rounded-xl capitalize text-white font-semibold px-2 py-1">
                       Tombstoned
                     </span>
                     :
                     props.value ?
-                      <span className="bg-red-600 rounded capitalize text-white font-semibold px-2 py-1">
+                      <span className="bg-red-600 rounded-xl capitalize text-white font-semibold px-2 py-1">
                         Jailed
                       </span>
                       :

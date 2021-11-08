@@ -39,22 +39,22 @@ export default function Information({ data }) {
         <div className="flex flex-col space-y-1.5 lg:space-y-1">
           <div className="flex items-center sm:justify-end space-x-2">
             {data.status && (
-              <span className={`bg-${data.status.includes('UN') ? data.status.endsWith('ED') ? 'gray-300 dark:bg-gray-600' : 'yellow-500' : 'green-500'} rounded capitalize text-white font-semibold px-2 py-1`}>
+              <span className={`bg-${data.status.includes('UN') ? data.status.endsWith('ED') ? 'gray-300 dark:bg-gray-600' : 'yellow-500' : 'green-500'} rounded-xl capitalize text-white font-semibold px-2 py-1`}>
                 {data.status.replace('BOND_STATUS_', '')}
               </span>
             )}
             {data.deregistering && (
-              <span className="bg-blue-400 rounded whitespace-nowrap capitalize text-white font-semibold px-2 py-1">
+              <span className="bg-blue-400 rounded-xl whitespace-nowrap capitalize text-white font-semibold px-2 py-1">
                 De-registering
               </span>
             )}
             {data.jailed && (
-              <span className="bg-red-600 rounded capitalize text-white font-semibold px-2 py-1">
+              <span className="bg-red-600 rounded-xl capitalize text-white font-semibold px-2 py-1">
                 Jailed
               </span>
             )}
             {data.tombstoned && (
-              <span className="bg-red-600 rounded capitalize text-white font-semibold px-2 py-1">
+              <span className="bg-red-600 rounded-xl capitalize text-white font-semibold px-2 py-1">
                 Tombstoned
               </span>
             )}
@@ -62,7 +62,7 @@ export default function Information({ data }) {
           {data.illegible && data.tss_illegibility_info && (
             <div className="flex flex-wrap sm:justify-end">
               {Object.entries(data.tss_illegibility_info).filter(([key, value]) => value).map(([key, value]) => (
-                <span key={key} className="max-w-min bg-gray-100 dark:bg-gray-700 rounded whitespace-nowrap capitalize text-gray-800 dark:text-gray-200 text-xs font-semibold px-1.5 py-0.5 my-1 ml-0 sm:ml-2 mr-2 sm:mr-0">
+                <span key={key} className="max-w-min bg-gray-100 dark:bg-gray-700 rounded-xl whitespace-nowrap capitalize text-gray-800 dark:text-gray-200 text-xs font-semibold px-1.5 py-0.5 my-1 ml-0 sm:ml-2 mr-2 sm:mr-0">
                   {getName(key)}
                 </span>
               ))}
