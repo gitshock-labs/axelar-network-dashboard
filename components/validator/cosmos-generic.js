@@ -133,21 +133,21 @@ export default function CosmosGeneric({ data, health, jailed }) {
             <div className="skeleton w-20 h-6" />
           }
         </div>
-        <div className={`sm:col-span-2 flex flex-col space-y-${health ? 1 : 2}`}>
-          <span className="font-semibold"># Missed Keygen Heartbeats</span>
+        <div className={`flex flex-col space-y-${health ? 1 : 2}`}>
+          <span className="font-semibold">Heartbeats Uptime</span>
           {health ?
             <span className="text-gray-500 dark:text-gray-400">
-              {typeof health.missed_keygen_heartbeats === 'number' ? numberFormat(health.missed_keygen_heartbeats, '0,0') : '-'}
+              {typeof health.missed_heartbeats === 'number' ? `${numberFormat(health.uptime, '0,0.00')}%` : '-'}
             </span>
             :
             <div className="skeleton w-20 h-6" />
           }
         </div>
-        <div className={`sm:col-span-2 flex flex-col space-y-${health ? 1 : 2}`}>
-          <span className="font-semibold"># Missed Sign Heartbeats</span>
+        <div className={`flex flex-col space-y-${health ? 1 : 2}`}>
+          <span className="font-semibold"># Missed Heartbeats</span>
           {health ?
             <span className="text-gray-500 dark:text-gray-400">
-              {typeof health.missed_sign_heartbeats === 'number' ? numberFormat(health.missed_sign_heartbeats, '0,0') : '-'}
+              {typeof health.missed_heartbeats === 'number' ? numberFormat(health.missed_heartbeats, '0,0') : '-'}
             </span>
             :
             <div className="skeleton w-20 h-6" />
