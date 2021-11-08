@@ -100,9 +100,9 @@ export default function CosmosGeneric({ data, health, jailed }) {
           }
         </div>
       </div>
-      <div className="text-gray-500 text-lg font-medium mt-6">Health Check</div>
+      <div className="text-gray-500 text-lg font-medium mt-4 sm:mt-6">Health Check</div>
       <div className={`grid grid-flow-row grid-cols-1 sm:grid-cols-2 text-base sm:text-sm lg:text-base gap-4 ${health ? 'my-3' : 'my-4'}`}>
-        <div className={`flex flex-col space-y-${data && 'tss_illegibility_info' in data && health ? 1 : 2}`}>
+        <div className={`sm:col-span-2 flex flex-col space-y-${data && 'tss_illegibility_info' in data && health ? 1 : 2}`}>
           <span className="font-semibold">Broadcaster Registration</span>
           {data && 'tss_illegibility_info' in data && health ?
             typeof health.broadcaster_registration === 'boolean' ?
@@ -116,16 +116,6 @@ export default function CosmosGeneric({ data, health, jailed }) {
               </span>
               :
               <span className="text-gray-500 dark:text-gray-400">-</span>
-            :
-            <div className="skeleton w-28 h-6" />
-          }
-        </div>
-        <div className={`flex flex-col space-y-${health ? 1 : 2}`}>
-          <span className="font-semibold">Broadcaster Funded</span>
-          {health ?
-            <span className="text-gray-500 dark:text-gray-400">
-              {health.broadcaster_funded ? health.broadcaster_funded : '-'}
-            </span>
             :
             <div className="skeleton w-28 h-6" />
           }
