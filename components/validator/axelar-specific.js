@@ -48,7 +48,7 @@ export default function AxelarSpecific({ data, keygens, signs, chainsSupported, 
               <span>({numberFormat((totalSign > 0 ? signParticipated / totalSign : 0) * 100, '0,0.00')}%)</span>
             </span>
             :
-            <div className="skeleton w-20 h-6" />
+            <div className="skeleton w-28 h-6" />
           }
         </div>
         <div className={`flex flex-col space-y-${signs ? 1 : 2}`}>
@@ -59,7 +59,7 @@ export default function AxelarSpecific({ data, keygens, signs, chainsSupported, 
               <span>({numberFormat((totalSign > 0 ? signNotParticipated / totalSign : 0) * 100, '0,0.00')}%)</span>
             </span>
             :
-            <div className="skeleton w-20 h-6" />
+            <div className="skeleton w-28 h-6" />
           }
         </div>
         <div className={`sm:col-span-2 flex flex-col space-y-${chainsSupported ? 1 : 2}`}>
@@ -69,7 +69,10 @@ export default function AxelarSpecific({ data, keygens, signs, chainsSupported, 
               {chainsSupported.length > 0 ? chainsSupported : '-'}
             </span>
             :
-            <div className="skeleton w-full h-6" />
+            <>
+              <div className="skeleton w-full h-6" />
+              <div className="skeleton w-full h-6" />
+            </>
           }
         </div>
         <div className={`sm:col-span-2 flex flex-col space-y-${rewards ? 1 : 2}`}>
@@ -98,7 +101,10 @@ export default function AxelarSpecific({ data, keygens, signs, chainsSupported, 
               }
             </span>
             :
-            <div className="skeleton w-full h-6" />
+            <>
+              <div className="skeleton w-full h-6" />
+              <div className="skeleton w-full h-6" />
+            </>
           }
         </div>
       </div>

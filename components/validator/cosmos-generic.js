@@ -67,7 +67,7 @@ export default function CosmosGeneric({ data, health, jailed }) {
               }
             </span>
             :
-            <div className="skeleton w-20 h-6" />
+            <div className="skeleton w-28 h-6" />
           }
         </div>
         <div className={`flex flex-col space-y-${jailed ? 1 : 2}`}>
@@ -96,7 +96,7 @@ export default function CosmosGeneric({ data, health, jailed }) {
               }
             </span>
             :
-            <div className="skeleton w-20 h-6" />
+            <div className="skeleton w-28 h-6" />
           }
         </div>
       </div>
@@ -130,7 +130,7 @@ export default function CosmosGeneric({ data, health, jailed }) {
               )}
             </span>
             :
-            <div className="skeleton w-20 h-6" />
+            <div className="skeleton w-28 h-6" />
           }
         </div>
         <div className={`flex flex-col space-y-${health ? 1 : 2}`}>
@@ -140,7 +140,7 @@ export default function CosmosGeneric({ data, health, jailed }) {
               {typeof health.missed_heartbeats === 'number' ? `${numberFormat(health.uptime, '0,0.00')}%` : '-'}
             </span>
             :
-            <div className="skeleton w-20 h-6" />
+            <div className="skeleton w-28 h-6" />
           }
         </div>
         <div className={`flex flex-col space-y-${health ? 1 : 2}`}>
@@ -150,7 +150,7 @@ export default function CosmosGeneric({ data, health, jailed }) {
               {typeof health.missed_heartbeats === 'number' ? numberFormat(health.missed_heartbeats, '0,0') : '-'}
             </span>
             :
-            <div className="skeleton w-20 h-6" />
+            <div className="skeleton w-28 h-6" />
           }
         </div>
       </div>
