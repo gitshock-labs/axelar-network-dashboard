@@ -326,6 +326,10 @@ export default function Validator({ address }) {
 
     return () => {
       controller?.abort()
+      dispatch({
+        type: JAILED_SYNC_DATA,
+        value: null,
+      })
     }
   }, [address, validator])
 

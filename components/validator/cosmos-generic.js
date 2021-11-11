@@ -11,7 +11,7 @@ export default function CosmosGeneric({ data, health, jailed }) {
   const { _data } = useSelector(state => ({ _data: state.data }), shallowEqual)
   const { status_data } = { ..._data }
 
-  const numMissedBlocks = typeof data?.uptime === 'number' && data?.start_height && status_data?.latest_block_height && (
+  let numMissedBlocks = typeof data?.uptime === 'number' && data?.start_height && status_data?.latest_block_height && (
     (Number(process.env.NEXT_PUBLIC_NUM_UPTIME_BLOCKS) * (1 - data.uptime / 100))
     -
     (Number(status_data.latest_block_height) - data.start_height > Number(process.env.NEXT_PUBLIC_NUM_UPTIME_BLOCKS) ?
@@ -20,6 +20,7 @@ export default function CosmosGeneric({ data, health, jailed }) {
       Number(process.env.NEXT_PUBLIC_NUM_UPTIME_BLOCKS) - (Number(status_data.latest_block_height) - data.start_height)
     )
   )
+  numMissedBlocks = numMissedBlocks < 0 ? 0 : numMissedBlocks
 
   const numBlocksBeforeProxyRegistered = data && 'tss_illegibility_info' in data && health ? health.broadcaster_registration ? typeof data?.start_proxy_height === 'number' && typeof data?.start_height === 'number' ? data.start_proxy_height >= data.start_height ? data.start_proxy_height - data.start_height : 0 : '-' : 'No Proxy' : null
 
