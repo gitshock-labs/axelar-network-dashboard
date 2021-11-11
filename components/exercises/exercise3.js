@@ -223,7 +223,7 @@ export default function Exercise3() {
 
           response = await transaction(data.tx_axelar_burn, null, denoms_data)
 
-          if (response?.data?.status === 'success' && response.data.activities?.findIndex(activity => activity.action === 'send' && activity.sender === data.axelar_address.toLowerCase() && activity.recipient?.length > 0 && activity.amount > 0 && activity.symbol === 'satoshi') > -1) {
+          if (response?.data?.status === 'success' && response.data.activities?.findIndex(activity => activity.action === 'send' && activity.sender === data.axelar_address.toLowerCase() && activity.recipient?.length > 0 && activity.amount > 0 && activity.symbol === 'btc') > -1) {
             _processing[_processing.length - 1].commands[0].result = response.data
             _processing[_processing.length - 1].status = true
             _processing[_processing.length - 1].answer = `${process.env.NEXT_PUBLIC_SITE_URL}/tx/${data.tx_axelar_burn}`
