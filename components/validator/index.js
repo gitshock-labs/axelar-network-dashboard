@@ -13,7 +13,7 @@ import TransactionsTable from '../transactions/transactions-table'
 import DelegationsTable from './delegations-table'
 import Widget from '../widget'
 
-import { getUptime, uptimeForJailedInfo, keygens as getKeygens } from '../../lib/api/query'
+import { getUptime, uptimeForJailedInfo, uptimeForJailedInfoSync, jailedInfo, keygens as getKeygens } from '../../lib/api/query'
 import { status as getStatus } from '../../lib/api/rpc'
 import { allValidators, validatorSets, slashingParams, allDelegations, distributionRewards, distributionCommissions } from '../../lib/api/cosmos'
 import { getKeygensByValidator } from '../../lib/api/executor'
@@ -21,15 +21,16 @@ import { signAttempts as getSignAttempts, successKeygens as getSuccessKeygens, f
 import { denomSymbol, denomAmount } from '../../lib/object/denom'
 import { getName } from '../../lib/utils'
 
-import { STATUS_DATA, VALIDATORS_DATA } from '../../reducers/types'
+import { STATUS_DATA, VALIDATORS_DATA, JAILED_SYNC_DATA } from '../../reducers/types'
 
 export default function Validator({ address }) {
   const dispatch = useDispatch()
   const { data } = useSelector(state => ({ data: state.data }), shallowEqual)
-  const { denoms_data, chain_data, status_data, validators_data } = { ...data }
+  const { denoms_data, chain_data, status_data, validators_data, jailed_sync_data } = { ...data }
 
   const [validator, setValidator] = useState(null)
   const [uptime, setUptime] = useState(null)
+  const [maxMissed, setMaxMissed] = useState(Number(process.env.NEXT_PUBLIC_DEFAULT_MAX_MISSED))
   const [jailed, setJailed] = useState(null)
   const [tab, setTab] = useState('key_share')
   const [keyShares, setKeyShares] = useState(null)
@@ -220,6 +221,16 @@ export default function Validator({ address }) {
   useEffect(() => {
     const controller = new AbortController()
 
+    const getDataSync = async (beginBlock, address, from, i) => {
+      const _data = await uptimeForJailedInfoSync(beginBlock, address, from)
+
+      dispatch({
+        type: JAILED_SYNC_DATA,
+        value: _data,
+        i,
+      })
+    }
+
     const getData = async () => {
       if (!controller.signal.aborted) {
         const validatorData = validator?.data
@@ -229,7 +240,8 @@ export default function Validator({ address }) {
         if (validatorData?.jailed_until > 0) {
           response = await slashingParams()
 
-          const maxMissed = response?.params ? Number(response.params.signed_blocks_window) - (Number(response.params.min_signed_per_window) * Number(response.params.signed_blocks_window)) : Number(NEXT_PUBLIC_DEFAULT_MAX_MISSED)
+          const _maxMissed = response?.params ? Number(response.params.signed_blocks_window) - (Number(response.params.min_signed_per_window) * Number(response.params.signed_blocks_window)) : Number(process.env.NEXT_PUBLIC_DEFAULT_MAX_MISSED)
+          setMaxMissed(_maxMissed)
 
           const beginBlock = Number(status_data.latest_block_height) - Number(process.env.NEXT_PUBLIC_NUM_UPTIME_BLOCKS) > validatorData?.start_height ? Number(status_data.latest_block_height) - Number(process.env.NEXT_PUBLIC_NUM_UPTIME_BLOCKS) : validatorData?.start_height
 
@@ -241,60 +253,70 @@ export default function Validator({ address }) {
               avg_jail_response_time: -1,
             }
           }
-          else if (numBlock * (1 - (validatorData?.uptime / 100)) > maxMissed) {
-            response = await uptimeForJailedInfo(
-              beginBlock,
-              validatorData?.consensus_address,
-              status_data && (moment(status_data.latest_block_time).diff(moment(status_data.earliest_block_time), 'milliseconds') / Number(status_data.latest_block_height))
-            )
+          else if (numBlock * (1 - (validatorData?.uptime / 100)) > _maxMissed) {
+            const chunkSize = _.head([...Array(Number(process.env.NEXT_PUBLIC_NUM_UPTIME_BLOCKS)).keys()].map(i => i + 1).filter(i => Math.ceil(Number(process.env.NEXT_PUBLIC_NUM_UPTIME_BLOCKS) / i) <= Number(process.env.NEXT_PUBLIC_NUM_UPTIME_BLOCKS_CHUNK))) || Number(process.env.NEXT_PUBLIC_NUM_UPTIME_BLOCKS)
+            _.chunk([...Array(Number(process.env.NEXT_PUBLIC_NUM_UPTIME_BLOCKS)).keys()], chunkSize).forEach((chunk, i) => getDataSync(beginBlock, validatorData?.consensus_address, i * chunkSize, i))
 
-            if (response?.data) {
-              const uptimeData = response.data
+            // response = await uptimeForJailedInfo(
+            //   beginBlock,
+            //   validatorData?.consensus_address,
+            //   status_data && (moment(status_data.latest_block_time).diff(moment(status_data.earliest_block_time), 'milliseconds') / Number(status_data.latest_block_height))
+            // )
 
-              const _jailedData = []
+            // if (response?.data) {
+            //   const uptimeData = response.data
 
-              let numMissed = 0, _jailed = false
+            //   const _jailedData = []
 
-              for (let i = 0; i < uptimeData.length; i++) {
-                const block = uptimeData[i]
+            //   let numMissed = 0, _jailed = false
 
-                if (block?.up) {
-                  if (_jailed) {
-                    if (_jailedData.length - 1 >= 0) {
-                      _jailedData[_jailedData.length - 1].unjail_time = block.time
-                    }
-                  }
+            //   for (let i = 0; i < uptimeData.length; i++) {
+            //     const block = uptimeData[i]
 
-                  numMissed = 0
-                  _jailed = false
-                }
-                else {
-                  numMissed++
-                }
+            //     if (block?.up) {
+            //       if (_jailed) {
+            //         if (_jailedData.length - 1 >= 0) {
+            //           _jailedData[_jailedData.length - 1].unjail_time = block.time
+            //         }
+            //       }
 
-                if (numMissed > maxMissed && !_jailed) {
-                  _jailedData.push(block)
+            //       numMissed = 0
+            //       _jailed = false
+            //     }
+            //     else {
+            //       numMissed++
+            //     }
 
-                  _jailed = true
-                }
-              }
+            //     if (numMissed > _maxMissed && !_jailed) {
+            //       _jailedData.push(block)
 
-              jailedData = {
-                times_jailed: _jailedData.length,
-                avg_jail_response_time: _jailedData.filter(_block => _block.unjail_time).length > 0 ? _.meanBy(_jailedData.filter(_block => _block.unjail_time).map(_block => { return { ..._block, response_time: _block.unjail_time - _block.time }}), 'response_time') : -1,
-              }
+            //       _jailed = true
+            //     }
+            //   }
+
+            //   jailedData = {
+            //     times_jailed: _jailedData.length,
+            //     avg_jail_response_time: _jailedData.filter(_block => _block.unjail_time).length > 0 ? _.meanBy(_jailedData.filter(_block => _block.unjail_time).map(_block => { return { ..._block, response_time: _block.unjail_time - _block.time }}), 'response_time') : -1,
+            //   }
+            // }
+          }
+          else {
+            jailedData = {
+              times_jailed: 0,
+              avg_jail_response_time: 0,
             }
           }
         }
-
-        if (!jailedData) {
+        else {
           jailedData = {
             times_jailed: 0,
             avg_jail_response_time: 0,
           }
         }
 
-        setJailed({ data: jailedData || {}, address })
+        if (jailedData) {
+          setJailed({ data: jailedData, address })
+        }
       }
     }
 
@@ -306,6 +328,57 @@ export default function Validator({ address }) {
       controller?.abort()
     }
   }, [address, validator])
+
+  useEffect(() => {
+    if (jailed_sync_data && Object.keys(jailed_sync_data).length >= Number(process.env.NEXT_PUBLIC_NUM_UPTIME_BLOCKS_CHUNK)) {
+
+      const uptimeData = jailedInfo(Object.values(jailed_sync_data).flatMap(_uptime => _uptime), status_data && (moment(status_data.latest_block_time).diff(moment(status_data.earliest_block_time), 'milliseconds') / Number(status_data.latest_block_height)))?.data
+
+      let jailedData
+
+      if (uptimeData) {
+        const _jailedData = []
+
+        let numMissed = 0, _jailed = false
+
+        for (let i = 0; i < uptimeData.length; i++) {
+          const block = uptimeData[i]
+
+          if (block?.up) {
+            if (_jailed) {
+              if (_jailedData.length - 1 >= 0) {
+                _jailedData[_jailedData.length - 1].unjail_time = block.time
+              }
+            }
+
+            numMissed = 0
+            _jailed = false
+          }
+          else {
+            numMissed++
+          }
+
+          if (numMissed > maxMissed && !_jailed) {
+            _jailedData.push(block)
+
+            _jailed = true
+          }
+        }
+
+        jailedData = {
+          times_jailed: _jailedData.length,
+          avg_jail_response_time: _jailedData.filter(_block => _block.unjail_time).length > 0 ? _.meanBy(_jailedData.filter(_block => _block.unjail_time).map(_block => { return { ..._block, response_time: _block.unjail_time - _block.time }}), 'response_time') : -1,
+        }
+      }
+
+      dispatch({
+        type: JAILED_SYNC_DATA,
+        value: null,
+      })
+
+      setJailed({ data: jailedData || {}, address })
+    }
+  }, [jailed_sync_data])
 
   useEffect(() => {
     const controller = new AbortController()
