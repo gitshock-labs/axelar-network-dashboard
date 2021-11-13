@@ -145,9 +145,12 @@ export default function CosmosGeneric({ data, health, jailed }) {
           <div className={`flex flex-col space-y-${health ? 1 : 2}`}>
             <span className="font-semibold">Heartbeats Uptime</span>
             {health ?
-              <span className="text-gray-500 dark:text-gray-400">
-                {typeof health.missed_heartbeats === 'number' ? `${numberFormat(health.uptime, '0,0.00')}%` : '-'}
-              </span>
+              <div className="flex items-center space-x-1">
+                <span className="text-gray-500 dark:text-gray-400">
+                  {typeof health.uptime === 'number' ? `${numberFormat(health.uptime, '0,0.00')}%` : '-'}
+                </span>
+                <span className="text-gray-500 text-sm font-light italic">(Mock Data)</span>
+              </div>
               :
               <div className="skeleton w-28 h-6" />
             }
@@ -155,9 +158,12 @@ export default function CosmosGeneric({ data, health, jailed }) {
           <div className={`flex flex-col space-y-${health ? 1 : 2}`}>
             <span className="font-semibold"># Missed Heartbeats</span>
             {health ?
-              <span className="text-gray-500 dark:text-gray-400">
-                {typeof health.missed_heartbeats === 'number' ? numberFormat(health.missed_heartbeats, '0,0') : '-'}
-              </span>
+              <div className="flex items-center space-x-1">
+                <span className="text-gray-500 dark:text-gray-400">
+                  {typeof health.missed_heartbeats === 'number' ? numberFormat(health.missed_heartbeats, '0,0') : '-'}
+                </span>
+                <span className="text-gray-500 text-sm font-light italic">(Mock Data)</span>
+              </div>
               :
               <div className="skeleton w-28 h-6" />
             }

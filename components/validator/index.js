@@ -125,6 +125,8 @@ export default function Validator({ address }) {
 
       const _health = {
         broadcaster_registration: !(validatorData?.tss_illegibility_info?.no_proxy_registered) && validatorData?.broadcaster_address ? true : false,
+        uptime: rand(90, 10),
+        missed_heartbeats: rand(0, 1000),
       }
 
       setHealth({ data: _health, address })
