@@ -62,7 +62,7 @@ export default function Information({ data }) {
           {data.illegible && data.tss_illegibility_info && (
             <div className="flex flex-wrap sm:justify-end">
               {Object.entries(data.tss_illegibility_info).filter(([key, value]) => value).map(([key, value]) => (
-                <span key={key} className="max-w-min bg-gray-100 dark:bg-gray-700 rounded-xl whitespace-nowrap capitalize text-gray-800 dark:text-gray-200 text-xs font-semibold px-1.5 py-0.5 my-1 ml-0 sm:ml-2 mr-2 sm:mr-0">
+                <span key={key} className="max-w-min bg-gray-100 dark:bg-gray-800 rounded-xl whitespace-nowrap capitalize text-gray-800 dark:text-gray-200 text-xs font-semibold px-1.5 py-0.5 my-1 ml-0 sm:ml-2 mr-2 sm:mr-0">
                   {getName(key)}
                 </span>
               ))}

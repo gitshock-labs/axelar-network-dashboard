@@ -34,13 +34,13 @@ export default function Uptime({ data, validator_data }) {
                 {block.approved > 0 || block.denied > 0 ?
                   <>
                     <span className="flex items-center space-x-2">
-                      <span className="bg-green-500 rounded capitalize text-white font-semibold px-2 py-1">approved</span>
+                      <span className="bg-green-500 rounded-xl capitalize text-white font-semibold px-2 py-1">approved</span>
                       <span className="text-base font-medium">{numberFormat(block.approved, '0,0')}</span>
                       <span>Event{block.approved > 1 ? 's' : ''}</span>
                       <span className="text-gray-500 text-sm font-light italic">(Mock Data)</span>
                     </span>
                     <span className="flex items-center space-x-2">
-                      <span className="bg-red-500 rounded capitalize text-white font-semibold px-2 py-1">denied</span>
+                      <span className="bg-red-500 rounded-xl capitalize text-white font-semibold px-2 py-1">denied</span>
                       <span className="text-base font-medium">{numberFormat(block.denied, '0,0')}</span>
                       <span>Event{block.denied > 1 ? 's' : ''}</span>
                       <span className="text-gray-500 text-sm font-light italic">(Mock Data)</span>

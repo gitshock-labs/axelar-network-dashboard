@@ -52,7 +52,7 @@ export default function KeysTable({ data, corruption_signing_threshold, page }) 
                   )}
                 </div>
                 :
-                <div className="skeleton w-48 h-5 my-1" />
+                <div className="skeleton w-40 h-5 my-1" />
             ),
           },
           {
@@ -432,7 +432,7 @@ export default function KeysTable({ data, corruption_signing_threshold, page }) 
                   <span className="capitalize">{props.value ? 'Yes' : 'No'}</span>
                 </div>
                 :
-                <div className="skeleton w-16 h-5 my-1 ml-auto" />
+                <div className="skeleton w-10 h-5 my-1 ml-auto" />
             ),
             headerClassName: 'justify-end text-right',
           },

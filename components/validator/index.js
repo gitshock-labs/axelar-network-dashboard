@@ -8,18 +8,19 @@ import CosmosGeneric from './cosmos-generic'
 import AxelarSpecific from './axelar-specific'
 import VotingPower from './voting-power'
 import Uptime from './uptime'
+import Heartbeat from './heartbeat'
 import KeysTable from '../participations/keys-table'
 import TransactionsTable from '../transactions/transactions-table'
 import DelegationsTable from './delegations-table'
 import Widget from '../widget'
 
-import { getUptime, uptimeForJailedInfo, uptimeForJailedInfoSync, jailedInfo, keygens as getKeygens } from '../../lib/api/query'
+import { getUptime, uptimeForJailedInfo, uptimeForJailedInfoSync, jailedInfo, getHeartbeat, keygens as getKeygens } from '../../lib/api/query'
 import { status as getStatus } from '../../lib/api/rpc'
 import { allValidators, validatorSets, slashingParams, allDelegations, distributionRewards, distributionCommissions } from '../../lib/api/cosmos'
 import { getKeygensByValidator } from '../../lib/api/executor'
 import { signAttempts as getSignAttempts, successKeygens as getSuccessKeygens, failedKeygens as getFailedKeygens } from '../../lib/api/opensearch'
 import { denomSymbol, denomAmount } from '../../lib/object/denom'
-import { getName } from '../../lib/utils'
+import { getName, rand } from '../../lib/utils'
 
 import { STATUS_DATA, VALIDATORS_DATA, JAILED_SYNC_DATA } from '../../reducers/types'
 
@@ -32,13 +33,14 @@ export default function Validator({ address }) {
   const [uptime, setUptime] = useState(null)
   const [maxMissed, setMaxMissed] = useState(Number(process.env.NEXT_PUBLIC_DEFAULT_MAX_MISSED))
   const [jailed, setJailed] = useState(null)
+  const [heartbeat, setHeartbeat] = useState(null)
   const [tab, setTab] = useState('key_share')
   const [keyShares, setKeyShares] = useState(null)
   const [keygens, setKeygens] = useState(null)
   const [signs, setSigns] = useState(null)
   const [delegations, setDelegations] = useState(null)
   const [health, setHealth] = useState(null)
-  const [chainsSupported, setChainsSupported] = useState(null)
+  const [supportedChains, setSupportedChains] = useState(null)
   const [rewards, setRewards] = useState(null)
 
   useEffect(() => {
@@ -135,8 +137,6 @@ export default function Validator({ address }) {
         }
       }
 
-      setChainsSupported({ data: {}, address })
-
       let _delegations
 
       if (!controller.signal.aborted) {
@@ -158,7 +158,7 @@ export default function Validator({ address }) {
         }
       }
 
-      if (!controller.signal.aborted) {
+      /*if (!controller.signal.aborted) {
         let _rewards = []
 
         response = await distributionRewards(validatorData?.delegator_address)
@@ -204,7 +204,7 @@ export default function Validator({ address }) {
         })
 
         setRewards({ data: _rewards, address })
-      }
+      }*/
     }
 
     if (address && denoms_data && status_data && validators_data) {
@@ -494,6 +494,71 @@ export default function Validator({ address }) {
     }
   }, [address])
 
+  useEffect(() => {
+    if (address) {
+      setSupportedChains({ data: ['cosmos', 'bitcoin', 'ethereum'], address })
+    }
+  }, [address])
+
+  useEffect(() => {
+    const controller = new AbortController()
+
+    const getData = async () => {
+      if (address && status_data && validator?.data) {
+        if (!controller.signal.aborted) {
+          const latestBlock = Number(status_data.latest_block_height)
+          let beginBlock = latestBlock - Number(process.env.NEXT_PUBLIC_NUM_HEARTBEAT_BLOCKS)
+          beginBlock = beginBlock > 0 ? beginBlock : 0
+
+          let heartbeats = []
+
+          for (let height = latestBlock; height >= beginBlock; height--) {
+            if (height % Number(process.env.NEXT_PUBLIC_NUM_BLOCKS_PER_HEARTBEAT) === 1) {
+              heartbeats.push({ height })
+            }
+          }
+
+          const response = await getHeartbeat(beginBlock, latestBlock, validator.data.consensus_address)
+
+          if (response?.data) {
+            heartbeats = heartbeats.map(_heartbeat => response.data.find(__heartbeat => __heartbeat?.height === _heartbeat?.height) || _heartbeat)
+          }
+
+          heartbeats = heartbeats.map(_heartbeat => {
+            return {
+              ..._heartbeat,
+              up: rand(0, 10) > 1,
+              keygen_ineligibilities: {
+                tombstoned: rand(0, 10) > 9,
+                jailed: rand(0, 10) > 9,
+                missed_too_many_blocks: rand(0, 10) > 9,
+                no_proxy_registered: rand(0, 10) > 9,
+                proxy_insuficient_funds: rand(0, 10) > 9,
+              },
+              sign_ineligibilities: {
+                tombstoned: rand(0, 10) > 9,
+                jailed: rand(0, 10) > 9,
+                missed_too_many_blocks: rand(0, 10) > 9,
+                no_proxy_registered: rand(0, 10) > 9,
+                proxy_insuficient_funds: rand(0, 10) > 9,
+              },
+            }
+          })
+
+          setHeartbeat({ data: heartbeats, address })
+        }
+      }
+    }
+
+    getData()
+
+    const interval = setInterval(() => getData(), 3 * 60 * 1000)
+    return () => {
+      controller?.abort()
+      clearInterval(interval)
+    }
+  }, [address, status_data, validator])
+
   return (
     <>
       <div className="my-4">
@@ -502,52 +567,59 @@ export default function Validator({ address }) {
         />
       </div>
       <div className="grid grid-flow-row grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 my-4">
-        <CosmosGeneric
-          data={validator?.address === address && validator?.data}
-          health={health?.address === address && health?.data}
-          jailed={jailed?.address === address && jailed?.data}
-        />
-        <AxelarSpecific
-          data={validator?.address === address && validator?.data}
-          keygens={keygens?.address === address && keygens?.data}
-          signs={signs?.address === address && signs?.data}
-          chainsSupported={chainsSupported?.address === address && chainsSupported?.data}
-          rewards={rewards?.address === address && rewards?.data}
-        />
-        <VotingPower data={validator?.address === address && validator?.data} />
-        <Uptime data={uptime?.address === address && uptime?.data} validator_data={validator?.address === address && validator?.data} />
-        <Widget
-          title={<div className="grid grid-flow-row grid-cols-3 sm:grid-cols-4 md:grid-cols-3 xl:flex flex-row items-center space-x-1">
-            {['key_share', 'keygen', 'sign'].map((_tab, i) => (
-              <div
-                key={i}
-                onClick={() => setTab(_tab)}
-                className={`max-w-min sm:max-w-max md:max-w-min lg:max-w-max btn btn-default btn-rounded cursor-pointer whitespace-nowrap bg-trasparent ${_tab === tab ? 'bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white font-semibold' : 'hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-500 hover:text-gray-700 text-white dark:hover:text-gray-100'}`}
-              >
-                {getName(_tab)}
-              </div>
-            ))}
-          </div>}
-          className="px-2 md:px-4"
-        >
-          <div className="mt-1">
-            {tab === 'keygen' ?
-              <KeysTable data={keygens} page="validator-keygen" />
-              :
-              tab === 'sign' ?
-                <KeysTable data={signs} page="validator-sign" />
+        <div className="space-y-4">
+          <CosmosGeneric
+            data={validator?.address === address && validator?.data}
+            health={health?.address === address && health?.data}
+            jailed={jailed?.address === address && jailed?.data}
+          />
+          <Uptime data={uptime?.address === address && uptime?.data} validator_data={validator?.address === address && validator?.data} />
+        </div>
+        <div className="space-y-4">
+          <AxelarSpecific
+            data={validator?.address === address && validator?.data}
+            keygens={keygens?.address === address && keygens?.data}
+            signs={signs?.address === address && signs?.data}
+            supportedChains={supportedChains?.address === address && supportedChains?.data}
+            rewards={rewards?.address === address && rewards?.data}
+          />
+          <Heartbeat data={heartbeat?.address === address && heartbeat?.data} validator_data={validator?.address === address && validator?.data} />
+          <Widget
+            title={<div className="grid grid-flow-row grid-cols-3 sm:grid-cols-4 md:grid-cols-3 xl:flex flex-row items-center space-x-1">
+              {['key_share', 'keygen', 'sign'].map((_tab, i) => (
+                <div
+                  key={i}
+                  onClick={() => setTab(_tab)}
+                  className={`max-w-min sm:max-w-max md:max-w-min lg:max-w-max btn btn-default btn-rounded cursor-pointer whitespace-nowrap bg-trasparent ${_tab === tab ? 'bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white font-semibold' : 'hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-500 hover:text-gray-700 text-white dark:hover:text-gray-100'}`}
+                >
+                  {getName(_tab)}
+                </div>
+              ))}
+            </div>}
+            className="px-2 md:px-4"
+          >
+            <div className="mt-1">
+              {tab === 'keygen' ?
+                <KeysTable data={keygens} page="validator-keygen" />
                 :
-                <KeysTable data={keyShares} page="validator" />
-            }
-          </div>
-        </Widget>
-        <Widget
-          title={<span className="text-lg font-medium">Delegations</span>}
-        >
-          <div className="mt-2">
-            <DelegationsTable data={delegations?.address === address && delegations?.data} />
-          </div>
-        </Widget>
+                tab === 'sign' ?
+                  <KeysTable data={signs} page="validator-sign" />
+                  :
+                  <KeysTable data={keyShares} page="validator" />
+              }
+            </div>
+          </Widget>
+        </div>
+        <div className="space-y-4">
+          <VotingPower data={validator?.address === address && validator?.data} />
+          <Widget
+            title={<span className="text-lg font-medium">Delegations</span>}
+          >
+            <div className="mt-2">
+              <DelegationsTable data={delegations?.address === address && delegations?.data} />
+            </div>
+          </Widget>
+        </div>
       </div>
     </>
   )

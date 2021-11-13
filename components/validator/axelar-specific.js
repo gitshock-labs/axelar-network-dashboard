@@ -1,9 +1,9 @@
 import Widget from '../widget'
 import Copy from '../copy'
 
-import { numberFormat, ellipseAddress } from '../../lib/utils'
+import { numberFormat, getName, ellipseAddress } from '../../lib/utils'
 
-export default function AxelarSpecific({ data, keygens, signs, chainsSupported, rewards }) {
+export default function AxelarSpecific({ data, keygens, signs, supportedChains, rewards }) {
   const keygenParticipated = keygens && keygens.filter(_keygen => _keygen?.participated).length
   const keygenNotParticipated = keygens && keygens.filter(_keygen => _keygen?.not_participated).length
   const totalKeygen = keygenParticipated + keygenNotParticipated
@@ -15,9 +15,8 @@ export default function AxelarSpecific({ data, keygens, signs, chainsSupported, 
   return (
     <Widget
       title={<span className="text-lg font-medium">Axelar Specific</span>}
-      className="min-h-full"
     >
-      <div className={`grid grid-flow-row grid-cols-1 sm:grid-cols-2 text-base sm:text-sm lg:text-base gap-4 ${data ? 'my-3' : 'my-4'}`}>
+      <div className={`grid grid-flow-row grid-cols-1 sm:grid-cols-2 text-base sm:text-sm lg:text-base gap-4 ${data ? 'mt-3 mb-0.5' : 'mt-4 mb-1'}`}>
         <div className={`flex flex-col space-y-${keygens ? 1 : 2}`}>
           <span className="font-semibold">Keygen Participated</span>
           {keygens ?
@@ -62,11 +61,22 @@ export default function AxelarSpecific({ data, keygens, signs, chainsSupported, 
             <div className="skeleton w-28 h-6" />
           }
         </div>
-        <div className={`sm:col-span-2 flex flex-col space-y-${chainsSupported ? 1 : 2}`}>
-          <span className="font-semibold">Chains Supported</span>
-          {chainsSupported ?
+        <div className={`sm:col-span-2 flex flex-col space-y-${supportedChains ? 1 : 2}`}>
+          <span className="font-semibold space-x-2">
+            <span>Chains Supported</span>
+            <span className="text-gray-500 text-sm font-light italic">(Mock Data)</span>
+          </span>
+          {supportedChains ?
             <span className="text-gray-500 dark:text-gray-400">
-              {chainsSupported.length > 0 ? chainsSupported : '-'}
+              {supportedChains.length > 0 ?
+                supportedChains.map((supportedChain, i) => (
+                  <span key={i} className="max-w-min bg-gray-100 dark:bg-gray-800 rounded-xl whitespace-nowrap capitalize text-gray-800 dark:text-gray-200 text-xs font-semibold px-2 py-1 my-1 mr-2">
+                    {getName(supportedChain)}
+                  </span>
+                ))
+                :
+                '-'
+              }
             </span>
             :
             <>
@@ -75,7 +85,7 @@ export default function AxelarSpecific({ data, keygens, signs, chainsSupported, 
             </>
           }
         </div>
-        <div className={`sm:col-span-2 flex flex-col space-y-${rewards ? 1 : 2}`}>
+        {/*<div className={`sm:col-span-2 flex flex-col space-y-${rewards ? 1 : 2}`}>
           <span className="font-semibold">Rewards / Stake</span>
           {rewards ?
             <span className="text-gray-500 dark:text-gray-400">
@@ -106,7 +116,7 @@ export default function AxelarSpecific({ data, keygens, signs, chainsSupported, 
               <div className="skeleton w-full h-6" />
             </>
           }
-        </div>
+        </div>*/}
       </div>
     </Widget>
   )
