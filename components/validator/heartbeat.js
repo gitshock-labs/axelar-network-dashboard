@@ -16,8 +16,9 @@ export default function Heartbeat({ data, validator_data }) {
       title={<div className="flex items-center space-x-1">
         <span className="text-lg font-medium">Heartbeat</span>
         {data && (
-          <span className="text-gray-400 dark:text-gray-600 mt-0.5">({numberFormat(data.filter(_heartbeat => _heartbeat.up).length, '0,0')} / {numberFormat(data.length, '0,0')})</span>
+          <span className="whitespace-nowrap text-gray-400 dark:text-gray-600 mt-0.5">({numberFormat(data.filter(_heartbeat => _heartbeat.up).length, '0,0')} / {numberFormat(data.length, '0,0')})</span>
         )}
+        <span className="text-gray-500 text-sm font-light italic mt-0.5">(Mock Data)</span>
       </div>}
       right={<span className="whitespace-nowrap text-gray-400 dark:text-gray-600 sm:mr-1 xl:mr-1.5">Last {numberFormat(process.env.NEXT_PUBLIC_NUM_HEARTBEAT_BLOCKS, '0,0')} Blocks</span>}
     >
@@ -46,10 +47,7 @@ export default function Heartbeat({ data, validator_data }) {
                     <>
                       {keygenIneligibilities.length > 0 && (
                         <div className="flex flex-col space-y-1.5">
-                          <span className="font-semibold space-x-1">
-                            <span>Keygen Ineligibilities</span>
-                            <span className="text-gray-500 text-sm font-light italic">(Mock Data)</span>
-                          </span>
+                          <span className="font-semibold">Keygen Ineligibilities</span>
                           {keygenIneligibilities.map((ineligibility, i) => (
                             <span key={i} className={`max-w-min bg-${['tombstoned', 'jailed'].includes(ineligibility) ? 'red' : 'yellow'}-500 rounded-xl whitespace-nowrap capitalize text-white font-semibold px-2 py-1`}>{getName(ineligibility)}</span>
                           ))}
@@ -57,10 +55,7 @@ export default function Heartbeat({ data, validator_data }) {
                       )}
                       {signIneligibilities.length > 0 && (
                         <div className="flex flex-col space-y-1.5">
-                          <span className="font-semibold space-x-1">
-                            <span>Sign Ineligibilities</span>
-                            <span className="text-gray-500 text-sm font-light italic">(Mock Data)</span>
-                          </span>
+                          <span className="font-semibold">Sign Ineligibilities</span>
                           {signIneligibilities.map((ineligibility, i) => (
                             <span key={i} className={`max-w-min bg-${['tombstoned', 'jailed'].includes(ineligibility) ? 'red' : 'yellow'}-500 rounded-xl whitespace-nowrap capitalize text-white font-semibold px-2 py-1`}>{getName(ineligibility)}</span>
                           ))}
