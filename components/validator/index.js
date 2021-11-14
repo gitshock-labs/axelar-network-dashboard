@@ -529,20 +529,20 @@ export default function Validator({ address }) {
           heartbeats = heartbeats.map(_heartbeat => {
             return {
               ..._heartbeat,
-              up: rand(0, 10) > 1,
+              up: rand(0, 100) > 1,
               keygen_ineligibilities: {
-                tombstoned: rand(0, 10) > 9,
-                jailed: rand(0, 10) > 9,
-                missed_too_many_blocks: rand(0, 10) > 9,
-                no_proxy_registered: rand(0, 10) > 9,
-                proxy_insuficient_funds: rand(0, 10) > 9,
+                tombstoned: rand(0, 100) > 99,
+                jailed: rand(0, 100) > 99,
+                missed_too_many_blocks: rand(0, 100) > 99,
+                no_proxy_registered: rand(0, 100) > 99,
+                proxy_insuficient_funds: rand(0, 100) > 99,
               },
               sign_ineligibilities: {
-                tombstoned: rand(0, 10) > 9,
-                jailed: rand(0, 10) > 9,
-                missed_too_many_blocks: rand(0, 10) > 9,
-                no_proxy_registered: rand(0, 10) > 9,
-                proxy_insuficient_funds: rand(0, 10) > 9,
+                tombstoned: rand(0, 100) > 99,
+                jailed: rand(0, 100) > 99,
+                missed_too_many_blocks: rand(0, 100) > 99,
+                no_proxy_registered: rand(0, 100) > 99,
+                proxy_insuficient_funds: rand(0, 100) > 99,
               },
             }
           })
