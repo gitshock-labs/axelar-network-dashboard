@@ -19,7 +19,7 @@ export default function Heartbeat({ data, validator_data }) {
           <span className="text-gray-400 dark:text-gray-600 mt-0.5">({numberFormat(data.filter(_heartbeat => _heartbeat.up).length, '0,0')} / {numberFormat(data.length, '0,0')})</span>
         )}
       </div>}
-      right={<span className="whitespace-nowrap text-gray-400 dark:text-gray-600 mr-2">Last {numberFormat(process.env.NEXT_PUBLIC_NUM_HEARTBEAT_BLOCKS, '0,0')} Blocks</span>}
+      right={<span className="whitespace-nowrap text-gray-400 dark:text-gray-600 sm:mr-1 xl:mr-1.5">Last {numberFormat(process.env.NEXT_PUBLIC_NUM_HEARTBEAT_BLOCKS, '0,0')} Blocks</span>}
     >
       <div className="flex flex-wrap items-center my-1 -ml-0.5">
         {(data || [...Array(Number(process.env.NEXT_PUBLIC_NUM_HEARTBEAT_BLOCKS) / Number(process.env.NEXT_PUBLIC_NUM_BLOCKS_PER_HEARTBEAT)).keys()].map(i => { return { i, skeleton: true } })
