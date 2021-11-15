@@ -5,6 +5,7 @@ import moment from 'moment'
 
 import Information from './information'
 import CosmosGeneric from './cosmos-generic'
+import HealthCheck from './health-check'
 import AxelarSpecific from './axelar-specific'
 import VotingPower from './voting-power'
 import Uptime from './uptime'
@@ -568,14 +569,30 @@ export default function Validator({ address }) {
           data={validator?.address === address && validator?.data}
         />
       </div>
-      <div className="grid grid-flow-row grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 my-4">
+      <div className="grid grid-flow-row grid-cols-1 sm:grid-cols-2 gap-4 my-4">
+        <VotingPower data={validator?.address === address && validator?.data} />
+        <Widget
+          title={<span className="text-lg font-medium">Delegations</span>}
+        >
+          <div className="mt-2">
+            <DelegationsTable data={delegations?.address === address && delegations?.data} />
+          </div>
+        </Widget>
+      </div>
+      <div className="grid grid-flow-row grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 my-4">
         <div className="space-y-4">
           <CosmosGeneric
             data={validator?.address === address && validator?.data}
-            health={health?.address === address && health?.data}
             jailed={jailed?.address === address && jailed?.data}
           />
           <Uptime data={uptime?.address === address && uptime?.data} validator_data={validator?.address === address && validator?.data} />
+        </div>
+        <div className="space-y-4">
+          <HealthCheck
+            data={validator?.address === address && validator?.data}
+            health={health?.address === address && health?.data}
+          />
+          <Heartbeat data={heartbeat?.address === address && heartbeat?.data} validator_data={validator?.address === address && validator?.data} />
         </div>
         <div className="space-y-4">
           <AxelarSpecific
@@ -585,7 +602,6 @@ export default function Validator({ address }) {
             supportedChains={supportedChains?.address === address && supportedChains?.data}
             rewards={rewards?.address === address && rewards?.data}
           />
-          <Heartbeat data={heartbeat?.address === address && heartbeat?.data} validator_data={validator?.address === address && validator?.data} />
           <Widget
             title={<div className="grid grid-flow-row grid-cols-3 sm:grid-cols-4 md:grid-cols-3 xl:flex flex-row items-center space-x-1">
               {['key_share', 'keygen', 'sign'].map((_tab, i) => (
@@ -609,16 +625,6 @@ export default function Validator({ address }) {
                   :
                   <KeysTable data={keyShares} page="validator" />
               }
-            </div>
-          </Widget>
-        </div>
-        <div className="space-y-4">
-          <VotingPower data={validator?.address === address && validator?.data} />
-          <Widget
-            title={<span className="text-lg font-medium">Delegations</span>}
-          >
-            <div className="mt-2">
-              <DelegationsTable data={delegations?.address === address && delegations?.data} />
             </div>
           </Widget>
         </div>
