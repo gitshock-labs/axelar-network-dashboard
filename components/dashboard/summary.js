@@ -347,7 +347,7 @@ const Summary = ({ data, crosschainData, tvlData, avgTransfersTimeRange, setAvgT
         >
           <span className="flex flex-col space-y-1.5 mt-1">
             {tvlData ?
-              <div className="max-h-36 sm:max-h-60 flex flex-col overflow-y-auto space-y-2.5 mt-1" style={{ minHeight: '134px' }}>
+              <div className="max-h-36 sm:max-h-60 flex flex-col overflow-y-auto space-y-2.5 mt-1">
                 {tvlData.tvls?.map((coinTransfer, i) => (
                   <div key={i} className="flex items-start">
                     <div>
