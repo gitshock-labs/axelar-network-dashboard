@@ -24,7 +24,7 @@ export default function CosmosGeneric({ data, jailed }) {
   return (
     <Widget
       title={<span className="text-lg font-medium">Cosmos Generic</span>}
-      right={<span className="whitespace-nowrap text-gray-400 dark:text-gray-600">Last {numberFormat(process.env.NEXT_PUBLIC_NUM_UPTIME_BLOCKS, '0,0')} Blocks</span>}
+      right={<span className="whitespace-nowrap text-gray-400 dark:text-gray-600">Latest {numberFormat(process.env.NEXT_PUBLIC_NUM_UPTIME_BLOCKS, '0,0')} Blocks</span>}
     >
       <div className={`grid grid-flow-row grid-cols-1 sm:grid-cols-2 text-base sm:text-sm lg:text-base gap-4 ${data ? 'mt-3 mb-0.5' : 'mt-4 mb-1'}`}>
         <div className={`flex flex-col space-y-${typeof data?.uptime === 'number' ? 1 : 2}`}>
