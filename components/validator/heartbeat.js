@@ -65,7 +65,7 @@ export default function Heartbeat({ data, validator_data }) {
                     :
                     <span className="flex items-center text-green-600 dark:text-green-400 text-lg space-x-1">
                       <IoArrowUpCircle size={24} />
-                      <span>Healthy</span>
+                      <span>Up</span>
                     </span>
                   :
                   <span className="flex items-center text-red-600 dark:text-red-400 text-lg space-x-1">
