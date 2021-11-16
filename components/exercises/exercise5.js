@@ -257,7 +257,7 @@ export default function Exercise5() {
         }
 
         if (!error) {
-          cmd = `axelard q evm token-address ethereum ${data.contract}`
+          cmd = `axelard q evm token-address ethereum --asset ${data.contract}`
 
           _processing.push({
             label: `Check ${items?.[3]?.label}`,

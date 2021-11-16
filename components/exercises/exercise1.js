@@ -254,7 +254,7 @@ export default function Exercise1() {
         }
 
         if (!error) {
-          cmd = 'axelard q evm token-address ethereum satoshi'
+          cmd = 'axelard q evm token-address ethereum --asset satoshi'
 
           _processing.push({
             label: `Check ${items?.[3]?.label}`,
