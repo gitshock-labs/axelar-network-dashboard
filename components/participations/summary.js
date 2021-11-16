@@ -102,7 +102,7 @@ const Summary = ({ data, keygens, successKeygens, failedKeygens, signAttempts, f
       >
         <span className="flex flex-col mt-1 space-y-1">
           <div className="flex flex-row space-x-1.5">
-            {keygens || successKeygens ?
+            {keygens || typeof successKeygens === 'number' ?
               keygens ?
                 <span className="h-8 text-3xl font-semibold">{numberFormat(keygens.length, '0,0')}</span>
                 :
