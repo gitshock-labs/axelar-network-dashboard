@@ -522,9 +522,9 @@ export default function AccountDetail({ data }) {
                       {props.row.original.validator_data && (
                         <Link href={`/validator/${props.row.original.validator_address}`}>
                           <a>
-                            {props.row.original.validator_data.description?.image ?
+                            {props.row.original.validator_data.description?.image || true ?
                               <img
-                                src={props.row.original.validator_data.description.image}
+                                src={props.row.original.validator_data.description?.image || randImage()}
                                 alt=""
                                 className="w-6 h-6 rounded-full"
                               />
