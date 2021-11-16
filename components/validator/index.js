@@ -499,7 +499,7 @@ export default function Validator({ address }) {
 
   useEffect(() => {
     if (address) {
-      setSupportedChains({ data: ['cosmos', 'bitcoin', 'ethereum'], address })
+      setSupportedChains({ data: ['cosmos', 'bitcoin', 'ethereum', 'terra'], address })
     }
   }, [address])
 

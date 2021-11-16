@@ -253,6 +253,29 @@ export default function Account({ address }) {
             }
           }
         }
+        else if (address.startsWith('terra')) {
+          if (!controller.signal.aborted) {
+            data = await transactionsByEvents(`link.address='${address}'`, data, null, null, denoms_data)
+
+            if (data.length > 0) {
+              setTransactions({ data, total: data.length, address })
+            }
+          }
+          if (!controller.signal.aborted) {
+            data = await transactionsByEvents(`ibc_transfer.sender='${address}'`, data, null, null, denoms_data)
+
+            if (data.length > 0) {
+              setTransactions({ data, total: data.length, address })
+            }
+          }
+          if (!controller.signal.aborted) {
+            data = await transactionsByEvents(`ibc_transfer.receiver='${address}'`, data, null, null, denoms_data)
+
+            if (data.length > 0) {
+              setTransactions({ data, total: data.length, address })
+            }
+          }
+        }
         else {
           if (!controller.signal.aborted) {
             data = await transactionsByEvents(`message.sender='${address}'`, data, null, null, denoms_data)
