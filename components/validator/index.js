@@ -521,7 +521,7 @@ export default function Validator({ address }) {
             }
           }
 
-          const response = await getHeartbeat(beginBlock, latestBlock, validator.data.consensus_address)
+          const response = await getHeartbeat(beginBlock, latestBlock, validator.data.broadcaster_address)
 
           if (response?.data) {
             heartbeats = heartbeats.map(_heartbeat => response.data.find(__heartbeat => __heartbeat?.height === _heartbeat?.height) || _heartbeat)
@@ -530,7 +530,7 @@ export default function Validator({ address }) {
           heartbeats = heartbeats.map(_heartbeat => {
             return {
               ..._heartbeat,
-              up: rand(0, 100) > 1,
+              up: _heartbeat?.sender === validator.data.broadcaster_address,
               keygen_ineligibilities: {
                 tombstoned: rand(0, 100) > 99,
                 jailed: rand(0, 100) > 99,
