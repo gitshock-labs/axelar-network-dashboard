@@ -19,7 +19,7 @@ import { getUptime, uptimeForJailedInfo, uptimeForJailedInfoSync, jailedInfo, ge
 import { status as getStatus } from '../../lib/api/rpc'
 import { allValidators, validatorSets, slashingParams, allDelegations, distributionRewards, distributionCommissions } from '../../lib/api/cosmos'
 import { getKeygensByValidator } from '../../lib/api/executor'
-import { signAttempts as getSignAttempts, successKeygens as getSuccessKeygens, failedKeygens as getFailedKeygens } from '../../lib/api/opensearch'
+import { signAttempts as getSignAttempts, successKeygens as getSuccessKeygens, failedKeygens as getFailedKeygens, heartbeats as getHeartbeats } from '../../lib/api/opensearch'
 import { denomSymbol, denomAmount } from '../../lib/object/denom'
 import { getName, rand } from '../../lib/utils'
 
@@ -126,9 +126,26 @@ export default function Validator({ address }) {
 
       const _health = {
         broadcaster_registration: !(validatorData?.tss_illegibility_info?.no_proxy_registered) && validatorData?.broadcaster_address ? true : false,
-        uptime: rand(90, 10),
-        missed_heartbeats: rand(0, 1000),
       }
+
+      response = await getHeartbeats({
+        aggs: { heartbeats: { terms: { field: 'sender.keyword' } } },
+        query: {
+          bool: {
+            must: [
+              { match: { sender: validatorData?.broadcaster_address } },
+              { range: { height: { gt: validatorData?.start_height, lte: Number(status_data.latest_block_height) } } },
+            ],
+          },
+        },
+      })
+
+      const totalHeartbeats = Math.floor((Number(status_data.latest_block_height) - validatorData?.start_height) / Number(process.env.NEXT_PUBLIC_NUM_BLOCKS_PER_HEARTBEAT))
+      _health.missed_heartbeats = totalHeartbeats - response?.total
+      _health.missed_heartbeats = _health.missed_heartbeats < 0 ? 0 : _health.missed_heartbeats
+
+      _health.heartbeats_uptime = totalHeartbeats > 0 ? response?.total * 100 / totalHeartbeats : 0
+      _health.heartbeats_uptime = _health.heartbeats_uptime > 100 ? 100 : _health.heartbeats_uptime
 
       setHealth({ data: _health, address })
 

@@ -41,7 +41,11 @@ export default function HealthCheck({ data, health }) {
             <span className="flex items-center text-gray-500 dark:text-gray-400 space-x-1.5">
               <span>{typeof numBlocksBeforeProxyRegistered === 'number' ? numberFormat(numBlocksBeforeProxyRegistered, '0,0') : numBlocksBeforeProxyRegistered}</span>
               {typeof numBlocksBeforeProxyRegistered === 'number' && (
-                <span>(Block: {numberFormat(data.start_proxy_height, '0,0')})</span>
+                <span className="flex items-center text-sm space-x-1">
+                  <span>(Registered at</span>
+                  <FiBox size={14} className="stroke-current mb-0.5" />
+                  <span>{numberFormat(data.start_proxy_height, '0,0')})</span>
+                </span>
               )}
             </span>
             :
@@ -53,9 +57,8 @@ export default function HealthCheck({ data, health }) {
           {health ?
             <div className="flex items-center space-x-1">
               <span className="text-gray-500 dark:text-gray-400">
-                {typeof health.uptime === 'number' ? `${numberFormat(health.uptime, '0,0.00')}%` : '-'}
+                {typeof health.heartbeats_uptime === 'number' ? `${numberFormat(health.heartbeats_uptime, '0,0.00')}%` : '-'}
               </span>
-              <span className="text-gray-500 text-sm font-light italic">(Mock Data)</span>
             </div>
             :
             <div className="skeleton w-28 h-6" />
@@ -68,7 +71,6 @@ export default function HealthCheck({ data, health }) {
               <span className="text-gray-500 dark:text-gray-400">
                 {typeof health.missed_heartbeats === 'number' ? numberFormat(health.missed_heartbeats, '0,0') : '-'}
               </span>
-              <span className="text-gray-500 text-sm font-light italic">(Mock Data)</span>
             </div>
             :
             <div className="skeleton w-28 h-6" />
