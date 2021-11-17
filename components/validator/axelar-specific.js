@@ -64,7 +64,6 @@ export default function AxelarSpecific({ data, keygens, signs, supportedChains, 
         <div className={`sm:col-span-2 flex flex-col space-y-${supportedChains ? 1 : 2}`}>
           <span className="font-semibold space-x-2">
             <span>Chains Supported</span>
-            <span className="text-gray-500 text-sm font-light italic">(Mock Data)</span>
           </span>
           {supportedChains ?
             <span className="text-gray-500 dark:text-gray-400">

@@ -17,11 +17,11 @@ import Widget from '../widget'
 
 import { getUptime, uptimeForJailedInfo, uptimeForJailedInfoSync, jailedInfo, getHeartbeat, keygens as getKeygens } from '../../lib/api/query'
 import { status as getStatus } from '../../lib/api/rpc'
-import { allValidators, validatorSets, slashingParams, allDelegations, distributionRewards, distributionCommissions } from '../../lib/api/cosmos'
-import { getKeygensByValidator } from '../../lib/api/executor'
+import { allValidators, validatorSets, slashingParams, allBankBalances, allDelegations, distributionRewards, distributionCommissions } from '../../lib/api/cosmos'
+import { axelard, getKeygensByValidator } from '../../lib/api/executor'
 import { signAttempts as getSignAttempts, successKeygens as getSuccessKeygens, failedKeygens as getFailedKeygens, heartbeats as getHeartbeats } from '../../lib/api/opensearch'
-import { denomSymbol, denomAmount } from '../../lib/object/denom'
-import { getName, rand } from '../../lib/utils'
+import { feeDenom, denomSymbol, denomAmount } from '../../lib/object/denom'
+import { getName, rand, convertToJson } from '../../lib/utils'
 
 import { STATUS_DATA, VALIDATORS_DATA, JAILED_SYNC_DATA } from '../../reducers/types'
 
@@ -126,6 +126,19 @@ export default function Validator({ address }) {
 
       const _health = {
         broadcaster_registration: !(validatorData?.tss_illegibility_info?.no_proxy_registered) && validatorData?.broadcaster_address ? true : false,
+      }
+
+      _health.num_block_before_registered = validatorData && 'tss_illegibility_info' in validatorData && _health ? _health.broadcaster_registration ? typeof validatorData?.start_proxy_height === 'number' && typeof validatorData?.start_height === 'number' ? validatorData.start_proxy_height >= validatorData.start_height ? validatorData.start_proxy_height - validatorData.start_height : 0 : '-' : 'No Proxy' : null
+
+      if (validatorData?.broadcaster_address) {
+        response = await allBankBalances(validatorData.broadcaster_address)
+
+        if (response?.data) {
+          _health.broadcaster_funded = _.head(response.data.filter(balance => balance?.denom === feeDenom).map(balance => { return { amount: denomAmount(balance.amount, balance.denom, denoms_data), denom: denomSymbol(balance.denom, denoms_data) } }))
+        }
+      }
+      else {
+        _health.broadcaster_funded = 'No Proxy'
       }
 
       response = await getHeartbeats({
@@ -515,8 +528,38 @@ export default function Validator({ address }) {
   }, [address])
 
   useEffect(() => {
+    const controller = new AbortController()
+
+    const getData = async () => {
+      if (address) {
+        const chains = ['bitcoin', 'ethereum', 'terra']
+
+        const _supportedChains = ['cosmos']
+
+        for (let i = 0; i < chains.length; i++) {
+          if (!controller.signal.aborted) {
+            const chain = chains[i]
+
+            const response = await axelard({ cmd: `axelard q nexus chain-maintainers ${chain} -oj` })
+
+            if (convertToJson(response?.data?.stdout)?.maintainers?.includes(address)) {
+              _supportedChains.push(chain)
+            }
+          }
+        }
+
+        setSupportedChains({ data: _supportedChains, address })
+      }
+    }
+
     if (address) {
-      setSupportedChains({ data: ['cosmos', 'bitcoin', 'ethereum', 'terra'], address })
+      getData()
+    }
+
+    const interval = setInterval(() => getData(), 5 * 60 * 1000)
+    return () => {
+      controller?.abort()
+      clearInterval(interval)
     }
   }, [address])
 
@@ -533,7 +576,7 @@ export default function Validator({ address }) {
           let heartbeats = []
 
           for (let height = latestBlock; height >= beginBlock; height--) {
-            if (height % Number(process.env.NEXT_PUBLIC_NUM_BLOCKS_PER_HEARTBEAT) === 1) {
+            if (height % Number(process.env.NEXT_PUBLIC_NUM_BLOCKS_PER_HEARTBEAT) === 1 && heartbeats.length < Number(process.env.NEXT_PUBLIC_NUM_HEARTBEAT_BLOCKS) / Number(process.env.NEXT_PUBLIC_NUM_BLOCKS_PER_HEARTBEAT)) {
               heartbeats.push({ height })
             }
           }

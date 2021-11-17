@@ -6,7 +6,7 @@ import Widget from '../widget'
 import { numberFormat, getName } from '../../lib/utils'
 
 export default function HealthCheck({ data, health }) {
-  const numBlocksBeforeProxyRegistered = data && 'tss_illegibility_info' in data && health ? health.broadcaster_registration ? typeof data?.start_proxy_height === 'number' && typeof data?.start_height === 'number' ? data.start_proxy_height >= data.start_height ? data.start_proxy_height - data.start_height : 0 : '-' : 'No Proxy' : null
+  const numBlocksBeforeProxyRegistered = health?.num_block_before_registered
 
   return (
     <Widget
@@ -52,6 +52,20 @@ export default function HealthCheck({ data, health }) {
             <div className="skeleton w-28 h-6" />
           }
         </div>
+        <div className={`flex flex-col space-y-${data && 'tss_illegibility_info' in data && health ? 1 : 2}`}>
+          <span className="font-semibold">Broadcaster Funded</span>
+          {health ?
+            typeof health.broadcaster_funded === 'object' ?
+              <span className="text-gray-500 dark:text-gray-400 space-x-1">
+                <span>{numberFormat(health.broadcaster_funded.amount, '0,0.0000000')}</span>
+                <span className="uppercase">{health.broadcaster_funded.denom}</span>
+              </span>
+              :
+              <span>{health.broadcaster_funded}</span>
+            :
+            <div className="skeleton w-28 h-6" />
+          }
+        </div>
         <div className={`flex flex-col space-y-${health ? 1 : 2}`}>
           <span className="font-semibold">Heartbeats Uptime</span>
           {health ?
@@ -59,18 +73,11 @@ export default function HealthCheck({ data, health }) {
               <span className="text-gray-500 dark:text-gray-400">
                 {typeof health.heartbeats_uptime === 'number' ? `${numberFormat(health.heartbeats_uptime, '0,0.00')}%` : '-'}
               </span>
-            </div>
-            :
-            <div className="skeleton w-28 h-6" />
-          }
-        </div>
-        <div className={`flex flex-col space-y-${health ? 1 : 2}`}>
-          <span className="font-semibold"># Missed Heartbeats</span>
-          {health ?
-            <div className="flex items-center space-x-1">
-              <span className="text-gray-500 dark:text-gray-400">
-                {typeof health.missed_heartbeats === 'number' ? numberFormat(health.missed_heartbeats, '0,0') : '-'}
-              </span>
+              {typeof health.missed_heartbeats === 'number' && (
+                <span className="text-gray-500 dark:text-gray-400">
+                  ({numberFormat(health.missed_heartbeats, '0,0')} Missed)
+                </span>
+              )}
             </div>
             :
             <div className="skeleton w-28 h-6" />

@@ -131,8 +131,16 @@ export default function Information({ data }) {
             <div className="flex flex-col xl:flex-row items-start space-x-0 xl:space-x-2">
               <span className="max-w-min whitespace-nowrap font-semibold">Broadcaster Address:</span>
               <span className="flex flex-wrap items-center text-gray-600 dark:text-gray-400 space-x-1">
-                <span className="lg:hidden">{ellipseAddress(data.broadcaster_address, 16)}</span>
-                <span className="hidden lg:block">{ellipseAddress(data.broadcaster_address, 24)}</span>
+                <Link href={`/account/${data.broadcaster_address}`}>
+                  <a className="lg:hidden text-blue-600 dark:text-blue-500">
+                    {ellipseAddress(data.broadcaster_address, 16)}
+                  </a>
+                </Link>
+                <Link href={`/account/${data.broadcaster_address}`}>
+                  <a className="hidden lg:block text-blue-600 dark:text-blue-500">
+                    {ellipseAddress(data.broadcaster_address, 24)}
+                  </a>
+                </Link>
                 <Copy size={18} text={data.broadcaster_address} />
               </span>
             </div>
