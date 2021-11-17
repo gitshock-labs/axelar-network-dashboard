@@ -62,7 +62,7 @@ export default function Validator({ address }) {
 
     getData()
 
-    const interval = setInterval(() => getData(), 1 * 60 * 1000)
+    const interval = setInterval(() => getData(), 60 * 1000)
     return () => {
       controller?.abort()
       clearInterval(interval)
@@ -89,10 +89,8 @@ export default function Validator({ address }) {
       getValidators()
     }
 
-    const interval = setInterval(() => getValidators(), 5 * 60 * 1000)
     return () => {
       controller?.abort()
-      clearInterval(interval)
     }
   }, [address, status_data, denoms_data])
 
@@ -244,10 +242,8 @@ export default function Validator({ address }) {
       getData()
     }
 
-    const interval = setInterval(() => getData(), 2 * 60 * 1000)
     return () => {
       controller?.abort()
-      clearInterval(interval)
     }
   }, [address, denoms_data, status_data, validators_data])
 
@@ -476,7 +472,7 @@ export default function Validator({ address }) {
       if (!controller.signal.aborted) {
         response = await getSignAttempts({ size: 1000, query: { match: { result: true } }, sort: [{ height: 'desc' }] })
 
-        let _data = response?.data || []
+        let _data = Array.isArray(response?.data) ? response.data : []
 
         for (let i = 0; i < _data.length; i++) {
           const _sign = _data[i]
@@ -495,7 +491,7 @@ export default function Validator({ address }) {
 
         response = await getSignAttempts({ size: 1000, query: { match: { result: false } }, sort: [{ height: 'desc' }] })
 
-        _data = response?.data || []
+        _data = Array.isArray(response?.data) ? response.data : []
 
         for (let i = 0; i < _data.length; i++) {
           const _sign = _data[i]
@@ -520,10 +516,8 @@ export default function Validator({ address }) {
       getData()
     }
 
-    const interval = setInterval(() => getData(), 4 * 60 * 1000)
     return () => {
       controller?.abort()
-      clearInterval(interval)
     }
   }, [address])
 
@@ -556,10 +550,8 @@ export default function Validator({ address }) {
       getData()
     }
 
-    const interval = setInterval(() => getData(), 5 * 60 * 1000)
     return () => {
       controller?.abort()
-      clearInterval(interval)
     }
   }, [address])
 
@@ -615,10 +607,8 @@ export default function Validator({ address }) {
 
     getData()
 
-    const interval = setInterval(() => getData(), 3 * 60 * 1000)
     return () => {
       controller?.abort()
-      clearInterval(interval)
     }
   }, [address, status_data, validator])
 
