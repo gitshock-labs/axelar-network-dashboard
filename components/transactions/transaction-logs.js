@@ -104,7 +104,7 @@ export default function TransactionLogs({ data }) {
                         activity.value ?
                           <span className="capitalize">{activity.value}</span>
                           :
-                          typeof activity.amount === 'number' ?
+                          /*typeof activity.amount === 'number'*/activity.amount > 0 ?
                             <span className="w-full flex items-center justify-end space-x-1">
                               <span>{numberFormat(activity.amount, '0,0.00000000')}</span>
                               <span className="uppercase font-medium">{activity.symbol || ellipseAddress(activity.denom)}</span>
@@ -113,7 +113,7 @@ export default function TransactionLogs({ data }) {
                             activity.log ?
                               <span className="text-gray-400 dark:text-gray-600 text-xs">{activity.log}</span>
                               :
-                              <span className="h-5" />
+                              <span className="h-3" />
                       }
                     </>
                     :
