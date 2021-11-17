@@ -78,10 +78,7 @@ export default function AxelarSpecific({ data, keygens, signs, supportedChains, 
               }
             </span>
             :
-            <>
-              <div className="skeleton w-full h-6" />
-              <div className="skeleton w-full h-6" />
-            </>
+            <div className="skeleton w-full h-6" />
           }
         </div>
         {/*<div className={`sm:col-span-2 flex flex-col space-y-${rewards ? 1 : 2}`}>
