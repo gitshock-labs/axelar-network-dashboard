@@ -24,8 +24,7 @@ export default function Heartbeat({ data, validator_data }) {
       <div className="flex flex-wrap items-center my-1 -ml-0.5">
         {(data || [...Array(Number(process.env.NEXT_PUBLIC_NUM_HEARTBEAT_BLOCKS) / Number(process.env.NEXT_PUBLIC_NUM_BLOCKS_PER_HEARTBEAT)).keys()].map(i => { return { i, skeleton: true } })
         ).map((block, i) => {
-          const keygenIneligibilities = (block?.keygen_ineligibilities && Object.entries(block.keygen_ineligibilities).filter(([key, value]) => value).map(([key, value]) => key)) || []
-          const signIneligibilities = (block?.sign_ineligibilities && Object.entries(block.sign_ineligibilities).filter(([key, value]) => value).map(([key, value]) => key)) || []
+          const ineligibilities = (block?.ineligibilities && Object.entries(block.ineligibilities).filter(([key, value]) => value).map(([key, value]) => key)) || []
 
           return !block.skeleton ?
             <Popover
@@ -40,28 +39,16 @@ export default function Heartbeat({ data, validator_data }) {
                   </a>
                 </Link>
               </div>}
-              content={<div className="flex flex-col space-y-3">
+              content={<div className="flex flex-col space-y-1.5">
                 {block.up ?
-                  keygenIneligibilities.length > 0 || signIneligibilities.length > 0 ?
+                  ineligibilities.length > 0 ?
                     <>
-                      {keygenIneligibilities.length > 0 && (
+                      {ineligibilities.length > 0 && (
                         <div className="flex flex-col space-y-1.5">
                           <span className="font-semibold space-x-1.5">
-                            <span>Keygen Ineligibilities</span>
-                            <span className="text-gray-500 text-sm font-light italic">(Mock Data)</span>
+                            <span>Ineligibilities</span>
                           </span>
-                          {keygenIneligibilities.map((ineligibility, i) => (
-                            <span key={i} className={`max-w-min bg-${['tombstoned', 'jailed'].includes(ineligibility) ? 'red' : 'yellow'}-500 rounded-xl whitespace-nowrap capitalize text-white font-semibold px-2 py-1`}>{getName(ineligibility)}</span>
-                          ))}
-                        </div>
-                      )}
-                      {signIneligibilities.length > 0 && (
-                        <div className="flex flex-col space-y-1.5">
-                          <span className="font-semibold space-x-1.5">
-                            <span>Sign Ineligibilities</span>
-                            <span className="text-gray-500 text-sm font-light italic">(Mock Data)</span>
-                          </span>
-                          {signIneligibilities.map((ineligibility, i) => (
+                          {ineligibilities.map((ineligibility, i) => (
                             <span key={i} className={`max-w-min bg-${['tombstoned', 'jailed'].includes(ineligibility) ? 'red' : 'yellow'}-500 rounded-xl whitespace-nowrap capitalize text-white font-semibold px-2 py-1`}>{getName(ineligibility)}</span>
                           ))}
                         </div>
@@ -78,12 +65,26 @@ export default function Heartbeat({ data, validator_data }) {
                     <span>No Response</span>
                   </span>
                 }
+                {block?.key_ids && (
+                  <div className="flex flex-col space-y-0 ml-0.5">
+                    <span className="font-semibold space-x-1.5">
+                      <span>Key IDs</span>
+                    </span>
+                    {block.key_ids.length > 0 ?
+                      block.key_ids.map((key_id, i) => (
+                        <span key={i}>{key_id}</span>
+                      ))
+                      :
+                      <span>-</span>
+                    }
+                  </div>
+                )}
               </div>}
               className="w-7 h-7"
             >
               <div
                 title={numberFormat(block.height, '0,0')}
-                className={`w-6 md:w-6 h-6 md:h-6 ${block.up ? keygenIneligibilities.length + signIneligibilities.length > 0 ? _.concat(keygenIneligibilities, signIneligibilities).findIndex(ineligibility => ['tombstoned', 'jailed'].includes(ineligibility)) > -1 ? 'bg-red-500' : 'bg-yellow-500' : 'bg-green-500' : 'bg-gray-300 dark:bg-gray-500'} rounded m-1`}
+                className={`w-6 md:w-6 h-6 md:h-6 ${block.up ? ineligibilities.length > 0 ? ineligibilities.findIndex(ineligibility => ['tombstoned', 'jailed'].includes(ineligibility)) > -1 ? 'bg-red-500' : 'bg-yellow-500' : 'bg-green-500' : 'bg-gray-300 dark:bg-gray-500'} rounded m-1`}
               />
             </Popover>
             :

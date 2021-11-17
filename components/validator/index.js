@@ -15,7 +15,7 @@ import TransactionsTable from '../transactions/transactions-table'
 import DelegationsTable from './delegations-table'
 import Widget from '../widget'
 
-import { getUptime, uptimeForJailedInfo, uptimeForJailedInfoSync, jailedInfo, getHeartbeat, keygens as getKeygens } from '../../lib/api/query'
+import { getUptime, uptimeForJailedInfo, uptimeForJailedInfoSync, jailedInfo, getHeartbeat, getIneligibilities, keygens as getKeygens } from '../../lib/api/query'
 import { status as getStatus } from '../../lib/api/rpc'
 import { allValidators, validatorSets, slashingParams, allBankBalances, allDelegations, distributionRewards, distributionCommissions } from '../../lib/api/cosmos'
 import { axelard, getKeygensByValidator } from '../../lib/api/executor'
@@ -285,49 +285,6 @@ export default function Validator({ address }) {
           else if (numBlock * (1 - (validatorData?.uptime / 100)) > _maxMissed) {
             const chunkSize = _.head([...Array(Number(process.env.NEXT_PUBLIC_NUM_UPTIME_BLOCKS)).keys()].map(i => i + 1).filter(i => Math.ceil(Number(process.env.NEXT_PUBLIC_NUM_UPTIME_BLOCKS) / i) <= Number(process.env.NEXT_PUBLIC_NUM_UPTIME_BLOCKS_CHUNK))) || Number(process.env.NEXT_PUBLIC_NUM_UPTIME_BLOCKS)
             _.chunk([...Array(Number(process.env.NEXT_PUBLIC_NUM_UPTIME_BLOCKS)).keys()], chunkSize).forEach((chunk, i) => getDataSync(beginBlock, validatorData?.consensus_address, i * chunkSize, i))
-
-            // response = await uptimeForJailedInfo(
-            //   beginBlock,
-            //   validatorData?.consensus_address,
-            //   status_data && (moment(status_data.latest_block_time).diff(moment(status_data.earliest_block_time), 'milliseconds') / Number(status_data.latest_block_height))
-            // )
-
-            // if (response?.data) {
-            //   const uptimeData = response.data
-
-            //   const _jailedData = []
-
-            //   let numMissed = 0, _jailed = false
-
-            //   for (let i = 0; i < uptimeData.length; i++) {
-            //     const block = uptimeData[i]
-
-            //     if (block?.up) {
-            //       if (_jailed) {
-            //         if (_jailedData.length - 1 >= 0) {
-            //           _jailedData[_jailedData.length - 1].unjail_time = block.time
-            //         }
-            //       }
-
-            //       numMissed = 0
-            //       _jailed = false
-            //     }
-            //     else {
-            //       numMissed++
-            //     }
-
-            //     if (numMissed > _maxMissed && !_jailed) {
-            //       _jailedData.push(block)
-
-            //       _jailed = true
-            //     }
-            //   }
-
-            //   jailedData = {
-            //     times_jailed: _jailedData.length,
-            //     avg_jail_response_time: _jailedData.filter(_block => _block.unjail_time).length > 0 ? _.meanBy(_jailedData.filter(_block => _block.unjail_time).map(_block => { return { ..._block, response_time: _block.unjail_time - _block.time }}), 'response_time') : -1,
-            //   }
-            // }
           }
           else {
             jailedData = {
@@ -573,29 +530,22 @@ export default function Validator({ address }) {
             }
           }
 
-          const response = await getHeartbeat(beginBlock, latestBlock, validator.data.broadcaster_address)
+          let response = await getHeartbeat(beginBlock, latestBlock, validator.data.broadcaster_address)
 
           if (response?.data) {
             heartbeats = heartbeats.map(_heartbeat => response.data.find(__heartbeat => __heartbeat?.height === _heartbeat?.height) || _heartbeat)
           }
 
+          response = await getIneligibilities()
+
+          const ineligibilities = response?.filter(metric => metric?.address && metric.address === validator.data.operator_address)
+
           heartbeats = heartbeats.map(_heartbeat => {
             return {
               ..._heartbeat,
               up: _heartbeat?.sender && _heartbeat.sender === validator.data.broadcaster_address,
-              keygen_ineligibilities: {
-                tombstoned: rand(0, 100) > 99,
-                jailed: rand(0, 100) > 99,
-                missed_too_many_blocks: rand(0, 100) > 99,
-                no_proxy_registered: rand(0, 100) > 99,
-                proxy_insuficient_funds: rand(0, 100) > 99,
-              },
-              sign_ineligibilities: {
-                tombstoned: rand(0, 100) > 99,
-                jailed: rand(0, 100) > 99,
-                missed_too_many_blocks: rand(0, 100) > 99,
-                no_proxy_registered: rand(0, 100) > 99,
-                proxy_insuficient_funds: rand(0, 100) > 99,
+              ineligibilities: {
+                ...ineligibilities?.find(_block => _block.height === _heartbeat.height)?.ineligibilities,
               },
             }
           })
