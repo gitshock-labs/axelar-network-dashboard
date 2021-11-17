@@ -582,7 +582,7 @@ export default function Validator({ address }) {
           heartbeats = heartbeats.map(_heartbeat => {
             return {
               ..._heartbeat,
-              up: _heartbeat?.sender === validator.data.broadcaster_address,
+              up: _heartbeat?.sender && _heartbeat.sender === validator.data.broadcaster_address,
               keygen_ineligibilities: {
                 tombstoned: rand(0, 100) > 99,
                 jailed: rand(0, 100) > 99,
