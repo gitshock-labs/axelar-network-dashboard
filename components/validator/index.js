@@ -434,7 +434,7 @@ export default function Validator({ address }) {
       if (!controller.signal.aborted) {
         response = await getSuccessKeygens({ size: 1000, sort: [{ height: 'desc' }] })
 
-        let _data = response?.data || []
+        let _data = Array.isArray(response?.data) ? response.data : []
 
         for (let i = 0; i < _data.length; i++) {
           const _keygen = _data[i]
@@ -453,7 +453,7 @@ export default function Validator({ address }) {
 
         response = await getFailedKeygens({ size: 1000, sort: [{ height: 'desc' }] })
 
-        _data = response?.data || []
+        _data = Array.isArray(response?.data) ? response.data : []
 
         for (let i = 0; i < _data.length; i++) {
           const _keygen = _data[i]
