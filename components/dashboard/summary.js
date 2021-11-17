@@ -232,7 +232,7 @@ const Summary = ({ data, crosschainData, tvlData, avgTransfersTimeRange, setAvgT
           </span>
         </Widget>
       </div>
-      <div className="text-gray-900 dark:text-gray-100 text-base font-semibold mt-8 sm:mx-3">Cross-chain transfer</div>
+      {/*<div className="text-gray-900 dark:text-gray-100 text-base font-semibold mt-8 sm:mx-3">Cross-chain transfer</div>
       <div className="w-full grid grid-flow-row grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-8 sm:gap-4 mt-1.5 mb-4">
         <Widget
           title="Number of Transactions"
@@ -337,12 +337,7 @@ const Summary = ({ data, crosschainData, tvlData, avgTransfersTimeRange, setAvgT
           </span>
         </Widget>
         <Widget
-          title={<div className="flex items-center">
-            <span>Total Value Locked</span>
-            {/*(!tvlData || tvlData.total_loaded_validators !== tvlData.total_active_validators) && (
-              <Loader type="BallTriangle" color={theme === 'dark' ? 'white' : '#9CA3AF'} width="18" height="18" className="mb-0.5 ml-auto" />
-            )*/}
-          </div>}
+          title="Total Value Locked"
           className="bg-transparent sm:bg-white sm:dark:bg-gray-900 border-0 sm:border border-gray-100 dark:border-gray-800 p-0 sm:p-4"
         >
           <span className="flex flex-col space-y-1.5 mt-1">
@@ -394,25 +389,6 @@ const Summary = ({ data, crosschainData, tvlData, avgTransfersTimeRange, setAvgT
                 :
                 <div className="skeleton w-20 h-3.5" />
               }
-              {/*<span className="flex items-center text-gray-400 dark:text-gray-600 text-xs font-normal space-x-1 ml-auto mt-0.5">
-                {tvlData ?
-                  tvlData.total_loaded_validators !== tvlData.total_active_validators ?
-                    <span className="font-mono text-gray-600 dark:text-gray-400 font-medium">{numberFormat(tvlData.total_loaded_validators, '0,0')}</span>
-                    :
-                    null
-                  :
-                  <div className="skeleton w-6 h-3.5" />
-                }
-                {(!tvlData || tvlData.total_loaded_validators !== tvlData.total_active_validators) && (
-                  <span>/</span>
-                )}
-                {tvlData ?
-                  <span className="font-mono text-gray-600 dark:text-gray-400 font-medium">{numberFormat(tvlData.total_active_validators, '0,0')}</span>
-                  :
-                  <div className="skeleton w-6 h-3.5" />
-                }
-                <span>validators</span>
-              </span>*/}
             </div>
           </span>
         </Widget>
@@ -610,7 +586,7 @@ const Summary = ({ data, crosschainData, tvlData, avgTransfersTimeRange, setAvgT
             <TimelyHighestTransfer highestTransferData={chartData && (chartData.highest_transfer_24h.find(transfer => transfer?.contract_name === contractSelect) || {})} setTimeFocus={_timeFocus => setTimeFocus(_timeFocus)} />
           </div>
         </Widget>
-      </div>
+      </div>*/}
     </>
   )
 }
