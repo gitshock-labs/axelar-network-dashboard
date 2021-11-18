@@ -200,7 +200,7 @@ export default function Information({ data }) {
           <div className="skeleton w-60 h-6" />
         }
         {data ?
-          typeof data.jailed_until === 'number' && (
+          typeof data.jailed_until === 'number' && !data.tombstoned && (
             <div className="flex flex-col xl:flex-row items-start space-x-0 xl:space-x-2">
               <span className="font-semibold">Latest Jailed Until:</span>
               <span className="flex flex-wrap items-start text-gray-600 dark:text-gray-400">
