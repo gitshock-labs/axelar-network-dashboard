@@ -79,7 +79,7 @@ export default function Information({ data }) {
         {data ?
           data.operator_address && (
             <div className="flex flex-col xl:flex-row items-start space-x-0 xl:space-x-2">
-              <span className="max-w-min whitespace-nowrap font-semibold">Operator Address:</span>
+              <span className="max-w-min whitespace-nowrap font-semibold">Oper. Address:</span>
               <span className="flex flex-wrap items-center text-gray-600 dark:text-gray-400 space-x-1">
                 <span className="lg:hidden">{ellipseAddress(data.operator_address, 16)}</span>
                 <span className="hidden lg:block">{ellipseAddress(data.operator_address, 32)}</span>
