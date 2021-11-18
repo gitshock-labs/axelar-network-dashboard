@@ -17,7 +17,7 @@ export default function HealthCheck({ data, health }) {
           <span className="font-semibold">Broadcaster Registration</span>
           {data && 'tss_illegibility_info' in data && health ?
             typeof health.broadcaster_registration === 'boolean' ?
-              <span className={`max-w-min ${health.broadcaster_registration ? 'bg-green-400 dark:bg-green-600' : 'bg-red-400 dark:bg-red-600'} rounded-xl flex items-center text-white text-xs font-semibold space-x-1.5 px-2 py-1`}>
+              <span className={`max-w-min ${health.broadcaster_registration ? 'bg-green-500 dark:bg-green-600' : 'bg-red-500 dark:bg-red-600'} rounded-xl flex items-center text-white text-xs font-semibold space-x-1.5 px-2 py-1`}>
                 {health.broadcaster_registration ?
                   <FaCheckCircle size={16} />
                   :

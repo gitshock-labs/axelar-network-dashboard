@@ -168,6 +168,44 @@ export default function Validator({ address }) {
         }
       }
 
+      if (!controller.signal.aborted) {
+        const latestBlock = Number(status_data.latest_block_height)
+        let beginBlock = latestBlock - Number(process.env.NEXT_PUBLIC_NUM_HEARTBEAT_BLOCKS)
+        beginBlock = beginBlock > 0 ? beginBlock : 0
+
+        let heartbeats = []
+
+        for (let height = latestBlock; height >= beginBlock; height--) {
+          if (height % Number(process.env.NEXT_PUBLIC_NUM_BLOCKS_PER_HEARTBEAT) === 1 && heartbeats.length < Number(process.env.NEXT_PUBLIC_NUM_HEARTBEAT_BLOCKS) / Number(process.env.NEXT_PUBLIC_NUM_BLOCKS_PER_HEARTBEAT)) {
+            heartbeats.push({ height })
+          }
+        }
+
+        if (validatorData?.broadcaster_address) {
+          response = await getHeartbeat(beginBlock, latestBlock, validatorData.broadcaster_address)
+
+          if (response?.data) {
+            heartbeats = heartbeats.map(_heartbeat => response.data.find(__heartbeat => __heartbeat?.height === _heartbeat?.height) || _heartbeat)
+          }
+
+          response = await getIneligibilities({ query: `{__name__=~"axelar_tss_heartbeat",address="${validatorData?.operator_address}"}` })
+
+          const ineligibilities = response?.filter(metric => metric?.address && metric.address === validatorData?.operator_address)
+
+          heartbeats = heartbeats.map(_heartbeat => {
+            return {
+              ..._heartbeat,
+              up: _heartbeat?.sender && _heartbeat.sender === validatorData.broadcaster_address,
+              ineligibilities: {
+                ...ineligibilities?.find(_block => _block.height === _heartbeat.height)?.ineligibilities,
+              },
+            }
+          })
+        }
+
+        setHeartbeat({ data: heartbeats, address })
+      }
+
       let _delegations
 
       if (!controller.signal.aborted) {
@@ -511,56 +549,6 @@ export default function Validator({ address }) {
       controller?.abort()
     }
   }, [address])
-
-  useEffect(() => {
-    const controller = new AbortController()
-
-    const getData = async () => {
-      if (address && status_data && validator?.data) {
-        if (!controller.signal.aborted) {
-          const latestBlock = Number(status_data.latest_block_height)
-          let beginBlock = latestBlock - Number(process.env.NEXT_PUBLIC_NUM_HEARTBEAT_BLOCKS)
-          beginBlock = beginBlock > 0 ? beginBlock : 0
-
-          let heartbeats = []
-
-          for (let height = latestBlock; height >= beginBlock; height--) {
-            if (height % Number(process.env.NEXT_PUBLIC_NUM_BLOCKS_PER_HEARTBEAT) === 1 && heartbeats.length < Number(process.env.NEXT_PUBLIC_NUM_HEARTBEAT_BLOCKS) / Number(process.env.NEXT_PUBLIC_NUM_BLOCKS_PER_HEARTBEAT)) {
-              heartbeats.push({ height })
-            }
-          }
-
-          let response = await getHeartbeat(beginBlock, latestBlock, validator.data.broadcaster_address)
-
-          if (response?.data) {
-            heartbeats = heartbeats.map(_heartbeat => response.data.find(__heartbeat => __heartbeat?.height === _heartbeat?.height) || _heartbeat)
-          }
-
-          response = await getIneligibilities()
-
-          const ineligibilities = response?.filter(metric => metric?.address && metric.address === validator.data.operator_address)
-
-          heartbeats = heartbeats.map(_heartbeat => {
-            return {
-              ..._heartbeat,
-              up: _heartbeat?.sender && _heartbeat.sender === validator.data.broadcaster_address,
-              ineligibilities: {
-                ...ineligibilities?.find(_block => _block.height === _heartbeat.height)?.ineligibilities,
-              },
-            }
-          })
-
-          setHeartbeat({ data: heartbeats, address })
-        }
-      }
-    }
-
-    getData()
-
-    return () => {
-      controller?.abort()
-    }
-  }, [address, status_data, validator])
 
   return (
     <>

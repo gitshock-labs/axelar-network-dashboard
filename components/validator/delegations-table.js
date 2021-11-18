@@ -59,6 +59,7 @@ export default function DelegationsTable({ data }) {
         }
         noPagination={data?.length > 10 ? false : true}
         defaultPageSize={10}
+        className="no-border"
       />
       {data?.length < 1 && (
         <div className="bg-gray-50 dark:bg-gray-800 text-gray-300 dark:text-gray-500 text-base font-medium italic text-center my-4 py-2">
