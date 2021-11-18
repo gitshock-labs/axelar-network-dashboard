@@ -31,7 +31,7 @@ export default function HealthCheck({ data, health }) {
             <div className="skeleton w-28 h-6" />
           }
         </div>
-        <div className={`flex flex-col space-y-${numBlocksBeforeProxyRegistered || typeof numBlocksBeforeProxyRegistered === 'number' ? 1 : 2}`}>
+        {/*<div className={`flex flex-col space-y-${numBlocksBeforeProxyRegistered || typeof numBlocksBeforeProxyRegistered === 'number' ? 1 : 2}`}>
           <span className="flex items-center font-semibold">
             <span className="mr-1">#</span>
             <FiBox size={18} className="stroke-current mb-0.5 mr-1.5" />
@@ -51,7 +51,7 @@ export default function HealthCheck({ data, health }) {
             :
             <div className="skeleton w-28 h-6" />
           }
-        </div>
+        </div>*/}
         <div className={`flex flex-col space-y-${data && 'tss_illegibility_info' in data && health ? 1 : 2}`}>
           <span className="font-semibold">Broadcaster Funded</span>
           {health ?
@@ -73,11 +73,23 @@ export default function HealthCheck({ data, health }) {
               <span className="text-gray-500 dark:text-gray-400">
                 {typeof health.heartbeats_uptime === 'number' ? `${numberFormat(health.heartbeats_uptime, '0,0.00')}%` : '-'}
               </span>
-              {typeof health.missed_heartbeats === 'number' && (
+              {/*typeof health.missed_heartbeats === 'number' && (
                 <span className="text-gray-500 dark:text-gray-400">
                   ({numberFormat(health.missed_heartbeats, '0,0')} Missed)
                 </span>
-              )}
+              )*/}
+            </div>
+            :
+            <div className="skeleton w-28 h-6" />
+          }
+        </div>
+        <div className={`flex flex-col space-y-${health ? 1 : 2}`}>
+          <span className="font-semibold"># Missed Heartbeats</span>
+          {health ?
+            <div className="flex items-center space-x-1">
+              <span className="text-gray-500 dark:text-gray-400">
+                {numberFormat(health.missed_heartbeats, '0,0')}
+              </span>
             </div>
             :
             <div className="skeleton w-28 h-6" />

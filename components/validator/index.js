@@ -21,6 +21,7 @@ import { allValidators, validatorSets, slashingParams, allBankBalances, allDeleg
 import { axelard, getKeygensByValidator } from '../../lib/api/executor'
 import { signAttempts as getSignAttempts, successKeygens as getSuccessKeygens, failedKeygens as getFailedKeygens, heartbeats as getHeartbeats } from '../../lib/api/opensearch'
 import { feeDenom, denomSymbol, denomAmount } from '../../lib/object/denom'
+import { blocksPerHeartbeat, blockFraction, lastHeartbeatBlock, firstHeartbeatBlock } from '../../lib/object/hb'
 import { getName, rand, convertToJson } from '../../lib/utils'
 
 import { STATUS_DATA, VALIDATORS_DATA, JAILED_SYNC_DATA } from '../../reducers/types'
@@ -140,22 +141,35 @@ export default function Validator({ address }) {
       }
 
       response = await getHeartbeats({
-        aggs: { heartbeats: { terms: { field: 'sender.keyword' } } },
+        aggs: {
+          heartbeats: {
+            terms: { field: 'sender.keyword' },
+            aggs: {
+              heightgroup: {
+                terms: { field: 'height_group', size: 1000 },
+              },
+            },
+          },
+        },
         query: {
           bool: {
             must: [
               { match: { sender: validatorData?.broadcaster_address } },
-              { range: { height: { gt: validatorData?.start_height, lte: Number(status_data.latest_block_height) } } },
+              { range: { height: { gte: validatorData?.start_proxy_height || validatorData?.start_height, lte: Number(status_data.latest_block_height) } } },
             ],
           },
         },
       })
 
-      const totalHeartbeats = Math.floor((Number(status_data.latest_block_height) - validatorData?.start_height) / Number(process.env.NEXT_PUBLIC_NUM_BLOCKS_PER_HEARTBEAT))
-      _health.missed_heartbeats = totalHeartbeats - response?.total
+      const _last = lastHeartbeatBlock(Number(status_data.latest_block_height))
+      const _first = firstHeartbeatBlock(validatorData?.start_proxy_height || validatorData?.start_height)
+
+      const totalHeartbeats = ((_last - _first) / Number(process.env.NEXT_PUBLIC_NUM_BLOCKS_PER_HEARTBEAT)) + 1
+      _health.missed_heartbeats = totalHeartbeats - response?.data?.[validatorData?.broadcaster_address]
+
       _health.missed_heartbeats = _health.missed_heartbeats < 0 ? 0 : _health.missed_heartbeats
 
-      _health.heartbeats_uptime = totalHeartbeats > 0 ? response?.total * 100 / totalHeartbeats : 0
+      _health.heartbeats_uptime = totalHeartbeats > 0 ? response?.data?.[validatorData?.broadcaster_address] * 100 / totalHeartbeats : 0
       _health.heartbeats_uptime = _health.heartbeats_uptime > 100 ? 100 : _health.heartbeats_uptime
 
       setHealth({ data: _health, address })
@@ -185,7 +199,7 @@ export default function Validator({ address }) {
           response = await getHeartbeat(beginBlock, latestBlock, validatorData.broadcaster_address)
 
           if (response?.data) {
-            heartbeats = heartbeats.map(_heartbeat => response.data.find(__heartbeat => __heartbeat?.height === _heartbeat?.height) || _heartbeat)
+            heartbeats = heartbeats.map(_heartbeat => response.data.find(__heartbeat => (__heartbeat?.height - (__heartbeat?.height % blocksPerHeartbeat) + blockFraction) === (_heartbeat?.height - (_heartbeat?.height % blocksPerHeartbeat) + blockFraction)) || _heartbeat)
           }
 
           response = await getIneligibilities({ query: `{__name__=~"axelar_tss_heartbeat",address="${validatorData?.operator_address}"}` })
@@ -197,7 +211,7 @@ export default function Validator({ address }) {
               ..._heartbeat,
               up: _heartbeat?.sender && _heartbeat.sender === validatorData.broadcaster_address,
               ineligibilities: {
-                ...ineligibilities?.find(_block => _block.height === _heartbeat.height)?.ineligibilities,
+                ...ineligibilities?.find(_block => (_block?.height - (_block?.height % blocksPerHeartbeat) + blockFraction) === (_heartbeat?.height - (_heartbeat?.height % blocksPerHeartbeat) + blockFraction))?.ineligibilities,
               },
             }
           })
