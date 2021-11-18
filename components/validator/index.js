@@ -31,6 +31,7 @@ export default function Validator({ address }) {
   const { data } = useSelector(state => ({ data: state.data }), shallowEqual)
   const { denoms_data, chain_data, status_data, validators_data, jailed_sync_data } = { ...data }
 
+  const [validatorsLoaded, setValidatorsLoaded] = useState(null)
   const [validator, setValidator] = useState(null)
   const [uptime, setUptime] = useState(null)
   const [maxMissed, setMaxMissed] = useState(Number(process.env.NEXT_PUBLIC_DEFAULT_MAX_MISSED))
@@ -83,6 +84,8 @@ export default function Validator({ address }) {
             value: response.data,
           })
         }
+
+        setValidatorsLoaded(true)
       }
     }
 
@@ -290,14 +293,14 @@ export default function Validator({ address }) {
       }*/
     }
 
-    if (address && denoms_data && status_data && validators_data) {
+    if (address && denoms_data && status_data && validators_data && validatorsLoaded) {
       getData()
     }
 
     return () => {
       controller?.abort()
     }
-  }, [address, denoms_data, status_data, validators_data])
+  }, [address, denoms_data, status_data, validators_data, validatorsLoaded])
 
   useEffect(() => {
     const controller = new AbortController()
