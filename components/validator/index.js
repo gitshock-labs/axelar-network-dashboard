@@ -210,11 +210,15 @@ export default function Validator({ address }) {
           const ineligibilities = response?.filter(metric => metric?.address && metric.address === validatorData?.operator_address)
 
           heartbeats = heartbeats.map(_heartbeat => {
+            const _ineligibilities = ineligibilities?.find(_block => (_block?.height - (_block?.height % blocksPerHeartbeat) + blockFraction) === (_heartbeat?.height - (_heartbeat?.height % blocksPerHeartbeat) + blockFraction))
+
             return {
               ..._heartbeat,
-              up: _heartbeat?.sender && _heartbeat.sender === validatorData.broadcaster_address,
+              up: (_heartbeat?.sender && _heartbeat.sender === validatorData.broadcaster_address) || _ineligibilities,
+              height: _ineligibilities?.height ? Number(_ineligibilities?.height) : _heartbeat.height,
+              key_ids: _ineligibilities?.key_IDs?.split(',') || _heartbeat.key_ids,
               ineligibilities: {
-                ...ineligibilities?.find(_block => (_block?.height - (_block?.height % blocksPerHeartbeat) + blockFraction) === (_heartbeat?.height - (_heartbeat?.height % blocksPerHeartbeat) + blockFraction))?.ineligibilities,
+                ..._ineligibilities?.ineligibilities,
               },
             }
           })
