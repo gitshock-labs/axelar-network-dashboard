@@ -4,6 +4,7 @@ import _ from 'lodash'
 import { BsArrowRightShort } from 'react-icons/bs'
 import { IoArrowUpCircle } from 'react-icons/io5'
 import { MdCancel } from 'react-icons/md'
+import { FiKey } from 'react-icons/fi'
 
 import Widget from '../widget'
 import Popover from '../popover'
@@ -45,7 +46,7 @@ export default function Heartbeat({ data, validator_data }) {
                     <>
                       {ineligibilities.length > 0 && (
                         <div className="flex flex-col space-y-1.5">
-                          <span className="font-semibold space-x-1.5">
+                          <span className="font-bold space-x-1.5">
                             <span>Ineligibilities</span>
                           </span>
                           {ineligibilities.map((ineligibility, i) => (
@@ -67,12 +68,15 @@ export default function Heartbeat({ data, validator_data }) {
                 }
                 {block?.key_ids && (
                   <div className="flex flex-col space-y-0 ml-0.5">
-                    <span className="font-semibold space-x-1.5">
+                    <span className="font-bold space-x-1.5">
                       <span>Key IDs</span>
                     </span>
                     {block.key_ids.length > 0 ?
                       block.key_ids.map((key_id, i) => (
-                        <span key={i}>{key_id}</span>
+                        <span key={i} className="flex items-center space-x-1">
+                          <FiKey size={16} className="text-gray-600 dark:text-gray-400" />
+                          <span className="text-gray-600 dark:text-gray-400 font-medium">{key_id}</span>
+                        </span>
                       ))
                       :
                       <span>-</span>
