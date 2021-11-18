@@ -521,7 +521,7 @@ export default function Validator({ address }) {
 
     const getData = async () => {
       if (address) {
-        const chains = ['axelarnet', 'bitcoin', 'ethereum', 'terra']
+        const chains = ['axelarnet', 'bitcoin', 'ethereum', 'terra', 'avalanche', 'fantom', 'polygon']
 
         const _supportedChains = []
 
