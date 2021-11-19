@@ -103,7 +103,7 @@ export default function Validator({ address }) {
 
       const validator_data = validators_data?.[validators_data.findIndex(validator_data => validator_data.operator_address === address)]
 
-      if (validator_data?.start_proxy_height || validator_data?.start_height) {
+      if (validator_data?.start_proxy_height || validator_data?.start_height || !['BOND_STATUS_BONDED'].includes(validator_data?.status) || validator_data?.deregistering) {
         validatorData = { ...validatorData, ...validator_data }
       
         if (!controller.signal.aborted) {
@@ -163,9 +163,9 @@ export default function Validator({ address }) {
         const _last = lastHeartbeatBlock(Number(status_data.latest_block_height))
         const _first = firstHeartbeatBlock(validatorData?.start_proxy_height || validatorData?.start_height)
 
-        const totalHeartbeats = ((_last - _first) / Number(process.env.NEXT_PUBLIC_NUM_BLOCKS_PER_HEARTBEAT)) + 1
-        _health.missed_heartbeats = totalHeartbeats - response?.data?.[validatorData?.broadcaster_address]
+        const totalHeartbeats = Math.floor((_last - _first) / Number(process.env.NEXT_PUBLIC_NUM_BLOCKS_PER_HEARTBEAT)) + 1
 
+        _health.missed_heartbeats = totalHeartbeats - response?.data?.[validatorData?.broadcaster_address]
         _health.missed_heartbeats = _health.missed_heartbeats < 0 ? 0 : _health.missed_heartbeats
 
         _health.heartbeats_uptime = totalHeartbeats > 0 ? response?.data?.[validatorData?.broadcaster_address] * 100 / totalHeartbeats : 0
