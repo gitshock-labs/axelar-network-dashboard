@@ -23,6 +23,7 @@ export default function ValidatorsTable({ status }) {
   const { data } = useSelector(state => ({ data: state.data }), shallowEqual)
   const { denoms_data, status_data, validators_data } = { ...data }
 
+  const [statusLoaded, setStatusLoaded] = useState(null)
   const [heartbeatLoaded, setHeartbeatLoaded] = useState(null)
 
   useEffect(() => {
@@ -38,12 +39,14 @@ export default function ValidatorsTable({ status }) {
             value: response,
           })
         }
+
+        setStatusLoaded(true)
       }
     }
 
     getData()
 
-    const interval = setInterval(() => getData(), 1 * 60 * 1000)
+    const interval = setInterval(() => getData(), 1.5 * 60 * 1000)
     return () => {
       controller?.abort()
       clearInterval(interval)
@@ -58,10 +61,12 @@ export default function ValidatorsTable({ status }) {
         let response = await allValidators({}, validators_data, status, null, Number(status_data.latest_block_height), denoms_data)
 
         if (response) {
-          dispatch({
-            type: VALIDATORS_DATA,
-            value: response.data,
-          })
+          if (validators_data?.findIndex(_validator_data => typeof _validator_data.heartbeats_uptime === 'number') < 0) {
+            dispatch({
+              type: VALIDATORS_DATA,
+              value: response.data,
+            })
+          }
 
           if (response.data) {
             const validators_data = response.data
@@ -90,9 +95,9 @@ export default function ValidatorsTable({ status }) {
               const validator_data = validators_data[i]
 
               const _last = lastHeartbeatBlock(Number(status_data.latest_block_height))
-              const _first = firstHeartbeatBlock(validator_data?.start_proxy_height || validator_data?.start_height)
-              // let _first = Number(status_data.latest_block_height) - Number(process.env.NEXT_PUBLIC_NUM_HEARTBEAT_BLOCKS)
-              // _first = _first >= 0 ? firstHeartbeatBlock(_first) : _first
+              // const _first = firstHeartbeatBlock(validator_data?.start_proxy_height || validator_data?.start_height)
+              let _first = Number(status_data.latest_block_height) - Number(process.env.NEXT_PUBLIC_NUM_HEARTBEAT_BLOCKS)
+              _first = _first >= 0 ? firstHeartbeatBlock(_first) : firstHeartbeatBlock(_first)
 
               const totalHeartbeats = Math.floor((_last - _first) / Number(process.env.NEXT_PUBLIC_NUM_BLOCKS_PER_HEARTBEAT)) + 1
 
@@ -110,23 +115,23 @@ export default function ValidatorsTable({ status }) {
               type: VALIDATORS_DATA,
               value: validators_data,
             })
-
-            setHeartbeatLoaded(true)
           }
         }
+
+        setHeartbeatLoaded(true)
       }
     }
 
-    if (status && status_data && denoms_data) {
+    if (status && status_data && denoms_data && statusLoaded) {
+      setStatusLoaded(false)
+
       getValidators()
     }
 
-    const interval = setInterval(() => getValidators(), 1 * 60 * 1000)
     return () => {
       controller?.abort()
-      clearInterval(interval)
     }
-  }, [status, status_data, denoms_data])
+  }, [status, status_data, denoms_data, statusLoaded])
 
   useEffect(() => {
     const controller = new AbortController()
@@ -134,26 +139,30 @@ export default function ValidatorsTable({ status }) {
     const getData = async () => {
       if (!controller.signal.aborted) {
         for (let i = 0; i < validators_data.length; i++) {
-          if (!controller.signal.aborted) {
-            let validator_data = validators_data[i]
+          let validator_data = validators_data[i]
 
-            // validator_data = await validatorSelfDelegation(validator_data, validators_data, status)
+          // validator_data = await validatorSelfDelegation(validator_data, validators_data, status)
 
-            if (validator_data) {
-              if (validator_data.description) {
-                if (validator_data.description.identity && !validator_data.description.image) {
-                  const responseProfile = await validatorProfile({ key_suffix: validator_data.description.identity })
+          if (validator_data) {
+            let imageLoaded = false
 
-                  if (responseProfile?.them?.[0]?.pictures?.primary?.url) {
-                    validator_data.description.image = responseProfile.them[0].pictures.primary.url
-                  }
+            if (validator_data.description) {
+              if (validator_data.description.identity && !validator_data.description.image) {
+                const responseProfile = await validatorProfile({ key_suffix: validator_data.description.identity })
+
+                if (responseProfile?.them?.[0]?.pictures?.primary?.url) {
+                  validator_data.description.image = responseProfile.them[0].pictures.primary.url
+
+                  imageLoaded = true
                 }
-
-                validator_data.description.image = validator_data.description.image || randImage(i)
               }
 
-              validators_data[i] = validator_data
+              validator_data.description.image = validator_data.description.image || randImage(i)
+            }
 
+            validators_data[i] = validator_data
+
+            if (imageLoaded) {
               dispatch({
                 type: VALIDATORS_DATA,
                 value: validators_data,
@@ -161,12 +170,12 @@ export default function ValidatorsTable({ status }) {
             }
           }
         }
-
-        setHeartbeatLoaded(false)
       }
     }
 
     if (status && status_data && denoms_data && validators_data && heartbeatLoaded) {
+      setHeartbeatLoaded(false)
+
       getData()
     }
 

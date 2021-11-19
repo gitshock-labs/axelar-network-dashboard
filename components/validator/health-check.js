@@ -17,7 +17,7 @@ export default function HealthCheck({ data, health }) {
           <span className="font-semibold">Broadcaster Registration</span>
           {data && 'tss_illegibility_info' in data && health ?
             typeof health.broadcaster_registration === 'boolean' ?
-              <span className={`max-w-min ${health.broadcaster_registration ? 'bg-green-500 dark:bg-green-600' : 'bg-red-500 dark:bg-red-600'} rounded-xl flex items-center text-white text-xs font-semibold space-x-1.5 px-2 py-1`}>
+              <span className={`max-w-min ${health.broadcaster_registration ? 'bg-green-500 dark:bg-green-600' : 'bg-red-500 dark:bg-red-600'} rounded-xl flex items-center text-white text-xs font-semibold space-x-1.5 px-2.5 py-1`}>
                 {health.broadcaster_registration ?
                   <FaCheckCircle size={16} />
                   :
@@ -56,7 +56,12 @@ export default function HealthCheck({ data, health }) {
           <span className="font-semibold">Broadcaster Funded</span>
           {health ?
             typeof health.broadcaster_funded === 'object' ?
-              <span className="text-gray-500 dark:text-gray-400 space-x-1">
+              <span className={`max-w-min ${health.broadcaster_funded.amount >= Number(process.env.NEXT_PUBLIC_MIN_BROADCAST_FUND) ? 'bg-green-500 dark:bg-green-600' : 'bg-red-500 dark:bg-red-600'} rounded-xl flex items-center text-white text-xs font-semibold space-x-1.5 px-2.5 py-1`}>
+                {health.broadcaster_funded.amount >= Number(process.env.NEXT_PUBLIC_MIN_BROADCAST_FUND) ?
+                  <FaCheckCircle size={16} />
+                  :
+                  <FaTimesCircle size={16} />
+                }
                 <span>{numberFormat(health.broadcaster_funded.amount, '0,0.0000000')}</span>
                 <span className="uppercase">{health.broadcaster_funded.denom}</span>
               </span>
