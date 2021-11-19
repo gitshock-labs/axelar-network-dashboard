@@ -185,6 +185,7 @@ export default function Validator({ address }) {
           const latestBlock = Number(status_data.latest_block_height)
           let beginBlock = latestBlock - Number(process.env.NEXT_PUBLIC_NUM_HEARTBEAT_BLOCKS)
           beginBlock = beginBlock > (validatorData?.start_proxy_height || 0) ? beginBlock : (validatorData?.start_proxy_height || 0)
+          beginBlock = firstHeartbeatBlock(beginBlock)
 
           let heartbeats = []
 
