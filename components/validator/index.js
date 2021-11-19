@@ -103,7 +103,7 @@ export default function Validator({ address }) {
 
       const validator_data = validators_data?.[validators_data.findIndex(validator_data => validator_data.operator_address === address)]
 
-      if (validator_data?.start_proxy_height || validator_data?.start_height || !['BOND_STATUS_BONDED'].includes(validator_data?.status) || validator_data?.deregistering) {
+      if (validator_data?.start_proxy_height || validator_data?.start_height/* || !['BOND_STATUS_BONDED'].includes(validator_data?.status)*/ || validator_data?.deregistering) {
         validatorData = { ...validatorData, ...validator_data }
       
         if (!controller.signal.aborted) {
