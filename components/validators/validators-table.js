@@ -85,7 +85,7 @@ export default function ValidatorsTable({ status }) {
               query: {
                 bool: {
                   must: [
-                    { range: { height: { gte: Number(status_data.latest_block_height) - Number(process.env.NEXT_PUBLIC_NUM_HEARTBEAT_BLOCKS), lte: Number(status_data.latest_block_height) } } },
+                    { range: { height: { gte: firstHeartbeatBlock(Number(status_data.latest_block_height) - Number(process.env.NEXT_PUBLIC_NUM_HEARTBEAT_BLOCKS)), lte: Number(status_data.latest_block_height) } } },
                   ],
                 },
               },
