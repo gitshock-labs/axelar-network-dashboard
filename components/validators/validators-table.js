@@ -326,8 +326,8 @@ export default function ValidatorsTable({ status }) {
             sortType: (rowA, rowB) => rowA.original.uptime > rowB.original.uptime ? 1 : -1,
             Cell: props => (
               !props.row.original.skeleton && typeof props.value === 'number' ?
-                props.value > 0 ?
-                  <>
+                <>
+                  {props.value > 0 ?
                     <div className="w-48 mt-0.5 ml-auto">
                       <ProgressBarWithText
                         width={props.value}
@@ -339,15 +339,16 @@ export default function ValidatorsTable({ status }) {
                         className={`h-4 flex items-center justify-${props.value < 20 ? 'start' : 'end'}`}
                       />
                     </div>
-                    {typeof props.row.original.start_height === 'number' && (
-                      <div className="text-3xs text-right space-x-1 mt-1.5">
-                        <span className="text-gray-400 dark:text-gray-500 font-medium">Validator Since Block:</span>
-                        <span className="text-gray-600 dark:text-gray-400 font-semibold">{numberFormat(props.row.original.start_height, '0,0')}</span>
-                      </div>
-                    )}
-                  </>
-                  :
-                  <div className="w-48 text-right ml-auto">{/*-*/}</div>
+                    :
+                    <div className="w-48 text-gray-400 dark:text-gray-600 text-right ml-auto">No Uptime</div>
+                  }
+                  {typeof props.row.original.start_height === 'number' && (
+                    <div className="text-3xs text-right space-x-1 mt-1.5">
+                      <span className="text-gray-400 dark:text-gray-500 font-medium">Validator Since Block:</span>
+                      <span className="text-gray-600 dark:text-gray-400 font-semibold">{numberFormat(props.row.original.start_height, '0,0')}</span>
+                    </div>
+                  )}
+                </>
                 :
                 <>
                   <div className="skeleton w-48 h-4 mt-0.5 ml-auto" />
