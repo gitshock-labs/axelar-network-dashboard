@@ -434,7 +434,7 @@ export default function ValidatorsTable({ status }) {
                       ))}
                     </div>
                     :
-                    '-'
+                    <span className="text-gray-400 dark:text-gray-600">'-'</span>
                   }
                 </div>
                 :
