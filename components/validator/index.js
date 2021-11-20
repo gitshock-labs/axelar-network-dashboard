@@ -18,11 +18,11 @@ import Widget from '../widget'
 import { getUptime, uptimeForJailedInfo, uptimeForJailedInfoSync, jailedInfo, getHeartbeat, getIneligibilities, keygens as getKeygens } from '../../lib/api/query'
 import { status as getStatus } from '../../lib/api/rpc'
 import { allValidators, validatorSets, slashingParams, allBankBalances, allDelegations, distributionRewards, distributionCommissions } from '../../lib/api/cosmos'
-import { axelard, getKeygensByValidator } from '../../lib/api/executor'
+import { getKeygensByValidator } from '../../lib/api/executor'
 import { signAttempts as getSignAttempts, successKeygens as getSuccessKeygens, failedKeygens as getFailedKeygens, heartbeats as getHeartbeats } from '../../lib/api/opensearch'
 import { feeDenom, denomSymbol, denomAmount } from '../../lib/object/denom'
 import { blocksPerHeartbeat, blockFraction, lastHeartbeatBlock, firstHeartbeatBlock } from '../../lib/object/hb'
-import { getName, rand, convertToJson } from '../../lib/utils'
+import { getName, rand } from '../../lib/utils'
 
 import { STATUS_DATA, VALIDATORS_DATA, JAILED_SYNC_DATA } from '../../reducers/types'
 
@@ -121,6 +121,8 @@ export default function Validator({ address }) {
         }
 
         setValidator({ data: validatorData || {}, address })
+
+        setSupportedChains({ data: validatorData?.supported_chains || [], address })
 
         const _health = {
           broadcaster_registration: !(validatorData?.tss_illegibility_info?.no_proxy_registered) && validatorData?.broadcaster_address ? true : false,
@@ -540,40 +542,6 @@ export default function Validator({ address }) {
         signsData = _.orderBy(_.concat(signsData || [], _data.filter(_keygen => _keygen.participated || _keygen.not_participated)), ['height'], ['desc'])
 
         setSigns({ data: signsData, total: signsData.length, address })
-      }
-    }
-
-    if (address) {
-      getData()
-    }
-
-    return () => {
-      controller?.abort()
-    }
-  }, [address])
-
-  useEffect(() => {
-    const controller = new AbortController()
-
-    const getData = async () => {
-      if (address) {
-        const chains = ['axelarnet', 'bitcoin', 'ethereum', 'terra', 'avalanche', 'fantom', 'polygon']
-
-        const _supportedChains = []
-
-        for (let i = 0; i < chains.length; i++) {
-          if (!controller.signal.aborted) {
-            const chain = chains[i]
-
-            const response = await axelard({ cmd: `axelard q nexus chain-maintainers ${chain} -oj` })
-
-            if (convertToJson(response?.data?.stdout)?.maintainers?.includes(address)) {
-              _supportedChains.push(chain)
-            }
-          }
-        }
-
-        setSupportedChains({ data: _supportedChains, address })
       }
     }
 

@@ -32,7 +32,7 @@ export default function Participations() {
 
     const getValidators = async () => {
       if (!controller.signal.aborted) {
-        const response = await allValidators({}, validators_data, 'active', null, null, denoms_data)
+        const response = await allValidators({}, validators_data, 'active', null, null, denoms_data, true)
 
         if (response) {
           dispatch({
