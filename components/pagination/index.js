@@ -1,4 +1,5 @@
 import PropTypes from 'prop-types'
+
 import { BsThreeDots } from 'react-icons/bs'
 
 export const PageWithText = ({

@@ -1,6 +1,6 @@
+import PropTypes from 'prop-types'
 import { useState, useEffect } from 'react'
 
-import PropTypes from 'prop-types'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
 import { FaRegCopy, FaCheckCircle } from 'react-icons/fa'
 

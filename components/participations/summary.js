@@ -1,12 +1,15 @@
 import Link from 'next/link'
-
 import PropTypes from 'prop-types'
+
+import _ from 'lodash'
 
 import Widget from '../widget'
 
 import { numberFormat } from '../../lib/utils'
 
 const Summary = ({ data, keygens, successKeygens, failedKeygens, signAttempts, failedSignAttempts }) => {
+  const keyRequirements = _.groupBy(data?.tss?.params?.key_requirements || [], 'key_type')
+
   return (
     <div className="w-full grid grid-flow-row grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 my-4">
       <Widget
@@ -16,12 +19,19 @@ const Summary = ({ data, keygens, successKeygens, failedKeygens, signAttempts, f
         <span className="flex flex-col mt-1 space-y-1">
           <div className="grid grid-flow-row grid-cols-2 gap-4">
             {data ?
-              data.tss?.params?.key_requirements?.length > 0 ?
-                data.tss.params.key_requirements.filter(key => key?.key_type === 'KEY_TYPE_THRESHOLD').map((key, i) => (
-                  <span key={i} className="h-8 text-3xl lg:text-2xl xl:text-3xl font-semibold">
-                    {key.min_keygen_threshold?.denominator > 0 ? numberFormat(key.min_keygen_threshold.numerator * 100 / key.min_keygen_threshold.denominator, '0,0.00') : '-'}
-                    <span className="text-lg font-normal">%</span>
-                  </span>
+              Object.keys(keyRequirements).length > 0 ?
+                Object.entries(keyRequirements).map(([key, value]) => (
+                  <div key={key} className="col-span-2">
+                    <div className="text-gray-400 dark:text-gray-600 text-xs">{key?.replace('KEY_TYPE_', '')}</div>
+                    <div className="grid grid-flow-row grid-cols-2 gap-2">
+                      {value.map((_key, i) => (
+                        <span key={i} className="h-8 text-3xl lg:text-2xl xl:text-3xl font-semibold">
+                          {_key.min_keygen_threshold?.denominator > 0 ? numberFormat(_key.min_keygen_threshold.numerator * 100 / _key.min_keygen_threshold.denominator, '0,0.00') : '-'}
+                          <span className="text-lg font-normal">%</span>
+                        </span>
+                      ))}
+                    </div>
+                  </div>
                 ))
                 :
                 <span className="h-8 text-3xl font-semibold">
@@ -37,10 +47,10 @@ const Summary = ({ data, keygens, successKeygens, failedKeygens, signAttempts, f
           </div>
           <div className="grid grid-flow-row grid-cols-2 gap-4">
             {data ?
-              data.tss?.params?.key_requirements?.length > 0 ?
-                data.tss.params.key_requirements.filter(key => key?.key_type === 'KEY_TYPE_THRESHOLD').map((key, i) => (
+              Object.keys(keyRequirements).length > 0 ?
+                _.uniq(Object.values(keyRequirements).flatMap(value => value?.map(_value => _value.key_role))).map((key_role, i) => (
                   <span key={i} className="text-gray-400 dark:text-gray-600 text-xs font-normal mt-1">
-                    {key.key_role?.replace('KEY_ROLE_', '')}
+                    {key_role?.replace('KEY_ROLE_', '')}
                   </span>
                 ))
                 :
@@ -61,12 +71,19 @@ const Summary = ({ data, keygens, successKeygens, failedKeygens, signAttempts, f
         <span className="flex flex-col mt-1 space-y-1">
           <div className="grid grid-flow-row grid-cols-2 gap-4">
             {data ?
-              data.tss?.params?.key_requirements?.length > 0 ?
-                data.tss.params.key_requirements.filter(key => key?.key_type === 'KEY_TYPE_THRESHOLD').map((key, i) => (
-                  <span key={i} className="h-8 text-3xl lg:text-2xl xl:text-3xl font-semibold">
-                    {key.safety_threshold?.denominator > 0 ? numberFormat(key.safety_threshold.numerator * 100 / key.safety_threshold.denominator, '0,0.00') : '-'}
-                    <span className="text-lg font-normal">%</span>
-                  </span>
+              Object.keys(keyRequirements).length > 0 ?
+                Object.entries(keyRequirements).map(([key, value]) => (
+                  <div key={key} className="col-span-2">
+                    <div className="text-gray-400 dark:text-gray-600 text-xs">{key?.replace('KEY_TYPE_', '')}</div>
+                    <div className="grid grid-flow-row grid-cols-2 gap-2">
+                      {value.map((_key, i) => (
+                        <span key={i} className="h-8 text-3xl lg:text-2xl xl:text-3xl font-semibold">
+                          {_key.safety_threshold?.denominator > 0 ? numberFormat(_key.safety_threshold.numerator * 100 / _key.safety_threshold.denominator, '0,0.00') : '-'}
+                          <span className="text-lg font-normal">%</span>
+                        </span>
+                      ))}
+                    </div>
+                  </div>
                 ))
                 :
                 <span className="h-8 text-3xl font-semibold">N/A</span>
@@ -79,10 +96,10 @@ const Summary = ({ data, keygens, successKeygens, failedKeygens, signAttempts, f
           </div>
           <div className="grid grid-flow-row grid-cols-2 gap-4">
             {data ?
-              data.tss?.params?.key_requirements?.length > 0 ?
-                data.tss.params.key_requirements.filter(key => key?.key_type === 'KEY_TYPE_THRESHOLD').map((key, i) => (
+              Object.keys(keyRequirements).length > 0 ?
+                _.uniq(Object.values(keyRequirements).flatMap(value => value?.map(_value => _value.key_role))).map((key_role, i) => (
                   <span key={i} className="text-gray-400 dark:text-gray-600 text-xs font-normal mt-1">
-                    {key.key_role?.replace('KEY_ROLE_', '')}
+                    {key_role?.replace('KEY_ROLE_', '')}
                   </span>
                 ))
                 :

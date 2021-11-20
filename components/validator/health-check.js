@@ -95,6 +95,10 @@ export default function HealthCheck({ data, health }) {
               <span className="text-gray-500 dark:text-gray-400">
                 {numberFormat(health.missed_heartbeats, '0,0')}
               </span>
+              <span>/</span>
+              <span className="text-gray-500 dark:text-gray-400">
+                {numberFormat(health.total_heartbeats, '0,0')}
+              </span>
             </div>
             :
             <div className="skeleton w-28 h-6" />

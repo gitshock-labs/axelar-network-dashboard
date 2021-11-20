@@ -164,6 +164,7 @@ export default function Validator({ address }) {
         const _first = firstHeartbeatBlock(validatorData?.start_proxy_height || validatorData?.start_height)
 
         const totalHeartbeats = Math.floor((_last - _first) / Number(process.env.NEXT_PUBLIC_NUM_BLOCKS_PER_HEARTBEAT)) + 1
+        _health.total_heartbeats = totalHeartbeats
 
         _health.missed_heartbeats = totalHeartbeats - response?.data?.[validatorData?.broadcaster_address]
         _health.missed_heartbeats = _health.missed_heartbeats < 0 ? 0 : _health.missed_heartbeats
