@@ -440,7 +440,7 @@ export default function ValidatorsTable({ status }) {
                 :
                 <div className="flex flex-wrap items-center justify-end">
                   {[...Array(3).keys()].map(i => (
-                    <div key={i} className="skeleton w-6 h-6 rounded-full ml-1" />
+                    <div key={i} className="skeleton w-6 h-6 rounded-full mb-1 ml-1" />
                   ))}
                 </div>
             ),
