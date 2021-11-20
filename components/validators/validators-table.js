@@ -271,7 +271,7 @@ export default function ValidatorsTable({ status }) {
                       <span className="text-gray-400 dark:text-gray-600">{numberFormat(props.value * 100 / _.sumBy(validators_data.filter(validator => !validator.jailed && ['BOND_STATUS_BONDED'].includes(validator.status)), 'tokens'), '0,0.000')}%</span>
                     </>
                     :
-                    '-'
+                    <span className="text-gray-400 dark:text-gray-600">-</span>
                   }
                 </div>
                 :
@@ -295,7 +295,7 @@ export default function ValidatorsTable({ status }) {
                       <span className="text-gray-400 dark:text-gray-600">{numberFormat(props.value * 100 / props.row.original.delegator_shares, '0,0.000')}%</span>
                     </>
                     :
-                    '-'
+                    <span className="text-gray-400 dark:text-gray-600">-</span>
                   }
                 </div>
                 :
@@ -316,7 +316,7 @@ export default function ValidatorsTable({ status }) {
                   {props.value > 0 ?
                     <span>{numberFormat(props.value * 100, '0,0.00')}%</span>
                     :
-                    '-'
+                    <span className="text-gray-400 dark:text-gray-600">-</span>
                   }
                 </div>
                 :
@@ -434,7 +434,7 @@ export default function ValidatorsTable({ status }) {
                       ))}
                     </div>
                     :
-                    <span className="text-gray-400 dark:text-gray-600">'-'</span>
+                    <span className="text-gray-400 dark:text-gray-600">-</span>
                   }
                 </div>
                 :
@@ -480,7 +480,7 @@ export default function ValidatorsTable({ status }) {
                       )}
                     </>
                     :
-                    '-'
+                    <span className="text-gray-400 dark:text-gray-600">-</span>
                   }
                 </div>
                 :
@@ -505,7 +505,7 @@ export default function ValidatorsTable({ status }) {
                         Jailed
                       </span>
                       :
-                      '-'
+                      <span className="text-gray-400 dark:text-gray-600">-</span>
                   }
                 </div>
                 :
