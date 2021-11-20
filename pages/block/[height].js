@@ -4,7 +4,7 @@ import CoinInfo from '../../components/coin-info'
 import Block from '../../components/blocks/block'
 import SectionTitle from '../../components/section-title'
 
-export default function BlockHeight() {
+export default function height() {
   const router = useRouter()
   const { query } = { ...router }
 
@@ -12,11 +12,11 @@ export default function BlockHeight() {
     <>
       <SectionTitle
         title="Details for Block"
-        subtitle={`#${query.block_height}`}
+        subtitle={`#${query?.height}`}
         right={<CoinInfo />}
         className="flex-col sm:flex-row items-start sm:items-center"
       />
-      <Block height={query.block_height} />
+      <Block height={query?.height} />
     </>
   )
 }

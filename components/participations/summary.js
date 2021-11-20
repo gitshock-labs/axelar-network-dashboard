@@ -8,6 +8,7 @@ import { FiServer } from 'react-icons/fi'
 import Widget from '../widget'
 
 import { feeDenom, denomSymbol, denomAmount } from '../../lib/object/denom'
+import { idFromEvmId } from '../../lib/object/chain'
 import { numberFormat } from '../../lib/utils'
 
 const Summary = ({ data, keygens, successKeygens, failedKeygens, signAttempts, failedSignAttempts }) => {
@@ -16,10 +17,10 @@ const Summary = ({ data, keygens, successKeygens, failedKeygens, signAttempts, f
 
   const keyRequirements = _.groupBy(data?.tss?.params?.key_requirements || [], 'key_type')
 
-  const activeValidators = validators_data?.filter(validator => !validator.jailed && ['BOND_STATUS_BONDED'].includes(validator.status))
+  const activeValidators = validators_data?.filter(validator => ['BOND_STATUS_BONDED'].includes(validator.status))
 
   const evmVotingThreshold = data?.evm?.params?.map(_chain => {
-    const maintainValidators = activeValidators?.filter(validator => validator.supported_chains?.includes(_chain.chain?.toLowerCase()))
+    const maintainValidators = activeValidators?.findIndex(validator => validator.supported_chains?.includes(idFromEvmId(_chain.chain))) > -1 && activeValidators.filter(validator => validator.supported_chains?.includes(idFromEvmId(_chain.chain)))
 
     return {
       ..._chain,

@@ -14,6 +14,7 @@ import { status as getStatus } from '../../lib/api/rpc'
 import { allValidators, validatorSelfDelegation, validatorProfile } from '../../lib/api/cosmos'
 import { heartbeats as getHeartbeats } from '../../lib/api/opensearch'
 import { lastHeartbeatBlock, firstHeartbeatBlock } from '../../lib/object/hb'
+import { chainName, chainImage } from '../../lib/object/chain'
 import { numberFormat, getName, ellipseAddress, randImage } from '../../lib/utils'
 
 import { STATUS_DATA, VALIDATORS_DATA } from '../../reducers/types'
@@ -58,7 +59,7 @@ export default function ValidatorsTable({ status }) {
 
     const getValidators = async () => {
       if (!controller.signal.aborted) {
-        let response = await allValidators({}, validators_data, status, null, Number(status_data.latest_block_height), denoms_data)
+        let response = await allValidators({}, validators_data, status, null, Number(status_data.latest_block_height), denoms_data, !!status)
 
         if (response) {
           if (validators_data?.findIndex(_validator_data => typeof _validator_data.heartbeats_uptime === 'number') < 0) {
@@ -191,7 +192,7 @@ export default function ValidatorsTable({ status }) {
           <Link key={i} href={`/validators${i > 0 ? `/${_status}` : ''}`}>
             <a className={`min-w-max btn btn-default btn-rounded ${_status === status ? 'bg-gray-700 dark:bg-gray-800 text-white' : 'bg-trasparent hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 hover:text-gray-700 dark:hover:text-gray-100'}`}>
               {_status}
-              {validators_data && _status === status ? ` (${validators_data.filter(validator => status === 'inactive' ? !(['BOND_STATUS_BONDED'].includes(validator.status)) : status === 'illegible' ? validator.illegible : status === 'deregistering' ? validator.deregistering : !validator.jailed && ['BOND_STATUS_BONDED'].includes(validator.status)).length})` : ''}
+              {validators_data && _status === status ? ` (${validators_data.filter(validator => status === 'inactive' ? !(['BOND_STATUS_BONDED'].includes(validator.status)) : status === 'illegible' ? validator.illegible : status === 'deregistering' ? validator.deregistering : ['BOND_STATUS_BONDED'].includes(validator.status)).length})` : ''}
             </a>
           </Link>
         ))}
@@ -337,7 +338,7 @@ export default function ValidatorsTable({ status }) {
               !props.row.original.skeleton && typeof props.value === 'number' ?
                 <>
                   {props.value > 0 ?
-                    <div className="w-48 mt-0.5 ml-auto">
+                    <div className="w-44 mt-0.5 ml-auto">
                       <ProgressBarWithText
                         width={props.value}
                         text={<div className="text-white mx-1" style={{ fontSize: '.55rem' }}>
@@ -349,7 +350,7 @@ export default function ValidatorsTable({ status }) {
                       />
                     </div>
                     :
-                    <div className="w-48 text-gray-400 dark:text-gray-600 text-right ml-auto">No Uptime</div>
+                    <div className="w-44 text-gray-400 dark:text-gray-600 text-right ml-auto">No Uptime</div>
                   }
                   {typeof props.row.original.start_height === 'number' && (
                     <div className="text-3xs text-right space-x-1 mt-1.5">
@@ -360,7 +361,7 @@ export default function ValidatorsTable({ status }) {
                 </>
                 :
                 <>
-                  <div className="skeleton w-48 h-4 mt-0.5 ml-auto" />
+                  <div className="skeleton w-44 h-4 mt-0.5 ml-auto" />
                   <div className="skeleton w-24 h-3.5 mt-1.5 ml-auto" />
                 </>
             ),
@@ -380,7 +381,7 @@ export default function ValidatorsTable({ status }) {
               !props.row.original.skeleton && typeof props.value === 'number' ?
                 <>
                   {props.value > 0 ?
-                    <div className="w-48 mt-0.5 ml-auto">
+                    <div className="w-44 mt-0.5 ml-auto">
                       <ProgressBarWithText
                         width={props.value}
                         text={<div className="text-white mx-1" style={{ fontSize: '.55rem' }}>
@@ -392,7 +393,7 @@ export default function ValidatorsTable({ status }) {
                       />
                     </div>
                     :
-                    <div className="w-48 text-gray-400 dark:text-gray-600 text-right ml-auto">No Heartbeat</div>
+                    <div className="w-44 text-gray-400 dark:text-gray-600 text-right ml-auto">No Heartbeat</div>
                   }
                   {typeof props.row.original.start_proxy_height === 'number' && (
                     <div className="text-3xs text-right space-x-1 mt-1.5">
@@ -403,11 +404,47 @@ export default function ValidatorsTable({ status }) {
                 </>
                 :
                 <>
-                  <div className="skeleton w-48 h-4 mt-0.5 ml-auto" />
+                  <div className="skeleton w-44 h-4 mt-0.5 ml-auto" />
                   <div className="skeleton w-24 h-3.5 mt-1.5 ml-auto" />
                 </>
             ),
             headerClassName: 'justify-end text-right',
+          },
+          {
+            Header: 'Supported',
+            accessor: 'supported_chains',
+            sortType: (rowA, rowB) => rowA.original.supported_chains?.length > rowB.original.supported_chains?.length ? 1 : -1,
+            Cell: props => (
+              !props.row.original.skeleton && props.value ?
+                <div className="text-right">
+                  {props.value.length > 0 ?
+                    <div className="flex flex-wrap items-center justify-end">
+                      {props.value.map((_chain, i) => (
+                        chainImage(_chain) ?
+                          <img
+                            key={i}
+                            alt={chainName(_chain)}
+                            src={chainImage(_chain)}
+                            className="w-6 h-6 rounded-full mb-1 ml-1"
+                          />
+                          :
+                          <span key={i} className="max-w-min bg-gray-100 dark:bg-gray-700 rounded-xl text-gray-800 dark:text-gray-200 text-xs font-semibold mb-1 ml-1 px-1.5 py-0.5">
+                            {chainName(_chain)}
+                          </span>
+                      ))}
+                    </div>
+                    :
+                    '-'
+                  }
+                </div>
+                :
+                <div className="flex flex-wrap items-center justify-end">
+                  {[...Array(3).keys()].map(i => (
+                    <div key={i} className="skeleton w-6 h-6 rounded-full ml-1" />
+                  ))}
+                </div>
+            ),
+            headerClassName: 'min-w-max justify-end text-right',
           },
           {
             Header: 'Status',
@@ -476,7 +513,7 @@ export default function ValidatorsTable({ status }) {
             ),
             headerClassName: 'justify-end text-right',
           },
-        ].filter(column => ['inactive'].includes(status) ? !(['self_delegation'/*, 'uptime', 'heartbeats_uptime'*/].includes(column.accessor)) : ['illegible', 'deregistering'].includes(status) ? !(['self_delegation', /*'uptime', */'jailed'].includes(column.accessor)) : !(['self_delegation', 'jailed'].includes(column.accessor)))}
+        ].filter(column => ['inactive'].includes(status) ? !(['self_delegation'/*, 'uptime', 'heartbeats_uptime'*/, 'supported_chains'].includes(column.accessor)) : ['illegible', 'deregistering'].includes(status) ? !(['self_delegation', /*'uptime', */, 'supported_chains', 'jailed'].includes(column.accessor)) : !(['self_delegation', 'jailed'].includes(column.accessor)))}
         data={validators_data ?
           validators_data.filter(validator => status === 'inactive' ? !(['BOND_STATUS_BONDED'].includes(validator.status)) : status === 'illegible' ? validator.illegible : status === 'deregistering' ? validator.deregistering : !validator.jailed && ['BOND_STATUS_BONDED'].includes(validator.status)).map((validator, i) => { return { ...validator, i } })
           :
@@ -484,6 +521,7 @@ export default function ValidatorsTable({ status }) {
         }
         noPagination={validators_data ? validators_data.filter(validator => status === 'inactive' ? !(['BOND_STATUS_BONDED'].includes(validator.status)) : status === 'illegible' ? validator.illegible : status === 'deregistering' ? validator.deregistering : !validator.jailed && ['BOND_STATUS_BONDED'].includes(validator.status)).length <= 10 : true}
         defaultPageSize={100}
+        className={`${validators_data && ['active'].includes(status) ? 'small' : ''}`}
       />
       {validators_data?.filter(validator => status === 'inactive' ? !(['BOND_STATUS_BONDED'].includes(validator.status)) : status === 'illegible' ? validator.illegible : status === 'deregistering' ? validator.deregistering : !validator.jailed && ['BOND_STATUS_BONDED'].includes(validator.status)).length < 1 && (
         <div className="bg-white dark:bg-gray-800 text-gray-300 dark:text-gray-500 text-base font-medium italic text-center my-4 py-2">

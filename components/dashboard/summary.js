@@ -34,7 +34,7 @@ const Summary = ({ data, crosschainData, tvlData, avgTransfersTimeRange, setAvgT
               <span className="text-gray-600 dark:text-gray-400 text-sm font-medium">Height</span>
               {data ?
                 data.latest_block ?
-                  <Link href={`/blocks/${data.latest_block.height}`}>
+                  <Link href={`/block/${data.latest_block.height}`}>
                     <a className="text-blue-600 dark:text-blue-500 text-lg">
                       {numberFormat(data.latest_block.height, '0,0')}
                     </a>

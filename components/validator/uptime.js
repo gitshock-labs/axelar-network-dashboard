@@ -24,7 +24,7 @@ export default function Uptime({ data, validator_data }) {
               placement="top"
               title={<div className="flex items-center">
                 <span className="font-bold">Block: {numberFormat(block.height, '0,0')}</span>
-                <Link href={`/blocks/${block.height}`}>
+                <Link href={`/block/${block.height}`}>
                   <a className="flex items-center text-blue-600 dark:text-blue-500 ml-auto">
                     <span className="text-xs">Go to Block</span>
                     <BsArrowRightShort size={16} />

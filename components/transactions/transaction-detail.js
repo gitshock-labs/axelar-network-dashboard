@@ -48,7 +48,7 @@ export default function TransactionDetail({ data }) {
           {data ?
             data.height && (
               <div className="text-xs lg:text-base">
-                <Link href={`/blocks/${data.height}`}>
+                <Link href={`/block/${data.height}`}>
                   <a className="text-blue-600 dark:text-blue-500">
                     {numberFormat(data.height, '0,0')}
                   </a>

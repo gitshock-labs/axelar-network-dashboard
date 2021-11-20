@@ -101,7 +101,7 @@ export default function KeysTable({ data, corruption_signing_threshold, page }) 
               !props.row.original.skeleton ?
                 <div className="text-right my-1">
                   {props.value ?
-                    <Link href={`/blocks/${props.value}`}>
+                    <Link href={`/block/${props.value}`}>
                       <a className="text-blue-600 dark:text-blue-500">
                         {numberFormat(props.value, '0,0')}
                       </a>
@@ -124,7 +124,7 @@ export default function KeysTable({ data, corruption_signing_threshold, page }) 
                 <div className="text-right my-1">
                   {props.value > -1 ?
                     <>
-                      <Link href={`/blocks/${props.value}`}>
+                      <Link href={`/block/${props.value}`}>
                         <a className="text-blue-600 dark:text-blue-500">
                           {numberFormat(props.value, '0,0')}
                         </a>

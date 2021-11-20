@@ -1,6 +1,7 @@
 import Widget from '../widget'
 import Copy from '../copy'
 
+import { chainName, chainImage } from '../../lib/object/chain'
 import { numberFormat, getName, ellipseAddress } from '../../lib/utils'
 
 export default function AxelarSpecific({ data, keygens, signs, supportedChains, rewards }) {
@@ -66,11 +67,18 @@ export default function AxelarSpecific({ data, keygens, signs, supportedChains, 
             <span>Chains Supported</span>
           </span>
           {supportedChains ?
-            <span className="text-gray-500 dark:text-gray-400">
+            <span className="flex items-center text-gray-500 dark:text-gray-400">
               {supportedChains.length > 0 ?
                 supportedChains.map((supportedChain, i) => (
-                  <span key={i} className="max-w-min bg-gray-100 dark:bg-gray-800 rounded-xl whitespace-nowrap capitalize text-gray-800 dark:text-gray-200 text-xs font-semibold px-2 py-1 my-1 mr-2">
-                    {getName(supportedChain)}
+                  <span key={i} className="min-w-max max-w-min bg-gray-100 dark:bg-gray-800 rounded-xl flex items-center text-gray-800 dark:text-gray-200 text-xs font-semibold space-x-1 px-2 py-1 my-1 mr-2">
+                    {chainImage(supportedChain) && (
+                      <img
+                        alt=""
+                        src={chainImage(supportedChain)}
+                        className="w-5 h-5 rounded-full"
+                      />
+                    )}
+                    <span className="whitespace-nowrap">{chainName(supportedChain)}</span>
                   </span>
                 ))
                 :

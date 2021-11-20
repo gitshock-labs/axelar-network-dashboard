@@ -151,7 +151,7 @@ export default function BlocksTable({ n, className = '' }) {
             disableSortBy: true,
             Cell: props => (
               !props.row.original.skeleton ?
-                <Link href={`/blocks/${props.value}`}>
+                <Link href={`/block/${props.value}`}>
                   <a className="text-blue-600 dark:text-blue-500 font-medium">
                     {numberFormat(props.value, '0,0')}
                   </a>
@@ -166,7 +166,7 @@ export default function BlocksTable({ n, className = '' }) {
             disableSortBy: true,
             Cell: props => (
               !props.row.original.skeleton ?
-                <Link href={`/blocks/${props.row.original.height}`}>
+                <Link href={`/block/${props.row.original.height}`}>
                   <a className="uppercase font-medium">
                     {ellipseAddress(props.value, n ? 6 : 10)}
                   </a>

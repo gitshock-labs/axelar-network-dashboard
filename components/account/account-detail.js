@@ -568,7 +568,7 @@ export default function AccountDetail({ data }) {
                 disableSortBy: true,
                 Cell: props => (
                   !props.row.original.skeleton ?
-                    <Link href={`/blocks/${props.value}`}>
+                    <Link href={`/block/${props.value}`}>
                       <a className="text-blue-600 dark:text-blue-500">
                         {numberFormat(props.value, '0,0')}
                       </a>
