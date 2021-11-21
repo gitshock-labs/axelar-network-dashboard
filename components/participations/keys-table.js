@@ -221,12 +221,12 @@ export default function KeysTable({ data, corruption_signing_threshold, page }) 
                                   </a>
                                 </Link>
                                 {validator.status && !(['BOND_STATUS_BONDED'].includes(validator.status)) && (
-                                  <span className={`bg-${validator.status.includes('UN') ? validator.status.endsWith('ED') ? 'gray-300 dark:bg-gray-600' : 'yellow-500' : 'green-500'} rounded capitalize text-white font-semibold px-1.5 py-0.5`} style={{ fontSize: '.65rem' }}>
+                                  <span className={`bg-${validator.status.includes('UN') ? validator.status.endsWith('ED') ? 'gray-300 dark:bg-gray-600' : 'yellow-500' : 'green-500'} rounded-xl capitalize text-white font-semibold px-1.5 py-0.5`} style={{ fontSize: '.65rem' }}>
                                     {validator.status.replace('BOND_STATUS_', '')}
                                   </span>
                                 )}
                                 {validator.deregistering && (
-                                  <span className="bg-blue-300 dark:bg-blue-700 rounded capitalize text-white font-semibold px-1.5 py-0.5" style={{ fontSize: '.65rem' }}>
+                                  <span className="bg-blue-300 dark:bg-blue-700 rounded-xl capitalize text-white font-semibold px-1.5 py-0.5" style={{ fontSize: '.65rem' }}>
                                     De-registering
                                   </span>
                                 )}
@@ -243,12 +243,12 @@ export default function KeysTable({ data, corruption_signing_threshold, page }) 
                             {!(validator.description?.moniker) && (
                               <span className="flex items-center space-x-1.5">
                                 {validator.status && !(['BOND_STATUS_BONDED'].includes(validator.status)) && (
-                                  <span className={`bg-${validator.status.includes('UN') ? validator.status.endsWith('ED') ? 'gray-300 dark:bg-gray-600' : 'yellow-500' : 'green-500'} rounded capitalize text-white font-semibold px-1.5 py-0.5`} style={{ fontSize: '.65rem' }}>
+                                  <span className={`bg-${validator.status.includes('UN') ? validator.status.endsWith('ED') ? 'gray-300 dark:bg-gray-600' : 'yellow-500' : 'green-500'} rounded-xl capitalize text-white font-semibold px-1.5 py-0.5`} style={{ fontSize: '.65rem' }}>
                                     {validator.status.replace('BOND_STATUS_', '')}
                                   </span>
                                 )}
                                 {validator.deregistering && (
-                                  <span className="bg-blue-300 dark:bg-blue-700 rounded capitalize text-white font-semibold px-1.5 py-0.5" style={{ fontSize: '.65rem' }}>
+                                  <span className="bg-blue-300 dark:bg-blue-700 rounded-xl capitalize text-white font-semibold px-1.5 py-0.5" style={{ fontSize: '.65rem' }}>
                                     De-registering
                                   </span>
                                 )}
@@ -356,9 +356,9 @@ export default function KeysTable({ data, corruption_signing_threshold, page }) 
                               </span>
                             )}
                             {validator.illegible && validator.tss_illegibility_info && (
-                              <div className="space-x-1.5">
+                              <div>
                                 {Object.entries(validator.tss_illegibility_info).filter(([key, value]) => value).map(([key, value]) => (
-                                  <span key={key} className="max-w-min bg-gray-100 dark:bg-gray-700 rounded capitalize text-gray-800 dark:text-gray-200 text-xs font-semibold px-1.5 py-0.5">
+                                  <span key={key} className="max-w-min bg-gray-100 dark:bg-gray-700 rounded-xl capitalize text-gray-800 dark:text-gray-200 text-xs font-semibold mt-0.5 mr-0.5 px-1.5 py-0.5">
                                     {getName(key)}
                                   </span>
                                 ))}
