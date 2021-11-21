@@ -294,7 +294,7 @@ export default function KeysTable({ data, corruption_signing_threshold, page }) 
             disableSortBy: true,
             Cell: props => (
               !props.row.original.skeleton ?
-                <div className={`flex flex-col space-y-2 mb-${props.value?.length > COLLAPSE_VALIDATORS_SIZE ? 0.5 : 4}`}>
+                <div className={`flex flex-col space-y-2 my-1 mb-${props.value?.length > COLLAPSE_VALIDATORS_SIZE ? 0.5 : 4}`}>
                   {typeof props.row.original.snapshot === 'number' && (
                     <div className="uppercase text-gray-400 dark:text-gray-600 text-xs font-semibold">
                       Snapshot: #{props.row.original.snapshot}
