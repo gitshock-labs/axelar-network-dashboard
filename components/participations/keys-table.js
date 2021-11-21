@@ -210,7 +210,7 @@ export default function KeysTable({ data, corruption_signing_threshold, page }) 
                           )}
                         </div>
                       )}
-                      {_.slice(props.value, 0, keyIdsSeeMore.includes(props.row.original.key_id) ? props.value.length : COLLAPSE_VALIDATORS_SIZE).map((validator, i) => (
+                      {_.slice(props.value, 0, keyIdsSeeMore.includes(props.row.original.id) ? props.value.length : COLLAPSE_VALIDATORS_SIZE).map((validator, i) => (
                         <div key={i} className="flex items-center text-xs space-x-1.5">
                           <div className="flex flex-col space-y-0.5">
                             {validator.description?.moniker && (
@@ -260,17 +260,17 @@ export default function KeysTable({ data, corruption_signing_threshold, page }) 
                           )}
                         </div>
                       ))}
-                      {(props.value.length > COLLAPSE_VALIDATORS_SIZE || keyIdsSeeMore.includes(props.row.original.key_id)) && (
+                      {(props.value.length > COLLAPSE_VALIDATORS_SIZE || keyIdsSeeMore.includes(props.row.original.id)) && (
                         <div
-                          onClick={() => setKeyIdsSeeMore(keyIdsSeeMore.includes(props.row.original.key_id) ? keyIdsSeeMore.filter(key_id => key_id !== props.row.original.key_id) : _.uniq(_.concat(keyIdsSeeMore, props.row.original.key_id)))}
-                          className={`max-w-min flex items-center cursor-pointer rounded capitalize text-${keyIdsSeeMore.includes(props.row.original.key_id) ? 'red-500' : 'gray-500 dark:text-white'} text-xs font-medium space-x-0.5`}
+                          onClick={() => setKeyIdsSeeMore(keyIdsSeeMore.includes(props.row.original.id) ? keyIdsSeeMore.filter(id => id !== props.row.original.id) : _.uniq(_.concat(keyIdsSeeMore, props.row.original.id)))}
+                          className={`max-w-min flex items-center cursor-pointer rounded capitalize text-${keyIdsSeeMore.includes(props.row.original.id) ? 'red-500' : 'gray-500 dark:text-white'} text-xs font-medium space-x-0.5`}
                         >
-                          <span>See {keyIdsSeeMore.includes(props.row.original.key_id) ? 'Less' : 'More'}</span>
-                          {!(keyIdsSeeMore.includes(props.row.original.key_id)) && (
+                          <span>See {keyIdsSeeMore.includes(props.row.original.id) ? 'Less' : 'More'}</span>
+                          {!(keyIdsSeeMore.includes(props.row.original.id)) && (
                             <span>({numberFormat(props.value.length - COLLAPSE_VALIDATORS_SIZE, '0,0')})</span>
                           )}
-                          {keyIdsSeeMore.includes(props.row.original.key_id) ? <IoCaretUpOutline /> : <IoCaretDownOutline />}
-                          {!(keyIdsSeeMore.includes(props.row.original.key_id)) && props.value.findIndex(validator => typeof validator.share === 'number') > -1 && (
+                          {keyIdsSeeMore.includes(props.row.original.id) ? <IoCaretUpOutline /> : <IoCaretDownOutline />}
+                          {!(keyIdsSeeMore.includes(props.row.original.id)) && props.value.findIndex(validator => typeof validator.share === 'number') > -1 && (
                             <span>[{numberFormat(_.sumBy(_.slice(props.value, COLLAPSE_VALIDATORS_SIZE), 'share'), '0,0')}]</span>
                           )}
                         </div>
@@ -311,7 +311,7 @@ export default function KeysTable({ data, corruption_signing_threshold, page }) 
                           )}
                         </div>
                       )}
-                      {_.slice(props.value, 0, keyIdsSeeMoreForNon.includes(props.row.original.key_id) ? props.value.length : COLLAPSE_VALIDATORS_SIZE).map((validator, i) => (
+                      {_.slice(props.value, 0, keyIdsSeeMoreForNon.includes(props.row.original.id) ? props.value.length : COLLAPSE_VALIDATORS_SIZE).map((validator, i) => (
                         <div key={i} className="flex items-center text-xs space-x-1.5">
                           <div className="flex flex-col space-y-0.5">
                             {validator.description?.moniker && (
@@ -370,17 +370,17 @@ export default function KeysTable({ data, corruption_signing_threshold, page }) 
                           )}
                         </div>
                       ))}
-                      {(props.value.length > COLLAPSE_VALIDATORS_SIZE || keyIdsSeeMoreForNon.includes(props.row.original.key_id)) && (
+                      {(props.value.length > COLLAPSE_VALIDATORS_SIZE || keyIdsSeeMoreForNon.includes(props.row.original.id)) && (
                         <div
-                          onClick={() => setKeyIdsSeeMoreForNon(keyIdsSeeMoreForNon.includes(props.row.original.key_id) ? keyIdsSeeMoreForNon.filter(key_id => key_id !== props.row.original.key_id) : _.uniq(_.concat(keyIdsSeeMoreForNon, props.row.original.key_id)))}
-                          className={`max-w-min flex items-center cursor-pointer rounded capitalize text-${keyIdsSeeMoreForNon.includes(props.row.original.key_id) ? 'red-500' : 'gray-500 dark:text-white'} text-xs font-medium space-x-0.5`}
+                          onClick={() => setKeyIdsSeeMoreForNon(keyIdsSeeMoreForNon.includes(props.row.original.id) ? keyIdsSeeMoreForNon.filter(id => id !== props.row.original.id) : _.uniq(_.concat(keyIdsSeeMoreForNon, props.row.original.id)))}
+                          className={`max-w-min flex items-center cursor-pointer rounded capitalize text-${keyIdsSeeMoreForNon.includes(props.row.original.id) ? 'red-500' : 'gray-500 dark:text-white'} text-xs font-medium space-x-0.5`}
                         >
-                          <span>See {keyIdsSeeMoreForNon.includes(props.row.original.key_id) ? 'Less' : 'More'}</span>
-                          {!(keyIdsSeeMoreForNon.includes(props.row.original.key_id)) && (
+                          <span>See {keyIdsSeeMoreForNon.includes(props.row.original.id) ? 'Less' : 'More'}</span>
+                          {!(keyIdsSeeMoreForNon.includes(props.row.original.id)) && (
                             <span>({numberFormat(props.value.length - COLLAPSE_VALIDATORS_SIZE, '0,0')})</span>
                           )}
-                          {keyIdsSeeMoreForNon.includes(props.row.original.key_id) ? <IoCaretUpOutline /> : <IoCaretDownOutline />}
-                          {!(keyIdsSeeMoreForNon.includes(props.row.original.key_id)) && props.value.findIndex(validator => typeof validator.share === 'number') > -1 && (
+                          {keyIdsSeeMoreForNon.includes(props.row.original.id) ? <IoCaretUpOutline /> : <IoCaretDownOutline />}
+                          {!(keyIdsSeeMoreForNon.includes(props.row.original.id)) && props.value.findIndex(validator => typeof validator.share === 'number') > -1 && (
                             <span>[{numberFormat(_.sumBy(_.slice(props.value, COLLAPSE_VALIDATORS_SIZE), 'share'), '0,0')}]</span>
                           )}
                         </div>
