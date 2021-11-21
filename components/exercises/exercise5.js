@@ -180,8 +180,8 @@ export default function Exercise5() {
 
           response = await transaction(data.tx_axelar_deposit, null, denoms_data)
 
-          if (response?.data?.status === 'success' && response.data.activities?.findIndex(activity => activity.action === 'send' && activity.sender === data.axelar_address.toLowerCase() && activity.recipient?.length > 0 && activity.amount > 0 && denoms_data?.map(_denom => _denom.symbol).includes(activity.symbol)) > -1) {
-            data.token = response.data.activities?.find(activity => activity.action === 'send' && activity.sender === data.axelar_address.toLowerCase() && activity.recipient?.length > 0 && activity.amount > 0 && denoms_data?.map(_denom => _denom.symbol).includes(activity.symbol)).symbol
+          if (response?.data?.status === 'success' && response.data.activities?.findIndex(activity => activity.action === 'transfer' && activity.sender === data.axelar_address.toLowerCase() && activity.recipient?.length > 0 && activity.amount > 0 && denoms_data?.map(_denom => _denom.symbol).includes(activity.symbol)) > -1) {
+            data.token = response.data.activities?.find(activity => activity.action === 'transfer' && activity.sender === data.axelar_address.toLowerCase() && activity.recipient?.length > 0 && activity.amount > 0 && denoms_data?.map(_denom => _denom.symbol).includes(activity.symbol)).symbol
             data.contract = denoms_data?.find(_denom => _denom?.symbol === data.token)?.contract || data.token
             _processing[_processing.length - 1].commands[0].result = response.data
             _processing[_processing.length - 1].status = true
