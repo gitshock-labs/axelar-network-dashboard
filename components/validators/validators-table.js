@@ -315,7 +315,7 @@ export default function ValidatorsTable({ status }) {
             Cell: props => (
               !props.row.original.skeleton ?
                 <div className="text-right">
-                  {typeof props.value === 'number' ?
+                  {!isNaN(props.value) ?
                     <span>{numberFormat(props.value * 100, '0,0.00')}%</span>
                     :
                     <span className="text-gray-400 dark:text-gray-600">-</span>

@@ -356,7 +356,7 @@ export default function KeysTable({ data, corruption_signing_threshold, page }) 
                               </span>
                             )}
                             {validator.illegible && validator.tss_illegibility_info && (
-                              <div>
+                              <div className="flex flex-wrap items-center">
                                 {Object.entries(validator.tss_illegibility_info).filter(([key, value]) => value).map(([key, value]) => (
                                   <span key={key} className="max-w-min bg-gray-100 dark:bg-gray-700 rounded-xl capitalize text-gray-800 dark:text-gray-200 text-xs font-semibold mt-0.5 mr-0.5 px-1.5 py-0.5">
                                     {getName(key)}
@@ -391,9 +391,9 @@ export default function KeysTable({ data, corruption_signing_threshold, page }) 
                   }
                 </div>
                 :
-                <div className="flex flex-col space-y-2 mb-4">
+                <div className="flex flex-col space-y-2 my-1 mb-4">
                   {[...Array(5).keys()].map(i => (
-                    <div key={i} className="skeleton w-48 h-4" />
+                    <div key={i} className="skeleton w-48 h-5" />
                   ))}
                 </div>
             ),
