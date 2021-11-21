@@ -102,10 +102,12 @@ export default function ValidatorsTable({ status }) {
 
               const totalHeartbeats = Math.floor((_last - _first) / Number(process.env.NEXT_PUBLIC_NUM_BLOCKS_PER_HEARTBEAT)) + 1
 
-              let missed_heartbeats = totalHeartbeats - response?.data?.[validator_data?.broadcaster_address]
+              const up_heartbeats = response?.data?.[validator_data?.broadcaster_address] || 0
+
+              let missed_heartbeats = totalHeartbeats - up_heartbeats
               missed_heartbeats = missed_heartbeats < 0 ? 0 : missed_heartbeats
 
-              let heartbeats_uptime = totalHeartbeats > 0 ? response?.data?.[validator_data?.broadcaster_address] * 100 / totalHeartbeats : 0
+              let heartbeats_uptime = totalHeartbeats > 0 ? up_heartbeats * 100 / totalHeartbeats : 0
               heartbeats_uptime = heartbeats_uptime > 100 ? 100 : heartbeats_uptime
 
               validator_data.heartbeats_uptime = heartbeats_uptime

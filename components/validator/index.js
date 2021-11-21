@@ -168,10 +168,12 @@ export default function Validator({ address }) {
         const totalHeartbeats = Math.floor((_last - _first) / Number(process.env.NEXT_PUBLIC_NUM_BLOCKS_PER_HEARTBEAT)) + 1
         _health.total_heartbeats = totalHeartbeats
 
-        _health.missed_heartbeats = totalHeartbeats - response?.data?.[validatorData?.broadcaster_address]
+        _health.up_heartbeats = response?.data?.[validatorData?.broadcaster_address] || 0
+
+        _health.missed_heartbeats = _health.total_heartbeats - _health.up_heartbeats
         _health.missed_heartbeats = _health.missed_heartbeats < 0 ? 0 : _health.missed_heartbeats
 
-        _health.heartbeats_uptime = totalHeartbeats > 0 ? response?.data?.[validatorData?.broadcaster_address] * 100 / totalHeartbeats : 0
+        _health.heartbeats_uptime = _health.total_heartbeats > 0 ? _health.up_heartbeats * 100 / _health.total_heartbeats : 0
         _health.heartbeats_uptime = _health.heartbeats_uptime > 100 ? 100 : _health.heartbeats_uptime
 
         setHealth({ data: _health, address })
