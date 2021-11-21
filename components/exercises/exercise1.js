@@ -231,7 +231,7 @@ export default function Exercise1() {
 
           response = await ethTx(data.tx_eth_transfer)
 
-          if (response?.data?.item?.isConfirmed === 'true') {
+          if (response?.data?.item?.isConfirmed) {
             if (response.data.item.recipients?.findIndex(recipient => !data.eth_gateway_contract || recipient?.address?.toLowerCase() === data.eth_gateway_contract.toLowerCase()) > -1) {
               data.eth_addresses = response?.data?.item.senders?.map(sender => sender?.address?.toLowerCase()) || []
               _processing[_processing.length - 1].commands[1].result = response.data.item
@@ -291,7 +291,7 @@ export default function Exercise1() {
 
           response = await ethTx(data.tx_eth_burn)
 
-          if (response?.data?.item?.isConfirmed === 'true') {
+          if (response?.data?.item?.isConfirmed) {
             if (response.data.item.recipients?.findIndex(recipient => !data.eth_satoshi_contract || recipient?.address?.toLowerCase() === data.eth_satoshi_contract.toLowerCase()) > -1) {
               if (response.data.item.senders?.findIndex(sender => !(data.eth_addresses?.length > 0) || data.eth_addresses.includes(sender?.address?.toLowerCase())) > -1) {
                 _processing[_processing.length - 1].commands[1].result = response.data.item

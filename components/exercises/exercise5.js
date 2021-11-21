@@ -234,7 +234,7 @@ export default function Exercise5() {
 
           response = await ethTx(data.tx_eth_transfer)
 
-          if (response?.data?.item?.isConfirmed === 'true') {
+          if (response?.data?.item?.isConfirmed) {
             if (response.data.item.recipients?.findIndex(recipient => !data.eth_gateway_contract || recipient?.address?.toLowerCase() === data.eth_gateway_contract.toLowerCase()) > -1) {
               data.eth_addresses = response?.data?.item.senders?.map(sender => sender?.address?.toLowerCase()) || []
               _processing[_processing.length - 1].commands[1].result = response.data.item
@@ -275,8 +275,8 @@ export default function Exercise5() {
           response = await axelard({ cmd: `${cmd}` })
 
           if (response?.data?.stdout) {
-            data.eth_token_contract = response.data.stdout
-            _processing[_processing.length - 1].commands[0].result = response.data.stdout
+            data.eth_token_contract = response.data.stdout?.replace('address: ', '')
+            _processing[_processing.length - 1].commands[0].result = data.eth_token_contract
           }
           else {
             _processing[_processing.length - 1].commands[0].result = 'N/A'
@@ -294,7 +294,7 @@ export default function Exercise5() {
 
           response = await ethTx(data.tx_eth_burn)
 
-          if (response?.data?.item?.isConfirmed === 'true') {
+          if (response?.data?.item?.isConfirmed) {
             if (response.data.item.recipients?.findIndex(recipient => !data.eth_token_contract || recipient?.address?.toLowerCase() === data.eth_token_contract.toLowerCase()) > -1) {
               if (response.data.item.senders?.findIndex(sender => !(data.eth_addresses?.length > 0) || data.eth_addresses.includes(sender?.address?.toLowerCase())) > -1) {
                 _processing[_processing.length - 1].commands[1].result = response.data.item

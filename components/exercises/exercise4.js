@@ -10,7 +10,8 @@ import { FaCheckCircle, FaTimesCircle } from 'react-icons/fa'
 import Copy from '../copy'
 
 import { transaction } from '../../lib/api/cosmos'
-import { axelard, gaiad } from '../../lib/api/executor'
+import { axelard, terrad } from '../../lib/api/executor'
+import { ethTx } from '../../lib/api/cryptoapis'
 import { convertToJson, sleep } from '../../lib/utils'
 
 export default function Exercise4() {
@@ -34,16 +35,34 @@ export default function Exercise4() {
       placeholder: 'Enter Axelar address',
     },
     {
-      label: 'Cosmos IBC transfer Tx hash',
-      name: 'tx_cosmos_transfer',
+      label: 'Terra address',
+      name: 'terra_address',
+      type: 'text',
+      placeholder: 'Enter Terra address',
+    },
+    {
+      label: 'Terra IBC transfer Tx hash',
+      name: 'tx_terra_transfer',
       type: 'text',
       placeholder: 'Enter transfer transaction hash',
     },
     {
-      label: 'Axelar IBC transfer Tx ID',
-      name: 'tx_axelar_transfer',
+      label: 'ETH transfer Tx ID',
+      name: 'tx_eth_transfer',
       type: 'text',
       placeholder: 'Enter transfer transaction ID',
+    },
+    {
+      label: 'ETH deposit Tx ID',
+      name: 'tx_eth_deposit',
+      type: 'text',
+      placeholder: 'Enter deposit transaction ID',
+    },
+    {
+      label: 'Axelar Route pending IBC transfer Tx ID',
+      name: 'tx_axelar_ibc_transfer',
+      type: 'text',
+      placeholder: 'Enter route pending IBC transfer transaction ID',
     },
   ]
 
@@ -55,7 +74,7 @@ export default function Exercise4() {
       let error = false
 
       const accountRegEx = new RegExp(`${process.env.NEXT_PUBLIC_PREFIX_ACCOUNT}.*$`, 'igm')
-      const accountATOMRegEx = new RegExp(`${process.env.NEXT_PUBLIC_PREFIX_ACCOUNT.replace('axelar', 'cosmos')}.*$`, 'igm')
+      const accountTerraRegEx = new RegExp(`${process.env.NEXT_PUBLIC_PREFIX_ACCOUNT.replace('axelar', 'terra')}.*$`, 'igm')
 
       if (!(data.axelar_address?.toLowerCase().match(accountRegEx))) {
         setError('axelar_address', {
@@ -69,8 +88,20 @@ export default function Exercise4() {
         }
       }
 
-      if (!data.tx_cosmos_transfer) {
-        setError('tx_cosmos_transfer', {
+      if (!(data.terra_address?.toLowerCase().match(accountTerraRegEx))) {
+        setError('terra_address', {
+          type: 'manual',
+          message: data.terra_address ? 'Terra address must start with terra...' : 'Terra address is required',
+        })
+
+        if (!error) {
+          setFocus('terra_address')
+          error = true
+        }
+      }
+
+      if (!data.tx_terra_transfer) {
+        setError('tx_terra_transfer', {
           type: 'manual',
           message: 'IBC transfer Tx hash is required',
         })
@@ -81,14 +112,38 @@ export default function Exercise4() {
         }
       }
 
-      if (!data.tx_axelar_transfer) {
-        setError('tx_axelar_transfer', {
+      if (!data.tx_eth_transfer) {
+        setError('tx_eth_transfer', {
           type: 'manual',
-          message: 'IBC transfer Tx ID is required',
+          message: 'transfer Tx ID is required',
         })
 
         if (!error) {
-          setFocus('tx_axelar_transfer')
+          setFocus('tx_eth_transfer')
+          error = true
+        }
+      }
+
+      if (!data.tx_eth_deposit) {
+        setError('tx_eth_deposit', {
+          type: 'manual',
+          message: 'deposit Tx ID is required',
+        })
+
+        if (!error) {
+          setFocus('tx_eth_deposit')
+          error = true
+        }
+      }
+
+      if (!data.tx_axelar_ibc_transfer) {
+        setError('tx_axelar_ibc_transfer', {
+          type: 'manual',
+          message: 'route pending IBC transfer Tx ID is required',
+        })
+
+        if (!error) {
+          setFocus('tx_axelar_ibc_transfer')
           error = true
         }
       }
@@ -129,10 +184,10 @@ export default function Exercise4() {
         setProcessing(_.cloneDeep(_processing))
 
         if (!error) {
-          cmd = `gaiad q tx ${data.tx_cosmos_transfer}`
+          cmd = `terrad q bank balances ${data.terra_address}`
 
           _processing.push({
-            label: `Check ${items?.[1]?.label}`,
+            label: `Query ${items?.[1]?.label}`,
             commands: [
               {
                 message: `>_ ${cmd}`,
@@ -144,12 +199,42 @@ export default function Exercise4() {
 
           await sleep(0.5 * 1000)
 
-          response = await gaiad({ cmd: `${cmd} -oj` })
+          response = await terrad({ cmd: `${cmd} -oj` })
 
-          if (response?.data?.stdout && !(convertToJson(response.data.stdout)?.code) && convertToJson(response.data.stdout)?.logs?.findIndex(log => log?.events?.findIndex(event => event?.type === 'ibc_transfer' && event.attributes?.findIndex(attr => attr?.key === 'receiver' && attr.value === data.axelar_address.toLowerCase()) > -1 && event.attributes?.findIndex(attr => attr?.key === 'sender' && attr.value?.match(accountATOMRegEx)) > -1) > -1) > -1) {
+          if (response?.data?.stdout) {
             _processing[_processing.length - 1].commands[0].result = response.data.stdout
             _processing[_processing.length - 1].status = true
-            _processing[_processing.length - 1].answer = data.tx_cosmos_transfer
+            _processing[_processing.length - 1].answer = data.terra_address
+          }
+          else {
+            _processing[_processing.length - 1].commands[0].result = 'Invalid address'
+            _processing[_processing.length - 1].status = false
+            error = true
+          }
+        }
+
+        if (!error) {
+          cmd = `terrad q tx ${data.tx_terra_transfer}`
+
+          _processing.push({
+            label: `Check ${items?.[2]?.label}`,
+            commands: [
+              {
+                message: `>_ ${cmd}`,
+              }
+            ],
+          })
+
+          setProcessing(_.cloneDeep(_processing))
+
+          await sleep(0.5 * 1000)
+
+          response = await terrad({ cmd: `${cmd} -oj` })
+
+          if (response?.data?.stdout && !(convertToJson(response.data.stdout)?.code) && convertToJson(response.data.stdout)?.logs?.findIndex(log => log?.events?.findIndex(event => event?.type === 'ibc_transfer'/* && event.attributes?.findIndex(attr => attr?.key === 'receiver' && attr.value === data.axelar_address.toLowerCase()) > -1*/ && event.attributes?.findIndex(attr => attr?.key === 'sender' && attr.value === data.terra_address.toLowerCase()) > -1) > -1) > -1) {
+            _processing[_processing.length - 1].commands[0].result = response.data.stdout
+            _processing[_processing.length - 1].status = true
+            _processing[_processing.length - 1].answer = `${process.env.NEXT_PUBLIC_TERRA_EXPLORER_URL}/tx/${data.tx_terra_transfer}`
           }
           else {
             _processing[_processing.length - 1].commands[0].result = 'Wrong IBC transfer transaction hash'
@@ -161,11 +246,13 @@ export default function Exercise4() {
         }
 
         if (!error) {
+          cmd = 'axelard q evm gateway-address ethereum'
+
           _processing.push({
-            label: `Check ${items?.[2]?.label}`,
+            label: `Check ${items?.[3]?.label}`,
             commands: [
               {
-                message: `GET Axelar transaction /tx/${data.tx_axelar_transfer}`,
+                message: `>_ ${cmd}`,
               }
             ],
           })
@@ -174,12 +261,138 @@ export default function Exercise4() {
 
           await sleep(0.5 * 1000)
 
-          response = await transaction(data.tx_axelar_transfer, null, denoms_data)
+          response = await axelard({ cmd: `${cmd}` })
 
-          if (response?.data?.status === 'success' && response.data.activities?.findIndex(activity => activity.action === 'transfer' && activity.sender === data.axelar_address.toLowerCase() && activity.receiver?.match(accountATOMRegEx) && activity.amount > 0 && activity.symbol === 'photon') > -1) {
+          if (response?.data?.stdout) {
+            data.eth_gateway_contract = response.data.stdout
+            _processing[_processing.length - 1].commands[0].result = response.data.stdout
+          }
+          else {
+            _processing[_processing.length - 1].commands[0].result = 'N/A'
+          }
+
+          setProcessing(_.cloneDeep(_processing))
+
+          _processing[_processing.length - 1].commands[1] = {
+            message: `GET ${new URL(process.env.NEXT_PUBLIC_ETHEREUM_EXPLORER_URL).hostname} /tx/${data.tx_eth_transfer}`,
+          }
+
+          setProcessing(_.cloneDeep(_processing))
+
+          await sleep(0.5 * 1000)
+
+          response = await ethTx(data.tx_eth_transfer)
+
+          if (response?.data?.item?.isConfirmed) {
+            if (response.data.item.recipients?.findIndex(recipient => !data.eth_gateway_contract || recipient?.address?.toLowerCase() === data.eth_gateway_contract.toLowerCase()) > -1) {
+              data.eth_addresses = response?.data?.item.senders?.map(sender => sender?.address?.toLowerCase()) || []
+              _processing[_processing.length - 1].commands[1].result = response.data.item
+              _processing[_processing.length - 1].status = true
+              _processing[_processing.length - 1].answer = `${process.env.NEXT_PUBLIC_ETHEREUM_EXPLORER_URL}/tx/${data.tx_eth_transfer}`
+            }
+            else {
+              _processing[_processing.length - 1].commands[1].result = `Wrong recipient (ETH gateway contract${data.eth_gateway_contract ? `: ${data.eth_gateway_contract}` : ''})`
+              _processing[_processing.length - 1].status = false
+              error = true
+            }
+          }
+          else {
+            _processing[_processing.length - 1].commands[1].result = 'Wrong transfer transaction ID'
+            _processing[_processing.length - 1].status = false
+            error = true
+          }
+
+          setProcessing(_.cloneDeep(_processing))
+        }
+
+        if (!error) {
+          data.contract = 'uusd'
+
+          cmd = `axelard q evm token-address ethereum --asset ${data.contract}`
+
+          _processing.push({
+            label: `Check ${items?.[4]?.label}`,
+            commands: [
+              {
+                message: `>_ ${cmd}`,
+              }
+            ],
+          })
+
+          setProcessing(_.cloneDeep(_processing))
+
+          await sleep(0.5 * 1000)
+
+          response = await axelard({ cmd: `${cmd}` })
+
+          if (response?.data?.stdout) {
+            data.eth_token_contract = response.data.stdout?.replace('address: ', '')
+            _processing[_processing.length - 1].commands[0].result = data.eth_token_contract
+          }
+          else {
+            _processing[_processing.length - 1].commands[0].result = 'N/A'
+          }
+
+          setProcessing(_.cloneDeep(_processing))
+
+          _processing[_processing.length - 1].commands[1] = {
+            message: `GET ${new URL(process.env.NEXT_PUBLIC_ETHEREUM_EXPLORER_URL).hostname} /tx/${data.tx_eth_deposit}`,
+          }
+
+          setProcessing(_.cloneDeep(_processing))
+
+          await sleep(0.5 * 1000)
+
+          response = await ethTx(data.tx_eth_deposit)
+
+          if (response?.data?.item?.isConfirmed) {
+            if (response.data.item.recipients?.findIndex(recipient => !data.eth_token_contract || recipient?.address?.toLowerCase() === data.eth_token_contract.toLowerCase()) > -1) {
+              if (response.data.item.senders?.findIndex(sender => !(data.eth_addresses?.length > 0) || data.eth_addresses.includes(sender?.address?.toLowerCase())) > -1) {
+                _processing[_processing.length - 1].commands[1].result = response.data.item
+                _processing[_processing.length - 1].status = true
+                _processing[_processing.length - 1].answer = `${process.env.NEXT_PUBLIC_ETHEREUM_EXPLORER_URL}/tx/${data.tx_eth_deposit}`
+              }
+              else {
+                _processing[_processing.length - 1].commands[1].result = `Wrong sender address${data.eth_addresses?.length > 0 ? `(should be ${data.eth_addresses.join(' | ')})` : ''}`
+                _processing[_processing.length - 1].status = false
+                error = true
+              }
+            }
+            else {
+              _processing[_processing.length - 1].commands[1].result = `Wrong contract (${data.contract} contract${data.eth_token_contract ? `: ${data.eth_token_contract}` : ''})`
+              _processing[_processing.length - 1].status = false
+              error = true
+            }
+          }
+          else {
+            _processing[_processing.length - 1].commands[1].result = 'Wrong deposit transaction ID'
+            _processing[_processing.length - 1].status = false
+            error = true
+          }
+
+          setProcessing(_.cloneDeep(_processing))
+        }
+
+        if (!error) {
+          _processing.push({
+            label: `Check ${items?.[5]?.label}`,
+            commands: [
+              {
+                message: `GET Axelar transaction /tx/${data.tx_axelar_ibc_transfer}`,
+              }
+            ],
+          })
+
+          setProcessing(_.cloneDeep(_processing))
+
+          await sleep(0.5 * 1000)
+
+          response = await transaction(data.tx_axelar_ibc_transfer, null, denoms_data)
+
+          if (response?.data?.status === 'success' && response.data.activities?.findIndex(activity => activity.action === 'RouteIBCTransfers' && activity.log?.includes('successfully')) > -1) {
             _processing[_processing.length - 1].commands[0].result = response.data
             _processing[_processing.length - 1].status = true
-            _processing[_processing.length - 1].answer = `${process.env.NEXT_PUBLIC_SITE_URL}/tx/${data.tx_axelar_transfer}`
+            _processing[_processing.length - 1].answer = `${process.env.NEXT_PUBLIC_SITE_URL}/tx/${data.tx_axelar_ibc_transfer}`
           }
           else {
             _processing[_processing.length - 1].commands[0].result = 'Wrong IBC transfer transaction ID'

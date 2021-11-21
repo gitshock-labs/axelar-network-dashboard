@@ -26,22 +26,22 @@ export default function Transaction({ tx }) {
       if (!controller.signal.aborted) {
         let response = await getTransaction(tx, null, denoms_data)
 
-        if (!response?.data) {
-          response = await gaiad({ cmd: `gaiad q tx ${tx} -oj` })
+        // if (!response?.data) {
+        //   response = await gaiad({ cmd: `gaiad q tx ${tx} -oj` })
 
-          if (response?.data?.stdout && convertToJson(response.data.stdout)) {
-            response.data = convertToJson(response.data.stdout)
+        //   if (response?.data?.stdout && convertToJson(response.data.stdout)) {
+        //     response.data = convertToJson(response.data.stdout)
 
-            response.data.status = getTxStatus(response.data)
-            response.data.type = getTxType(response.data)
-            response.data.fee = getTxFee(response.data, denoms_data)
-            response.data.symbol = getTxSymbol(response.data, denoms_data)
-            response.data.gas_used = getTxGasUsed(response.data)
-            response.data.gas_limit = getTxGasLimit(response.data)
-            response.data.memo = getTxMemo(response.data)
-            response.data.activities = getTxActivities(response.data, denoms_data)
-          }
-        }
+        //     response.data.status = getTxStatus(response.data)
+        //     response.data.type = getTxType(response.data)
+        //     response.data.fee = getTxFee(response.data, denoms_data)
+        //     response.data.symbol = getTxSymbol(response.data, denoms_data)
+        //     response.data.gas_used = getTxGasUsed(response.data)
+        //     response.data.gas_limit = getTxGasLimit(response.data)
+        //     response.data.memo = getTxMemo(response.data)
+        //     response.data.activities = getTxActivities(response.data, denoms_data)
+        //   }
+        // }
 
         if (response) {
           setTransaction({ data: response.data || {}, tx })
