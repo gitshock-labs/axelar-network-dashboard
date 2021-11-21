@@ -142,6 +142,7 @@ export default function Participations() {
 
           data[i] = {
             ...successKeygen,
+            id: `${successKeygen.key_id}_${successKeygen.height}`,
             key_chain: successKeygen.key_chain || (successKeygen?.key_id?.split('-').length > 1 && getName(successKeygen.key_id.split('-')[0])),
             key_role: successKeygen.key_role || (successKeygen?.key_id?.split('-').length > 2 && `${successKeygen.key_id.split('-')[1].toUpperCase()}_KEY`),
             validators: successKeygen.snapshot_validators?.validators?.map((validator, j) => {
@@ -178,6 +179,7 @@ export default function Participations() {
 
           data[i] = {
             ...failedKeygen,
+            id: `${failedKeygen.key_id}_${failedKeygen.height}`,
             key_chain: failedKeygen.key_chain || (failedKeygen?.key_id?.split('-').length > 1 && getName(failedKeygen.key_id.split('-')[0])),
             key_role: failedKeygen.key_role || (failedKeygen?.key_id?.split('-').length > 2 && `${failedKeygen.key_id.split('-')[1].toUpperCase()}_KEY`),
             validators: failedKeygen.snapshot_validators?.validators?.map((validator, j) => {
@@ -214,6 +216,7 @@ export default function Participations() {
 
           data[i] = {
             ...signAttempt,
+            id: signAttempt.sig_id,
             key_chain: signAttempt.key_chain || (signAttempt?.key_id?.split('-').length > 1 && getName(signAttempt.key_id.split('-')[0])),
             key_role: signAttempt.key_role || (signAttempt?.key_id?.split('-').length > 2 && `${signAttempt.key_id.split('-')[1].toUpperCase()}_KEY`),
             validators: signAttempt.participants?.map((address, j) => {
@@ -248,6 +251,7 @@ export default function Participations() {
 
           data[i] = {
             ...signAttempt,
+            id: signAttempt.sig_id,
             key_chain: signAttempt.key_chain || (signAttempt?.key_id?.split('-').length > 1 && getName(signAttempt.key_id.split('-')[0])),
             key_role: signAttempt.key_role || (signAttempt?.key_id?.split('-').length > 2 && `${signAttempt.key_id.split('-')[1].toUpperCase()}_KEY`),
             validators: signAttempt.participants?.map((address, j) => {
