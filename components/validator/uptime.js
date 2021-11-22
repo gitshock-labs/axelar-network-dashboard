@@ -68,7 +68,9 @@ export default function Uptime({ data, validator_data }) {
               />
             </Popover>
             :
-            <div key={i} className={`skeleton w-6 md:w-6 h-6 md:h-6 rounded m-0.5`} />
+            <div key={i} className="w-7 h-7">
+              <div className={`skeleton w-6 md:w-6 h-6 md:h-6 rounded m-0.5`} />
+            </div>
         ))}
       </div>
     </Widget>
