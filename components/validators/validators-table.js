@@ -111,6 +111,7 @@ export default function ValidatorsTable({ status }) {
               heartbeats_uptime = heartbeats_uptime > 100 ? 100 : heartbeats_uptime
 
               validator_data.heartbeats_uptime = heartbeats_uptime
+
               validators_data[i] = validator_data
             }
 
