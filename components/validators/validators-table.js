@@ -208,7 +208,7 @@ export default function ValidatorsTable({ status }) {
             sortType: (rowA, rowB) => rowA.original.i > rowB.original.i ? 1 : -1,
             Cell: props => (
               !props.row.original.skeleton ?
-                numberFormat(props.value + 1, '0,0')
+                numberFormat((props.flatRows?.indexOf(props.row) > -1 ? props.flatRows.indexOf(props.row) : props.value) + 1, '0,0')
                 :
                 <div className="skeleton w-4 h-3" />
             ),
