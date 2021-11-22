@@ -147,7 +147,7 @@ export default function Validator({ address }) {
               terms: { field: 'sender.keyword' },
               aggs: {
                 heightgroup: {
-                  terms: { field: 'height_group', size: 1000 },
+                  terms: { field: 'height_group', size: 100000 },
                 },
               },
             },

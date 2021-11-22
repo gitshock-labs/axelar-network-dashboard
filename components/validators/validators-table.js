@@ -78,7 +78,7 @@ export default function ValidatorsTable({ status }) {
                   terms: { field: 'sender.keyword', size: 10000 },
                   aggs: {
                     heightgroup: {
-                      terms: { field: 'height_group', size: 1000 },
+                      terms: { field: 'height_group', size: 100000 },
                     },
                   },
                 },
