@@ -22,14 +22,14 @@ export default function TransactionLogs({ data }) {
         :
         [...Array(1).keys()].map(i => { return { i, skeleton: true } })
       ).map((activity, i) => (
-        <div key={i} className="md:min-w-max max-w-3xl bg-white dark:bg-gray-900 rounded shadow-lg flex items-center space-x-4 p-4">
+        <div key={i} className="md:min-w-max max-w-3xl bg-white dark:bg-gray-900 overflow-x-auto rounded shadow-lg flex items-center space-x-4 p-4">
           {activity.skeleton || (!activity.failed && !(['update_client'].includes(activity.type)) && !(['KeygenTraffic', 'SignPendingTransfers', 'ExecutePendingTransfers', 'VoteConfirmDeposit', 'VoteSig'].includes(activity.action))) ?
             <>
               {(activity.skeleton || (activity.sender && !activity.depositor)) && (
                 <div className="flex flex-col">
                   {!activity.skeleton ?
                     <>
-                      <div className="flex flex-wrap items-center text-xs lg:text-base space-x-1">
+                      <div className="flex items-center text-2xs lg:text-base space-x-1">
                         <Link href={`/${type(activity.sender)}/${activity.sender}`}>
                           <a className="uppercase text-blue-600 dark:text-blue-500 font-medium">
                             {ellipseAddress(activity.sender, 16)}
@@ -51,7 +51,7 @@ export default function TransactionLogs({ data }) {
                 <div className="flex flex-col">
                   {!activity.skeleton ?
                     <>
-                      <div className="flex flex-wrap items-center text-xs lg:text-base space-x-1">
+                      <div className="flex items-center text-2xs lg:text-base space-x-1">
                         <Link href={`/${type(activity.depositor)}/${activity.depositor}`}>
                           <a className="uppercase text-blue-600 dark:text-blue-500 font-medium">
                             {ellipseAddress(activity.depositor, 16)}
@@ -130,20 +130,20 @@ export default function TransactionLogs({ data }) {
                   {!activity.skeleton ?
                     <>
                       {activity.outPointInfo.out_point && (
-                        <div className="flex flex-wrap items-center text-xs space-x-1">
+                        <div className="flex items-center text-xs space-x-1">
                           <span className="font-semibold">Out Point:</span>
                           <span className="text-gray-400 dark:text-gray-600">{ellipseAddress(activity.outPointInfo.out_point)}</span>
                           <Copy text={activity.outPointInfo.out_point} />
                         </div>
                       )}
                       {activity.outPointInfo.amount && (
-                        <div className="flex flex-wrap items-center text-xs space-x-1">
+                        <div className="flex items-center text-xs space-x-1">
                           <span className="font-semibold">Amount:</span>
                           <span className="text-gray-400 dark:text-gray-600">{activity.outPointInfo.amount}</span>
                         </div>
                       )}
                       {activity.outPointInfo.address && (
-                        <div className="flex flex-wrap items-center text-xs space-x-1">
+                        <div className="flex items-center text-xs space-x-1">
                           <span className="font-semibold">Address:</span>
                           <span className="text-gray-400 dark:text-gray-600">{ellipseAddress(activity.outPointInfo.address)}</span>
                           <Copy text={activity.outPointInfo.address} />
@@ -164,7 +164,7 @@ export default function TransactionLogs({ data }) {
                     <>
                       {Array.isArray(activity.recipient) ?
                         activity.recipient.map((recipient, i) => (
-                          <div key={i} className="flex flex-wrap items-center text-xs lg:text-base space-x-1">
+                          <div key={i} className="flex items-center text-2xs lg:text-base space-x-1">
                             <Link href={`/${type(recipient)}/${recipient}`}>
                               <a className="uppercase text-blue-600 dark:text-blue-500 font-medium">
                                 {ellipseAddress(recipient, 16)}
@@ -174,7 +174,7 @@ export default function TransactionLogs({ data }) {
                           </div>
                         ))
                         :
-                        <div className="flex flex-wrap items-center text-xs lg:text-base space-x-1">
+                        <div className="flex items-center text-2xs lg:text-base space-x-1">
                           <Link href={`/${type(activity.recipient)}/${activity.recipient}`}>
                             <a className="uppercase text-blue-600 dark:text-blue-500 font-medium">
                               {ellipseAddress(activity.recipient, 16)}
@@ -197,7 +197,7 @@ export default function TransactionLogs({ data }) {
                 <div className="flex flex-col">
                   {!activity.skeleton ?
                     <>
-                      <div className="flex flex-wrap items-center text-xs lg:text-base space-x-1">
+                      <div className="flex items-center text-2xs lg:text-base space-x-1">
                         <Link href={`/${type(activity.validator)}/${activity.validator}`}>
                           <a className="uppercase text-blue-600 dark:text-blue-500 font-medium">
                             {ellipseAddress(activity.validator, 16)}

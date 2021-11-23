@@ -10,7 +10,7 @@ import { numberFormat, getName, ellipseAddress } from '../../lib/utils'
 
 export default function TransactionDetail({ data }) {
   return (
-    <Widget className="p-2 md:p-8">
+    <Widget className="p-4 md:p-8">
       <div className="w-full flex flex-col space-y-4">
         <div className="flex flex-col md:flex-row items-start space-y-2 md:space-y-0 space-x-0 md:space-x-2">
           <span className="w-40 lg:w-64 text-xs lg:text-base font-semibold">Tx Hash:</span>
