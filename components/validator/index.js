@@ -99,141 +99,90 @@ export default function Validator({ address }) {
     const controller = new AbortController()
 
     const getData = async () => {
-      let response, validatorData
+      if (address && denoms_data && status_data && validators_data) {
+        let response, validatorData
 
-      const validator_data = validators_data?.[validators_data.findIndex(validator_data => validator_data.operator_address === address)]
+        const validator_data = validators_data?.[validators_data.findIndex(validator_data => validator_data.operator_address === address)]
 
-      if (validator_data?.start_proxy_height || validator_data?.start_height/* || !['BOND_STATUS_BONDED'].includes(validator_data?.status)*/ || validator_data?.deregistering) {
-        validatorData = { ...validatorData, ...validator_data }
-      
-        if (!controller.signal.aborted) {
-          response = await validatorSets()
+        if (validator_data?.start_proxy_height || validator_data?.start_height/* || !['BOND_STATUS_BONDED'].includes(validator_data?.status)*/ || validator_data?.deregistering) {
+          validatorData = { ...validatorData, ...validator_data }
+        
+          if (!controller.signal.aborted) {
+            response = await validatorSets()
 
-          if (response?.result?.validators?.findIndex(validator_data => validator_data.address === validatorData.consensus_address) > -1) {
-            const _validatorData = response.result.validators?.find(validator_data => validator_data.address === validatorData.consensus_address)
+            if (response?.result?.validators?.findIndex(validator_data => validator_data.address === validatorData.consensus_address) > -1) {
+              const _validatorData = response.result.validators?.find(validator_data => validator_data.address === validatorData.consensus_address)
 
-            validatorData = {
-              ...validatorData,
-              proposer_priority: _validatorData?.proposer_priority,
-              voting_power: Number(_validatorData?.voting_power),
+              validatorData = {
+                ...validatorData,
+                proposer_priority: _validatorData?.proposer_priority,
+                voting_power: Number(_validatorData?.voting_power),
+              }
             }
           }
-        }
 
-        setValidator({ data: validatorData || {}, address })
+          setValidator({ data: validatorData || {}, address })
 
-        setSupportedChains({ data: validatorData?.supported_chains || [], address })
+          setSupportedChains({ data: validatorData?.supported_chains || [], address })
 
-        const _health = {
-          broadcaster_registration: !(validatorData?.tss_illegibility_info?.no_proxy_registered) && validatorData?.broadcaster_address ? true : false,
-        }
-
-        _health.num_block_before_registered = validatorData && 'tss_illegibility_info' in validatorData && _health ? _health.broadcaster_registration ? typeof validatorData?.start_proxy_height === 'number' && typeof validatorData?.start_height === 'number' ? validatorData.start_proxy_height >= validatorData.start_height ? validatorData.start_proxy_height - validatorData.start_height : 0 : '-' : 'No Proxy' : null
-
-        if (validatorData?.broadcaster_address) {
-          response = await allBankBalances(validatorData.broadcaster_address)
-
-          if (response?.data) {
-            _health.broadcaster_funded = _.head(response.data.filter(balance => balance?.denom === feeDenom).map(balance => { return { amount: denomAmount(balance.amount, balance.denom, denoms_data), denom: denomSymbol(balance.denom, denoms_data) } }))
+          const _health = {
+            broadcaster_registration: !(validatorData?.tss_illegibility_info?.no_proxy_registered) && validatorData?.broadcaster_address ? true : false,
           }
-        }
-        else {
-          _health.broadcaster_funded = 'No Proxy'
-        }
 
-        response = await getHeartbeats({
-          aggs: {
-            heartbeats: {
-              terms: { field: 'sender.keyword' },
-              aggs: {
-                heightgroup: {
-                  terms: { field: 'height_group', size: 100000 },
+          _health.num_block_before_registered = validatorData && 'tss_illegibility_info' in validatorData && _health ? _health.broadcaster_registration ? typeof validatorData?.start_proxy_height === 'number' && typeof validatorData?.start_height === 'number' ? validatorData.start_proxy_height >= validatorData.start_height ? validatorData.start_proxy_height - validatorData.start_height : 0 : '-' : 'No Proxy' : null
+
+          if (validatorData?.broadcaster_address) {
+            response = await allBankBalances(validatorData.broadcaster_address)
+
+            if (response?.data) {
+              _health.broadcaster_funded = _.head(response.data.filter(balance => balance?.denom === feeDenom).map(balance => { return { amount: denomAmount(balance.amount, balance.denom, denoms_data), denom: denomSymbol(balance.denom, denoms_data) } }))
+            }
+          }
+          else {
+            _health.broadcaster_funded = 'No Proxy'
+          }
+
+          response = await getHeartbeats({
+            aggs: {
+              heartbeats: {
+                terms: { field: 'sender.keyword' },
+                aggs: {
+                  heightgroup: {
+                    terms: { field: 'height_group', size: 100000 },
+                  },
                 },
               },
             },
-          },
-          query: {
-            bool: {
-              must: [
-                { match: { sender: validatorData?.broadcaster_address } },
-                { range: { height: { gte: validatorData?.start_proxy_height || validatorData?.start_height, lte: Number(status_data.latest_block_height) } } },
-              ],
+            query: {
+              bool: {
+                must: [
+                  { match: { sender: validatorData?.broadcaster_address } },
+                  { range: { height: { gte: validatorData?.start_proxy_height || validatorData?.start_height, lte: Number(status_data.latest_block_height) } } },
+                ],
+              },
             },
-          },
-        })
+          })
 
-        const _last = lastHeartbeatBlock(Number(status_data.latest_block_height))
-        const _first = firstHeartbeatBlock(validatorData?.start_proxy_height || validatorData?.start_height)
+          const _last = lastHeartbeatBlock(Number(status_data.latest_block_height))
+          const _first = firstHeartbeatBlock(validatorData?.start_proxy_height || validatorData?.start_height)
 
-        const totalHeartbeats = Math.floor((_last - _first) / Number(process.env.NEXT_PUBLIC_NUM_BLOCKS_PER_HEARTBEAT)) + 1
-        _health.total_heartbeats = totalHeartbeats
+          const totalHeartbeats = Math.floor((_last - _first) / Number(process.env.NEXT_PUBLIC_NUM_BLOCKS_PER_HEARTBEAT)) + 1
+          _health.total_heartbeats = totalHeartbeats
 
-        _health.up_heartbeats = response?.data?.[validatorData?.broadcaster_address] || 0
+          _health.up_heartbeats = response?.data?.[validatorData?.broadcaster_address] || 0
 
-        _health.missed_heartbeats = _health.total_heartbeats - _health.up_heartbeats
-        _health.missed_heartbeats = _health.missed_heartbeats < 0 ? 0 : _health.missed_heartbeats
+          _health.missed_heartbeats = _health.total_heartbeats - _health.up_heartbeats
+          _health.missed_heartbeats = _health.missed_heartbeats < 0 ? 0 : _health.missed_heartbeats
 
-        _health.heartbeats_uptime = _health.total_heartbeats > 0 ? _health.up_heartbeats * 100 / _health.total_heartbeats : 0
-        _health.heartbeats_uptime = _health.heartbeats_uptime > 100 ? 100 : _health.heartbeats_uptime
+          _health.heartbeats_uptime = _health.total_heartbeats > 0 ? _health.up_heartbeats * 100 / _health.total_heartbeats : 0
+          _health.heartbeats_uptime = _health.heartbeats_uptime > 100 ? 100 : _health.heartbeats_uptime
 
-        setHealth({ data: _health, address })
-
-        if (!controller.signal.aborted) {
-          response = await getUptime(Number(status_data.latest_block_height), validatorData?.consensus_address)
-
-          if (response) {
-            setUptime({ data: response.data || [], address })
-          }
-        }
-
-        if (!controller.signal.aborted) {
-          const latestBlock = Number(status_data.latest_block_height)
-          let beginBlock = latestBlock - Number(process.env.NEXT_PUBLIC_NUM_HEARTBEAT_BLOCKS)
-          beginBlock = beginBlock > (validatorData?.start_proxy_height || 0) ? beginBlock : (validatorData?.start_proxy_height || 0)
-          beginBlock = firstHeartbeatBlock(beginBlock)
-
-          let heartbeats = []
-
-          for (let height = latestBlock; height >= beginBlock; height--) {
-            if (height % Number(process.env.NEXT_PUBLIC_NUM_BLOCKS_PER_HEARTBEAT) === 1 && heartbeats.length < Number(process.env.NEXT_PUBLIC_NUM_HEARTBEAT_BLOCKS) / Number(process.env.NEXT_PUBLIC_NUM_BLOCKS_PER_HEARTBEAT)) {
-              heartbeats.push({ height })
-            }
-          }
-
-          if (validatorData?.broadcaster_address) {
-            response = await getHeartbeat(beginBlock, latestBlock, validatorData.broadcaster_address)
-
-            if (response?.data) {
-              heartbeats = heartbeats.map(_heartbeat => response.data.find(__heartbeat => (__heartbeat?.height - (__heartbeat?.height % blocksPerHeartbeat) + blockFraction) === (_heartbeat?.height - (_heartbeat?.height % blocksPerHeartbeat) + blockFraction)) || _heartbeat)
-            }
-
-            response = await getIneligibilities({ query: `{__name__=~"axelar_tss_heartbeat",address="${validatorData?.operator_address}"}` })
-
-            const ineligibilities = response?.filter(metric => metric?.address && metric.address === validatorData?.operator_address)
-
-            heartbeats = heartbeats.map(_heartbeat => {
-              const _ineligibilities = ineligibilities?.find(_block => (_block?.height - (_block?.height % blocksPerHeartbeat) + blockFraction) === (_heartbeat?.height - (_heartbeat?.height % blocksPerHeartbeat) + blockFraction))
-
-              return {
-                ..._heartbeat,
-                up: (_heartbeat?.sender && _heartbeat.sender === validatorData.broadcaster_address) || _ineligibilities,
-                height: _ineligibilities?.height ? Number(_ineligibilities?.height) : _heartbeat.height,
-                key_ids: _ineligibilities?.key_IDs?.split(',') || _heartbeat.key_ids,
-                ineligibilities: {
-                  ..._ineligibilities?.ineligibilities,
-                },
-              }
-            })
-          }
-
-          setHeartbeat({ data: heartbeats, address })
+          setHealth({ data: _health, address })
         }
       }
     }
 
-    if (address && denoms_data && status_data && validators_data) {
-      getData()
-    }
+    getData()
 
     return () => {
       controller?.abort()
@@ -452,104 +401,187 @@ export default function Validator({ address }) {
     const controller = new AbortController()
 
     const getData = async () => {
-      let response, keygensData, signsData
+      if (address && validator?.address === address && status_data) {
+        if (!controller.signal.aborted) {
+          const validatorData = validator?.data
 
-      if (!controller.signal.aborted) {
-        response = await getKeygensByValidator(address)
+          const response = await getUptime(Number(status_data.latest_block_height), validatorData?.consensus_address)
 
-        if (response) {
-          setKeyShares({ data: response, address })
-        }
-      }
-
-      if (!controller.signal.aborted) {
-        response = await getSuccessKeygens({ size: 1000, sort: [{ height: 'desc' }] })
-
-        let _data = Array.isArray(response?.data) ? response.data : []
-
-        for (let i = 0; i < _data.length; i++) {
-          const _keygen = _data[i]
-
-          _data[i] = {
-            ..._keygen,
-            key_chain: _keygen.key_chain || (_keygen?.key_id?.split('-').length > 1 && getName(_keygen.key_id.split('-')[0])),
-            key_role: _keygen.key_role || (_keygen?.key_id?.split('-').length > 2 && `${_keygen.key_id.split('-')[1].toUpperCase()}_KEY`),
-            participated: _keygen.snapshot_validators?.validators?.findIndex(_validator => _validator?.validator?.toLowerCase() === address?.toLowerCase()) > -1 ? true : false,
-            not_participated: _keygen.snapshot_non_participant_validators?.validators?.findIndex(_validator => _validator?.validator?.toLowerCase() === address?.toLowerCase()) > -1 ? true : false,
-            success: true,
+          if (response) {
+            setUptime({ data: response.data || [], address })
           }
         }
-
-        keygensData = _.orderBy(_.concat(keygensData || [], _data.filter(_keygen => _keygen.participated || _keygen.not_participated)), ['height'], ['desc'])
-
-        response = await getFailedKeygens({ size: 1000, sort: [{ height: 'desc' }] })
-
-        _data = Array.isArray(response?.data) ? response.data : []
-
-        for (let i = 0; i < _data.length; i++) {
-          const _keygen = _data[i]
-
-          _data[i] = {
-            ..._keygen,
-            key_chain: _keygen.key_chain || (_keygen?.key_id?.split('-').length > 1 && getName(_keygen.key_id.split('-')[0])),
-            key_role: _keygen.key_role || (_keygen?.key_id?.split('-').length > 2 && `${_keygen.key_id.split('-')[1].toUpperCase()}_KEY`),
-            participated: _keygen.snapshot_validators?.validators?.findIndex(_validator => _validator?.validator?.toLowerCase() === address?.toLowerCase()) > -1 ? true : false,
-            not_participated: _keygen.snapshot_non_participant_validators?.validators?.findIndex(_validator => _validator?.validator?.toLowerCase() === address?.toLowerCase()) > -1 ? true : false,
-            success: false,
-          }
-        }
-
-        keygensData = _.orderBy(_.concat(keygensData || [], _data.filter(_keygen => _keygen.participated || _keygen.not_participated)), ['height'], ['desc'])
-
-        setKeygens({ data: keygensData, total: keygensData.length, address })
-      }
-
-      if (!controller.signal.aborted) {
-        response = await getSignAttempts({ size: 1000, query: { match: { result: true } }, sort: [{ height: 'desc' }] })
-
-        let _data = Array.isArray(response?.data) ? response.data : []
-
-        for (let i = 0; i < _data.length; i++) {
-          const _sign = _data[i]
-
-          _data[i] = {
-            ..._sign,
-            key_chain: _sign.key_chain || (_sign?.key_id?.split('-').length > 1 && getName(_sign.key_id.split('-')[0])),
-            key_role: _sign.key_role || (_sign?.key_id?.split('-').length > 2 && `${_sign.key_id.split('-')[1].toUpperCase()}_KEY`),
-            participated: _sign.participants?.findIndex(_address => _address?.toLowerCase() === address?.toLowerCase()) > -1 ? true : false,
-            not_participated: _sign.non_participants?.findIndex(_address => _address?.toLowerCase() === address?.toLowerCase()) > -1 ? true : false,
-            success: true,
-          }
-        }
-
-        signsData = _.orderBy(_.concat(signsData || [], _data.filter(_keygen => _keygen.participated || _keygen.not_participated)), ['height'], ['desc'])
-
-        response = await getSignAttempts({ size: 1000, query: { match: { result: false } }, sort: [{ height: 'desc' }] })
-
-        _data = Array.isArray(response?.data) ? response.data : []
-
-        for (let i = 0; i < _data.length; i++) {
-          const _sign = _data[i]
-
-          _data[i] = {
-            ..._sign,
-            key_chain: _sign.key_chain || (_sign?.key_id?.split('-').length > 1 && getName(_sign.key_id.split('-')[0])),
-            key_role: _sign.key_role || (_sign?.key_id?.split('-').length > 2 && `${_sign.key_id.split('-')[1].toUpperCase()}_KEY`),
-            participated: _sign.participants?.findIndex(_address => _address?.toLowerCase() === address?.toLowerCase()) > -1 ? true : false,
-            not_participated: _sign.non_participants?.findIndex(_address => _address?.toLowerCase() === address?.toLowerCase()) > -1 ? true : false,
-            success: false,
-          }
-        }
-
-        signsData = _.orderBy(_.concat(signsData || [], _data.filter(_keygen => _keygen.participated || _keygen.not_participated)), ['height'], ['desc'])
-
-        setSigns({ data: signsData, total: signsData.length, address })
       }
     }
 
-    if (address) {
-      getData()
+    getData()
+
+    return () => {
+      controller?.abort()
     }
+  }, [address, validator, status_data])
+
+  useEffect(() => {
+    const controller = new AbortController()
+
+    const getData = async () => {
+      if (address && validator?.address === address && status_data) {
+        if (!controller.signal.aborted) {
+          const validatorData = validator?.data
+
+          const latestBlock = Number(status_data.latest_block_height)
+          let beginBlock = latestBlock - Number(process.env.NEXT_PUBLIC_NUM_HEARTBEAT_BLOCKS)
+          beginBlock = beginBlock > (validatorData?.start_proxy_height || 0) ? beginBlock : (validatorData?.start_proxy_height || 0)
+          beginBlock = firstHeartbeatBlock(beginBlock)
+
+          let heartbeats = []
+
+          for (let height = latestBlock; height >= beginBlock; height--) {
+            if (height % Number(process.env.NEXT_PUBLIC_NUM_BLOCKS_PER_HEARTBEAT) === 1 && heartbeats.length < Number(process.env.NEXT_PUBLIC_NUM_HEARTBEAT_BLOCKS) / Number(process.env.NEXT_PUBLIC_NUM_BLOCKS_PER_HEARTBEAT)) {
+              heartbeats.push({ height })
+            }
+          }
+
+          if (validatorData?.broadcaster_address) {
+            let response = await getHeartbeat(beginBlock, latestBlock, validatorData.broadcaster_address)
+
+            if (response?.data) {
+              heartbeats = heartbeats.map(_heartbeat => response.data.find(__heartbeat => (__heartbeat?.height - (__heartbeat?.height % blocksPerHeartbeat) + blockFraction) === (_heartbeat?.height - (_heartbeat?.height % blocksPerHeartbeat) + blockFraction)) || _heartbeat)
+            }
+
+            response = await getIneligibilities({ query: `{__name__=~"axelar_tss_heartbeat",address="${validatorData?.operator_address}"}` })
+
+            const ineligibilities = response?.filter(metric => metric?.address && metric.address === validatorData?.operator_address)
+
+            heartbeats = heartbeats.map(_heartbeat => {
+              const _ineligibilities = ineligibilities?.find(_block => (_block?.height - (_block?.height % blocksPerHeartbeat) + blockFraction) === (_heartbeat?.height - (_heartbeat?.height % blocksPerHeartbeat) + blockFraction))
+
+              return {
+                ..._heartbeat,
+                up: (_heartbeat?.sender && _heartbeat.sender === validatorData.broadcaster_address) || _ineligibilities,
+                height: _ineligibilities?.height ? Number(_ineligibilities?.height) : _heartbeat.height,
+                key_ids: _ineligibilities?.key_IDs?.split(',') || _heartbeat.key_ids,
+                ineligibilities: {
+                  ..._ineligibilities?.ineligibilities,
+                },
+              }
+            })
+          }
+
+          setHeartbeat({ data: heartbeats, address })
+        }
+      }
+    }
+
+    getData()
+
+    return () => {
+      controller?.abort()
+    }
+  }, [address, validator, status_data])
+
+  useEffect(() => {
+    const controller = new AbortController()
+
+    const getData = async () => {
+      if (address) {
+        let response, keygensData, signsData
+
+        if (!controller.signal.aborted) {
+          response = await getKeygensByValidator(address)
+
+          if (response) {
+            setKeyShares({ data: response, address })
+          }
+        }
+
+        if (!controller.signal.aborted) {
+          response = await getSuccessKeygens({ size: 1000, sort: [{ height: 'desc' }] })
+
+          let _data = Array.isArray(response?.data) ? response.data : []
+
+          for (let i = 0; i < _data.length; i++) {
+            const _keygen = _data[i]
+
+            _data[i] = {
+              ..._keygen,
+              key_chain: _keygen.key_chain || (_keygen?.key_id?.split('-').length > 1 && getName(_keygen.key_id.split('-')[0])),
+              key_role: _keygen.key_role || (_keygen?.key_id?.split('-').length > 2 && `${_keygen.key_id.split('-')[1].toUpperCase()}_KEY`),
+              participated: _keygen.snapshot_validators?.validators?.findIndex(_validator => _validator?.validator?.toLowerCase() === address?.toLowerCase()) > -1 ? true : false,
+              not_participated: _keygen.snapshot_non_participant_validators?.validators?.findIndex(_validator => _validator?.validator?.toLowerCase() === address?.toLowerCase()) > -1 ? true : false,
+              success: true,
+            }
+          }
+
+          keygensData = _.orderBy(_.concat(keygensData || [], _data.filter(_keygen => _keygen.participated || _keygen.not_participated)), ['height'], ['desc'])
+
+          response = await getFailedKeygens({ size: 1000, sort: [{ height: 'desc' }] })
+
+          _data = Array.isArray(response?.data) ? response.data : []
+
+          for (let i = 0; i < _data.length; i++) {
+            const _keygen = _data[i]
+
+            _data[i] = {
+              ..._keygen,
+              key_chain: _keygen.key_chain || (_keygen?.key_id?.split('-').length > 1 && getName(_keygen.key_id.split('-')[0])),
+              key_role: _keygen.key_role || (_keygen?.key_id?.split('-').length > 2 && `${_keygen.key_id.split('-')[1].toUpperCase()}_KEY`),
+              participated: _keygen.snapshot_validators?.validators?.findIndex(_validator => _validator?.validator?.toLowerCase() === address?.toLowerCase()) > -1 ? true : false,
+              not_participated: _keygen.snapshot_non_participant_validators?.validators?.findIndex(_validator => _validator?.validator?.toLowerCase() === address?.toLowerCase()) > -1 ? true : false,
+              success: false,
+            }
+          }
+
+          keygensData = _.orderBy(_.concat(keygensData || [], _data.filter(_keygen => _keygen.participated || _keygen.not_participated)), ['height'], ['desc'])
+
+          setKeygens({ data: keygensData, total: keygensData.length, address })
+        }
+
+        if (!controller.signal.aborted) {
+          response = await getSignAttempts({ size: 1000, query: { match: { result: true } }, sort: [{ height: 'desc' }] })
+
+          let _data = Array.isArray(response?.data) ? response.data : []
+
+          for (let i = 0; i < _data.length; i++) {
+            const _sign = _data[i]
+
+            _data[i] = {
+              ..._sign,
+              key_chain: _sign.key_chain || (_sign?.key_id?.split('-').length > 1 && getName(_sign.key_id.split('-')[0])),
+              key_role: _sign.key_role || (_sign?.key_id?.split('-').length > 2 && `${_sign.key_id.split('-')[1].toUpperCase()}_KEY`),
+              participated: _sign.participants?.findIndex(_address => _address?.toLowerCase() === address?.toLowerCase()) > -1 ? true : false,
+              not_participated: _sign.non_participants?.findIndex(_address => _address?.toLowerCase() === address?.toLowerCase()) > -1 ? true : false,
+              success: true,
+            }
+          }
+
+          signsData = _.orderBy(_.concat(signsData || [], _data.filter(_keygen => _keygen.participated || _keygen.not_participated)), ['height'], ['desc'])
+
+          response = await getSignAttempts({ size: 1000, query: { match: { result: false } }, sort: [{ height: 'desc' }] })
+
+          _data = Array.isArray(response?.data) ? response.data : []
+
+          for (let i = 0; i < _data.length; i++) {
+            const _sign = _data[i]
+
+            _data[i] = {
+              ..._sign,
+              key_chain: _sign.key_chain || (_sign?.key_id?.split('-').length > 1 && getName(_sign.key_id.split('-')[0])),
+              key_role: _sign.key_role || (_sign?.key_id?.split('-').length > 2 && `${_sign.key_id.split('-')[1].toUpperCase()}_KEY`),
+              participated: _sign.participants?.findIndex(_address => _address?.toLowerCase() === address?.toLowerCase()) > -1 ? true : false,
+              not_participated: _sign.non_participants?.findIndex(_address => _address?.toLowerCase() === address?.toLowerCase()) > -1 ? true : false,
+              success: false,
+            }
+          }
+
+          signsData = _.orderBy(_.concat(signsData || [], _data.filter(_keygen => _keygen.participated || _keygen.not_participated)), ['height'], ['desc'])
+
+          setSigns({ data: signsData, total: signsData.length, address })
+        }
+      }
+    }
+
+    getData()
 
     return () => {
       controller?.abort()
