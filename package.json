@@ -35,7 +35,8 @@
     "recharts": "^2.1.4",
     "redux": "^4.1.0",
     "redux-devtools-extension": "^2.13.9",
-    "tendermint": "^5.0.2"
+    "tendermint": "^5.0.2",
+    "to-regex-range": "^5.0.1"
   },
   "devDependencies": {
     "@tailwindcss/forms": "^0.3.3",

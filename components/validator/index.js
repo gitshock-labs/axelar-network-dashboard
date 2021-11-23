@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useSelector, useDispatch, shallowEqual } from 'react-redux'
 
 import moment from 'moment'
+import toRegexRange from 'to-regex-range'
 
 import Information from './information'
 import CosmosGeneric from './cosmos-generic'
@@ -449,7 +450,7 @@ export default function Validator({ address }) {
               heartbeats = heartbeats.map(_heartbeat => response.data.find(__heartbeat => (__heartbeat?.height - (__heartbeat?.height % blocksPerHeartbeat) + blockFraction) === (_heartbeat?.height - (_heartbeat?.height % blocksPerHeartbeat) + blockFraction)) || _heartbeat)
             }
 
-            response = await getIneligibilities({ query: `{__name__=~"axelar_tss_heartbeat",address="${validatorData?.operator_address}"}` })
+            response = await getIneligibilities({ query: `{__name__=~"axelar_tss_heartbeat",address="${validatorData?.operator_address}",height=~"${toRegexRange(beginBlock, latestBlock)}"}` })
 
             const ineligibilities = response?.filter(metric => metric?.address && metric.address === validatorData?.operator_address)
 
