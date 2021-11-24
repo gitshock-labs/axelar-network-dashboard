@@ -73,7 +73,7 @@ export default function Bridge() {
 
     getData()
 
-    const interval = setInterval(() => getBridgeAccounts(), 5 * 60 * 1000)
+    const interval = setInterval(() => getData(), 5 * 60 * 1000)
     return () => {
       controller?.abort()
       clearInterval(interval)
