@@ -206,7 +206,7 @@ const Summary = ({ data, crosschainData, tvlData, avgTransfersTimeRange, setAvgT
           </span>
         </Widget>
         <Widget
-          title="Online Voting Power (Now)"
+          title="Online Voting Power"
           className="bg-transparent sm:bg-white sm:dark:bg-gray-900 border-0 sm:border border-gray-100 dark:border-gray-800 p-0 sm:p-4"
         >
           <span className="flex flex-col space-y-1 mt-1">
