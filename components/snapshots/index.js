@@ -5,6 +5,7 @@ import { useSelector, useDispatch, shallowEqual } from 'react-redux'
 import StackGrid from 'react-stack-grid'
 import moment from 'moment'
 import _ from 'lodash'
+import Loader from 'react-loader-spinner'
 import { FiServer } from 'react-icons/fi'
 
 import Widget from '../widget'
@@ -20,8 +21,9 @@ const snapshot_block_size = Number(process.env.NEXT_PUBLIC_SNAPSHOT_BLOCK_SIZE)
 
 export default function Snapshots({ n = 100 }) {
   const dispatch = useDispatch()
-  const { data } = useSelector(state => ({ data: state.data }), shallowEqual)
+  const { data, preferences } = useSelector(state => ({ data: state.data, preferences: state.preferences }), shallowEqual)
   const { status_data } = { ...data }
+  const { theme } = { ...preferences }
 
   const [statusLoaded, setStatusLoaded] = useState(null)
   const [snapshots, setSnapshots] = useState(null)
@@ -90,8 +92,8 @@ export default function Snapshots({ n = 100 }) {
             }
           }), ['snapshot_block'], ['desc'])
 
-          if (!(data[0]?.snapshot_block >= latestBlock)) {
-            data = _.concat({ snapshot_block: snapshot_block + snapshot_block_size }, data)
+          while (!(data[0]?.snapshot_block >= latestBlock)) {
+            data = _.concat({ snapshot_block: (data[0]?.snapshot_block || 0) + snapshot_block_size, processing: !((data[0]?.snapshot_block || 0) + snapshot_block_size >= latestBlock) ? true : undefined }, data)
           }
 
           setSnapshots({ data })
@@ -150,18 +152,23 @@ export default function Snapshots({ n = 100 }) {
   ).map((snapshot, i) => (
     <Widget
       key={i}
-      className={`${!latestBlock || snapshot.snapshot_block <= latestBlock ? '' : 'bg-gray-100 dark:bg-gray-900'} shadow-xl`}
+      className={`${!latestBlock || (snapshot.snapshot_block <= latestBlock && !snapshot.processing) ? '' : 'bg-gray-100 dark:bg-gray-900'} shadow-xl`}
     >
       {!snapshot.skeleton ?
         <div className="flex flex-col">
           <div className="flex items-center text-gray-400 dark:text-gray-600">
             <span className="capitalize text-sm">Snapshot Block</span>
-            {typeof snapshot?.num_validators === 'number' && (
+            {typeof snapshot?.num_validators === 'number' ?
               <span className="flex items-center text-gray-400 dark:text-gray-600 text-xs space-x-1 ml-auto">
                 <span>{numberFormat(snapshot.num_validators, '0,0')}</span>
                 <FiServer size={14} className="stroke-current" />
               </span>
-            )}
+              :
+              snapshot.processing ?
+                <Loader type="BallTriangle" color={theme === 'dark' ? 'white' : '#acacac'} width="24" height="24" className="ml-auto" />
+                :
+                null
+            }
           </div>
           <div className="font-mono text-3xl font-semibold text-center my-2">
             {numberFormat(snapshot.snapshot_block, '0,0')}
@@ -196,7 +203,7 @@ export default function Snapshots({ n = 100 }) {
         </div>}
     </Widget>
   )).map((widget, i) => (
-    snapshots?.data?.[i]?.time ?
+    snapshots?.data?.[i]?.time && !snapshots?.data?.[i]?.processing ?
       <Link key={i} href={`/validators/snapshot/${snapshots.data[i].snapshot_block}`}>
         <a>
           {widget}

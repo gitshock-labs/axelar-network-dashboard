@@ -5,6 +5,7 @@ import _ from 'lodash'
 import moment from 'moment'
 import { FaCheckCircle, FaTimesCircle } from 'react-icons/fa'
 import { FiKey } from 'react-icons/fi'
+import { BiDownload } from 'react-icons/bi'
 
 import Summary from './summary'
 import Datatable from '../datatable'
@@ -47,9 +48,38 @@ export default function Snapshot({ height }) {
     }
   }, [height])
 
+  const downloadFile = async () => {
+    const fileName = height
+
+    const json = JSON.stringify(snapshot?.data)
+
+    const blob = new Blob([json], { type:'application/json' })
+    const href = await URL.createObjectURL(blob)
+    const link = document.createElement('a')
+
+    link.href = href
+    link.download = `${fileName}.json`
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+  }
+
   return (
     <div className="w-full my-4 xl:my-6 mx-auto">
       <Summary data={snapshot && snapshot.height === height && snapshot.data} />
+      {snapshot && snapshot.height === height && snapshot.data && (
+        <div className="w=full flex items-center mb-2">
+          <button
+            onClick={() => downloadFile()}
+            className="text-blue-600 dark:text-blue-500 font-semibold sm:ml-auto"
+          >
+            <div className="flex items-center space-x-1.5">
+              <span>Export JSON</span>
+              <BiDownload size={20} />
+            </div>
+          </button>
+        </div>
+      )}
       <Datatable
         columns={[
           {
