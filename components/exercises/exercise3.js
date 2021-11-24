@@ -158,7 +158,7 @@ export default function Exercise3() {
 
           // response = await axelard({ cmd: `${cmd} -oj` })
           response = await transactionsByEvents(`message.destinationAddress='${data.axelar_address}'`, null, null, null, denoms_data)
-          response = response?.filter(tx => tx?.logs?.[0].events?.[0]?.attributes?.findIndex(attr => attr?.key === 'action' && attr.value === 'Link') > -1).map(tx => tx.logs[0].events[0].attributes.find(attr => attr?.key === 'depositAddress' && attr.value)?.value).filter(address => address) || []
+          response = response?.data?.filter(tx => tx?.logs?.[0].events?.[0]?.attributes?.findIndex(attr => attr?.key === 'action' && attr.value === 'Link') > -1).map(tx => tx.logs[0].events[0].attributes.find(attr => attr?.key === 'depositAddress' && attr.value)?.value).filter(address => address) || []
           response = _.uniq(response)
 
           // if (response?.data?.stdout) {

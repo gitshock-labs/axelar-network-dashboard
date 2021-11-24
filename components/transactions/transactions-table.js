@@ -101,7 +101,7 @@ export default function TransactionsTable({ data, noLoad, hasVote, location, cla
             Cell: props => (
               !props.row.original.skeleton ?
                 <Link href={`/block/${props.value}`}>
-                  <a className="text-blue-600 dark:text-blue-500">
+                  <a className="text-blue-600 dark:text-blue-500 font-medium">
                     {numberFormat(props.value, '0,0')}
                   </a>
                 </Link>
@@ -241,7 +241,7 @@ export default function TransactionsTable({ data, noLoad, hasVote, location, cla
           [...Array(!location ? 25 : 10).keys()].map(i => { return { i, skeleton: true } })
         }
         noPagination={(!location && !noLoad) || ['index'].includes(location)}
-        defaultPageSize={!location ? LATEST_SIZE > 100 ? 50 : 25 : 10}
+        defaultPageSize={!location ? LATEST_SIZE > 100 ? 50 : 50 : 10}
         className={`${(!location && !noLoad) || ['index'].includes(location) ? 'min-h-full' : ''} ${className}`}
       />
       {transactions && !(transactions.data?.length > 0) && (

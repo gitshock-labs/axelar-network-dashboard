@@ -125,7 +125,7 @@ export default function KeysTable({ data, corruption_signing_threshold, page }) 
                   {props.value > -1 ?
                     <>
                       <Link href={`/block/${props.value}`}>
-                        <a className="text-blue-600 dark:text-blue-500">
+                        <a className="text-blue-600 dark:text-blue-500 font-medium">
                           {numberFormat(props.value, '0,0')}
                         </a>
                       </Link>
