@@ -24,6 +24,8 @@ export default function TransactionsTable({ data, noLoad, hasVote, location, cla
   const [page, setPage] = useState(0)
   const [moreLoading, setMoreLoading] = useState(false)
   const [transactions, setTransactions] = useState(null)
+  const [actions, setActions] = useState({})
+  const [filterActions, setFilterActions] = useState([])
 
   useEffect(() => {
     const controller = new AbortController()
@@ -72,8 +74,29 @@ export default function TransactionsTable({ data, noLoad, hasVote, location, cla
     }
   }, [data, page, denoms_data])
 
+  useEffect(() => {
+    if (!noLoad && !location && transactions?.data) {
+      setActions(_.countBy(_.uniqBy(transactions.data, 'txhash').map(tx => tx.type)))
+    }
+  }, [transactions])
+
   return (
     <>
+      {!noLoad && !location && (
+        <div className="block sm:flex items-center justify-end overflow-x-auto space-x-1 mb-2">
+          {Object.entries(actions).map(([key, value]) => (
+            <div
+              key={key}
+              onClick={() => setFilterActions(_.uniq(filterActions.includes(key) ? filterActions.filter(_action => _action !== key) : _.concat(filterActions, key)))}
+              className={`max-w-min btn btn-rounded cursor-pointer whitespace-nowrap flex items-center space-x-1.5 bg-trasparent ${filterActions.includes(key) ? 'bg-gray-200 dark:bg-gray-800 text-gray-900 dark:text-white font-semibold' : 'hover:bg-gray-100 dark:hover:bg-gray-900 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-100'} ml-1 mb-1 px-2`}
+              style={{ textTransform: 'none', fontSize: '.7rem' }}
+            >
+              <span>{key?.endsWith('Request') ? key.replace('Request', '') : key}</span>
+              <span className="text-2xs text-indigo-600 dark:text-indigo-400 font-bold"> {numberFormat(value, '0,0')}</span>
+            </div>
+          ))}
+        </div>
+      )}
       <Datatable
         columns={[
           {
@@ -236,7 +259,7 @@ export default function TransactionsTable({ data, noLoad, hasVote, location, cla
           },
         ].filter(column => ['blocks'].includes(location) ? !(['height', 'vote'].includes(column.accessor)) : ['index'].includes(location) ? !(['height', 'value', 'fee', 'vote'].includes(column.accessor)) : ['validator'].includes(location) ? !((hasVote ? ['value', 'fee'] : ['value', 'fee', 'vote']).includes(column.accessor)) : !(['vote'].includes(column.accessor)))}
         data={transactions ?
-          transactions.data?.map((transaction, i) => { return { ...transaction, i } })
+          transactions.data?.filter(tx => !(!noLoad && !location) || !(filterActions?.length > 0) || filterActions.includes(tx.type)).map((transaction, i) => { return { ...transaction, i } })
           :
           [...Array(!location ? 25 : 10).keys()].map(i => { return { i, skeleton: true } })
         }
