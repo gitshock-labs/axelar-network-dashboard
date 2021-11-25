@@ -31,6 +31,7 @@ export default function Index() {
       />
       <Dashboard />
       <div className="dark:bg-black" />
+      <div className="bg-yellow-500" />
     </>
   )
 }
