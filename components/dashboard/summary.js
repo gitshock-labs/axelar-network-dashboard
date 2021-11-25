@@ -234,7 +234,7 @@ const Summary = ({ data, crosschainData, tvlData, avgTransfersTimeRange, setAvgT
       </div>
       <div className="flex items-center text-gray-900 dark:text-gray-100 text-base font-semibold mt-8 sm:mx-3">
         Cross-chain transfer
-        <span className="bg-gray-200 rounded-3xl capitalize text-2xs ml-2 px-1.5 py-1">
+        <span className="bg-gray-200 dark:bg-gray-900 rounded-3xl capitalize text-2xs ml-2 px-1.5 py-1">
           Beta
         </span>
       </div>
