@@ -3,8 +3,8 @@ import { useState, useEffect } from 'react'
 import { useSelector, useDispatch, shallowEqual } from 'react-redux'
 
 import StackGrid from 'react-stack-grid'
-import moment from 'moment'
 import _ from 'lodash'
+import moment from 'moment'
 import Loader from 'react-loader-spinner'
 import { FiServer } from 'react-icons/fi'
 
@@ -87,7 +87,7 @@ export default function Snapshots({ n = 100 }) {
 
           let data = _.orderBy(Object.entries(response?.data || {}).map(([key, value], i) => {
             return {
-              snapshot_block: key,
+              snapshot_block: Number(key),
               num_validators: value,
             }
           }), ['snapshot_block'], ['desc'])
@@ -176,7 +176,7 @@ export default function Snapshots({ n = 100 }) {
           <div className="text-gray-400 dark:text-gray-600 text-xs text-center">
             {snapshot.snapshot_block > latestBlock ?
               <div className="space-x-1">
-                <span>will snap in</span>
+                <span>the next snapshot in</span>
                 <span className="text-gray-900 dark:text-white">{numberFormat(snapshot.snapshot_block - latestBlock, '0,0')}</span>
                 <span>block{snapshot.snapshot_block - latestBlock > 1 ? 's' : ''}</span>
               </div>

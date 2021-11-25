@@ -337,8 +337,8 @@ export default function Snapshot({ height }) {
                 <div className="flex flex-col items-end space-y-2.5 ml-auto">
                   {[...Array(3).keys()].map(i => (
                     <div key={i} className="flex flex-col items-end space-y-1.5">
-                      <div key={i} className="skeleton w-24 h-4" />
-                      <div key={i} className="skeleton w-20 h-4" />
+                      <div className="skeleton w-24 h-4" />
+                      <div className="skeleton w-20 h-4" />
                     </div>
                   ))}
                 </div>

@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react'
 
 import StackGrid from 'react-stack-grid'
-import moment from 'moment'
 import _ from 'lodash'
+import moment from 'moment'
 
 import Widget from '../widget'
 import Copy from '../copy'
