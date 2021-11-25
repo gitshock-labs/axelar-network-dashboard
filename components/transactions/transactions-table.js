@@ -91,7 +91,7 @@ export default function TransactionsTable({ data, noLoad, hasVote, location, cla
               className={`max-w-min btn btn-rounded cursor-pointer whitespace-nowrap flex items-center space-x-1.5 bg-trasparent ${filterActions.includes(key) ? 'bg-gray-200 dark:bg-gray-800 text-gray-900 dark:text-white font-semibold' : 'hover:bg-gray-100 dark:hover:bg-gray-900 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-100'} ml-1 mb-1 px-2`}
               style={{ textTransform: 'none', fontSize: '.7rem' }}
             >
-              <span>{key?.endsWith('Request') ? key.replace('Request', '') : key}</span>
+              <span>{key === 'undefined' ? 'Failed' : key?.endsWith('Request') ? key.replace('Request', '') : key}</span>
               <span className="text-2xs text-indigo-600 dark:text-indigo-400 font-bold"> {numberFormat(value, '0,0')}</span>
             </div>
           ))}
@@ -259,7 +259,7 @@ export default function TransactionsTable({ data, noLoad, hasVote, location, cla
           },
         ].filter(column => ['blocks'].includes(location) ? !(['height', 'vote'].includes(column.accessor)) : ['index'].includes(location) ? !(['height', 'value', 'fee', 'vote'].includes(column.accessor)) : ['validator'].includes(location) ? !((hasVote ? ['value', 'fee'] : ['value', 'fee', 'vote']).includes(column.accessor)) : !(['vote'].includes(column.accessor)))}
         data={transactions ?
-          transactions.data?.filter(tx => !(!noLoad && !location) || !(filterActions?.length > 0) || filterActions.includes(tx.type)).map((transaction, i) => { return { ...transaction, i } })
+          transactions.data?.filter(tx => !(!noLoad && !location) || !(filterActions?.length > 0) || filterActions.includes(tx.type) || (filterActions.includes('undefined') && !tx.type)).map((transaction, i) => { return { ...transaction, i } })
           :
           [...Array(!location ? 25 : 10).keys()].map(i => { return { i, skeleton: true } })
         }

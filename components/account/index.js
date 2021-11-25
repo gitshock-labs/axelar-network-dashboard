@@ -471,7 +471,7 @@ export default function Account({ address }) {
                 className={`max-w-min btn btn-rounded cursor-pointer whitespace-nowrap flex items-center space-x-1.5 bg-trasparent ${filterActions.includes(key) ? 'bg-gray-100 dark:bg-black text-gray-900 dark:text-white font-semibold' : 'hover:bg-gray-50 dark:hover:bg-gray-900 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-100'} mb-1 ml-1 px-2`}
                 style={{ textTransform: 'none', fontSize: '.7rem' }}
               >
-                <span>{key?.endsWith('Request') ? key.replace('Request', '') : key}</span>
+                <span>{key === 'undefined' ? 'Failed' : key?.endsWith('Request') ? key.replace('Request', '') : key}</span>
                 <span className="text-2xs text-indigo-600 dark:text-indigo-400 font-bold"> {numberFormat(value, '0,0')}</span>
               </div>
             ))}
@@ -480,7 +480,7 @@ export default function Account({ address }) {
         className="flex-col sm:flex-row items-start sm:items-center mt-4"
       >
         <div className="mt-3">
-          <TransactionsTable data={address && transactions?.address === address && { ...transactions, data: _.orderBy(_.uniqBy(Object.values(transactions?.data || {}).flatMap(txs => txs?.data?.flatMap(_txs => _txs)), 'txhash'), ['timestamp', 'height'], ['desc', 'desc']).filter(tx => !(filterActions?.length > 0) || filterActions.includes(tx.type)) }} noLoad={true} />
+          <TransactionsTable data={address && transactions?.address === address && { ...transactions, data: _.orderBy(_.uniqBy(Object.values(transactions?.data || {}).flatMap(txs => txs?.data?.flatMap(_txs => _txs)), 'txhash'), ['timestamp', 'height'], ['desc', 'desc']).filter(tx => !(filterActions?.length > 0) || filterActions.includes(tx.type) || (filterActions.includes('undefined') && !tx.type)) }} noLoad={true} />
         </div>
         {!loading ?
           <div
