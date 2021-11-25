@@ -232,7 +232,12 @@ const Summary = ({ data, crosschainData, tvlData, avgTransfersTimeRange, setAvgT
           </span>
         </Widget>
       </div>
-      <div className="text-gray-900 dark:text-gray-100 text-base font-semibold mt-8 sm:mx-3">Cross-chain transfer</div>
+      <div className="flex items-center text-gray-900 dark:text-gray-100 text-base font-semibold mt-8 sm:mx-3">
+        Cross-chain transfer
+        <span className="bg-gray-200 rounded-3xl capitalize text-2xs ml-2 px-1.5 py-1">
+          Beta
+        </span>
+      </div>
       <div className="w-full grid grid-flow-row grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-8 sm:gap-4 mt-1.5 mb-4">
         <Widget
           title="Number of Transactions"
