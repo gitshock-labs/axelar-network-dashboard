@@ -15,6 +15,7 @@ import { allValidators, validatorProfile, allDelegations } from '../../lib/api/c
 import { transfers } from '../../lib/api/opensearch'
 import { hexToBech32 } from '../../lib/object/key'
 import { denomSymbol, denomName, denomAmount, denomImage } from '../../lib/object/denom'
+import { chainName, chainImage } from '../../lib/object/chain'
 import { numberFormat, randImage } from '../../lib/utils'
 
 import { STATUS_DATA, VALIDATORS_DATA } from '../../reducers/types'
@@ -28,7 +29,7 @@ export default function Dashboard() {
   const [crosschainSummaryData, setCrosschainSummaryData] = useState(null)
   const [crosschainTVLData, setCrosschainTVLData] = useState(null)
   const [avgTransfersTimeRange, setAvgTransfersTimeRange] = useState(null)
-  const [contractSelect, setContractSelect] = useState(null)
+  const [chainSelect, setChainSelect] = useState(null)
   const [crosschainChartData, setCrosschainChartData] = useState(null)
   const [consensusStateData, setConsensusStateData] = useState(null)
   const [loadValsProfile, setLoadValsProfile] = useState(false)
@@ -70,7 +71,7 @@ export default function Dashboard() {
             response = await transfers({
               aggs: {
                 transfers: {
-                  terms: { field: 'contract.name.keyword', size: 10000 },
+                  terms: { field: 'chain.keyword', size: 10000 },
                   aggs: {
                     amounts: {
                       sum: {
@@ -92,10 +93,9 @@ export default function Dashboard() {
         const total_transfers = !(isInterval || !avgTransfersTimeRange) ? crosschainSummaryData?.total_transfers : _.orderBy(response?.data?.map(transfer => {
           return {
             ...transfer,
-            denom: denomSymbol(transfer.contract_name, denoms_data),
-            name: denomName(transfer.contract_name, denoms_data),
-            image: denomImage(transfer.contract_name, denoms_data),
-            amount: denomAmount(transfer.amount, transfer.contract_name, denoms_data),
+            name: chainName(transfer.chain),
+            image: chainImage(transfer.chain),
+            amount: transfer.amount,
           }
         }), ['tx'], ['desc'])
 
@@ -103,7 +103,7 @@ export default function Dashboard() {
           response = await transfers({
             aggs: {
               transfers: {
-                terms: { field: 'contract.name.keyword', size: 10000 },
+                terms: { field: 'chain.keyword', size: 10000 },
                 aggs: {
                   amounts: {
                     avg: {
@@ -120,10 +120,9 @@ export default function Dashboard() {
         const avg_transfers = _.orderBy(response?.data?.map(transfer => {
           return {
             ...transfer,
-            denom: denomSymbol(transfer.contract_name, denoms_data),
-            name: denomName(transfer.contract_name, denoms_data),
-            image: denomImage(transfer.contract_name, denoms_data),
-            amount: denomAmount(transfer.amount, transfer.contract_name, denoms_data),
+            name: chainName(transfer.chain),
+            image: chainImage(transfer.chain),
+            amount: transfer.amount,
           }
         }), ['tx'], ['desc'])
 
@@ -132,7 +131,7 @@ export default function Dashboard() {
             response = await transfers({
               aggs: {
                 transfers: {
-                  terms: { field: 'contract.name.keyword', size: 10000 },
+                  terms: { field: 'chain.keyword', size: 10000 },
                   aggs: {
                     amounts: {
                       max: {
@@ -150,10 +149,9 @@ export default function Dashboard() {
         const highest_transfer_24h = !(isInterval || !avgTransfersTimeRange) ? crosschainSummaryData?.highest_transfer_24h : _.orderBy(response?.data?.map(transfer => {
           return {
             ...transfer,
-            denom: denomSymbol(transfer.contract_name, denoms_data),
-            name: denomName(transfer.contract_name, denoms_data),
-            image: denomImage(transfer.contract_name, denoms_data),
-            amount: denomAmount(transfer.amount, transfer.contract_name, denoms_data),
+            name: chainName(transfer.chain?.toLowerCase()),
+            image: chainImage(transfer.chain?.toLowerCase()),
+            amount: transfer.amount,
           }
         }), ['tx'], ['desc'])
 
@@ -175,16 +173,16 @@ export default function Dashboard() {
   }, [denoms_data, avgTransfersTimeRange])
 
   useEffect(() => {
-    if (!contractSelect && crosschainSummaryData?.total_transfers?.[0]?.contract_name) {
-      setContractSelect(crosschainSummaryData.total_transfers[0].contract_name)
+    if (!chainSelect && crosschainSummaryData?.total_transfers?.[0]?.chain) {
+      setChainSelect(crosschainSummaryData.total_transfers[0].chain)
     }
-  }, [crosschainSummaryData, contractSelect])
+  }, [crosschainSummaryData, chainSelect])
 
   useEffect(() => {
     const controller = new AbortController()
 
     const getData = async () => {
-      if (denoms_data && contractSelect) {
+      if (denoms_data && chainSelect) {
         const today = moment().utc().startOf('day')
         const daily_time_range = 30
         const day_ms = 24 * 60 * 60 * 1000
@@ -195,7 +193,7 @@ export default function Dashboard() {
           response = await transfers({
             aggs: {
               transfers: {
-                terms: { field: 'contract.name.keyword', size: 10000 },
+                terms: { field: 'chain.keyword', size: 10000 },
                 aggs: {
                   times: {
                     terms: { field: 'created_at.day', size: 10000 },
@@ -222,15 +220,10 @@ export default function Dashboard() {
 
           return {
             ...transfer,
-            denom: denomSymbol(transfer.contract_name, denoms_data),
-            name: denomName(transfer.contract_name, denoms_data),
-            image: denomImage(transfer.contract_name, denoms_data),
-            times: times.map(time => {
-              return {
-                ...time,
-                amount: denomAmount(time.amount, transfer.contract_name, denoms_data),
-              }
-            }),
+            times,
+            name: chainName(transfer.chain),
+            image: chainImage(transfer.chain),
+            amount: transfer.amount,
           }
         }), ['tx'], ['desc'])
 
@@ -238,7 +231,7 @@ export default function Dashboard() {
           response = await transfers({
             aggs: {
               transfers: {
-                terms: { field: 'contract.name.keyword', size: 10000 },
+                terms: { field: 'chain.keyword', size: 10000 },
                 aggs: {
                   times: {
                     terms: { field: 'created_at.day', size: 10000 },
@@ -265,15 +258,10 @@ export default function Dashboard() {
 
           return {
             ...transfer,
-            denom: denomSymbol(transfer.contract_name, denoms_data),
-            name: denomName(transfer.contract_name, denoms_data),
-            image: denomImage(transfer.contract_name, denoms_data),
-            times: times.map(time => {
-              return {
-                ...time,
-                amount: denomAmount(time.amount, transfer.contract_name, denoms_data),
-              }
-            }),
+            times,
+            name: chainName(transfer.chain),
+            image: chainImage(transfer.chain),
+            amount: transfer.amount,
           }
         }), ['tx'], ['desc'])
 
@@ -291,7 +279,7 @@ export default function Dashboard() {
       controller?.abort()
       clearInterval(interval)
     }
-  }, [denoms_data, contractSelect])
+  }, [denoms_data, chainSelect])
 
   useEffect(() => {
     const controller = new AbortController()
@@ -303,79 +291,8 @@ export default function Dashboard() {
         let response
 
         if (!controller.signal.aborted) {
-          response = await transfers({
-            query: {
-              bool: {
-                should: [
-                  { match: { 'logs.events.type': 'outpointConfirmation' } },
-                  { match: { 'source': 'cosmos' } },
-                ],
-              },
-            },
-            aggs: {
-              transfers: {
-                terms: { field: 'contract.name.keyword', size: 10000 },
-                aggs: {
-                  amounts: {
-                    sum: {
-                      field: 'amount',
-                    },
-                  },
-                },
-              },
-            },
-          })
-
-          const mints = _.orderBy(response?.data?.map(transfer => {
-            return {
-              ...transfer,
-              denom: denomSymbol(transfer.contract_name, denoms_data),
-              name: denomName(transfer.contract_name, denoms_data),
-              image: denomImage(transfer.contract_name, denoms_data),
-              amount: denomAmount(transfer.amount, transfer.contract_name, denoms_data),
-              action: 'mint',
-            }
-          }), ['tx'], ['desc'])
-
-          response = await transfers({
-            query: {
-              match: { 'logs.events.type': 'depositConfirmation' }
-            },
-            aggs: {
-              transfers: {
-                terms: { field: 'contract.name.keyword', size: 10000 },
-                aggs: {
-                  amounts: {
-                    sum: {
-                      field: 'amount',
-                    },
-                  },
-                },
-              },
-            },
-          })
-
-          const burns = _.orderBy(response?.data?.map(transfer => {
-            return {
-              ...transfer,
-              denom: denomSymbol(transfer.contract_name, denoms_data),
-              name: denomName(transfer.contract_name, denoms_data),
-              image: denomImage(transfer.contract_name, denoms_data),
-              amount: denomAmount(transfer.amount, transfer.contract_name, denoms_data),
-              action: 'burn',
-            }
-          }), ['tx'], ['desc'])
-
-          const tvls = _.orderBy(Object.entries(_.groupBy(_.concat(mints, burns), 'denom')).map(([key, value]) => {
-            return {
-              ...value?.[0],
-              tx: _.sumBy(value, 'tx'),
-              amount: _.sumBy(value.filter(v => v.action === 'mint'), 'amount') - _.sumBy(value.filter(v => v.action === 'burn'), 'amount'),
-            }
-          }).filter(tvl => tvl.amount > 0), ['tx'], ['desc'])
-
           setCrosschainTVLData({
-            tvls,
+            tvls: [],
             tvls_updated_at,
           })
         }
@@ -591,7 +508,7 @@ export default function Dashboard() {
 
     getData()
   }, [denoms_data, chain_data, status_data, validators_data, consensusStateData])
-
+console.log(crosschainChartData)
   return (
     <div className="my-4 mx-auto pb-2">
       <Summary
@@ -600,8 +517,8 @@ export default function Dashboard() {
         tvlData={crosschainTVLData}
         avgTransfersTimeRange={avgTransfersTimeRange || 'all-time'}
         setAvgTransfersTimeRange={timeRange => setAvgTransfersTimeRange(timeRange)}
-        contractSelect={contractSelect || crosschainSummaryData?.total_transfers?.[0]?.contract_name}
-        setContractSelect={contract => setContractSelect(contract)}
+        chainSelect={chainSelect || crosschainSummaryData?.total_transfers?.[0]?.chain}
+        setChainSelect={chain => setChainSelect(chain)}
         chartData={crosschainChartData}
       />
       <div className="w-full grid grid-flow-row grid-cols-1 lg:grid-cols-2 gap-5 mt-6 mb-4">

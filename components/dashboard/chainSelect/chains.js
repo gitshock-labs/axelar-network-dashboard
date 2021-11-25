@@ -1,12 +1,12 @@
 import { randImage } from '../../../lib/utils'
 
-export default function Contracts({ contracts, handleDropdownClick }) {
+export default function Chains({ chains, handleDropdownClick }) {
   return (
     <div className="flex flex-wrap py-1">
-      {contracts?.map((item, i) => (
+      {chains?.map((item, i) => (
         <div
           key={i}
-          onClick={() => handleDropdownClick(item.contract_name)}
+          onClick={() => handleDropdownClick(item.chain)}
           className="dropdown-item w-full cursor-pointer flex items-center justify-start space-x-1.5 p-2"
         >
           <img

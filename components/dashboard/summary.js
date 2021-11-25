@@ -7,7 +7,7 @@ import _ from 'lodash'
 import moment from 'moment'
 import Loader from 'react-loader-spinner'
 
-import ContractSelect from './contractSelect'
+import ChainSelect from './chainSelect'
 import TimelyTransactions from './charts/timely-transactions'
 import TimelyVolume from './charts/timely-volume'
 import TimelyHighestTransfer from './charts/timely-highest-transfer'
@@ -19,7 +19,7 @@ import { numberFormat, ellipseAddress, randImage } from '../../lib/utils'
 
 const timeRanges = ['all-time', '30d', '7d', '24h']
 
-const Summary = ({ data, crosschainData, tvlData, avgTransfersTimeRange, setAvgTransfersTimeRange, contractSelect, setContractSelect, chartData }) => {
+const Summary = ({ data, crosschainData, tvlData, avgTransfersTimeRange, setAvgTransfersTimeRange, chainSelect, setChainSelect, chartData }) => {
   const { preferences } = useSelector(state => ({ preferences: state.preferences }), shallowEqual)
   const { theme } = { ...preferences }
 
@@ -232,7 +232,7 @@ const Summary = ({ data, crosschainData, tvlData, avgTransfersTimeRange, setAvgT
           </span>
         </Widget>
       </div>
-      {/*<div className="text-gray-900 dark:text-gray-100 text-base font-semibold mt-8 sm:mx-3">Cross-chain transfer</div>
+      <div className="text-gray-900 dark:text-gray-100 text-base font-semibold mt-8 sm:mx-3">Cross-chain transfer</div>
       <div className="w-full grid grid-flow-row grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-8 sm:gap-4 mt-1.5 mb-4">
         <Widget
           title="Number of Transactions"
@@ -513,12 +513,12 @@ const Summary = ({ data, crosschainData, tvlData, avgTransfersTimeRange, setAvgT
         </Widget>
       </div>
       <div className="text-gray-900 dark:text-gray-100 text-base font-semibold mt-8 sm:mt-4 sm:mx-2">
-        {contractSelect && chartData ?
+        {chainSelect && chartData ?
           <div className="flex justify-start">
-            <ContractSelect
-              contracts={crosschainData?.total_transfers}
-              contractSelect={contractSelect}
-              setContractSelect={contract => setContractSelect(contract)}
+            <ChainSelect
+              chains={crosschainData?.total_transfers}
+              chainSelect={chainSelect}
+              setChainSelect={chain => setChainSelect(chain)}
             />
           </div>
           :
@@ -528,7 +528,7 @@ const Summary = ({ data, crosschainData, tvlData, avgTransfersTimeRange, setAvgT
       <div className="w-full grid grid-flow-row grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-2 mb-4">
         <Widget
           title="Transactions"
-          right={[contractSelect && chartData?.total_transfers?.find(transfer => transfer?.contract_name === contractSelect)?.times?.find(_time => _time.time === timeFocus)].filter(_time => _time).map((_time, i) => (
+          right={[chainSelect && chartData?.total_transfers?.find(transfer => transfer?.chain === chainSelect)?.times?.find(_time => _time.time === timeFocus)].filter(_time => _time).map((_time, i) => (
             <div key={i} className="min-w-max text-right">
               <div className="flex items-center justify-end space-x-1.5">
                 <span className="font-mono text-base font-semibold">
@@ -543,18 +543,18 @@ const Summary = ({ data, crosschainData, tvlData, avgTransfersTimeRange, setAvgT
           className="pb-0 px-2 sm:px-4"
         >
           <div>
-            <TimelyTransactions txsData={chartData && (chartData.total_transfers.find(transfer => transfer?.contract_name === contractSelect) || {})} setTimeFocus={_timeFocus => setTimeFocus(_timeFocus)} />
+            <TimelyTransactions txsData={chartData && (chartData.total_transfers.find(transfer => transfer?.chain === chainSelect) || {})} setTimeFocus={_timeFocus => setTimeFocus(_timeFocus)} />
           </div>
         </Widget>
         <Widget
           title="Volume"
-          right={[contractSelect && chartData?.total_transfers?.find(transfer => transfer?.contract_name === contractSelect)?.times?.find(_time => _time.time === timeFocus)].filter(_time => _time).map((_time, i) => (
+          right={[chainSelect && chartData?.total_transfers?.find(transfer => transfer?.chain === chainSelect)?.times?.find(_time => _time.time === timeFocus)].filter(_time => _time).map((_time, i) => (
             <div key={i} className="min-w-max text-right">
               <div className="flex items-center justify-end space-x-1.5">
                 <span className="font-mono text-base font-semibold">
                   {typeof _time.amount === 'number' ? numberFormat(_time.amount, '0,0.00000000') : '- '}
                 </span>
-                <span className="uppercase text-gray-400 dark:text-gray-600 text-xs">{chartData.total_transfers.find(transfer => transfer?.contract_name === contractSelect)?.denom}</span>
+                <span className="uppercase text-gray-400 dark:text-gray-600 text-xs">{chartData.total_transfers.find(transfer => transfer?.chain === chainSelect)?.denom}</span>
               </div>
               <div className="text-gray-400 dark:text-gray-500 font-medium" style={{ fontSize: '.65rem' }}>{moment(_time.time).utc().format('MMM, D YYYY [(UTC)]')}</div>
             </div>
@@ -563,18 +563,18 @@ const Summary = ({ data, crosschainData, tvlData, avgTransfersTimeRange, setAvgT
           className="pb-0 px-2 sm:px-4"
         >
           <div>
-            <TimelyVolume volumeData={chartData && (chartData.total_transfers.find(transfer => transfer?.contract_name === contractSelect) || {})} setTimeFocus={_timeFocus => setTimeFocus(_timeFocus)} />
+            <TimelyVolume volumeData={chartData && (chartData.total_transfers.find(transfer => transfer?.chain === chainSelect) || {})} setTimeFocus={_timeFocus => setTimeFocus(_timeFocus)} />
           </div>
         </Widget>
         <Widget
           title="Highest Transfer"
-          right={[contractSelect && chartData?.highest_transfer_24h?.find(transfer => transfer?.contract_name === contractSelect)?.times?.find(_time => _time.time === timeFocus)].filter(_time => _time).map((_time, i) => (
+          right={[chainSelect && chartData?.highest_transfer_24h?.find(transfer => transfer?.chain === chainSelect)?.times?.find(_time => _time.time === timeFocus)].filter(_time => _time).map((_time, i) => (
             <div key={i} className="min-w-max text-right">
               <div className="flex items-center justify-end space-x-1.5">
                 <span className="font-mono text-base font-semibold">
                   {typeof _time.amount === 'number' ? numberFormat(_time.amount, '0,0.00000000') : '- '}
                 </span>
-                <span className="uppercase text-gray-400 dark:text-gray-600 text-xs">{chartData.highest_transfer_24h.find(transfer => transfer?.contract_name === contractSelect)?.denom}</span>
+                <span className="uppercase text-gray-400 dark:text-gray-600 text-xs">{chartData.highest_transfer_24h.find(transfer => transfer?.chain === chainSelect)?.denom}</span>
               </div>
               <div className="text-gray-400 dark:text-gray-500 font-medium" style={{ fontSize: '.65rem' }}>{moment(_time.time).utc().format('MMM, D YYYY [(UTC)]')}</div>
             </div>
@@ -583,10 +583,10 @@ const Summary = ({ data, crosschainData, tvlData, avgTransfersTimeRange, setAvgT
           className="pb-0 px-2 sm:px-4"
         >
           <div>
-            <TimelyHighestTransfer highestTransferData={chartData && (chartData.highest_transfer_24h.find(transfer => transfer?.contract_name === contractSelect) || {})} setTimeFocus={_timeFocus => setTimeFocus(_timeFocus)} />
+            <TimelyHighestTransfer highestTransferData={chartData && (chartData.highest_transfer_24h.find(transfer => transfer?.chain === chainSelect) || {})} setTimeFocus={_timeFocus => setTimeFocus(_timeFocus)} />
           </div>
         </Widget>
-      </div>*/}
+      </div>
     </>
   )
 }
