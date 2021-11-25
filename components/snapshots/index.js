@@ -89,6 +89,7 @@ export default function Snapshots({ n = 100 }) {
             return {
               snapshot_block: Number(key),
               num_validators: value,
+              time: snapshots?.data?.find(_snapshot => _snapshot.snapshot_block === Number(key))?.time,
             }
           }), ['snapshot_block'], ['desc'])
 
@@ -150,7 +151,7 @@ export default function Snapshots({ n = 100 }) {
   ).map((snapshot, i) => (
     <Widget
       key={i}
-      className={`${!latestBlock || (snapshot.snapshot_block <= latestBlock && !snapshot.processing) ? '' : 'bg-gray-100 dark:bg-gray-900'} shadow-xl`}
+      className={`${!latestBlock || (snapshot.snapshot_block <= latestBlock && !snapshot.processing) ? '' : 'bg-gray-100 dark:bg-gray-900'} shadow-xl mt-4 sm:mt-0`}
     >
       {!snapshot.skeleton ?
         <div className="flex flex-col">
