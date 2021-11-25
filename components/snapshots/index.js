@@ -78,7 +78,7 @@ export default function Snapshots({ n = 100 }) {
               query: {
                 bool: {
                   must: [
-                    { range: { snapshot_block: { gte: snapshot_block - snapshot_block_size + 1, lte: snapshot_block } } },
+                    { range: { snapshot_block: { gte: snapshot_block - (n * snapshot_block_size) + 1, lte: snapshot_block } } },
                   ],
                 },
               },

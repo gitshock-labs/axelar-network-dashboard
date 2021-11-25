@@ -73,6 +73,7 @@ export default function ValidatorsTable({ status }) {
             const validators_data = response.data
 
             response = await getHeartbeats({
+              _source: false,
               aggs: {
                 heartbeats: {
                   terms: { field: 'sender.keyword', size: 10000 },
@@ -210,7 +211,7 @@ export default function ValidatorsTable({ status }) {
               !props.row.original.skeleton ?
                 numberFormat((props.flatRows?.indexOf(props.row) > -1 ? props.flatRows.indexOf(props.row) : props.value) + 1, '0,0')
                 :
-                <div className="skeleton w-4 h-3" />
+                <div className="skeleton w-4 h-3.5" />
             ),
           },
           {
