@@ -99,7 +99,6 @@ export default function Snapshots({ n = 100 }) {
           setSnapshots({ data })
 
           for (let i = 0; i < data.length; i++) {
-            if (!controller.signal.aborted) {
               const snapshot = data[i]
 
               if (snapshot?.snapshot_block < latestBlock && !snapshot?.time) {
@@ -113,7 +112,6 @@ export default function Snapshots({ n = 100 }) {
                   setSnapshots({ data })
                 }
               }
-            }
           }
         }
       }
