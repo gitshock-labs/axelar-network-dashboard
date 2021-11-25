@@ -26,6 +26,8 @@ export default function Account({ address }) {
   const [loadValsProfile, setLoadValsProfile] = useState(false)
   const [loadMore, setLoadMore] = useState(null)
   const [loading, setLoading] = useState(null)
+  const [actions, setActions] = useState({})
+  const [filterActions, setFilterActions] = useState([])
 
   useEffect(() => {
     const controller = new AbortController()
@@ -449,17 +451,36 @@ export default function Account({ address }) {
     }
   }, [loadMore])
 
+  useEffect(() => {
+    if (address && transactions?.address === address && transactions.data) {
+      setActions(_.countBy(_.uniqBy(Object.values(transactions?.data).flatMap(txs => txs?.data?.flatMap(_txs => _txs)), 'txhash').map(tx => tx.type)))
+    }
+  }, [address, transactions])
+
   return (
     <div className="max-w-6xl my-4 xl:my-6 mx-auto">
       <AccountDetail data={account?.address === address && account?.data} />
       <Widget
-        title={<div className="flex items-center text-gray-900 dark:text-white text-lg font-semibold space-x-1 mt-3">
-          <span>Transactions</span>
+        title={<div className="flex sm:items-center overflow-x-auto text-gray-900 dark:text-white text-lg font-semibold mt-3">
+          <span className="mr-4">Transactions</span>
+          <div className="block sm:flex items-center overflow-x-auto space-x-1 mt-0.5 sm:ml-auto">
+            {Object.entries(actions).map(([key, value]) => (
+              <div
+                key={key}
+                onClick={() => setFilterActions(_.uniq(filterActions.includes(key) ? filterActions.filter(_action => _action !== key) : _.concat(filterActions, key)))}
+                className={`btn btn-rounded cursor-pointer whitespace-nowrap flex items-center space-x-1.5 bg-trasparent ${filterActions.includes(key) ? 'bg-gray-100 dark:bg-black text-gray-900 dark:text-white font-semibold' : 'hover:bg-gray-50 dark:hover:bg-gray-900 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-100'} ml-1 px-2`}
+                style={{ textTransform: 'none', fontSize: '.7rem' }}
+              >
+                <span>{key?.endsWith('Request') ? key.replace('Request', '') : key}</span>
+                <span className="text-2xs text-indigo-600 dark:text-indigo-400 font-bold"> {numberFormat(value, '0,0')}</span>
+              </div>
+            ))}
+          </div>
         </div>}
-        className="mt-4"
+        className="flex-col sm:flex-row items-start sm:items-center mt-4"
       >
         <div className="mt-3">
-          <TransactionsTable data={address && transactions?.address === address && { ...transactions, data: _.orderBy(_.uniqBy(Object.values(transactions?.data || {}).flatMap(txs => txs?.data?.flatMap(_txs => _txs)), 'txhash'), ['timestamp', 'height'], ['desc', 'desc']) }} noLoad={true} />
+          <TransactionsTable data={address && transactions?.address === address && { ...transactions, data: _.orderBy(_.uniqBy(Object.values(transactions?.data || {}).flatMap(txs => txs?.data?.flatMap(_txs => _txs)), 'txhash'), ['timestamp', 'height'], ['desc', 'desc']).filter(tx => !(filterActions?.length > 0) || filterActions.includes(tx.type)) }} noLoad={true} />
         </div>
         {!loading ?
           <div

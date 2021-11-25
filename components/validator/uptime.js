@@ -64,7 +64,7 @@ export default function Uptime({ data, validator_data }) {
             >
               <div
                 title={numberFormat(block.height, '0,0')}
-                className={`w-6 md:w-6 h-6 md:h-6 ${block.up ? block.approved > block.denied ? 'bg-green-600' : block.denied > block.approved ? 'bg-red-500' : block.approved > 0 ? 'bg-yellow-500' : 'bg-green-500' : 'bg-gray-300 dark:bg-gray-500'} rounded m-1`}
+                className={`w-6 md:w-6 h-6 md:h-6 ${block.up ? block.approved > block.denied ? 'bg-green-600' : block.denied > block.approved ? 'bg-red-600' : block.approved > 0 ? 'bg-yellow-400 dark:bg-yellow-500' : 'bg-green-600 dark:bg-green-700' : 'bg-gray-400 dark:bg-gray-700'} rounded m-1`}
               />
             </Popover>
             :

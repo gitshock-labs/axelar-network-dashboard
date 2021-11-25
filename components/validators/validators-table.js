@@ -347,7 +347,7 @@ export default function ValidatorsTable({ status }) {
                         text={<div className="text-white mx-1" style={{ fontSize: '.55rem' }}>
                           {numberFormat(props.value, '0,0.00')}%
                         </div>}
-                        color="bg-green-500 dark:bg-green-600 rounded"
+                        color="bg-green-500 dark:bg-green-700 rounded"
                         backgroundClassName="h-4 bg-gray-200 dark:bg-gray-800 rounded"
                         className={`h-4 flex items-center justify-${props.value < 20 ? 'start' : 'end'}`}
                       />
@@ -390,7 +390,7 @@ export default function ValidatorsTable({ status }) {
                         text={<div className="text-white mx-1" style={{ fontSize: '.55rem' }}>
                           {numberFormat(props.value, '0,0.00')}%
                         </div>}
-                        color="bg-green-500 dark:bg-green-600 rounded"
+                        color="bg-green-500 dark:bg-green-700 rounded"
                         backgroundClassName="h-4 bg-gray-200 dark:bg-gray-800 rounded"
                         className={`h-4 flex items-center justify-${props.value < 20 ? 'start' : 'end'}`}
                       />
@@ -455,10 +455,10 @@ export default function ValidatorsTable({ status }) {
             sortType: (rowA, rowB) => rowA.original.status > rowB.original.status ? 1 : -1,
             Cell: props => (
               !props.row.original.skeleton ?
-                <div className="text-right">
+                <div className="text-right my-1">
                   {props.value ?
                     <>
-                      <span className={`bg-${props.value.includes('UN') ? props.value.endsWith('ED') ? 'gray-300 dark:bg-gray-600' : 'yellow-500' : 'green-500'} rounded-xl capitalize text-white font-semibold px-2 py-1`}>
+                      <span className={`bg-${props.value.includes('UN') ? props.value.endsWith('ED') ? 'gray-400 dark:bg-gray-700' : 'yellow-400 dark:bg-yellow-500' : 'green-600 dark:bg-green-700'} rounded-xl capitalize text-white font-semibold px-2 py-1`}>
                         {props.value.replace('BOND_STATUS_', '')}
                       </span>
                       {/*props.row.original.jailed_until > 0 && (
@@ -487,7 +487,7 @@ export default function ValidatorsTable({ status }) {
                   }
                 </div>
                 :
-                <div className="skeleton w-24 h-6 ml-auto" />
+                <div className="skeleton w-24 h-6 my-0.5 ml-auto" />
             ),
             headerClassName: 'justify-end text-right',
           },

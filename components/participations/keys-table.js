@@ -221,7 +221,7 @@ export default function KeysTable({ data, corruption_signing_threshold, page }) 
                                   </a>
                                 </Link>
                                 {validator.status && !(['BOND_STATUS_BONDED'].includes(validator.status)) && (
-                                  <span className={`bg-${validator.status.includes('UN') ? validator.status.endsWith('ED') ? 'gray-300 dark:bg-gray-600' : 'yellow-500' : 'green-500'} rounded-xl capitalize text-white font-semibold px-1.5 py-0.5`} style={{ fontSize: '.65rem' }}>
+                                  <span className={`bg-${validator.status.includes('UN') ? validator.status.endsWith('ED') ? 'gray-400 dark:bg-gray-700' : 'yellow-400 dark:bg-yellow-500' : 'green-600 dark:bg-green-700'} rounded-xl capitalize text-white font-semibold px-1.5 py-0.5`} style={{ fontSize: '.65rem' }}>
                                     {validator.status.replace('BOND_STATUS_', '')}
                                   </span>
                                 )}
@@ -243,7 +243,7 @@ export default function KeysTable({ data, corruption_signing_threshold, page }) 
                             {!(validator.description?.moniker) && (
                               <span className="flex items-center space-x-1.5">
                                 {validator.status && !(['BOND_STATUS_BONDED'].includes(validator.status)) && (
-                                  <span className={`bg-${validator.status.includes('UN') ? validator.status.endsWith('ED') ? 'gray-300 dark:bg-gray-600' : 'yellow-500' : 'green-500'} rounded-xl capitalize text-white font-semibold px-1.5 py-0.5`} style={{ fontSize: '.65rem' }}>
+                                  <span className={`bg-${validator.status.includes('UN') ? validator.status.endsWith('ED') ? 'gray-400 dark:bg-gray-700' : 'yellow-400 dark:bg-yellow-500' : 'green-600 dark:bg-green-700'} rounded-xl capitalize text-white font-semibold px-1.5 py-0.5`} style={{ fontSize: '.65rem' }}>
                                     {validator.status.replace('BOND_STATUS_', '')}
                                   </span>
                                 )}
@@ -322,7 +322,7 @@ export default function KeysTable({ data, corruption_signing_threshold, page }) 
                                   </a>
                                 </Link>
                                 {validator.status && !(['BOND_STATUS_BONDED'].includes(validator.status)) && (
-                                  <span className={`bg-${validator.status.includes('UN') ? validator.status.endsWith('ED') ? 'gray-300 dark:bg-gray-600' : 'yellow-500' : 'green-500'} rounded capitalize text-white font-semibold px-1.5 py-0.5`} style={{ fontSize: '.65rem' }}>
+                                  <span className={`bg-${validator.status.includes('UN') ? validator.status.endsWith('ED') ? 'gray-400 dark:bg-gray-700' : 'yellow-400 dark:bg-yellow-500' : 'green-600 dark:bg-green-700'} rounded capitalize text-white font-semibold px-1.5 py-0.5`} style={{ fontSize: '.65rem' }}>
                                     {validator.status.replace('BOND_STATUS_', '')}
                                   </span>
                                 )}
@@ -344,7 +344,7 @@ export default function KeysTable({ data, corruption_signing_threshold, page }) 
                             {!(validator.description?.moniker) && (
                               <span className="flex items-center space-x-1.5">
                                 {validator.status && !(['BOND_STATUS_BONDED'].includes(validator.status)) && (
-                                  <span className={`bg-${validator.status.includes('UN') ? validator.status.endsWith('ED') ? 'gray-300 dark:bg-gray-600' : 'yellow-500' : 'green-500'} rounded capitalize text-white font-semibold px-1.5 py-0.5`} style={{ fontSize: '.65rem' }}>
+                                  <span className={`bg-${validator.status.includes('UN') ? validator.status.endsWith('ED') ? 'gray-400 dark:bg-gray-700' : 'yellow-400 dark:bg-yellow-500' : 'green-600 dark:bg-green-700'} rounded capitalize text-white font-semibold px-1.5 py-0.5`} style={{ fontSize: '.65rem' }}>
                                     {validator.status.replace('BOND_STATUS_', '')}
                                   </span>
                                 )}

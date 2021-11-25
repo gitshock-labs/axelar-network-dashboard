@@ -251,7 +251,7 @@ export default function Snapshot({ height }) {
               !props.row.original.skeleton ?
                 <>
                   {typeof props.value === 'boolean' ?
-                    <span className={`max-w-min ${props.value ? 'bg-green-500 dark:bg-green-600' : 'bg-red-500 dark:bg-red-600'} rounded-xl flex items-center text-white text-2xs font-semibold space-x-1 mb-1 ml-auto px-2 py-1`}>
+                    <span className={`max-w-min ${props.value ? 'bg-green-500 dark:bg-green-700' : 'bg-red-500 dark:bg-red-700'} rounded-xl flex items-center text-white text-2xs font-semibold space-x-1 mb-1 ml-auto px-2 py-1`}>
                       {props.value ?
                         <FaCheckCircle size={14} />
                         :
@@ -263,7 +263,7 @@ export default function Snapshot({ height }) {
                     <span className="text-gray-500 dark:text-gray-400">-</span>
                   }
                   {typeof props.row.original.broadcaster_funded === 'object' ?
-                    <span className={`max-w-min ${props.row.original.broadcaster_funded.amount >= Number(process.env.NEXT_PUBLIC_MIN_BROADCAST_FUND) ? 'bg-green-500 dark:bg-green-600' : 'bg-red-500 dark:bg-red-600'} rounded-xl flex items-center text-white text-2xs font-semibold space-x-1 mb-1 ml-auto px-2 py-1`}>
+                    <span className={`max-w-min ${props.row.original.broadcaster_funded.amount >= Number(process.env.NEXT_PUBLIC_MIN_BROADCAST_FUND) ? 'bg-green-500 dark:bg-green-700' : 'bg-red-500 dark:bg-red-700'} rounded-xl flex items-center text-white text-2xs font-semibold space-x-1 mb-1 ml-auto px-2 py-1`}>
                       {props.row.original.broadcaster_funded.amount >= Number(process.env.NEXT_PUBLIC_MIN_BROADCAST_FUND) ?
                         <FaCheckCircle size={14} />
                         :
@@ -495,10 +495,10 @@ export default function Snapshot({ height }) {
             sortType: (rowA, rowB) => rowA.original.status > rowB.original.status ? 1 : -1,
             Cell: props => (
               !props.row.original.skeleton ?
-                <div className="flex flex-col items-end text-right space-y-1">
+                <div className="flex flex-col items-end text-right space-y-1 my-1">
                   {props.value ?
                     <>
-                      <div className={`max-w-min bg-${props.value.includes('UN') ? props.value.endsWith('ED') ? 'gray-300 dark:bg-gray-600' : 'yellow-500' : 'green-500'} rounded-xl capitalize text-white font-semibold px-2 py-1`}>
+                      <div className={`max-w-min bg-${props.value.includes('UN') ? props.value.endsWith('ED') ? 'gray-400 dark:bg-gray-700' : 'yellow-400 dark:bg-yellow-500' : 'green-600 dark:bg-green-700'} rounded-xl capitalize text-white font-semibold px-2 py-1`}>
                         {props.value.replace('BOND_STATUS_', '')}
                       </div>
                       {props.row.original.deregistering && (
@@ -533,7 +533,7 @@ export default function Snapshot({ height }) {
                   }
                 </div>
                 :
-                <div className="skeleton w-24 h-6 ml-auto" />
+                <div className="skeleton w-24 h-6 my-0.5 ml-auto" />
             ),
             headerClassName: 'justify-end text-right',
           },

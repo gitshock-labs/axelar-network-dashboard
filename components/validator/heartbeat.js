@@ -88,7 +88,7 @@ export default function Heartbeat({ data, validator_data }) {
             >
               <div
                 title={numberFormat(block.height, '0,0')}
-                className={`w-6 md:w-6 h-6 md:h-6 ${block.up ? ineligibilities.length > 0 ? ineligibilities.findIndex(ineligibility => ['tombstoned', 'jailed'].includes(ineligibility)) > -1 ? 'bg-red-500' : 'bg-yellow-500' : 'bg-green-500' : 'bg-gray-300 dark:bg-gray-500'} rounded m-1`}
+                className={`w-6 md:w-6 h-6 md:h-6 ${block.up ? ineligibilities.length > 0 ? ineligibilities.findIndex(ineligibility => ['tombstoned', 'jailed'].includes(ineligibility)) > -1 ? 'bg-red-600' : 'bg-yellow-400 dark:bg-yellow-500' : 'bg-green-600 dark:bg-green-700' : 'bg-gray-400 dark:bg-gray-700'} rounded m-1`}
               />
             </Popover>
             :

@@ -39,7 +39,7 @@ export default function Information({ data }) {
         <div className="flex flex-col space-y-1.5 lg:space-y-1">
           <div className="flex items-center sm:justify-end space-x-2">
             {data.status && (
-              <span className={`bg-${data.status.includes('UN') ? data.status.endsWith('ED') ? 'gray-300 dark:bg-gray-600' : 'yellow-500' : 'green-500'} rounded-xl capitalize text-white font-semibold px-2 py-1`}>
+              <span className={`bg-${data.status.includes('UN') ? data.status.endsWith('ED') ? 'gray-400 dark:bg-gray-700' : 'yellow-400 dark:bg-yellow-500' : 'green-600 dark:bg-green-700'} rounded-xl capitalize text-white font-semibold px-2 py-1`}>
                 {data.status.replace('BOND_STATUS_', '')}
               </span>
             )}
