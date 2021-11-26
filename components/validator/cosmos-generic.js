@@ -10,13 +10,13 @@ export default function CosmosGeneric({ data, jailed }) {
   const { _data } = useSelector(state => ({ _data: state.data }), shallowEqual)
   const { status_data } = { ..._data }
 
-  let numMissedBlocks = typeof data?.uptime === 'number' && data?.start_height && status_data?.latest_block_height && (
+  let numMissedBlocks = typeof data?.uptime === 'number' && status_data?.latest_block_height && (
     (Number(process.env.NEXT_PUBLIC_NUM_UPTIME_BLOCKS) * (1 - data.uptime / 100))
     -
-    (Number(status_data.latest_block_height) - data.start_height > Number(process.env.NEXT_PUBLIC_NUM_UPTIME_BLOCKS) ?
+    (Number(status_data.latest_block_height) - (data.start_height || 0) > Number(process.env.NEXT_PUBLIC_NUM_UPTIME_BLOCKS) ?
       0
       :
-      Number(process.env.NEXT_PUBLIC_NUM_UPTIME_BLOCKS) - (Number(status_data.latest_block_height) - data.start_height)
+      Number(process.env.NEXT_PUBLIC_NUM_UPTIME_BLOCKS) - (Number(status_data.latest_block_height) - (data.start_height || 0))
     )
   )
   numMissedBlocks = numMissedBlocks < 0 ? 0 : numMissedBlocks
