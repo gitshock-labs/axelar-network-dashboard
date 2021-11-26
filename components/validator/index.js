@@ -46,6 +46,9 @@ export default function Validator({ address }) {
   const [supportedChains, setSupportedChains] = useState(null)
   const [rewards, setRewards] = useState(null)
 
+  const [statusLoaded, setStatusLoaded] = useState(null)
+  const [validatorsLoaded, setValidatorsLoaded] = useState(null)
+
   useEffect(() => {
     const controller = new AbortController()
 
@@ -59,6 +62,8 @@ export default function Validator({ address }) {
             value: response,
           })
         }
+
+        setStatusLoaded(true)
       }
     }
 
@@ -84,111 +89,117 @@ export default function Validator({ address }) {
             value: response.data,
           })
         }
+
+        setValidatorsLoaded(true)
       }
     }
 
-    if (address && status_data && denoms_data) {
+    if (address && status_data && denoms_data && statusLoaded) {
+      setStatusLoaded(false)
+
       getValidators()
     }
 
     return () => {
       controller?.abort()
     }
-  }, [address, status_data, denoms_data])
+  }, [address, status_data, denoms_data, statusLoaded])
 
   useEffect(() => {
     const controller = new AbortController()
 
     const getData = async () => {
-      if (address && denoms_data && status_data && validators_data) {
-        let response, validatorData
+      let response, validatorData
 
-        const validator_data = validators_data?.[validators_data.findIndex(validator_data => validator_data.operator_address === address)]
+      const validator_data = validators_data?.[validators_data.findIndex(validator_data => validator_data.operator_address === address)]
 
-        if (validator_data?.start_proxy_height || validator_data?.start_height/* || !['BOND_STATUS_BONDED'].includes(validator_data?.status)*/ || validator_data?.deregistering) {
-          validatorData = { ...validatorData, ...validator_data }
-        
-          if (!controller.signal.aborted) {
-            response = await validatorSets()
+      if (validator_data?.start_proxy_height || validator_data?.start_height/* || !['BOND_STATUS_BONDED'].includes(validator_data?.status)*/ || validator_data?.deregistering) {
+        validatorData = { ...validatorData, ...validator_data }
+      
+        if (!controller.signal.aborted) {
+          response = await validatorSets()
 
-            if (response?.result?.validators?.findIndex(validator_data => validator_data.address === validatorData.consensus_address) > -1) {
-              const _validatorData = response.result.validators?.find(validator_data => validator_data.address === validatorData.consensus_address)
+          if (response?.result?.validators?.findIndex(validator_data => validator_data.address === validatorData.consensus_address) > -1) {
+            const _validatorData = response.result.validators?.find(validator_data => validator_data.address === validatorData.consensus_address)
 
-              validatorData = {
-                ...validatorData,
-                proposer_priority: _validatorData?.proposer_priority,
-                voting_power: Number(_validatorData?.voting_power),
-              }
+            validatorData = {
+              ...validatorData,
+              proposer_priority: _validatorData?.proposer_priority,
+              voting_power: Number(_validatorData?.voting_power),
             }
           }
+        }
 
-          setValidator({ data: validatorData || {}, address })
+        setValidator({ data: validatorData || {}, address })
 
-          setSupportedChains({ data: validatorData?.supported_chains || [], address })
+        setSupportedChains({ data: validatorData?.supported_chains || [], address })
 
-          const _health = {
-            broadcaster_registration: !(validatorData?.tss_illegibility_info?.no_proxy_registered) && validatorData?.broadcaster_address ? true : false,
+        const _health = {
+          broadcaster_registration: !(validatorData?.tss_illegibility_info?.no_proxy_registered) && validatorData?.broadcaster_address ? true : false,
+        }
+
+        _health.num_block_before_registered = validatorData && 'tss_illegibility_info' in validatorData && _health ? _health.broadcaster_registration ? typeof validatorData?.start_proxy_height === 'number' && typeof validatorData?.start_height === 'number' ? validatorData.start_proxy_height >= validatorData.start_height ? validatorData.start_proxy_height - validatorData.start_height : 0 : '-' : 'No Proxy' : null
+
+        if (validatorData?.broadcaster_address) {
+          response = await allBankBalances(validatorData.broadcaster_address)
+
+          if (response?.data) {
+            _health.broadcaster_funded = _.head(response.data.filter(balance => balance?.denom === feeDenom).map(balance => { return { amount: denomAmount(balance.amount, balance.denom, denoms_data), denom: denomSymbol(balance.denom, denoms_data) } }))
           }
+        }
+        else {
+          _health.broadcaster_funded = 'No Proxy'
+        }
 
-          _health.num_block_before_registered = validatorData && 'tss_illegibility_info' in validatorData && _health ? _health.broadcaster_registration ? typeof validatorData?.start_proxy_height === 'number' && typeof validatorData?.start_height === 'number' ? validatorData.start_proxy_height >= validatorData.start_height ? validatorData.start_proxy_height - validatorData.start_height : 0 : '-' : 'No Proxy' : null
-
-          if (validatorData?.broadcaster_address) {
-            response = await allBankBalances(validatorData.broadcaster_address)
-
-            if (response?.data) {
-              _health.broadcaster_funded = _.head(response.data.filter(balance => balance?.denom === feeDenom).map(balance => { return { amount: denomAmount(balance.amount, balance.denom, denoms_data), denom: denomSymbol(balance.denom, denoms_data) } }))
-            }
-          }
-          else {
-            _health.broadcaster_funded = 'No Proxy'
-          }
-
-          response = await getHeartbeats({
-            aggs: {
-              heartbeats: {
-                terms: { field: 'sender.keyword' },
-                aggs: {
-                  heightgroup: {
-                    terms: { field: 'height_group', size: 100000 },
-                  },
+        response = await getHeartbeats({
+          aggs: {
+            heartbeats: {
+              terms: { field: 'sender.keyword' },
+              aggs: {
+                heightgroup: {
+                  terms: { field: 'height_group', size: 100000 },
                 },
               },
             },
-            query: {
-              bool: {
-                must: [
-                  { match: { sender: validatorData?.broadcaster_address } },
-                  { range: { height: { gte: validatorData?.start_proxy_height || validatorData?.start_height, lte: Number(status_data.latest_block_height) } } },
-                ],
-              },
+          },
+          query: {
+            bool: {
+              must: [
+                { match: { sender: validatorData?.broadcaster_address } },
+                { range: { height: { gte: validatorData?.start_proxy_height || validatorData?.start_height, lte: Number(status_data.latest_block_height) } } },
+              ],
             },
-          })
+          },
+        })
 
-          const _last = lastHeartbeatBlock(Number(status_data.latest_block_height))
-          const _first = firstHeartbeatBlock(validatorData?.start_proxy_height || validatorData?.start_height)
+        const _last = lastHeartbeatBlock(Number(status_data.latest_block_height))
+        const _first = firstHeartbeatBlock(validatorData?.start_proxy_height || validatorData?.start_height)
 
-          const totalHeartbeats = Math.floor((_last - _first) / Number(process.env.NEXT_PUBLIC_NUM_BLOCKS_PER_HEARTBEAT)) + 1
-          _health.total_heartbeats = totalHeartbeats
+        const totalHeartbeats = Math.floor((_last - _first) / Number(process.env.NEXT_PUBLIC_NUM_BLOCKS_PER_HEARTBEAT)) + 1
+        _health.total_heartbeats = totalHeartbeats
 
-          _health.up_heartbeats = response?.data?.[validatorData?.broadcaster_address] || 0
+        _health.up_heartbeats = response?.data?.[validatorData?.broadcaster_address] || 0
 
-          _health.missed_heartbeats = _health.total_heartbeats - _health.up_heartbeats
-          _health.missed_heartbeats = _health.missed_heartbeats < 0 ? 0 : _health.missed_heartbeats
+        _health.missed_heartbeats = _health.total_heartbeats - _health.up_heartbeats
+        _health.missed_heartbeats = _health.missed_heartbeats < 0 ? 0 : _health.missed_heartbeats
 
-          _health.heartbeats_uptime = _health.total_heartbeats > 0 ? _health.up_heartbeats * 100 / _health.total_heartbeats : 0
-          _health.heartbeats_uptime = _health.heartbeats_uptime > 100 ? 100 : _health.heartbeats_uptime
+        _health.heartbeats_uptime = _health.total_heartbeats > 0 ? _health.up_heartbeats * 100 / _health.total_heartbeats : 0
+        _health.heartbeats_uptime = _health.heartbeats_uptime > 100 ? 100 : _health.heartbeats_uptime
 
-          setHealth({ data: _health, address })
-        }
+        setHealth({ data: _health, address })
       }
     }
 
-    getData()
+    if (address && denoms_data && status_data && validators_data && validatorsLoaded) {
+      setValidatorsLoaded(false)
+
+      getData()
+    }
 
     return () => {
       controller?.abort()
     }
-  }, [address, denoms_data, status_data, validators_data])
+  }, [address, denoms_data, status_data, validators_data, validatorsLoaded])
 
   useEffect(() => {
     const controller = new AbortController()
