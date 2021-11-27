@@ -8,7 +8,7 @@ import { FiServer } from 'react-icons/fi'
 import Widget from '../widget'
 
 import { feeDenom, denomSymbol, denomAmount } from '../../lib/object/denom'
-import { idFromEvmId } from '../../lib/object/chain'
+import { idFromEvmId, chains } from '../../lib/object/chain'
 import { numberFormat } from '../../lib/utils'
 
 const Summary = ({ data, keygens, successKeygens, failedKeygens, signAttempts, failedSignAttempts }) => {
@@ -19,7 +19,19 @@ const Summary = ({ data, keygens, successKeygens, failedKeygens, signAttempts, f
 
   const activeValidators = validators_data?.filter(validator => ['BOND_STATUS_BONDED'].includes(validator.status))
 
-  const evmVotingThreshold = data?.evm?.params?.map(_chain => {
+  let evmVotingThreshold = data?.evm?.params
+
+  if (evmVotingThreshold?.length > 0 && chains) {
+    for (let i = 0; i < chains.length; i++) {
+      const chain = chains[i]
+
+      if (chain.threshold && evmVotingThreshold.findIndex(_chain => _chain?.chain === chain?.name) < 0) {
+        evmVotingThreshold.push({ ...evmVotingThreshold[0], chain: chain?.name })
+      }
+    }
+  }
+
+  evmVotingThreshold = evmVotingThreshold?.map(_chain => {
     const maintainValidators = activeValidators?.findIndex(validator => validator.supported_chains?.includes(idFromEvmId(_chain.chain))) > -1 && activeValidators.filter(validator => validator.supported_chains?.includes(idFromEvmId(_chain.chain)))
 
     return {
@@ -141,7 +153,7 @@ const Summary = ({ data, keygens, successKeygens, failedKeygens, signAttempts, f
       </Widget>
       <Widget
         title="Keygen Participation"
-        className="xl:col-span-2 bg-transparent sm:bg-white sm:dark:bg-gray-900 border-0 sm:border border-gray-100 dark:border-gray-800 p-0 sm:p-4"
+        className="xl:col-span-3 bg-transparent sm:bg-white sm:dark:bg-gray-900 border-0 sm:border border-gray-100 dark:border-gray-800 p-0 sm:p-4"
       >
         <span className="flex flex-col space-y-1 mt-1.5">
           <div className="flex flex-row space-x-1.5">
@@ -169,7 +181,7 @@ const Summary = ({ data, keygens, successKeygens, failedKeygens, signAttempts, f
       </Widget>
       <Widget
         title="Sign Attempts"
-        className="xl:col-span-2 bg-transparent sm:bg-white sm:dark:bg-gray-900 border-0 sm:border border-gray-100 dark:border-gray-800 p-0 sm:p-4"
+        className="xl:col-span-3 bg-transparent sm:bg-white sm:dark:bg-gray-900 border-0 sm:border border-gray-100 dark:border-gray-800 p-0 sm:p-4"
       >
         <span className="flex flex-col space-y-1 mt-1.5">
           <div className="flex flex-row space-x-1.5">
