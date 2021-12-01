@@ -7,7 +7,7 @@ import Chains from './chains'
 import { randImage } from '../../../lib/utils'
 
 export default function DropdownChain({ chains, chainSelect, setChainSelect }) {
-  const chain = chains?.find(_chain => _chain.name === chainSelect) || chains?.[0]
+  const chain = chains?.find(_chain => _chain.chain === chainSelect) || chains?.[0]
 
   const [hidden, setHidden] = useState(true)
 
@@ -42,7 +42,7 @@ export default function DropdownChain({ chains, chainSelect, setChainSelect }) {
         {chain && (
           <>
             <img
-              src={chain.image || randImage(chains.findIndex(_chain => _chain.name === chainSelect))}
+              src={chain.image || randImage(chains.findIndex(_chain => _chain.chain === chainSelect))}
               alt=""
               className="w-6 h-6 rounded-full"
             />

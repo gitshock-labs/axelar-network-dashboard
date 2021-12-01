@@ -516,7 +516,7 @@ export default function Dashboard() {
 
     getData()
   }, [denoms_data, chain_data, status_data, validators_data, consensusStateData])
-console.log(crosschainChartData)
+
   return (
     <div className="my-4 mx-auto pb-2">
       <Summary
