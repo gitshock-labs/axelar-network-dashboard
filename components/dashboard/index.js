@@ -15,7 +15,7 @@ import { allValidators, validatorProfile, allDelegations } from '../../lib/api/c
 import { transfers } from '../../lib/api/opensearch'
 import { hexToBech32 } from '../../lib/object/key'
 import { denomSymbol, denomName, denomAmount, denomImage } from '../../lib/object/denom'
-import { chainName, chainImage } from '../../lib/object/chain'
+import { chainName, chainImage, idFromMaintainerId, chainDenomDivider } from '../../lib/object/chain'
 import { numberFormat, randImage } from '../../lib/utils'
 
 import { STATUS_DATA, VALIDATORS_DATA } from '../../reducers/types'
@@ -93,9 +93,9 @@ export default function Dashboard() {
         const total_transfers = !(isInterval || !avgTransfersTimeRange) ? crosschainSummaryData?.total_transfers : _.orderBy(response?.data?.map(transfer => {
           return {
             ...transfer,
-            name: chainName(transfer.chain),
-            image: chainImage(transfer.chain),
-            amount: transfer.amount,
+            name: chainName(idFromMaintainerId(transfer.chain)),
+            image: chainImage(idFromMaintainerId(transfer.chain)),
+            amount: transfer.amount / chainDenomDivider(idFromMaintainerId(transfer.chain)),
           }
         }), ['tx'], ['desc'])
 
@@ -120,9 +120,9 @@ export default function Dashboard() {
         const avg_transfers = _.orderBy(response?.data?.map(transfer => {
           return {
             ...transfer,
-            name: chainName(transfer.chain),
-            image: chainImage(transfer.chain),
-            amount: transfer.amount,
+            name: chainName(idFromMaintainerId(transfer.chain)),
+            image: chainImage(idFromMaintainerId(transfer.chain)),
+            amount: transfer.amount / chainDenomDivider(idFromMaintainerId(transfer.chain)),
           }
         }), ['tx'], ['desc'])
 
@@ -149,9 +149,9 @@ export default function Dashboard() {
         const highest_transfer_24h = !(isInterval || !avgTransfersTimeRange) ? crosschainSummaryData?.highest_transfer_24h : _.orderBy(response?.data?.map(transfer => {
           return {
             ...transfer,
-            name: chainName(transfer.chain?.toLowerCase()),
-            image: chainImage(transfer.chain?.toLowerCase()),
-            amount: transfer.amount,
+            name: chainName(idFromMaintainerId(transfer.chain?.toLowerCase())),
+            image: chainImage(idFromMaintainerId(transfer.chain?.toLowerCase())),
+            amount: transfer.amount / chainDenomDivider(idFromMaintainerId(transfer.chain?.toLowerCase())),
           }
         }), ['tx'], ['desc'])
 
@@ -215,15 +215,19 @@ export default function Dashboard() {
           const times = []
 
           for (let time = moment(today).subtract(daily_time_range, 'days').valueOf(); time <= today.valueOf(); time += day_ms) {
-            times.push(transfer.times?.find(_time => _time.time === time) || { time, tx: 0, amount: 0 })
+            let timeData = transfer.times?.find(_time => _time.time === time) || { time, tx: 0, amount: 0 }
+
+            timeData = { ...timeData, amount: timeData.amount / chainDenomDivider(idFromMaintainerId(transfer.chain)) }
+
+            times.push(timeData)
           }
 
           return {
             ...transfer,
             times,
-            name: chainName(transfer.chain),
-            image: chainImage(transfer.chain),
-            amount: transfer.amount,
+            name: chainName(idFromMaintainerId(transfer.chain)),
+            image: chainImage(idFromMaintainerId(transfer.chain)),
+            amount: transfer.amount / chainDenomDivider(idFromMaintainerId(transfer.chain)),
           }
         }), ['tx'], ['desc'])
 
@@ -253,15 +257,19 @@ export default function Dashboard() {
           const times = []
 
           for (let time = moment(today).subtract(daily_time_range, 'days').valueOf(); time <= today.valueOf(); time += day_ms) {
-            times.push(transfer.times?.find(_time => _time.time === time) || { time, tx: 0, amount: 0 })
+            let timeData = transfer.times?.find(_time => _time.time === time) || { time, tx: 0, amount: 0 }
+
+            timeData = { ...timeData, amount: timeData.amount / chainDenomDivider(idFromMaintainerId(transfer.chain)) }
+
+            times.push(timeData)
           }
 
           return {
             ...transfer,
             times,
-            name: chainName(transfer.chain),
-            image: chainImage(transfer.chain),
-            amount: transfer.amount,
+            name: chainName(idFromMaintainerId(transfer.chain)),
+            image: chainImage(idFromMaintainerId(transfer.chain)),
+            amount: transfer.amount / chainDenomDivider(idFromMaintainerId(transfer.chain)),
           }
         }), ['tx'], ['desc'])
 
