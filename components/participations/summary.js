@@ -260,19 +260,22 @@ const Summary = ({ data, keygens, successKeygens, failedKeygens, signAttempts, f
           </Widget>
         ))
         :
-        <Widget
-          title="Chain Maintaining"
-          className="xl:col-span-2 bg-transparent sm:bg-white sm:dark:bg-gray-900 border-0 sm:border border-gray-100 dark:border-gray-800 p-0 sm:p-4"
-        >
-          <span className="flex flex-col space-y-1 mt-1">
-            <div className="grid">
-              <div className="skeleton w-16 h-7 mt-1" />
-            </div>
-            <div className="grid">
-              <div className="skeleton w-20 h-4 mt-1" />
-            </div>
-          </span>
-        </Widget>
+        [...Array(6).keys()].map(i => (
+          <Widget
+            key={i}
+            title="Chain Maintaining"
+            className="xl:col-span-2 bg-transparent sm:bg-white sm:dark:bg-gray-900 border-0 sm:border border-gray-100 dark:border-gray-800 p-0 sm:p-4"
+          >
+            <span className="flex flex-col space-y-1 mt-1">
+              <div className="grid">
+                <div className="skeleton w-16 h-7 mt-1" />
+              </div>
+              <div className="grid">
+                <div className="skeleton w-20 h-4 mt-1" />
+              </div>
+            </span>
+          </Widget>
+        ))
       }
     </div>
   )
