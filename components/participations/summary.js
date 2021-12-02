@@ -8,7 +8,7 @@ import { FiServer } from 'react-icons/fi'
 import Widget from '../widget'
 
 import { feeDenom, denomSymbol, denomAmount } from '../../lib/object/denom'
-import { idFromEvmId, chains } from '../../lib/object/chain'
+import { idFromEvmId, chains, chainImage } from '../../lib/object/chain'
 import { numberFormat } from '../../lib/utils'
 
 const Summary = ({ data, keygens, successKeygens, failedKeygens, signAttempts, failedSignAttempts }) => {
@@ -208,7 +208,14 @@ const Summary = ({ data, keygens, successKeygens, failedKeygens, signAttempts, f
         evmVotingThreshold.map((_chain, i) => (
           <Widget
             key={i}
-            title={<>{_chain?.chain}</>}
+            title={<div className="flex items-center">
+              <img
+                src={chainImage(idFromEvmId(_chain?.chain))}
+                alt=""
+                className="w-6 h-6 rounded-full mr-1.5"
+              />
+              <span>{_chain?.chain}</span>
+            </div>}
             className="xl:col-span-2 bg-transparent sm:bg-white sm:dark:bg-gray-900 border-0 sm:border border-gray-100 dark:border-gray-800 p-0 sm:p-4"
           >
             <span className="flex flex-col space-y-1 mt-1">
