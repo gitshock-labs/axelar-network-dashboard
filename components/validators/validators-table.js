@@ -422,7 +422,7 @@ export default function ValidatorsTable({ status }) {
               !props.row.original.skeleton && props.value ?
                 <div className="text-right">
                   {props.value.length > 0 ?
-                    <div className="flex flex-wrap items-center justify-end">
+                    <div className="w-24 flex flex-wrap items-center justify-end">
                       {props.value.map((_chain, i) => (
                         chainImage(_chain) ?
                           <img

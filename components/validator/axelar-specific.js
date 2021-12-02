@@ -67,7 +67,7 @@ export default function AxelarSpecific({ data, keygens, signs, supportedChains, 
             <span>Chains Supported</span>
           </span>
           {supportedChains ?
-            <span className="flex items-center text-gray-500 dark:text-gray-400">
+            <span className="flex flex-wrap items-center text-gray-500 dark:text-gray-400">
               {supportedChains.length > 0 ?
                 supportedChains.map((supportedChain, i) => (
                   <span key={i} className="min-w-max max-w-min bg-gray-100 dark:bg-gray-800 rounded-xl flex items-center text-gray-800 dark:text-gray-200 text-xs font-semibold space-x-1 px-2 py-1 my-1 mr-2">
