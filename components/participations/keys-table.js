@@ -451,7 +451,7 @@ export default function KeysTable({ data, corruption_signing_threshold, page }) 
                 !(['num_validator_shares', 'snapshot_block_number'/*'height', 'non_participant_validators'*/, 'success', 'participated'].includes(column.accessor))
         )}
         data={data ?
-          data.data?.map((key, i) => { return { ...key, i, corruption_signing_threshold: typeof corruption_signing_threshold?.[key.key_id] === 'number' ? corruption_signing_threshold[key.key_id] : -1, height: key.height || -1 } })
+          data.data?.map((key, i) => { return { ...key, i, corruption_signing_threshold: typeof corruption_signing_threshold?.[key?.key_id] === 'number' ? corruption_signing_threshold[key.key_id] : typeof key?.threshold === 'number' ? key.threshold : -1, height: key?.height || -1 } })
           :
           [...Array(10).keys()].map(i => { return { i, skeleton: true } })
         }
