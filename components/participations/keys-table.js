@@ -77,7 +77,7 @@ export default function KeysTable({ data, corruption_signing_threshold, page }) 
           {
             Header: 'Key Role',
             accessor: 'key_role',
-            sortType: (rowA, rowB) => rowA.original.key_role > rowB.original.key_role ? 1 : -1,
+            sortType: (rowA, rowB) => rowA.original.key_role?.replace('KEY_ROLE_', '') > rowB.original.key_role?.replace('KEY_ROLE_', '') ? 1 : -1,
             Cell: props => (
               !props.row.original.skeleton ?
                 <div className="my-1">
