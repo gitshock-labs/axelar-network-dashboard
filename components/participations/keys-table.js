@@ -1,8 +1,10 @@
 import Link from 'next/link'
 import { useState } from 'react'
+import { useSelector, shallowEqual } from 'react-redux'
 
 import _ from 'lodash'
 import moment from 'moment'
+import Loader from 'react-loader-spinner'
 import { FiKey } from 'react-icons/fi'
 import { MdCancel, MdOutlineHowToVote } from 'react-icons/md'
 import { FaSignature, FaCheckCircle, FaTimesCircle } from 'react-icons/fa'
@@ -16,6 +18,9 @@ import { numberFormat, getName, ellipseAddress } from '../../lib/utils'
 const COLLAPSE_VALIDATORS_SIZE = 5
 
 export default function KeysTable({ data, corruption_signing_threshold, page }) {
+  const { preferences } = useSelector(state => ({ preferences: state.preferences }), shallowEqual)
+  const { theme } = { ...preferences }
+
   const [keyIdsSeeMore, setKeyIdsSeeMore] = useState([])
   const [keyIdsSeeMoreForNon, setKeyIdsSeeMoreForNon] = useState([])
 
@@ -67,7 +72,10 @@ export default function KeysTable({ data, corruption_signing_threshold, page }) 
                       {props.value}
                     </span>
                     :
-                    '-'
+                    props.row.original.key_chain_loading ?
+                      <Loader type="Oval" color={theme === 'dark' ? 'white' : '#acacac'} width="20" height="20" />
+                      :
+                      '-'
                   }
                 </div>
                 :

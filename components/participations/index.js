@@ -8,9 +8,10 @@ import KeysTable from './keys-table'
 
 import { keygenSummary, keygens as getKeygens } from '../../lib/api/query'
 import { allValidators } from '../../lib/api/cosmos'
-import { getKeygenById } from '../../lib/api/executor'
+import { getKeygenById, axelard } from '../../lib/api/executor'
 import { successKeygens as getSuccessKeygens, failedKeygens as getFailedKeygens, signAttempts as getSignAttempts } from '../../lib/api/opensearch'
-import { getName } from '../../lib/utils'
+import { chains } from '../../lib/object/chain'
+import { getName, convertToJson } from '../../lib/utils'
 
 import { VALIDATORS_DATA, KEYGENS_DATA } from '../../reducers/types'
 
@@ -26,6 +27,8 @@ export default function Participations() {
   const [signAttempts, setSignAttempts] = useState(null)
   const [failedSignAttempts, setFailedSignAttempts] = useState(null)
   const [table, setTable] = useState('keygen_success')
+
+  const [keys, setKeys] = useState(null)
 
   useEffect(() => {
     const controller = new AbortController()
@@ -78,6 +81,62 @@ export default function Participations() {
     const controller = new AbortController()
 
     const getData = async () => {
+      let data
+
+      const chainIds = _.uniq(chains?.flatMap(_chain => [_chain?.id, _chain?.maintainer_id].filter(id => id)) || [])
+      const tssTypes = ['key-id', 'active-old-keys']
+      const keyRoles = ['master', 'secondary']
+
+      if (!controller.signal.aborted) {
+        for (let i = 0; i < chainIds.length; i++) {
+          const key_chain = chainIds[i]
+
+          for (let j = 0; j < tssTypes.length; j++) {
+            const tssType = tssTypes[j]
+
+            for (let k = 0; k < keyRoles.length; k++) {
+              const key_role = keyRoles[k]
+
+              const response = await axelard({ cmd: `axelard q tss ${tssType} ${key_chain} ${key_role} -oj` })
+
+              if (response?.data?.stdout) {
+                let keyIds = convertToJson(response.data.stdout)
+
+                if (keyIds) {
+                  keyIds = Array.isArray(keyIds) ? keyIds : [keyIds]
+
+                  data = _.uniqBy(_.concat(data || [], keyIds.map(key_id => {
+                    return {
+                      key_id,
+                      key_chain,
+                      key_role,
+                    }
+                  })), 'key_id')
+                }
+              }
+            }
+          }
+        }
+      }
+
+      if (data) {
+        setKeys(data)
+      }
+    }
+
+    getData()
+
+    const interval = setInterval(() => getData(), 5 * 60 * 1000)
+    return () => {
+      controller?.abort()
+      clearInterval(interval)
+    }
+  }, [])
+
+  useEffect(() => {
+    const controller = new AbortController()
+
+    const getData = async () => {
       let response, data
 
       // if (!controller.signal.aborted) {
@@ -110,8 +169,9 @@ export default function Participations() {
 
       //     data[i] = {
       //       ...keygen,
-      //       key_chain: keygen.key_chain || keygen?.key_id?.split('-')[0],
-      //       key_role: keygen.key_role || (keygen?.key_id?.split('-').length > 2 && `${keygen.key_id.split('-')[1].toUpperCase()}_KEY`),
+      //       key_chain: keys?.find(_key => _key.key_id === keygen.key_id)?.key_chain || keygen.key_chain,// || keygen?.key_id?.split('-')[0],
+      //       key_chain_loading: true,
+      //       key_role: keys?.find(_key => _key.key_id === keygen.key_id)?.key_role || keygen.key_role || (keygen?.key_id?.split('-').length > 2 && `${keygen.key_id.split('-')[1].toUpperCase()}_KEY`),
       //       validators: keygen.validators?.map(validator => {
       //         return {
       //           ...validator,
@@ -127,7 +187,7 @@ export default function Participations() {
       // }
 
       if (!controller.signal.aborted) {
-        response = await getSuccessKeygens({ size: 100, sort: [{ height: 'desc' }] })
+        response = await getSuccessKeygens({ size: 1000, sort: [{ height: 'desc' }] })
 
         data = response?.data || []
 
@@ -143,8 +203,9 @@ export default function Participations() {
           data[i] = {
             ...successKeygen,
             id: `${successKeygen.key_id}_${successKeygen.height}`,
-            key_chain: successKeygen.key_chain || (successKeygen?.key_id?.split('-').length > 1 && getName(successKeygen.key_id.split('-')[0])),
-            key_role: successKeygen.key_role || (successKeygen?.key_id?.split('-').length > 2 && `${successKeygen.key_id.split('-')[1].toUpperCase()}_KEY`),
+            key_chain: keys?.find(_key => _key.key_id === successKeygen.key_id)?.key_chain || successKeygen.key_chain,// || (successKeygen?.key_id?.split('-').length > 1 && getName(successKeygen.key_id.split('-')[0])),
+            key_chain_loading: true,
+            key_role: keys?.find(_key => _key.key_id === successKeygen.key_id)?.key_role || successKeygen.key_role || (successKeygen?.key_id?.split('-').length > 2 && `${successKeygen.key_id.split('-')[1].toUpperCase()}_KEY`),
             validators: successKeygen.snapshot_validators?.validators?.map((validator, j) => {
               return {
                 ...validator,
@@ -170,7 +231,7 @@ export default function Participations() {
       }
 
       if (!controller.signal.aborted) {
-        response = await getFailedKeygens({ size: 100, sort: [{ height: 'desc' }] })
+        response = await getFailedKeygens({ size: 1000, sort: [{ height: 'desc' }] })
 
         data = response?.data || []
 
@@ -180,8 +241,9 @@ export default function Participations() {
           data[i] = {
             ...failedKeygen,
             id: `${failedKeygen.key_id}_${failedKeygen.height}`,
-            key_chain: failedKeygen.key_chain || (failedKeygen?.key_id?.split('-').length > 1 && getName(failedKeygen.key_id.split('-')[0])),
-            key_role: failedKeygen.key_role || (failedKeygen?.key_id?.split('-').length > 2 && `${failedKeygen.key_id.split('-')[1].toUpperCase()}_KEY`),
+            key_chain: keys?.find(_key => _key.key_id === failedKeygen.key_id)?.key_chain || failedKeygen.key_chain,// || (failedKeygen?.key_id?.split('-').length > 1 && getName(failedKeygen.key_id.split('-')[0])),
+            key_chain_loading: true,
+            key_role: keys?.find(_key => _key.key_id === failedKeygen.key_id)?.key_role || failedKeygen.key_role || (failedKeygen?.key_id?.split('-').length > 2 && `${failedKeygen.key_id.split('-')[1].toUpperCase()}_KEY`),
             validators: failedKeygen.snapshot_validators?.validators?.map((validator, j) => {
               return {
                 ...validator,
@@ -207,7 +269,7 @@ export default function Participations() {
       }
 
       if (!controller.signal.aborted) {
-        response = await getSignAttempts({ size: 100, query: { match: { result: true } }, sort: [{ height: 'desc' }] })
+        response = await getSignAttempts({ size: 1000, query: { match: { result: true } }, sort: [{ height: 'desc' }] })
 
         data = response?.data || []
 
@@ -217,8 +279,9 @@ export default function Participations() {
           data[i] = {
             ...signAttempt,
             id: signAttempt.sig_id,
-            key_chain: signAttempt.key_chain || (signAttempt?.key_id?.split('-').length > 1 && getName(signAttempt.key_id.split('-')[0])),
-            key_role: signAttempt.key_role || (signAttempt?.key_id?.split('-').length > 2 && `${signAttempt.key_id.split('-')[1].toUpperCase()}_KEY`),
+            key_chain: keys?.find(_key => _key.key_id === signAttempt.key_id)?.key_chain || signAttempt.key_chain,// || (signAttempt?.key_id?.split('-').length > 1 && getName(signAttempt.key_id.split('-')[0])),
+            key_chain_loading: true,
+            key_role: keys?.find(_key => _key.key_id === signAttempt.key_id)?.key_role || signAttempt.key_role || (signAttempt?.key_id?.split('-').length > 2 && `${signAttempt.key_id.split('-')[1].toUpperCase()}_KEY`),
             validators: signAttempt.participants?.map((address, j) => {
               return {
                 address,
@@ -242,7 +305,7 @@ export default function Participations() {
       }
 
       if (!controller.signal.aborted) {
-        response = await getSignAttempts({ size: 100, query: { match: { result: false } }, sort: [{ height: 'desc' }] })
+        response = await getSignAttempts({ size: 1000, query: { match: { result: false } }, sort: [{ height: 'desc' }] })
 
         data = response?.data || []
 
@@ -252,8 +315,9 @@ export default function Participations() {
           data[i] = {
             ...signAttempt,
             id: signAttempt.sig_id,
-            key_chain: signAttempt.key_chain || (signAttempt?.key_id?.split('-').length > 1 && getName(signAttempt.key_id.split('-')[0])),
-            key_role: signAttempt.key_role || (signAttempt?.key_id?.split('-').length > 2 && `${signAttempt.key_id.split('-')[1].toUpperCase()}_KEY`),
+            key_chain: keys?.find(_key => _key.key_id === signAttempt.key_id)?.key_chain || signAttempt.key_chain,// || (signAttempt?.key_id?.split('-').length > 1 && getName(signAttempt.key_id.split('-')[0])),
+            key_chain_loading: true,
+            key_role: keys?.find(_key => _key.key_id === signAttempt.key_id)?.key_role || signAttempt.key_role || (signAttempt?.key_id?.split('-').length > 2 && `${signAttempt.key_id.split('-')[1].toUpperCase()}_KEY`),
             validators: signAttempt.participants?.map((address, j) => {
               return {
                 address,
@@ -292,6 +356,9 @@ export default function Participations() {
         const data = keygens.data.map(keygen => {
           return {
             ...keygen,
+            key_chain: keys?.find(_key => _key.key_id === keygen.key_id)?.key_chain || keygen.key_chain,
+            key_chain_loading: false,
+            key_role: keys?.find(_key => _key.key_id === keygen.key_id)?.key_role || keygen.key_role,
             validators: keygen.validators?.map(validator => {
               return {
                 ...validator,
@@ -308,6 +375,9 @@ export default function Participations() {
         const data = successKeygens.data.map(successKeygen => {
           return {
             ...successKeygen,
+            key_chain: keys?.find(_key => _key.key_id === successKeygen.key_id)?.key_chain || successKeygen.key_chain,
+            key_chain_loading: false,
+            key_role: keys?.find(_key => _key.key_id === successKeygen.key_id)?.key_role || successKeygen.key_role,
             validators: successKeygen?.snapshot_validators.validators?.map((validator, j) => {
               return {
                 ...validator,
@@ -334,6 +404,9 @@ export default function Participations() {
         const data = failedKeygens.data.map(failedKeygen => {
           return {
             ...failedKeygen,
+            key_chain: keys?.find(_key => _key.key_id === failedKeygen.key_id)?.key_chain || failedKeygen.key_chain,
+            key_chain_loading: false,
+            key_role: keys?.find(_key => _key.key_id === failedKeygen.key_id)?.key_role || failedKeygen.key_role,
             validators: failedKeygen.snapshot_validators?.validators?.map((validator, j) => {
               return {
                 ...validator,
@@ -360,6 +433,9 @@ export default function Participations() {
         const data = signAttempts.data.map(signAttempt => {
           return {
             ...signAttempt,
+            key_chain: keys?.find(_key => _key.key_id === signAttempt.key_id)?.key_chain || signAttempt.key_chain,
+            key_chain_loading: false,
+            key_role: keys?.find(_key => _key.key_id === signAttempt.key_id)?.key_role || signAttempt.key_role,
             validators: signAttempt.participants?.map((address, j) => {
               return {
                 address,
@@ -384,6 +460,9 @@ export default function Participations() {
         const data = failedSignAttempts.data.map(signAttempt => {
           return {
             ...signAttempt,
+            key_chain: keys?.find(_key => _key.key_id === signAttempt.key_id)?.key_chain || signAttempt.key_chain,
+            key_chain_loading: false,
+            key_role: keys?.find(_key => _key.key_id === signAttempt.key_id)?.key_role || signAttempt.key_role,
             validators: signAttempt.participants?.map((address, j) => {
               return {
                 address,
@@ -404,7 +483,7 @@ export default function Participations() {
         setFailedSignAttempts({ ...failedSignAttempts, data })
       }
     }
-  }, [validators_data])
+  }, [validators_data, keys])
 
   return (
     <div className={`max-w-${[/*'keygen_failed', 'sign_success', 'sign_failed'*/].includes(table) ? '7xl' : 'full'} my-4 xl:my-6 mx-auto`}>
