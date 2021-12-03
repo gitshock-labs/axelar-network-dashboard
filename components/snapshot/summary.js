@@ -27,7 +27,7 @@ const Summary = ({ data }) => {
 
   ineligibilities = _.orderBy(Object.entries(ineligibilities).filter(([key, value]) => value).map(([key, value]) => { return { ineligibility: key, count: value } }), ['count'], ['desc'])
 
-  const supportedChains = _.orderBy(Object.entries(_.countBy(data?.flatMap(_validator => _validator.supported_chains) || [])).map(([key, value]) => { return { chain: key, count: value } }), ['count'], ['desc'])
+  const supportedChains = _.orderBy(Object.entries(_.countBy(data?.filter(_validator => ['BOND_STATUS_BONDED'].includes(_validator?.status)).flatMap(_validator => _validator.supported_chains) || [])).map(([key, value]) => { return { chain: key, count: value } }), ['count'], ['desc'])
 
   return (
     <div className="w-full grid grid-flow-row grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-4 mb-6">
