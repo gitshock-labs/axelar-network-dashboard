@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { useRouter } from 'next/router'
 import { useState, useEffect } from 'react'
 import { useSelector, useDispatch, shallowEqual } from 'react-redux'
 
@@ -9,20 +10,36 @@ import Loader from 'react-loader-spinner'
 import { IoRefreshCircle } from 'react-icons/io5'
 
 import Widget from '../widget'
+import Datatable from '../datatable'
+import Copy from '../copy'
 
 import { status as getStatus } from '../../lib/api/rpc'
 import { historical } from '../../lib/api/opensearch'
-import { numberFormat } from '../../lib/utils'
+import { numberFormat, ellipseAddress } from '../../lib/utils'
 
 import { STATUS_DATA } from '../../reducers/types'
 
 const snapshot_block_size = Number(process.env.NEXT_PUBLIC_SNAPSHOT_BLOCK_SIZE)
+
+const weight = {
+  supported_chains_fraction: 0.3,
+  vote_participation_fraction: 0.2,
+  keygen_participation_fraction: 0.1,
+  sign_participation_fraction: 0.1,
+  heartbeats_fraction: 0.1,
+  uptime_fraction: 0.1,
+  jailed_fraction: 0.1,
+}
 
 export default function Leaderboard({ n = 100 }) {
   const dispatch = useDispatch()
   const { data, preferences } = useSelector(state => ({ data: state.data, preferences: state.preferences }), shallowEqual)
   const { status_data } = { ...data }
   const { theme } = { ...preferences }
+
+  const router = useRouter()
+  const { query } = { ...router }
+  const { debug } = { ...query }
 
   const [statusLoaded, setStatusLoaded] = useState(null)
   const [snapshots, setSnapshots] = useState(null)
@@ -116,7 +133,7 @@ export default function Leaderboard({ n = 100 }) {
           }
 
           if (!fromSnapshot && !toSnapshot) {
-            setFromSnapshot(_.last(_.slice(data, 0, 10))?.snapshot_block)
+            setFromSnapshot(_.last(_.slice(data, 0/*, 10*/))?.snapshot_block)
             setToSnapshot(_.head(data)?.snapshot_block)
 
             setLoading(true)
@@ -144,6 +161,7 @@ export default function Leaderboard({ n = 100 }) {
       else {
         setReadyToLoad(true)
       }
+      setLoading(true)
     }
   }, [fromSnapshot])
 
@@ -155,6 +173,7 @@ export default function Leaderboard({ n = 100 }) {
       else {
         setReadyToLoad(true)
       }
+      setLoading(true)
     }
   }, [toSnapshot])
 
@@ -171,16 +190,171 @@ export default function Leaderboard({ n = 100 }) {
               ],
             },
           },
-          size: 10000,
+          aggs: {
+            validators: {
+              terms: { field: 'operator_address.keyword', size: 1000 },
+              aggs: {
+                moniker: {
+                  terms: {
+                    field: 'description.moniker.keyword',
+                  },
+                },
+                identity: {
+                  terms: {
+                    field: 'description.identity.keyword',
+                  },
+                },
+                supported_chains: {
+                  terms: {
+                    field: 'supported_chains.keyword',
+                    size: 100,
+                  },
+                },
+                vote_participated: {
+                  sum: {
+                    field: 'vote_participated',
+                  },
+                },
+                vote_not_participated: {
+                  sum: {
+                    field: 'vote_not_participated',
+                  },
+                },
+                keygen_participated: {
+                  sum: {
+                    field: 'keygen_participated',
+                  },
+                },
+                keygen_not_participated: {
+                  sum: {
+                    field: 'keygen_not_participated',
+                  },
+                },
+                sign_participated: {
+                  sum: {
+                    field: 'sign_participated',
+                  },
+                },
+                sign_not_participated: {
+                  sum: {
+                    field: 'sign_not_participated',
+                  },
+                },
+                up_heartbeats: {
+                  sum: {
+                    field: 'up_heartbeats',
+                  },
+                },
+                missed_heartbeats: {
+                  sum: {
+                    field: 'missed_heartbeats',
+                  },
+                },
+                ineligibilities_jailed: {
+                  sum: {
+                    field: 'ineligibilities.jailed',
+                  },
+                },
+                ineligibilities_tombstoned: {
+                  sum: {
+                    field: 'ineligibilities.tombstoned',
+                  },
+                },
+                ineligibilities_missed_too_many_blocks: {
+                  sum: {
+                    field: 'ineligibilities.missed_too_many_blocks',
+                  },
+                },
+                ineligibilities_no_proxy_registered: {
+                  sum: {
+                    field: 'ineligibilities.no_proxy_registered',
+                  },
+                },
+                ineligibilities_proxy_insuficient_funds: {
+                  sum: {
+                    field: 'ineligibilities.proxy_insuficient_funds',
+                  },
+                },
+                ineligibilities_tss_suspended: {
+                  sum: {
+                    field: 'ineligibilities.tss_suspended',
+                  },
+                },
+                up_blocks: {
+                  sum: {
+                    field: 'up_blocks',
+                  },
+                },
+                missed_blocks: {
+                  sum: {
+                    field: 'missed_blocks',
+                  },
+                },
+                num_blocks_jailed: {
+                  sum: {
+                    field: 'num_blocks_jailed',
+                  },
+                },
+              },
+            },
+          },
         })
 
-        const data = _.orderBy((response?.data || []).map(_snapshot => {
-          return {
-            ..._snapshot,
-          }
-        }), ['snapshot_block'], ['desc'])
+        const validators = response?.data || []
 
-        setSnapshotsData({ data })
+        const total_blocks = toSnapshot - (fromSnapshot - snapshot_block_size)
+        const supported_chains = _.uniq(validators.flatMap(v => v.supported_chains.map(_chain => _chain.chain)))
+        const supported_chains_num_snapshots = Object.fromEntries(supported_chains.map(chain => {
+          return [
+            chain,
+            _.max(validators.map(v => v.supported_chains.find(_chain => _chain.chain === chain)?.count || 0))
+          ]
+        }))
+
+        const vote_participations = _.max(validators.map(v => v.vote_participated + v.vote_not_participated))
+        const keygen_participations = _.max(validators.map(v => v.keygen_participated + v.keygen_not_participated))
+        const sign_participations = _.max(validators.map(v => v.sign_participated + v.sign_not_participated))
+
+        let data = _.orderBy(validators.map(v => {
+          const ineligibilities = Object.entries(v).filter(([key, value]) => key?.startsWith('ineligibilities_')).map(([key, value]) => { return { key, value } })
+
+          return {
+            ...v,
+            supported_chains_fraction: (_.sum(supported_chains.map(chain => (v.supported_chains.find(_chain => _chain.chain === chain)?.count / supported_chains_num_snapshots[chain]) || 0)) / supported_chains.length) || 0,
+            vote_participation_fraction: (v.vote_participated / vote_participations) || 0,
+            keygen_participation_fraction: (v.keygen_participated / keygen_participations) || 0,
+            sign_participation_fraction: (v.sign_participated / sign_participations) || 0,
+            heartbeats_fraction: 1 - (((v.missed_heartbeats + (_.sumBy(ineligibilities, 'value') / ineligibilities.length)) / total_blocks / Number(process.env.NEXT_PUBLIC_NUM_BLOCKS_PER_HEARTBEAT)) || 0),
+            uptime_fraction: (v.up_blocks / total_blocks) || 0,
+            jailed_fraction: 1 - ((v.num_blocks_jailed / total_blocks) || 0),
+          }
+        }).map(v => {
+          return {
+            ...v,
+            score: _.sum(Object.entries(weight).map(([key, value]) => value * v[key])) / 1
+          }
+        }),
+          ['score', 'supported_chains_fraction', 'vote_participation_fraction', 'keygen_participation_fraction', 'sign_participation_fraction', 'heartbeats_fraction', 'uptime_fraction', 'jailed_fraction'],
+          ['desc', 'desc', 'desc', 'desc', 'desc', 'desc', 'desc', 'desc']
+        ).map((v, i) => {
+          return {
+            ...v,
+            tier: i < 15 ? 1 : i < 35 ? 2 : 3,
+            rank: i + 1,
+          }
+        })
+
+        for (let i = 0; i < data.length; i++) {
+          const v = data[i]
+
+          if (i > 0 && typeof v?.score === 'number' && v.score === data[i - 1]?.score) {
+            v.rank = data[i - 1].rank
+          }
+
+          data[i] = v
+        }
+
+        setSnapshotsData({ data, total: response?.total || data.length, fromSnapshot, toSnapshot })
 
         setLoading(false)
       }
@@ -194,52 +368,248 @@ export default function Leaderboard({ n = 100 }) {
   return (
     <>
       {snapshots?.data?.length > 0 && (
-        <div className="flex items-center space-x-4 mb-4">
-          <span className="flex flex-col sm:flex-row sm:items-center sm:space-x-2">
-            <span>From Snapshot</span>
-            {fromSnapshot && (
-              <select
-                value={fromSnapshot}
-                onChange={e => setFromSnapshot(Number(e.target.value))}
-                className="max-w-min dark:bg-gray-800 outline-none border-gray-200 dark:border-gray-800 shadow-none focus:shadow-none text-xs"
-              >
-                {snapshots.data.map((_snapshot, i) => (
-                  <option key={i} value={_snapshot.snapshot_block}>
-                    {numberFormat(_snapshot.snapshot_block, '0,0')}
-                  </option>
-                ))}
-              </select>
+        <>
+          <div className="flex flex-wrap items-center mb-2">
+            <span
+              onClick={() => {
+                setFromSnapshot(_.last(snapshots.data)?.snapshot_block)
+                setToSnapshot(_.head(snapshots.data)?.snapshot_block)
+              }}
+              className="bg-gray-100 hover:bg-gray-200 dark:bg-gray-900 dark:hover:bg-gray-800 cursor-pointer rounded-lg uppercase text-blue-600 dark:text-white font-medium mr-2 py-0.5 px-2"
+            >
+              All-Time
+            </span>
+            <span
+              onClick={() => {
+                setFromSnapshot(_.head(snapshots.data)?.snapshot_block)
+                setToSnapshot(_.head(snapshots.data)?.snapshot_block)
+              }}
+              className="bg-gray-100 hover:bg-gray-200 dark:bg-gray-900 dark:hover:bg-gray-800 cursor-pointer rounded-lg uppercase text-blue-600 dark:text-white font-medium mr-2 py-0.5 px-2"
+            >
+              Latest
+            </span>
+          </div>
+          <div className="flex items-center space-x-4 mb-4">
+            <span className="flex flex-col sm:flex-row sm:items-center sm:space-x-2">
+              <span>From Snapshot</span>
+              {fromSnapshot && (
+                <select
+                  value={fromSnapshot}
+                  onChange={e => setFromSnapshot(Number(e.target.value))}
+                  className="max-w-min dark:bg-gray-800 outline-none border-gray-200 dark:border-gray-800 shadow-none focus:shadow-none text-xs"
+                >
+                  {snapshots.data.map((_snapshot, i) => (
+                    <option key={i} value={_snapshot.snapshot_block}>
+                      {numberFormat(_snapshot.snapshot_block, '0,0')}
+                    </option>
+                  ))}
+                </select>
+              )}
+            </span>
+            <span className="flex flex-col sm:flex-row sm:items-center sm:space-x-2">
+              <span>To Snapshot</span>
+              {toSnapshot && (
+                <select
+                  value={toSnapshot}
+                  onChange={e => setToSnapshot(Number(e.target.value))}
+                  className="max-w-min dark:bg-gray-800 outline-none border-gray-200 dark:border-gray-800 shadow-none focus:shadow-none text-xs"
+                >
+                  {snapshots.data.map((_snapshot, i) => (
+                    <option key={i} value={_snapshot.snapshot_block}>
+                      {numberFormat(_snapshot.snapshot_block, '0,0')}
+                    </option>
+                  ))}
+                </select>
+              )}
+            </span>
+            {readyToLoad && !loading && (
+              <IoRefreshCircle
+                size={24}
+                onClick={() => setLoading(true)}
+                className="cursor-pointer text-indigo-600 dark:text-gray-200"
+              />
             )}
-          </span>
-          <span className="flex flex-col sm:flex-row sm:items-center sm:space-x-2">
-            <span>To Snapshot</span>
-            {toSnapshot && (
-              <select
-                value={toSnapshot}
-                onChange={e => setToSnapshot(Number(e.target.value))}
-                className="max-w-min dark:bg-gray-800 outline-none border-gray-200 dark:border-gray-800 shadow-none focus:shadow-none text-xs"
-              >
-                {snapshots.data.map((_snapshot, i) => (
-                  <option key={i} value={_snapshot.snapshot_block}>
-                    {numberFormat(_snapshot.snapshot_block, '0,0')}
-                  </option>
-                ))}
-              </select>
+            {loading && (
+              <Loader type="Puff" color={theme === 'dark' ? 'white' : '#D1D5DB'} width="20" height="20" />
             )}
-          </span>
-          {readyToLoad && !loading && (
-            <IoRefreshCircle
-              size={24}
-              onClick={() => setLoading(true)}
-              className="cursor-pointer text-indigo-600 dark:text-gray-200"
-            />
-          )}
-          {loading && (
-            <Loader type="Puff" color={theme === 'dark' ? 'white' : '#D1D5DB'} width="20" height="20" />
-          )}
+          </div>
+        </>
+      )}
+      <Datatable
+        columns={[
+          {
+            Header: '#',
+            accessor: 'rank',
+            sortType: (rowA, rowB) => rowA.original.rank > rowB.original.rank ? 1 : -1,
+            Cell: props => (
+              !props.row.original.skeleton ?
+                <div className="mt-0.5">
+                  {/*numberFormat((props.flatRows?.indexOf(props.row) > -1 ? props.flatRows.indexOf(props.row) : props.value) + 1, '0,0')*/}
+                  {numberFormat(props.value, '0,0')}
+                </div>
+                :
+                <div className="skeleton w-4 h-3 mt-0.5" />
+            ),
+          },
+          {
+            Header: 'Validator',
+            accessor: 'description.moniker',
+            disableSortBy: true,
+            Cell: props => (
+              !props.row.original.skeleton ?
+                <div className={`min-w-max flex items-${props.value ? 'start' : 'center'} space-x-2`}>
+                  <div className="flex flex-col">
+                    {props.value && (
+                      <Link href={`/validator/${props.row.original.operator_address}`}>
+                        <a className="text-blue-600 dark:text-blue-500 font-medium">
+                          {props.value || props.row.original.operator_address}
+                        </a>
+                      </Link>
+                    )}
+                    <span className="flex items-center space-x-1">
+                      <Link href={`/validator/${props.row.original.operator_address}`}>
+                        <a className="text-2xs text-gray-500 font-light">
+                          {ellipseAddress(props.row.original.operator_address, 16)}
+                        </a>
+                      </Link>
+                      <Copy text={props.row.original.operator_address} />
+                    </span>
+                  </div>
+                </div>
+                :
+                <div className="flex items-start space-x-2">
+                  <div className="flex flex-col space-y-1.5">
+                    <div className="skeleton w-24 h-4" />
+                    <div className="skeleton w-56 h-3" />
+                  </div>
+                </div>
+            ),
+          },
+          {
+            Header: `Chains (${numberFormat(weight.supported_chains_fraction * 100, '0,0.00')}%)`,
+            accessor: 'supported_chains_fraction',
+            sortType: (rowA, rowB) => rowA.original.supported_chains_fraction > rowB.original.supported_chains_fraction ? 1 : -1,
+            Cell: props => (
+              !props.row.original.skeleton ?
+                <div className="text-right mt-0.5 ml-auto">{numberFormat(props.value, '0,0.00000000')}</div>
+                :
+                <div className="skeleton w-16 h-4 mt-0.5 ml-auto" />
+            ),
+            headerClassName: 'whitespace-nowrap justify-end text-right',
+          },
+          {
+            Header: `Vote (${numberFormat(weight.vote_participation_fraction * 100, '0,0.00')}%)`,
+            accessor: 'vote_participation_fraction',
+            sortType: (rowA, rowB) => rowA.original.vote_participation_fraction > rowB.original.vote_participation_fraction ? 1 : -1,
+            Cell: props => (
+              !props.row.original.skeleton ?
+                <div className="text-right mt-0.5 ml-auto">{numberFormat(props.value, '0,0.00000000')}</div>
+                :
+                <div className="skeleton w-16 h-4 mt-0.5 ml-auto" />
+            ),
+            headerClassName: 'whitespace-nowrap justify-end text-right',
+          },
+          {
+            Header: `Keygen (${numberFormat(weight.keygen_participation_fraction * 100, '0,0.00')}%)`,
+            accessor: 'keygen_participation_fraction',
+            sortType: (rowA, rowB) => rowA.original.keygen_participation_fraction > rowB.original.keygen_participation_fraction ? 1 : -1,
+            Cell: props => (
+              !props.row.original.skeleton ?
+                <div className="text-right mt-0.5 ml-auto">{numberFormat(props.value, '0,0.00000000')}</div>
+                :
+                <div className="skeleton w-16 h-4 mt-0.5 ml-auto" />
+            ),
+            headerClassName: 'whitespace-nowrap justify-end text-right',
+          },
+          {
+            Header: `Sign (${numberFormat(weight.sign_participation_fraction * 100, '0,0.00')}%)`,
+            accessor: 'sign_participation_fraction',
+            sortType: (rowA, rowB) => rowA.original.sign_participation_fraction > rowB.original.sign_participation_fraction ? 1 : -1,
+            Cell: props => (
+              !props.row.original.skeleton ?
+                <div className="text-right mt-0.5 ml-auto">{numberFormat(props.value, '0,0.00000000')}</div>
+                :
+                <div className="skeleton w-16 h-4 mt-0.5 ml-auto" />
+            ),
+            headerClassName: 'whitespace-nowrap justify-end text-right',
+          },
+          {
+            Header: `Heartbeats (${numberFormat(weight.heartbeats_fraction * 100, '0,0.00')}%)`,
+            accessor: 'heartbeats_fraction',
+            sortType: (rowA, rowB) => rowA.original.heartbeats_fraction > rowB.original.heartbeats_fraction ? 1 : -1,
+            Cell: props => (
+              !props.row.original.skeleton ?
+                <div className="text-right mt-0.5 ml-auto">{numberFormat(props.value, '0,0.00000000')}</div>
+                :
+                <div className="skeleton w-16 h-4 mt-0.5 ml-auto" />
+            ),
+            headerClassName: 'whitespace-nowrap justify-end text-right',
+          },
+          {
+            Header: `Uptime (${numberFormat(weight.uptime_fraction * 100, '0,0.00')}%)`,
+            accessor: 'uptime_fraction',
+            sortType: (rowA, rowB) => rowA.original.uptime_fraction > rowB.original.uptime_fraction ? 1 : -1,
+            Cell: props => (
+              !props.row.original.skeleton ?
+                <div className="text-right mt-0.5 ml-auto">{numberFormat(props.value, '0,0.00000000')}</div>
+                :
+                <div className="skeleton w-16 h-4 mt-0.5 ml-auto" />
+            ),
+            headerClassName: 'whitespace-nowrap justify-end text-right',
+          },
+          {
+            Header: `Jailed (${numberFormat(weight.jailed_fraction * 100, '0,0.00')}%)`,
+            accessor: 'jailed_fraction',
+            sortType: (rowA, rowB) => rowA.original.jailed_fraction > rowB.original.jailed_fraction ? 1 : -1,
+            Cell: props => (
+              !props.row.original.skeleton ?
+                <div className="text-right mt-0.5 ml-auto">{numberFormat(props.value, '0,0.00000000')}</div>
+                :
+                <div className="skeleton w-16 h-4 mt-0.5 ml-auto" />
+            ),
+            headerClassName: 'whitespace-nowrap justify-end text-right',
+          },
+          {
+            Header: 'Score',
+            accessor: 'score',
+            sortType: (rowA, rowB) => rowA.original.score > rowB.original.score ? 1 : -1,
+            Cell: props => (
+              !props.row.original.skeleton ?
+                <div className="text-right mt-0.5 ml-auto">{numberFormat(props.value, '0,0.00000000')}</div>
+                :
+                <div className="skeleton w-16 h-4 mt-0.5 ml-auto" />
+            ),
+            headerClassName: 'whitespace-nowrap justify-end text-right',
+          },
+          {
+            Header: 'Tier',
+            accessor: 'tier',
+            sortType: (rowA, rowB) => rowA.original.rank > rowB.original.rank ? 1 : -1,
+            Cell: props => (
+              !props.row.original.skeleton ?
+                <div className={`bg-${props.value < 2 ? 'indigo-600 dark:bg-indigo-700' : props.value < 3 ? 'blue-400 dark:bg-blue-500' : 'blue-200 dark:bg-blue-300'} rounded-lg flex items-center justify-center text-white space-x-1 ml-auto px-1.5 py-0.5`}>
+                  <span className="capitalize font-semibold">Tier {numberFormat(props.value, '0,0')}</span>
+                </div>
+                :
+                <div className="skeleton w-12 h-5 ml-auto" />
+            ),
+            headerClassName: 'whitespace-nowrap justify-end text-right',
+          },
+        ].filter(column => debug === 'true' || !(_.concat(['score'], Object.keys(weight)).includes(column.accessor)))}
+        data={snapshotsData?.fromSnapshot === fromSnapshot && snapshotsData?.toSnapshot === toSnapshot ?
+          snapshotsData.data?.map((validator, i) => { return { ...validator, i } }) || []
+          :
+          [...Array(25).keys()].map(i => { return { i, skeleton: true } })
+        }
+        noPagination={snapshotsData?.data ? snapshotsData.data.length <= 10 : true}
+        defaultPageSize={100}
+        className="small"
+      />
+      {snapshotsData && snapshotsData?.data?.length < 1 && (
+        <div className="bg-white dark:bg-gray-800 text-gray-300 dark:text-gray-500 text-base font-medium italic text-center my-4 py-2">
+          No Validators
         </div>
       )}
-      Coming Soon
     </>
   )
 }
