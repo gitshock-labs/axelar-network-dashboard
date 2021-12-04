@@ -587,7 +587,7 @@ export default function Leaderboard({ n = 100 }) {
             sortType: (rowA, rowB) => rowA.original.rank > rowB.original.rank ? 1 : -1,
             Cell: props => (
               !props.row.original.skeleton ?
-                <div className={`bg-${props.value < 2 ? 'indigo-600 dark:bg-indigo-700' : props.value < 3 ? 'blue-400 dark:bg-blue-500' : 'blue-200 dark:bg-blue-300'} rounded-lg flex items-center justify-center text-white space-x-1 ml-auto px-1.5 py-0.5`}>
+                <div className={`bg-${props.value < 2 ? 'indigo-600 dark:bg-indigo-700' : props.value < 3 ? 'blue-500 dark:bg-blue-600' : 'blue-300 dark:bg-blue-400'} rounded-lg flex items-center justify-center text-white space-x-1 ml-auto px-1.5 py-0.5`}>
                   <span className="capitalize font-semibold">Tier {numberFormat(props.value, '0,0')}</span>
                 </div>
                 :
