@@ -409,7 +409,7 @@ export default function Leaderboard({ n = 100 }) {
                 >
                   {snapshots.data.map((_snapshot, i) => (
                     <option key={i} value={_snapshot.snapshot_block}>
-                      {numberFormat(_snapshot.snapshot_block, '0,0')}
+                      {numberFormat(_snapshot.snapshot_block, '0,0')} ({numberFormat((snapshots.data[i + 1]?.snapshot_block || 0) + 1, '0,0')} - {numberFormat(_snapshot.snapshot_block, '0,0')})
                     </option>
                   ))}
                 </select>
@@ -425,7 +425,7 @@ export default function Leaderboard({ n = 100 }) {
                 >
                   {snapshots.data.map((_snapshot, i) => (
                     <option key={i} value={_snapshot.snapshot_block}>
-                      {numberFormat(_snapshot.snapshot_block, '0,0')}
+                      {numberFormat(_snapshot.snapshot_block, '0,0')} ({numberFormat((snapshots.data[i + 1]?.snapshot_block || 0) + 1, '0,0')} - {numberFormat(_snapshot.snapshot_block, '0,0')})
                     </option>
                   ))}
                 </select>
