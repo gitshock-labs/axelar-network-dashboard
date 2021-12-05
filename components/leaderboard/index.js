@@ -327,6 +327,15 @@ export default function Leaderboard({ n = 100 }) {
             heartbeats_fraction: 1 - (((v.missed_heartbeats + (_.sumBy(ineligibilities, 'value') / ineligibilities.length)) / total_blocks / Number(process.env.NEXT_PUBLIC_NUM_BLOCKS_PER_HEARTBEAT)) || 0),
             uptime_fraction: (v.up_blocks / total_blocks) || 0,
             jailed_fraction: 1 - ((v.num_blocks_jailed / total_blocks) || 0),
+            debug: {
+              supported_chains_fraction: `(${supported_chains.map(chain => `(${v.supported_chains.find(_chain => _chain.chain === chain)?.count || 0} / ${supported_chains_num_snapshots[chain]} ${chain?.toUpperCase()})`).join(' +\n')})\n/ ${supported_chains.length} CHAINS`,
+              vote_participation_fraction: '-',//`${v.vote_participated} PARTICIPATED / ${vote_participations} TOTAL_VOTE`,
+              keygen_participation_fraction: `${v.keygen_participated} PARTICIPATED / ${keygen_participations} TOTAL_KEYGEN`,
+              sign_participation_fraction: `${v.sign_participated} PARTICIPATED / ${sign_participations} TOTAL_SIGN`,
+              heartbeats_fraction: `1 - ((${v.missed_heartbeats} MISSED +\n((${ineligibilities.map(({ key, value}) => `${value} ${''/*key?.replace('ineligibilities_', '').toUpperCase()*/}`.trim()).join(' + ')}) / ${ineligibilities.length})) / ${total_blocks} / ${Number(process.env.NEXT_PUBLIC_NUM_BLOCKS_PER_HEARTBEAT)})`,
+              uptime_fraction: `${v.up_blocks} / ${total_blocks}`,
+              jailed_fraction: `1 - (${v.num_blocks_jailed} / ${total_blocks})`,
+            },
           }
         }).map(v => {
           return {
@@ -491,7 +500,10 @@ export default function Leaderboard({ n = 100 }) {
             sortType: (rowA, rowB) => rowA.original.supported_chains_fraction > rowB.original.supported_chains_fraction ? 1 : -1,
             Cell: props => (
               !props.row.original.skeleton ?
-                <div className="text-right mt-0.5 ml-auto">{numberFormat(props.value, '0,0.00000000')}</div>
+                <>
+                  <div className="text-right mt-0.5 ml-auto">{numberFormat(props.value, '0,0.00000000')}</div>
+                  <div className="w-28 whitespace-pre-wrap leading-4 text-gray-400 dark:text-gray-500 text-3xs font-medium text-right mt-0.5 ml-auto">{props.row.original.debug?.supported_chains_fraction}</div>
+                </>
                 :
                 <div className="skeleton w-16 h-4 mt-0.5 ml-auto" />
             ),
@@ -503,7 +515,10 @@ export default function Leaderboard({ n = 100 }) {
             sortType: (rowA, rowB) => rowA.original.vote_participation_fraction > rowB.original.vote_participation_fraction ? 1 : -1,
             Cell: props => (
               !props.row.original.skeleton ?
-                <div className="text-right mt-0.5 ml-auto">{numberFormat(props.value, '0,0.00000000')}</div>
+                <>
+                  <div className="text-right mt-0.5 ml-auto">{numberFormat(props.value, '0,0.00000000')}</div>
+                  <div className="w-24 whitespace-pre-wrap leading-4 text-gray-400 dark:text-gray-500 text-3xs font-medium text-right mt-0.5 ml-auto">{props.row.original.debug?.vote_participation_fraction}</div>
+                </>
                 :
                 <div className="skeleton w-16 h-4 mt-0.5 ml-auto" />
             ),
@@ -515,7 +530,10 @@ export default function Leaderboard({ n = 100 }) {
             sortType: (rowA, rowB) => rowA.original.keygen_participation_fraction > rowB.original.keygen_participation_fraction ? 1 : -1,
             Cell: props => (
               !props.row.original.skeleton ?
-                <div className="text-right mt-0.5 ml-auto">{numberFormat(props.value, '0,0.00000000')}</div>
+                <>
+                  <div className="text-right mt-0.5 ml-auto">{numberFormat(props.value, '0,0.00000000')}</div>
+                  <div className="w-24 whitespace-pre-wrap leading-4 text-gray-400 dark:text-gray-500 text-3xs font-medium text-right mt-0.5 ml-auto">{props.row.original.debug?.keygen_participation_fraction}</div>
+                </>
                 :
                 <div className="skeleton w-16 h-4 mt-0.5 ml-auto" />
             ),
@@ -527,7 +545,10 @@ export default function Leaderboard({ n = 100 }) {
             sortType: (rowA, rowB) => rowA.original.sign_participation_fraction > rowB.original.sign_participation_fraction ? 1 : -1,
             Cell: props => (
               !props.row.original.skeleton ?
-                <div className="text-right mt-0.5 ml-auto">{numberFormat(props.value, '0,0.00000000')}</div>
+                <>
+                  <div className="text-right mt-0.5 ml-auto">{numberFormat(props.value, '0,0.00000000')}</div>
+                  <div className="w-24 whitespace-pre-wrap leading-4 text-gray-400 dark:text-gray-500 text-3xs font-medium text-right mt-0.5 ml-auto">{props.row.original.debug?.sign_participation_fraction}</div>
+                </>
                 :
                 <div className="skeleton w-16 h-4 mt-0.5 ml-auto" />
             ),
@@ -539,7 +560,10 @@ export default function Leaderboard({ n = 100 }) {
             sortType: (rowA, rowB) => rowA.original.heartbeats_fraction > rowB.original.heartbeats_fraction ? 1 : -1,
             Cell: props => (
               !props.row.original.skeleton ?
-                <div className="text-right mt-0.5 ml-auto">{numberFormat(props.value, '0,0.00000000')}</div>
+                <>
+                  <div className="text-right mt-0.5 ml-auto">{numberFormat(props.value, '0,0.00000000')}</div>
+                  <div className="w-36 whitespace-pre-wrap leading-4 text-gray-400 dark:text-gray-500 text-3xs font-medium text-right mt-0.5 ml-auto">{props.row.original.debug?.heartbeats_fraction}</div>
+                </>
                 :
                 <div className="skeleton w-16 h-4 mt-0.5 ml-auto" />
             ),
@@ -551,7 +575,10 @@ export default function Leaderboard({ n = 100 }) {
             sortType: (rowA, rowB) => rowA.original.uptime_fraction > rowB.original.uptime_fraction ? 1 : -1,
             Cell: props => (
               !props.row.original.skeleton ?
-                <div className="text-right mt-0.5 ml-auto">{numberFormat(props.value, '0,0.00000000')}</div>
+                <>
+                  <div className="text-right mt-0.5 ml-auto">{numberFormat(props.value, '0,0.00000000')}</div>
+                  <div className="w-24 whitespace-pre-wrap leading-4 text-gray-400 dark:text-gray-500 text-3xs font-medium text-right mt-0.5 ml-auto">{props.row.original.debug?.uptime_fraction}</div>
+                </>
                 :
                 <div className="skeleton w-16 h-4 mt-0.5 ml-auto" />
             ),
@@ -563,7 +590,10 @@ export default function Leaderboard({ n = 100 }) {
             sortType: (rowA, rowB) => rowA.original.jailed_fraction > rowB.original.jailed_fraction ? 1 : -1,
             Cell: props => (
               !props.row.original.skeleton ?
-                <div className="text-right mt-0.5 ml-auto">{numberFormat(props.value, '0,0.00000000')}</div>
+                <>
+                  <div className="text-right mt-0.5 ml-auto">{numberFormat(props.value, '0,0.00000000')}</div>
+                  <div className="w-24 whitespace-pre-wrap leading-4 text-gray-400 dark:text-gray-500 text-3xs font-medium text-right mt-0.5 ml-auto">{props.row.original.debug?.jailed_fraction}</div>
+                </>
                 :
                 <div className="skeleton w-16 h-4 mt-0.5 ml-auto" />
             ),
