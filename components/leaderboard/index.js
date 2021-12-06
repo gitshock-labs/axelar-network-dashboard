@@ -15,6 +15,7 @@ import Copy from '../copy'
 
 import { status as getStatus } from '../../lib/api/rpc'
 import { historical } from '../../lib/api/opensearch'
+import { chains } from '../../lib/object/chain'
 import { numberFormat, ellipseAddress } from '../../lib/utils'
 
 import { STATUS_DATA } from '../../reducers/types'
@@ -303,7 +304,7 @@ export default function Leaderboard({ n = 100 }) {
         const validators = response?.data || []
 
         const total_blocks = toSnapshot - (fromSnapshot - snapshot_block_size)
-        const supported_chains = _.uniq(validators.flatMap(v => v.supported_chains.map(_chain => _chain.chain)))
+        const supported_chains = _.uniq(validators.flatMap(v => v.supported_chains.map(_chain => _chain.chain))).filter(_chain => !(chains?.find(__chain => __chain.id === _chain)?.is_cosmos))
         const supported_chains_num_snapshots = Object.fromEntries(supported_chains.map(chain => {
           return [
             chain,
