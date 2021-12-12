@@ -25,7 +25,7 @@ export default function Uptime({ data, validator_data }) {
               title={<div className="flex items-center">
                 <span className="font-bold">Block: {numberFormat(block.height, '0,0')}</span>
                 <Link href={`/block/${block.height}`}>
-                  <a className="flex items-center text-blue-600 dark:text-blue-500 ml-auto">
+                  <a className="flex items-center text-blue-600 dark:text-white ml-auto">
                     <span className="text-xs">Go to Block</span>
                     <BsArrowRightShort size={16} />
                   </a>

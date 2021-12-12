@@ -26,7 +26,7 @@ export default function Exercise() {
               href={exercise.doc_url}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center text-blue-600 dark:text-blue-500 font-medium space-x-0.5 mr-2"
+              className="flex items-center text-blue-600 dark:text-white font-medium space-x-0.5 mr-2"
             >
               <span className="uppercase">Doc</span>
               <TiArrowRight size={16} className="transform -rotate-45" />
@@ -37,7 +37,7 @@ export default function Exercise() {
               href={exercise.submission_url}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center text-blue-600 dark:text-blue-500 font-medium space-x-0.5"
+              className="flex items-center text-blue-600 dark:text-white font-medium space-x-0.5"
             >
               <span className="uppercase">Submission</span>
               <TiArrowRight size={16} className="transform -rotate-45" />

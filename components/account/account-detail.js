@@ -388,7 +388,7 @@ export default function AccountDetail({ data }) {
                       <div className="flex flex-col">
                         {props.value && (
                           <Link href={`/validator/${props.row.original.validator_address}`}>
-                            <a className="text-blue-600 dark:text-blue-500 font-medium">
+                            <a className="text-blue-600 dark:text-white font-medium">
                               {props.value || props.row.original.validator_address}
                             </a>
                           </Link>
@@ -537,7 +537,7 @@ export default function AccountDetail({ data }) {
                       <div className="flex flex-col">
                         {props.value && (
                           <Link href={`/validator/${props.row.original.validator_address}`}>
-                            <a className="text-blue-600 dark:text-blue-500 font-medium">
+                            <a className="text-blue-600 dark:text-white font-medium">
                               {props.value || props.row.original.validator_address}
                             </a>
                           </Link>
@@ -569,7 +569,7 @@ export default function AccountDetail({ data }) {
                 Cell: props => (
                   !props.row.original.skeleton ?
                     <Link href={`/block/${props.value}`}>
-                      <a className="text-blue-600 dark:text-blue-500 font-medium">
+                      <a className="text-blue-600 dark:text-white font-medium">
                         {numberFormat(props.value, '0,0')}
                       </a>
                     </Link>

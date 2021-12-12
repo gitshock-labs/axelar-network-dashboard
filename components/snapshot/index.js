@@ -71,7 +71,7 @@ export default function Snapshot({ height }) {
         <div className="w=full flex items-center mb-2">
           <button
             onClick={() => downloadFile()}
-            className="text-blue-600 dark:text-blue-500 font-semibold sm:ml-auto"
+            className="text-blue-600 dark:text-white font-semibold sm:ml-auto"
           >
             <div className="flex items-center space-x-1.5">
               <span>Export JSON</span>
@@ -103,7 +103,7 @@ export default function Snapshot({ height }) {
                   <div className="flex flex-col">
                     {props.value && (
                       <Link href={`/validator/${props.row.original.operator_address}`}>
-                        <a className="text-blue-600 dark:text-blue-500 font-medium">
+                        <a className="text-blue-600 dark:text-white font-medium">
                           {props.value || props.row.original.operator_address}
                         </a>
                       </Link>

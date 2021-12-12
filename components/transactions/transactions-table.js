@@ -107,7 +107,7 @@ export default function TransactionsTable({ data, noLoad, hasVote, location, cla
               !props.row.original.skeleton ?
                 <div className="flex items-center space-x-1 mb-4">
                   <Link href={`/tx/${props.value}`}>
-                    <a className="uppercase text-blue-600 dark:text-blue-500 font-medium">
+                    <a className="uppercase text-blue-600 dark:text-white font-medium">
                       {ellipseAddress(props.value)}
                     </a>
                   </Link>
@@ -124,7 +124,7 @@ export default function TransactionsTable({ data, noLoad, hasVote, location, cla
             Cell: props => (
               !props.row.original.skeleton ?
                 <Link href={`/block/${props.value}`}>
-                  <a className="text-blue-600 dark:text-blue-500 font-medium">
+                  <a className="text-blue-600 dark:text-white font-medium">
                     {numberFormat(props.value, '0,0')}
                   </a>
                 </Link>

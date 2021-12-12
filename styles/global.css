@@ -135,7 +135,7 @@ body {
 }
 
 .linkify a {
-  @apply text-blue-600 dark:text-blue-500 font-normal;
+  @apply text-blue-600 dark:text-white font-normal;
 }
 
 .recharts-cartesian-axis-tick-value {

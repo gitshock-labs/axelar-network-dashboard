@@ -375,7 +375,7 @@ export default function Exercise3() {
                       href={processing?.[i]?.answer}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-blue-600 dark:text-blue-500 font-medium"
+                      className="text-blue-600 dark:text-white font-medium"
                     >
                       {processing?.[i]?.answer}
                     </a>

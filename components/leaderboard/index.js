@@ -471,7 +471,7 @@ export default function Leaderboard({ n = 100 }) {
                   <div className="flex flex-col">
                     {props.value && (
                       <Link href={`/validator/${props.row.original.operator_address}`}>
-                        <a className="text-blue-600 dark:text-blue-500 font-medium">
+                        <a className="text-blue-600 dark:text-white font-medium">
                           {props.value || props.row.original.operator_address}
                         </a>
                       </Link>

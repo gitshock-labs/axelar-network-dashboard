@@ -96,12 +96,12 @@ export default function Information({ data }) {
               <span className="font-semibold">Delegator Address:</span>
               <span className="flex items-center text-gray-600 dark:text-gray-400 space-x-1">
                 <Link href={`/account/${data.delegator_address}`}>
-                  <a className="lg:hidden text-blue-600 dark:text-blue-500">
+                  <a className="lg:hidden text-blue-600 dark:text-white">
                     {ellipseAddress(data.delegator_address, 16)}
                   </a>
                 </Link>
                 <Link href={`/account/${data.delegator_address}`}>
-                  <a className="hidden lg:block text-blue-600 dark:text-blue-500">
+                  <a className="hidden lg:block text-blue-600 dark:text-white">
                     {ellipseAddress(data.delegator_address, 24)}
                   </a>
                 </Link>
@@ -132,12 +132,12 @@ export default function Information({ data }) {
               <span className="max-w-min whitespace-nowrap font-semibold">Broadcaster Address:</span>
               <span className="flex flex-wrap items-center text-gray-600 dark:text-gray-400 space-x-1">
                 <Link href={`/account/${data.broadcaster_address}`}>
-                  <a className="lg:hidden text-blue-600 dark:text-blue-500">
+                  <a className="lg:hidden text-blue-600 dark:text-white">
                     {ellipseAddress(data.broadcaster_address, 16)}
                   </a>
                 </Link>
                 <Link href={`/account/${data.broadcaster_address}`}>
-                  <a className="hidden lg:block text-blue-600 dark:text-blue-500">
+                  <a className="hidden lg:block text-blue-600 dark:text-white">
                     {ellipseAddress(data.broadcaster_address, 24)}
                   </a>
                 </Link>
@@ -164,7 +164,7 @@ export default function Information({ data }) {
           data.description?.website && (
             <div className="flex flex-col xl:flex-row items-start space-x-0 xl:space-x-2">
               <span className="font-semibold">Website:</span>
-              <a href={data.description.website} target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-500">
+              <a href={data.description.website} target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-white">
                 {data.description.website}
               </a>
             </div>
