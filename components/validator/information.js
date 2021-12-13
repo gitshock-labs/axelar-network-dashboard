@@ -73,7 +73,7 @@ export default function Information({ data }) {
         <div className="skeleton w-24 h-7" />
       }
       contentClassName={`flex-col sm:flex-row ${data?.illegible ? 'items-start' : 'items-start sm:items-center'} space-y-2 sm:space-y-0`}
-      className="min-h-full"
+      className="min-h-full dark:border-gray-900"
     >
       <div className="grid grid-flow-row grid-cols-1 sm:grid-cols-2 gap-4 text-sm xl:text-base mt-3">
         {data ?

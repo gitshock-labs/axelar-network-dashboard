@@ -24,7 +24,7 @@ export default function AccountDetail({ data }) {
           <div className="flex items-center text-gray-700 dark:text-gray-100 space-x-2">
             {data.total?.length > 0 ?
               data.total.map((total, i) => (
-                <span key={i} className="bg-gray-200 dark:bg-gray-700 rounded font-medium space-x-1 px-2 py-1">
+                <span key={i} className="bg-gray-200 dark:bg-gray-800 rounded font-medium space-x-1 px-2 py-1">
                   <span>{numberFormat(total.amount, '0,0.00000000')}</span>
                   <span className="uppercase font-light">{ellipseAddress(total.denom, 6)}</span>
                   {chain_data?.coin && chain_data.staking_params?.bond_denom === total.denom && (
@@ -48,6 +48,7 @@ export default function AccountDetail({ data }) {
       <div className="w-full grid grid-flow-row grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 md:gap-4 my-4">
         <Widget
           title={<span className="text-gray-900 dark:text-white text-lg font-semibold">Balances</span>}
+          className="dark:border-gray-900"
         >
           <Datatable
             columns={[
@@ -147,6 +148,7 @@ export default function AccountDetail({ data }) {
         </Widget>
         <Widget
           title={<span className="text-gray-900 dark:text-white text-lg font-semibold">Rewards</span>}
+          className="dark:border-gray-900"
         >
           <Datatable
             columns={[
@@ -247,6 +249,7 @@ export default function AccountDetail({ data }) {
         {/*data?.operator_address*/true && (
           <Widget
             title={<span className="text-gray-900 dark:text-white text-lg font-semibold">Commissions</span>}
+            className="dark:border-gray-900"
           >
             <Datatable
               columns={[
@@ -349,6 +352,7 @@ export default function AccountDetail({ data }) {
       <div className="w-full grid grid-flow-row grid-cols-1 sm:grid-cols-2 gap-2 md:gap-4 my-4">
         <Widget
           title={<span className="text-gray-900 dark:text-white text-lg font-semibold">Delegations</span>}
+          className="dark:border-gray-900"
         >
           <Datatable
             columns={[
@@ -498,6 +502,7 @@ export default function AccountDetail({ data }) {
         </Widget>
         <Widget
           title={<span className="text-gray-900 dark:text-white text-lg font-semibold">Unbonding</span>}
+          className="dark:border-gray-900"
         >
           <Datatable
             columns={[

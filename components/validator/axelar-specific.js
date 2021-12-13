@@ -16,6 +16,7 @@ export default function AxelarSpecific({ data, keygens, signs, supportedChains, 
   return (
     <Widget
       title={<span className="text-lg font-medium">Axelar Specific</span>}
+      className="dark:border-gray-900"
     >
       <div className={`grid grid-flow-row grid-cols-1 sm:grid-cols-2 text-base sm:text-sm lg:text-base gap-4 ${data ? 'mt-3 mb-0.5' : 'mt-4 mb-1'}`}>
         <div className={`flex flex-col space-y-${keygens ? 1 : 2}`}>

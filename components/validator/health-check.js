@@ -11,6 +11,7 @@ export default function HealthCheck({ data, health }) {
   return (
     <Widget
       title={<span className="text-lg font-medium">Health Check</span>}
+      className="dark:border-gray-900"
     >
       <div className={`grid grid-flow-row grid-cols-1 sm:grid-cols-2 text-base sm:text-sm lg:text-base gap-4 ${health ? 'mt-3 mb-0.5' : 'mt-4 mb-1'}`}>
         <div className={`flex flex-col space-y-${data && 'tss_illegibility_info' in data && health ? 1 : 2}`}>

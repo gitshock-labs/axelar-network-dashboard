@@ -194,7 +194,7 @@ export default function ValidatorsTable({ status }) {
       <div className="flex flex-row items-center overflow-x-auto space-x-1 my-2">
         {['active', 'inactive'/*, 'illegible'*/, 'deregistering'].map((_status, i) => (
           <Link key={i} href={`/validators${i > 0 ? `/${_status}` : ''}`}>
-            <a className={`min-w-max btn btn-default btn-rounded ${_status === status ? 'bg-gray-700 dark:bg-gray-800 text-white' : 'bg-trasparent hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 hover:text-gray-700 dark:hover:text-gray-100'}`}>
+            <a className={`min-w-max btn btn-default btn-rounded ${_status === status ? 'bg-gray-700 dark:bg-gray-900 text-white' : 'bg-trasparent hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 hover:text-gray-700 dark:hover:text-gray-100'}`}>
               {_status}
               {validators_data && _status === status ? ` (${validators_data.filter(validator => status === 'inactive' ? !(['BOND_STATUS_BONDED'].includes(validator.status)) : status === 'illegible' ? validator.illegible : status === 'deregistering' ? validator.deregistering : ['BOND_STATUS_BONDED'].includes(validator.status)).length})` : ''}
             </a>
@@ -211,7 +211,7 @@ export default function ValidatorsTable({ status }) {
               !props.row.original.skeleton ?
                 numberFormat((props.flatRows?.indexOf(props.row) > -1 ? props.flatRows.indexOf(props.row) : props.value) + 1, '0,0')
                 :
-                <div className="skeleton w-4 h-3.5" />
+                <div className="skeleton w-4 h-4" />
             ),
           },
           {
@@ -358,8 +358,8 @@ export default function ValidatorsTable({ status }) {
                   }
                   {typeof props.row.original.start_height === 'number' && (
                     <div className="text-3xs text-right space-x-1 mt-1.5">
-                      <span className="text-gray-400 dark:text-gray-500 font-medium">Validator Since Block:</span>
-                      <span className="text-gray-600 dark:text-gray-400 font-semibold">{numberFormat(props.row.original.start_height, '0,0')}</span>
+                      <span className="text-gray-400 dark:text-gray-600 font-medium">Validator Since Block:</span>
+                      <span className="text-gray-600 dark:text-gray-100 font-semibold">{numberFormat(props.row.original.start_height, '0,0')}</span>
                     </div>
                   )}
                 </>
@@ -401,8 +401,8 @@ export default function ValidatorsTable({ status }) {
                   }
                   {typeof props.row.original.start_proxy_height === 'number' && (
                     <div className="text-3xs text-right space-x-1 mt-1.5">
-                      <span className="text-gray-400 dark:text-gray-500 font-medium">Proxy Registered Block:</span>
-                      <span className="text-gray-600 dark:text-gray-400 font-semibold">{numberFormat(props.row.original.start_proxy_height, '0,0')}</span>
+                      <span className="text-gray-400 dark:text-gray-600 font-medium">Proxy Registered Block:</span>
+                      <span className="text-gray-600 dark:text-gray-100 font-semibold">{numberFormat(props.row.original.start_proxy_height, '0,0')}</span>
                     </div>
                   )}
                 </>
@@ -432,7 +432,7 @@ export default function ValidatorsTable({ status }) {
                             className="w-6 h-6 rounded-full mb-1 ml-1"
                           />
                           :
-                          <span key={i} className="max-w-min bg-gray-100 dark:bg-gray-700 rounded-xl text-gray-800 dark:text-gray-200 text-xs font-semibold mb-1 ml-1 px-1.5 py-0.5">
+                          <span key={i} className="max-w-min bg-gray-100 dark:bg-gray-900 rounded-xl text-gray-800 dark:text-gray-200 text-xs font-semibold mb-1 ml-1 px-1.5 py-0.5">
                             {chainName(_chain)}
                           </span>
                       ))}
@@ -459,7 +459,7 @@ export default function ValidatorsTable({ status }) {
                 <div className="text-right my-1">
                   {props.value ?
                     <>
-                      <span className={`bg-${props.value.includes('UN') ? props.value.endsWith('ED') ? 'gray-400 dark:bg-gray-700' : 'yellow-400 dark:bg-yellow-500' : 'green-600 dark:bg-green-700'} rounded-xl capitalize text-white font-semibold px-2 py-1`}>
+                      <span className={`bg-${props.value.includes('UN') ? props.value.endsWith('ED') ? 'gray-400 dark:bg-gray-900' : 'yellow-400 dark:bg-yellow-500' : 'green-600 dark:bg-green-700'} rounded-xl capitalize text-white font-semibold px-2 py-1`}>
                         {props.value.replace('BOND_STATUS_', '')}
                       </span>
                       {/*props.row.original.jailed_until > 0 && (
@@ -471,7 +471,7 @@ export default function ValidatorsTable({ status }) {
                       {props.row.original.illegible && props.row.original.tss_illegibility_info && (
                         <div className="flex flex-col items-end space-y-1.5 mt-2">
                           {Object.entries(props.row.original.tss_illegibility_info).filter(([key, value]) => value).map(([key, value]) => (
-                            <span key={key} className="max-w-min bg-gray-100 dark:bg-gray-700 rounded-xl capitalize text-gray-800 dark:text-gray-200 text-xs font-semibold px-1.5 py-0.5">
+                            <span key={key} className="max-w-min bg-gray-100 dark:bg-gray-900 rounded-xl capitalize text-gray-900 dark:text-gray-200 text-xs font-semibold px-1.5 py-0.5">
                               {getName(key)}
                             </span>
                           ))}
@@ -525,10 +525,10 @@ export default function ValidatorsTable({ status }) {
         }
         noPagination={validators_data ? validators_data.filter(validator => status === 'inactive' ? !(['BOND_STATUS_BONDED'].includes(validator.status)) : status === 'illegible' ? validator.illegible : status === 'deregistering' ? validator.deregistering : !validator.jailed && ['BOND_STATUS_BONDED'].includes(validator.status)).length <= 10 : true}
         defaultPageSize={100}
-        className={`${validators_data && ['active'].includes(status) ? 'small' : ''}`}
+        className={`${validators_data && ['active'].includes(status) ? 'small' : ''} no-border`}
       />
       {validators_data?.filter(validator => status === 'inactive' ? !(['BOND_STATUS_BONDED'].includes(validator.status)) : status === 'illegible' ? validator.illegible : status === 'deregistering' ? validator.deregistering : !validator.jailed && ['BOND_STATUS_BONDED'].includes(validator.status)).length < 1 && (
-        <div className="bg-white dark:bg-gray-800 text-gray-300 dark:text-gray-500 text-base font-medium italic text-center my-4 py-2">
+        <div className="bg-white dark:bg-gray-900 text-gray-300 dark:text-gray-500 text-base font-medium italic text-center my-4 py-2">
           No Validators
         </div>
       )}

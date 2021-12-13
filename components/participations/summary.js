@@ -52,7 +52,7 @@ const Summary = ({ data, keygens, successKeygens, failedKeygens, signAttempts, f
     <div className="w-full grid grid-flow-row grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-12 gap-4 my-4">
       <Widget
         title="Keygen Min Participation Requirement"
-        className="xl:col-span-3 bg-transparent sm:bg-white sm:dark:bg-gray-900 border-0 sm:border border-gray-100 dark:border-gray-800 p-0 sm:p-4"
+        className="xl:col-span-3 bg-transparent sm:bg-white sm:dark:bg-gray-900 border-0 sm:border border-gray-100 dark:border-gray-900 p-0 sm:p-4"
       >
         <span className="flex flex-col space-y-1 mt-1">
           <div className="grid grid-flow-row grid-cols-2 gap-4">
@@ -104,7 +104,7 @@ const Summary = ({ data, keygens, successKeygens, failedKeygens, signAttempts, f
       </Widget>
       <Widget
         title="Sign Safety Threshold"
-        className="xl:col-span-3 bg-transparent sm:bg-white sm:dark:bg-gray-900 border-0 sm:border border-gray-100 dark:border-gray-800 p-0 sm:p-4"
+        className="xl:col-span-3 bg-transparent sm:bg-white sm:dark:bg-gray-900 border-0 sm:border border-gray-100 dark:border-gray-900 p-0 sm:p-4"
       >
         <span className="flex flex-col space-y-1 mt-1">
           <div className="grid grid-flow-row grid-cols-2 gap-4">
@@ -153,7 +153,7 @@ const Summary = ({ data, keygens, successKeygens, failedKeygens, signAttempts, f
       </Widget>
       <Widget
         title="Keygen Participation"
-        className="xl:col-span-2 bg-transparent sm:bg-white sm:dark:bg-gray-900 border-0 sm:border border-gray-100 dark:border-gray-800 p-0 sm:p-4"
+        className="xl:col-span-2 bg-transparent sm:bg-white sm:dark:bg-gray-900 border-0 sm:border border-gray-100 dark:border-gray-900 p-0 sm:p-4"
       >
         <span className="flex flex-col space-y-1 mt-1.5">
           <div className="flex flex-row space-x-1.5">
@@ -181,7 +181,7 @@ const Summary = ({ data, keygens, successKeygens, failedKeygens, signAttempts, f
       </Widget>
       <Widget
         title="Sign Attempts"
-        className="xl:col-span-2 bg-transparent sm:bg-white sm:dark:bg-gray-900 border-0 sm:border border-gray-100 dark:border-gray-800 p-0 sm:p-4"
+        className="xl:col-span-2 bg-transparent sm:bg-white sm:dark:bg-gray-900 border-0 sm:border border-gray-100 dark:border-gray-900 p-0 sm:p-4"
       >
         <span className="flex flex-col space-y-1 mt-1.5">
           <div className="flex flex-row space-x-1.5">
@@ -216,7 +216,7 @@ const Summary = ({ data, keygens, successKeygens, failedKeygens, signAttempts, f
               />
               <span>{_chain?.chain}</span>
             </div>}
-            className="xl:col-span-2 bg-transparent sm:bg-white sm:dark:bg-gray-900 border-0 sm:border border-gray-100 dark:border-gray-800 p-0 sm:p-4"
+            className="xl:col-span-2 bg-transparent sm:bg-white sm:dark:bg-gray-900 border-0 sm:border border-gray-100 dark:border-gray-900 p-0 sm:p-4"
           >
             <span className="flex flex-col space-y-1 mt-1">
               <div className="grid grid-flow-row grid-cols-1 gap-4">
@@ -271,7 +271,7 @@ const Summary = ({ data, keygens, successKeygens, failedKeygens, signAttempts, f
           <Widget
             key={i}
             title="Chain Maintaining"
-            className="xl:col-span-2 bg-transparent sm:bg-white sm:dark:bg-gray-900 border-0 sm:border border-gray-100 dark:border-gray-800 p-0 sm:p-4"
+            className="xl:col-span-2 bg-transparent sm:bg-white sm:dark:bg-gray-900 border-0 sm:border border-gray-100 dark:border-gray-900 p-0 sm:p-4"
           >
             <span className="flex flex-col space-y-1 mt-1">
               <div className="grid">

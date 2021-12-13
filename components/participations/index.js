@@ -507,15 +507,28 @@ export default function Participations() {
         ))}
       </div>
       {table === 'keygen_failed' ?
-        <KeysTable data={failedKeygens} page={table} />
+        <KeysTable
+          data={failedKeygens}
+          page={table}
+        />
         :
         table === 'sign_success' ?
-          <KeysTable data={signAttempts} page={table} />
+          <KeysTable
+            data={signAttempts}
+            page={table}
+          />
           :
           table === 'sign_failed' ?
-            <KeysTable data={failedSignAttempts} page={table} />
+            <KeysTable
+              data={failedSignAttempts}
+              page={table}
+            />
             :
-            <KeysTable data={keygens || successKeygens} page={table} corruption_signing_threshold={summaryData?.data?.corruption_signing_threshold} />
+            <KeysTable
+              data={keygens || successKeygens}
+              page={table}
+              corruption_signing_threshold={summaryData?.data?.corruption_signing_threshold}
+            />
       }
     </div>
   )

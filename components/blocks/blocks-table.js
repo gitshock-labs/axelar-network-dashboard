@@ -167,7 +167,7 @@ export default function BlocksTable({ n, className = '' }) {
             Cell: props => (
               !props.row.original.skeleton ?
                 <Link href={`/block/${props.row.original.height}`}>
-                  <a className="uppercase font-medium">
+                  <a className="uppercase text-gray-600 dark:text-gray-400 font-medium">
                     {ellipseAddress(props.value, n ? 6 : 10)}
                   </a>
                 </Link>
@@ -290,7 +290,7 @@ export default function BlocksTable({ n, className = '' }) {
         className={`min-h-full ${className}`}
       />
       {blocks && !(blocks.data?.length > 0) && (
-        <div className={`bg-${!n ? 'white' : 'gray-50'} dark:bg-gray-800 text-gray-300 dark:text-gray-500 text-base font-medium italic text-center my-4 py-2`}>
+        <div className={`bg-${!n ? 'white' : 'gray-50'} dark:bg-gray-900 text-gray-300 dark:text-gray-500 text-base font-medium italic text-center my-4 py-2`}>
           No Blocks
         </div>
       )}

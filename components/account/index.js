@@ -477,10 +477,14 @@ export default function Account({ address }) {
             ))}
           </div>
         </div>}
-        className="flex-col sm:flex-row items-start sm:items-center mt-4"
+        className="dark:border-gray-900 flex-col sm:flex-row items-start sm:items-center mt-4"
       >
         <div className="mt-3">
-          <TransactionsTable data={address && transactions?.address === address && { ...transactions, data: _.orderBy(_.uniqBy(Object.values(transactions?.data || {}).flatMap(txs => txs?.data?.flatMap(_txs => _txs)), 'txhash'), ['timestamp', 'height'], ['desc', 'desc']).filter(tx => !(filterActions?.length > 0) || filterActions.includes(tx.type) || (filterActions.includes('undefined') && !tx.type)) }} noLoad={true} />
+          <TransactionsTable
+            data={address && transactions?.address === address && { ...transactions, data: _.orderBy(_.uniqBy(Object.values(transactions?.data || {}).flatMap(txs => txs?.data?.flatMap(_txs => _txs)), 'txhash'), ['timestamp', 'height'], ['desc', 'desc']).filter(tx => !(filterActions?.length > 0) || filterActions.includes(tx.type) || (filterActions.includes('undefined') && !tx.type)) }}
+            noLoad={true}
+            className="no-border"
+          />
         </div>
         {!loading ?
           <div

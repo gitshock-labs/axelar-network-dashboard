@@ -15,11 +15,11 @@ export default function DelegationsTable({ data }) {
             Cell: props => (
               !props.row.original.skeleton ?
                 props.value ?
-                  <div className="flex items-center space-x-1">
-                    <span className="block lg:hidden font-medium">{ellipseAddress(props.value, 10)}</span>
-                    <span className="hidden lg:block xl:hidden font-medium">{ellipseAddress(props.value, 16)}</span>
-                    <span className="hidden xl:block font-medium">{ellipseAddress(props.value, 24)}</span>
-                    <Copy text={props.value} />
+                  <div className="flex items-center">
+                    <span className="block lg:hidden font-medium mr-1">{ellipseAddress(props.value, 10)}</span>
+                    <span className="hidden lg:block xl:hidden font-medium mr-1">{ellipseAddress(props.value, 16)}</span>
+                    <span className="hidden xl:block font-medium mr-1">{ellipseAddress(props.value, 24)}</span>
+                    <Copy text={props.value} className="mr-1" />
                     {props.row.original.self && (
                       <span className="bg-indigo-600 rounded-full capitalize text-white text-xs font-semibold px-2 py-0.5">
                         Self

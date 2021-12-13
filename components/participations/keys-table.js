@@ -17,7 +17,7 @@ import { numberFormat, getName, ellipseAddress } from '../../lib/utils'
 
 const COLLAPSE_VALIDATORS_SIZE = 5
 
-export default function KeysTable({ data, corruption_signing_threshold, page }) {
+export default function KeysTable({ data, corruption_signing_threshold, page, className = '' }) {
   const { preferences } = useSelector(state => ({ preferences: state.preferences }), shallowEqual)
   const { theme } = { ...preferences }
 
@@ -68,7 +68,7 @@ export default function KeysTable({ data, corruption_signing_threshold, page }) 
               !props.row.original.skeleton ?
                 <div className="my-1">
                   {props.value ?
-                    <span className="bg-gray-100 dark:bg-gray-800 rounded capitalize text-gray-900 dark:text-gray-100 font-semibold px-1.5 py-0.5" style={{ fontSize: ['validator'].includes(page) ? '.65rem' : '.85rem' }}>
+                    <span className="bg-gray-100 dark:bg-gray-900 rounded capitalize text-gray-900 dark:text-gray-100 font-semibold px-1.5 py-0.5" style={{ fontSize: ['validator'].includes(page) ? '.65rem' : '.85rem' }}>
                       {props.value}
                     </span>
                     :
@@ -90,7 +90,7 @@ export default function KeysTable({ data, corruption_signing_threshold, page }) 
               !props.row.original.skeleton ?
                 <div className="my-1">
                   {props.value ?
-                    <span className="bg-gray-100 dark:bg-gray-800 rounded capitalize text-gray-900 dark:text-gray-100 font-semibold px-1.5 py-0.5" style={{ fontSize: ['validator'].includes(page) ? '.65rem' : '.85rem' }}>
+                    <span className="bg-gray-100 dark:bg-gray-900 rounded capitalize text-gray-900 dark:text-gray-100 font-semibold px-1.5 py-0.5" style={{ fontSize: ['validator'].includes(page) ? '.65rem' : '.85rem' }}>
                       {props.value.replace('KEY_ROLE_', '')}
                     </span>
                     :
@@ -229,7 +229,7 @@ export default function KeysTable({ data, corruption_signing_threshold, page }) 
                                   </a>
                                 </Link>
                                 {validator.status && !(['BOND_STATUS_BONDED'].includes(validator.status)) && (
-                                  <span className={`bg-${validator.status.includes('UN') ? validator.status.endsWith('ED') ? 'gray-400 dark:bg-gray-700' : 'yellow-400 dark:bg-yellow-500' : 'green-600 dark:bg-green-700'} rounded-xl capitalize text-white font-semibold px-1.5 py-0.5`} style={{ fontSize: '.65rem' }}>
+                                  <span className={`bg-${validator.status.includes('UN') ? validator.status.endsWith('ED') ? 'gray-400 dark:bg-gray-900' : 'yellow-400 dark:bg-yellow-500' : 'green-600 dark:bg-green-700'} rounded-xl capitalize text-white font-semibold px-1.5 py-0.5`} style={{ fontSize: '.65rem' }}>
                                     {validator.status.replace('BOND_STATUS_', '')}
                                   </span>
                                 )}
@@ -251,7 +251,7 @@ export default function KeysTable({ data, corruption_signing_threshold, page }) 
                             {!(validator.description?.moniker) && (
                               <span className="flex items-center space-x-1.5">
                                 {validator.status && !(['BOND_STATUS_BONDED'].includes(validator.status)) && (
-                                  <span className={`bg-${validator.status.includes('UN') ? validator.status.endsWith('ED') ? 'gray-400 dark:bg-gray-700' : 'yellow-400 dark:bg-yellow-500' : 'green-600 dark:bg-green-700'} rounded-xl capitalize text-white font-semibold px-1.5 py-0.5`} style={{ fontSize: '.65rem' }}>
+                                  <span className={`bg-${validator.status.includes('UN') ? validator.status.endsWith('ED') ? 'gray-400 dark:bg-gray-900' : 'yellow-400 dark:bg-yellow-500' : 'green-600 dark:bg-green-700'} rounded-xl capitalize text-white font-semibold px-1.5 py-0.5`} style={{ fontSize: '.65rem' }}>
                                     {validator.status.replace('BOND_STATUS_', '')}
                                   </span>
                                 )}
@@ -330,7 +330,7 @@ export default function KeysTable({ data, corruption_signing_threshold, page }) 
                                   </a>
                                 </Link>
                                 {validator.status && !(['BOND_STATUS_BONDED'].includes(validator.status)) && (
-                                  <span className={`bg-${validator.status.includes('UN') ? validator.status.endsWith('ED') ? 'gray-400 dark:bg-gray-700' : 'yellow-400 dark:bg-yellow-500' : 'green-600 dark:bg-green-700'} rounded capitalize text-white font-semibold px-1.5 py-0.5`} style={{ fontSize: '.65rem' }}>
+                                  <span className={`bg-${validator.status.includes('UN') ? validator.status.endsWith('ED') ? 'gray-400 dark:bg-gray-900' : 'yellow-400 dark:bg-yellow-500' : 'green-600 dark:bg-green-700'} rounded capitalize text-white font-semibold px-1.5 py-0.5`} style={{ fontSize: '.65rem' }}>
                                     {validator.status.replace('BOND_STATUS_', '')}
                                   </span>
                                 )}
@@ -352,7 +352,7 @@ export default function KeysTable({ data, corruption_signing_threshold, page }) 
                             {!(validator.description?.moniker) && (
                               <span className="flex items-center space-x-1.5">
                                 {validator.status && !(['BOND_STATUS_BONDED'].includes(validator.status)) && (
-                                  <span className={`bg-${validator.status.includes('UN') ? validator.status.endsWith('ED') ? 'gray-400 dark:bg-gray-700' : 'yellow-400 dark:bg-yellow-500' : 'green-600 dark:bg-green-700'} rounded capitalize text-white font-semibold px-1.5 py-0.5`} style={{ fontSize: '.65rem' }}>
+                                  <span className={`bg-${validator.status.includes('UN') ? validator.status.endsWith('ED') ? 'gray-400 dark:bg-gray-900' : 'yellow-400 dark:bg-yellow-500' : 'green-600 dark:bg-green-700'} rounded capitalize text-white font-semibold px-1.5 py-0.5`} style={{ fontSize: '.65rem' }}>
                                     {validator.status.replace('BOND_STATUS_', '')}
                                   </span>
                                 )}
@@ -366,7 +366,7 @@ export default function KeysTable({ data, corruption_signing_threshold, page }) 
                             {validator.illegible && validator.tss_illegibility_info && (
                               <div className="flex flex-wrap items-center">
                                 {Object.entries(validator.tss_illegibility_info).filter(([key, value]) => value).map(([key, value]) => (
-                                  <span key={key} className="max-w-min bg-gray-100 dark:bg-gray-700 rounded-xl capitalize text-gray-800 dark:text-gray-200 text-xs font-semibold mt-0.5 mr-0.5 px-1.5 py-0.5">
+                                  <span key={key} className="max-w-min bg-gray-100 dark:bg-gray-800 rounded-xl capitalize text-gray-800 dark:text-gray-200 text-xs font-semibold mt-0.5 mr-0.5 px-1.5 py-0.5">
                                     {getName(key)}
                                   </span>
                                 ))}
@@ -466,10 +466,10 @@ export default function KeysTable({ data, corruption_signing_threshold, page }) 
         noPagination={data?.data?.length > 10 ? false : true}
         noRecordPerPage={['validator', 'validator-keygen', 'validator-sign'].includes(page)}
         defaultPageSize={['validator', 'validator-keygen', 'validator-sign'].includes(page) ? 10 : 100}
-        className={`${[].includes(page) ? 'small' : ''}`}
+        className={`${[].includes(page) ? 'small' : ''} ${className}`}
       />
       {data && !(data.data?.length > 0) && (
-        <div className={`bg-${['validator', 'validator-keygen', 'validator-sign'].includes(page) ? 'gray-50' : 'white'} dark:bg-gray-800 text-gray-300 dark:text-gray-500 text-base font-medium italic text-center my-${['validator', 'validator-keygen', 'validator-sign'].includes(page) ? 2 : 4} py-2`}>
+        <div className={`bg-${['validator', 'validator-keygen', 'validator-sign'].includes(page) ? 'gray-50' : 'white'} dark:bg-gray-900 text-gray-300 dark:text-gray-500 text-base font-medium italic text-center my-${['validator', 'validator-keygen', 'validator-sign'].includes(page) ? 2 : 4} py-2`}>
           No Participations
         </div>
       )}

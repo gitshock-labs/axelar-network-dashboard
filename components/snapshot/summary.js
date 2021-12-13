@@ -33,7 +33,7 @@ const Summary = ({ data }) => {
     <div className="w-full grid grid-flow-row grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-4 mb-6">
       <Widget
         title="Active Validators"
-        className="bg-transparent sm:bg-white sm:dark:bg-gray-900 border-0 sm:border border-gray-100 dark:border-gray-800 p-0 sm:p-4"
+        className="bg-transparent sm:bg-white sm:dark:bg-gray-900 border-0 sm:border border-gray-100 dark:border-gray-900 p-0 sm:p-4"
       >
         <span className="flex flex-col space-y-1 mt-1">
           {data ?
@@ -54,7 +54,7 @@ const Summary = ({ data }) => {
       </Widget>
       <Widget
         title="Total Voting Power"
-        className="bg-transparent sm:bg-white sm:dark:bg-gray-900 border-0 sm:border border-gray-100 dark:border-gray-800 p-0 sm:p-4"
+        className="bg-transparent sm:bg-white sm:dark:bg-gray-900 border-0 sm:border border-gray-100 dark:border-gray-900 p-0 sm:p-4"
       >
         <span className="flex flex-col space-y-1 mt-1">
           {data ?
@@ -74,7 +74,7 @@ const Summary = ({ data }) => {
       </Widget>
       <Widget
         title="Average Uptime"
-        className="bg-transparent sm:bg-white sm:dark:bg-gray-900 border-0 sm:border border-gray-100 dark:border-gray-800 p-0 sm:p-4"
+        className="bg-transparent sm:bg-white sm:dark:bg-gray-900 border-0 sm:border border-gray-100 dark:border-gray-900 p-0 sm:p-4"
       >
         <span className="flex flex-col space-y-1 mt-1">
           {data ?
@@ -97,7 +97,7 @@ const Summary = ({ data }) => {
       </Widget>
       <Widget
         title="Average Heartbeat Uptime"
-        className="bg-transparent sm:bg-white sm:dark:bg-gray-900 border-0 sm:border border-gray-100 dark:border-gray-800 p-0 sm:p-4"
+        className="bg-transparent sm:bg-white sm:dark:bg-gray-900 border-0 sm:border border-gray-100 dark:border-gray-900 p-0 sm:p-4"
       >
         <span className="flex flex-col space-y-1 mt-1">
           {data ?
@@ -120,7 +120,7 @@ const Summary = ({ data }) => {
       </Widget>
       <Widget
         title="Broadcast Registration"
-        className="bg-transparent sm:bg-white sm:dark:bg-gray-900 border-0 sm:border border-gray-100 dark:border-gray-800 p-0 sm:p-4"
+        className="bg-transparent sm:bg-white sm:dark:bg-gray-900 border-0 sm:border border-gray-100 dark:border-gray-900 p-0 sm:p-4"
       >
         <span className="flex flex-col space-y-1 mt-1">
           {data ?
@@ -145,7 +145,7 @@ const Summary = ({ data }) => {
       </Widget>
       <Widget
         title="Most Ineligibilities"
-        className="bg-transparent sm:bg-white sm:dark:bg-gray-900 border-0 sm:border border-gray-100 dark:border-gray-800 p-0 sm:p-4"
+        className="bg-transparent sm:bg-white sm:dark:bg-gray-900 border-0 sm:border border-gray-100 dark:border-gray-900 p-0 sm:p-4"
       >
         <span className="flex flex-col space-y-1 mt-1">
           {data ?
@@ -167,7 +167,7 @@ const Summary = ({ data }) => {
       </Widget>
       <Widget
         title="Average Keygen Participations"
-        className="bg-transparent sm:bg-white sm:dark:bg-gray-900 border-0 sm:border border-gray-100 dark:border-gray-800 p-0 sm:p-4"
+        className="bg-transparent sm:bg-white sm:dark:bg-gray-900 border-0 sm:border border-gray-100 dark:border-gray-900 p-0 sm:p-4"
       >
         <span className="flex flex-col space-y-1 mt-1">
           {data ?
@@ -190,7 +190,7 @@ const Summary = ({ data }) => {
       </Widget>
       <Widget
         title="Supported Chains"
-        className="bg-transparent sm:bg-white sm:dark:bg-gray-900 border-0 sm:border border-gray-100 dark:border-gray-800 p-0 sm:p-4"
+        className="bg-transparent sm:bg-white sm:dark:bg-gray-900 border-0 sm:border border-gray-100 dark:border-gray-900 p-0 sm:p-4"
       >
         <span className="flex flex-col space-y-1 mt-1">
           {data ?

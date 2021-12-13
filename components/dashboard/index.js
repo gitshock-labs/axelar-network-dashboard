@@ -536,7 +536,10 @@ export default function Dashboard() {
           </Link>
           <div className="h-1" />
           <Widget className="min-h-full contents p-0">
-            <BlocksTable n={10} className="bg-white dark:bg-gray-900" />
+            <BlocksTable
+              n={10}
+              className="bg-white dark:bg-black no-border"
+            />
           </Widget>
         </div>
         <div className="mt-8 md:mt-3">
@@ -545,7 +548,10 @@ export default function Dashboard() {
           </Link>
           <div className="h-1" />
           <Widget className="min-h-full contents p-0">
-            <TransactionsTable location="index" className="bg-white dark:bg-gray-900" />
+            <TransactionsTable
+              location="index"
+              className="bg-white dark:bg-black no-border"
+            />
           </Widget>
         </div>
       </div>

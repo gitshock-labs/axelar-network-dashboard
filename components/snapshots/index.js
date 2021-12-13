@@ -151,7 +151,7 @@ export default function Snapshots({ n = 100 }) {
   ).map((snapshot, i) => (
     <Widget
       key={i}
-      className={`${!latestBlock || (snapshot.snapshot_block <= latestBlock && !snapshot.processing) ? '' : 'bg-gray-100 dark:bg-gray-900'} shadow-xl mt-4 sm:mt-0`}
+      className={`${!latestBlock || (snapshot.snapshot_block <= latestBlock && !snapshot.processing) ? '' : 'bg-gray-100 dark:bg-gray-800'} dark:border-gray-900 shadow-xl mt-4 sm:mt-0`}
     >
       {!snapshot.skeleton ?
         <div className="flex flex-col">

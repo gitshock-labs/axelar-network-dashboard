@@ -170,7 +170,12 @@ export default function Block({ height }) {
         className="mt-4"
       >
         <div className="mt-3">
-          <TransactionsTable data={transactions} noLoad={true} location="blocks" />
+          <TransactionsTable
+            data={transactions}
+            noLoad={true}
+            location="blocks"
+            className="no-border"
+          />
         </div>
       </Widget>
     </div>

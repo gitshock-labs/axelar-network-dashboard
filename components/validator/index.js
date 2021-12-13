@@ -611,6 +611,7 @@ export default function Validator({ address }) {
         <VotingPower data={validator?.address === address && validator?.data} />
         <Widget
           title={<span className="text-lg font-medium">Delegations</span>}
+          className="dark:border-gray-900"
         >
           <div className="mt-2">
             <DelegationsTable data={delegations?.address === address && delegations?.data} />
@@ -652,16 +653,28 @@ export default function Validator({ address }) {
                 </div>
               ))}
             </div>}
-            className="px-2 md:px-4"
+            className="dark:border-gray-900 px-2 md:px-4"
           >
             <div className="mt-1">
               {tab === 'keygen' ?
-                <KeysTable data={keygens} page="validator-keygen" />
+                <KeysTable
+                  data={keygens}
+                  page="validator-keygen"
+                  className="no-border"
+                />
                 :
                 tab === 'sign' ?
-                  <KeysTable data={signs} page="validator-sign" />
+                  <KeysTable
+                    data={signs}
+                    page="validator-sign"
+                    className="no-border"
+                  />
                   :
-                  <KeysTable data={keyShares} page="validator" />
+                  <KeysTable
+                    data={keyShares}
+                    page="validator"
+                    className="no-border"
+                  />
               }
             </div>
           </Widget>

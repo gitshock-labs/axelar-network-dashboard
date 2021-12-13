@@ -293,7 +293,7 @@ export default function Snapshot({ height }) {
                 <div className="flex flex-col items-end text-right space-y-1">
                   {Object.keys(props.value).length > 0 ?
                     Object.entries(props.value).map(([key, value]) => (
-                      <span key={key} className="max-w-min bg-gray-100 dark:bg-gray-700 rounded-lg capitalize text-gray-800 dark:text-gray-200 text-2xs font-semibold px-1.5 py-1">
+                      <span key={key} className="max-w-min bg-gray-100 dark:bg-gray-900 rounded-lg capitalize text-gray-900 dark:text-gray-200 text-2xs font-semibold px-1.5 py-1">
                         {getName(key)}: {numberFormat(value, '0,0')}
                       </span>
                     ))
@@ -471,7 +471,7 @@ export default function Snapshot({ height }) {
                             className="w-6 h-6 rounded-full mb-1 ml-1"
                           />
                           :
-                          <span key={i} className="max-w-min bg-gray-100 dark:bg-gray-700 rounded-xl text-gray-800 dark:text-gray-200 text-xs font-semibold mb-1 ml-1 px-1.5 py-0.5">
+                          <span key={i} className="max-w-min bg-gray-100 dark:bg-gray-900 rounded-xl text-gray-900 dark:text-gray-200 text-xs font-semibold mb-1 ml-1 px-1.5 py-0.5">
                             {chainName(_chain)}
                           </span>
                       ))}
@@ -521,7 +521,7 @@ export default function Snapshot({ height }) {
                       {props.row.original.illegible && props.row.original.tss_illegibility_info && (
                         <div className="flex flex-col items-end space-y-1.5 mt-2">
                           {Object.entries(props.row.original.tss_illegibility_info).filter(([key, value]) => value).map(([key, value]) => (
-                            <span key={key} className="max-w-min bg-gray-100 dark:bg-gray-700 rounded-lg capitalize text-gray-800 dark:text-gray-200 text-2xs font-semibold px-1.5 py-1">
+                            <span key={key} className="max-w-min bg-gray-100 dark:bg-gray-900 rounded-lg capitalize text-gray-900 dark:text-gray-200 text-2xs font-semibold px-1.5 py-1">
                               {getName(key)}
                             </span>
                           ))}
@@ -545,10 +545,10 @@ export default function Snapshot({ height }) {
         }
         noPagination={snapshot?.data ? snapshot.data.length <= 10 : true}
         defaultPageSize={100}
-        className="small"
+        className="small no-border"
       />
       {snapshot && snapshot?.data?.length < 1 && (
-        <div className="bg-white dark:bg-gray-800 text-gray-300 dark:text-gray-500 text-base font-medium italic text-center my-4 py-2">
+        <div className="bg-white dark:bg-gray-900 text-gray-300 dark:text-gray-500 text-base font-medium italic text-center my-4 py-2">
           No Validators
         </div>
       )}

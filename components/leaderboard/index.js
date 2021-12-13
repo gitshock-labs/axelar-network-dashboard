@@ -406,7 +406,7 @@ export default function Leaderboard({ n = 100 }) {
                 <select
                   value={fromSnapshot}
                   onChange={e => setFromSnapshot(Number(e.target.value))}
-                  className="max-w-min dark:bg-gray-800 outline-none border-gray-200 dark:border-gray-800 shadow-none focus:shadow-none text-xs"
+                  className="max-w-min dark:bg-gray-900 outline-none border-gray-200 dark:border-gray-800 shadow-none focus:shadow-none text-xs"
                 >
                   {snapshots.data.map((_snapshot, i) => (
                     <option key={i} value={_snapshot.snapshot_block}>
@@ -422,7 +422,7 @@ export default function Leaderboard({ n = 100 }) {
                 <select
                   value={toSnapshot}
                   onChange={e => setToSnapshot(Number(e.target.value))}
-                  className="max-w-min dark:bg-gray-800 outline-none border-gray-200 dark:border-gray-800 shadow-none focus:shadow-none text-xs"
+                  className="max-w-min dark:bg-gray-900 outline-none border-gray-200 dark:border-gray-800 shadow-none focus:shadow-none text-xs"
                 >
                   {snapshots.data.map((_snapshot, i) => (
                     <option key={i} value={_snapshot.snapshot_block}>
@@ -634,10 +634,10 @@ export default function Leaderboard({ n = 100 }) {
         }
         noPagination={snapshotsData?.data ? snapshotsData.data.length <= 10 : true}
         defaultPageSize={100}
-        className="small"
+        className="small no-border"
       />
       {snapshotsData && snapshotsData?.data?.length < 1 && (
-        <div className="bg-white dark:bg-gray-800 text-gray-300 dark:text-gray-500 text-base font-medium italic text-center my-4 py-2">
+        <div className="bg-white dark:bg-gray-900 text-gray-300 dark:text-gray-500 text-base font-medium italic text-center my-4 py-2">
           No Validators
         </div>
       )}

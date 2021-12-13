@@ -12,7 +12,7 @@ export default function Blocks() {
         className="flex-col sm:flex-row items-start sm:items-center"
       />
       <div className="max-w-4xl my-4 xl:my-6 mx-auto">
-        <BlocksTable />
+        <BlocksTable className="no-border" />
       </div>
     </>
   )

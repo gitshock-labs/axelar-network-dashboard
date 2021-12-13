@@ -28,7 +28,12 @@ const Summary = ({ data, crosschainData, tvlData, avgTransfersTimeRange, setAvgT
   return (
     <>
       <div className="w-full">
-        <Widget title="Consensus State">
+        <Widget
+          title={<span className="text-gray-900 dark:text-white font-semibold">
+            Consensus State
+          </span>}
+          className="bg-transparent border-0"
+        >
           <div className="flex flex-wrap items-start mt-3">
             <div className="flex flex-col space-y-1 mr-8 lg:mr-32">
               <span className="text-gray-600 dark:text-gray-400 text-sm font-medium">Height</span>
@@ -151,7 +156,7 @@ const Summary = ({ data, crosschainData, tvlData, avgTransfersTimeRange, setAvgT
       <div className="w-full grid grid-flow-row grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 my-4">
         <Widget
           title="Latest Block Height"
-          className="bg-transparent sm:bg-white sm:dark:bg-gray-900 border-0 sm:border border-gray-100 dark:border-gray-800 p-0 sm:p-4"
+          className="bg-transparent sm:bg-white sm:dark:bg-gray-900 border-0 sm:border border-gray-100 dark:border-gray-900 p-0 sm:p-4"
         >
           <span className="flex flex-col space-y-1 mt-1">
             {data ?
@@ -173,7 +178,7 @@ const Summary = ({ data, crosschainData, tvlData, avgTransfersTimeRange, setAvgT
         </Widget>
         <Widget
           title="Average Block Time"
-          className="bg-transparent sm:bg-white sm:dark:bg-gray-900 border-0 sm:border border-gray-100 dark:border-gray-800 p-0 sm:p-4"
+          className="bg-transparent sm:bg-white sm:dark:bg-gray-900 border-0 sm:border border-gray-100 dark:border-gray-900 p-0 sm:p-4"
         >
           <span className="flex flex-col item space-y-1 mt-1">
             {data ?
@@ -186,7 +191,7 @@ const Summary = ({ data, crosschainData, tvlData, avgTransfersTimeRange, setAvgT
         </Widget>
         <Widget
           title="Active Validators"
-          className="bg-transparent sm:bg-white sm:dark:bg-gray-900 border-0 sm:border border-gray-100 dark:border-gray-800 p-0 sm:p-4"
+          className="bg-transparent sm:bg-white sm:dark:bg-gray-900 border-0 sm:border border-gray-100 dark:border-gray-900 p-0 sm:p-4"
         >
           <span className="flex flex-col space-y-1 mt-1">
             {typeof data?.active_validators === 'number' ?
@@ -197,7 +202,7 @@ const Summary = ({ data, crosschainData, tvlData, avgTransfersTimeRange, setAvgT
             <span className="flex items-center text-gray-400 dark:text-gray-600 text-sm font-normal space-x-1">
               <span>out of</span>
               {typeof data?.total_validators === 'number' ?
-                <span className="text-gray-600 dark:text-gray-400 font-medium">{numberFormat(data.total_validators, '0,0')}</span>
+                <span className="text-gray-600 dark:text-gray-200 font-medium">{numberFormat(data.total_validators, '0,0')}</span>
                 :
                 <div className="skeleton w-6 h-3.5" />
               }
@@ -207,7 +212,7 @@ const Summary = ({ data, crosschainData, tvlData, avgTransfersTimeRange, setAvgT
         </Widget>
         <Widget
           title="Online Voting Power"
-          className="bg-transparent sm:bg-white sm:dark:bg-gray-900 border-0 sm:border border-gray-100 dark:border-gray-800 p-0 sm:p-4"
+          className="bg-transparent sm:bg-white sm:dark:bg-gray-900 border-0 sm:border border-gray-100 dark:border-gray-900 p-0 sm:p-4"
         >
           <span className="flex flex-col space-y-1 mt-1">
             {data?.online_voting_power_now ?
@@ -217,17 +222,17 @@ const Summary = ({ data, crosschainData, tvlData, avgTransfersTimeRange, setAvgT
             }
             <span className="flex items-center text-gray-400 dark:text-gray-600 text-sm font-normal space-x-1">
               {typeof data?.online_voting_power_now_percentage === 'number' ?
-                <span className="text-gray-600 dark:text-gray-400 font-medium">{numberFormat(data.online_voting_power_now_percentage, '0,0.00')}%</span>
+                <span className="text-gray-600 dark:text-gray-200 font-medium">{numberFormat(data.online_voting_power_now_percentage, '0,0.00')}%</span>
                 :
                 <div className="skeleton w-6 h-3.5" />
               }
               <span>from</span>
               {data?.total_voting_power ?
-                <span className="text-gray-600 dark:text-gray-400 font-medium">{data.total_voting_power}</span>
+                <span className="text-gray-600 dark:text-gray-200 font-medium">{data.total_voting_power}</span>
                 :
                 <div className="skeleton w-8 h-3.5" />
               }
-              <span className="uppercase text-gray-500">{data && ellipseAddress(data.denom)}</span>
+              <span className="uppercase text-gray-600 dark:text-gray-400">{data && ellipseAddress(data.denom)}</span>
             </span>
           </span>
         </Widget>
@@ -241,7 +246,7 @@ const Summary = ({ data, crosschainData, tvlData, avgTransfersTimeRange, setAvgT
       <div className="w-full grid grid-flow-row grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-8 sm:gap-4 mt-1.5 mb-4">
         <Widget
           title="Number of Transactions"
-          className="bg-transparent sm:bg-white sm:dark:bg-gray-900 border-0 sm:border border-gray-100 dark:border-gray-800 p-0 sm:p-4"
+          className="bg-transparent sm:bg-white sm:dark:bg-gray-900 border-0 sm:border border-gray-100 dark:border-gray-900 p-0 sm:p-4"
         >
           <span className="flex flex-col space-y-1.5 mt-1">
             {crosschainData ?
@@ -291,7 +296,7 @@ const Summary = ({ data, crosschainData, tvlData, avgTransfersTimeRange, setAvgT
         </Widget>
         <Widget
           title="Transfer Volume"
-          className="bg-transparent sm:bg-white sm:dark:bg-gray-900 border-0 sm:border border-gray-100 dark:border-gray-800 p-0 sm:p-4"
+          className="bg-transparent sm:bg-white sm:dark:bg-gray-900 border-0 sm:border border-gray-100 dark:border-gray-900 p-0 sm:p-4"
         >
           <span className="flex flex-col space-y-1.5 mt-1">
             {crosschainData ?
@@ -343,7 +348,7 @@ const Summary = ({ data, crosschainData, tvlData, avgTransfersTimeRange, setAvgT
         </Widget>
         <Widget
           title="Total Value Locked"
-          className="bg-transparent sm:bg-white sm:dark:bg-gray-900 border-0 sm:border border-gray-100 dark:border-gray-800 p-0 sm:p-4"
+          className="bg-transparent sm:bg-white sm:dark:bg-gray-900 border-0 sm:border border-gray-100 dark:border-gray-900 p-0 sm:p-4"
         >
           <span className="flex flex-col space-y-1.5 mt-1">
             {tvlData ?
@@ -399,7 +404,7 @@ const Summary = ({ data, crosschainData, tvlData, avgTransfersTimeRange, setAvgT
         </Widget>
         <Widget
           title="Average size of Transfers"
-          className="bg-transparent sm:bg-white sm:dark:bg-gray-900 border-0 sm:border border-gray-100 dark:border-gray-800 p-0 sm:p-4"
+          className="bg-transparent sm:bg-white sm:dark:bg-gray-900 border-0 sm:border border-gray-100 dark:border-gray-900 p-0 sm:p-4"
         >
           <span className="flex flex-col space-y-1.5 mt-1">
             {crosschainData ?
@@ -465,7 +470,7 @@ const Summary = ({ data, crosschainData, tvlData, avgTransfersTimeRange, setAvgT
               24h
             </span>
           </div>}
-          className="bg-transparent sm:bg-white sm:dark:bg-gray-900 border-0 sm:border border-gray-100 dark:border-gray-800 p-0 sm:p-4"
+          className="bg-transparent sm:bg-white sm:dark:bg-gray-900 border-0 sm:border border-gray-100 dark:border-gray-900 p-0 sm:p-4"
         >
           <span className="flex flex-col space-y-1.5 mt-1">
             {crosschainData ?
@@ -545,7 +550,7 @@ const Summary = ({ data, crosschainData, tvlData, avgTransfersTimeRange, setAvgT
             </div>
           ))}
           contentClassName="items-start"
-          className="pb-0 px-2 sm:px-4"
+          className="dark:border-gray-900 pb-0 px-2 sm:px-4"
         >
           <div>
             <TimelyTransactions txsData={chartData && (chartData.total_transfers.find(transfer => transfer?.chain === chainSelect) || {})} setTimeFocus={_timeFocus => setTimeFocus(_timeFocus)} />
@@ -565,7 +570,7 @@ const Summary = ({ data, crosschainData, tvlData, avgTransfersTimeRange, setAvgT
             </div>
           ))}
           contentClassName="items-start"
-          className="pb-0 px-2 sm:px-4"
+          className="dark:border-gray-900 pb-0 px-2 sm:px-4"
         >
           <div>
             <TimelyVolume volumeData={chartData && (chartData.total_transfers.find(transfer => transfer?.chain === chainSelect) || {})} setTimeFocus={_timeFocus => setTimeFocus(_timeFocus)} />
@@ -585,7 +590,7 @@ const Summary = ({ data, crosschainData, tvlData, avgTransfersTimeRange, setAvgT
             </div>
           ))}
           contentClassName="items-start"
-          className="pb-0 px-2 sm:px-4"
+          className="dark:border-gray-900 pb-0 px-2 sm:px-4"
         >
           <div>
             <TimelyHighestTransfer highestTransferData={chartData && (chartData.highest_transfer_24h.find(transfer => transfer?.chain === chainSelect) || {})} setTimeFocus={_timeFocus => setTimeFocus(_timeFocus)} />

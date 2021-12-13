@@ -96,7 +96,7 @@ export default function Bridge() {
     :
     [...Array(15).keys()].map(i => { return { i, skeleton: true } })
   ).map((bridgeAccount, i) => (
-    <Widget key={i}>
+    <Widget key={i} className="dark:border-gray-900">
       {!bridgeAccount.skeleton ?
         <div className="space-y-2 mb-1.5">
           <div className="flex items-center space-x-2">

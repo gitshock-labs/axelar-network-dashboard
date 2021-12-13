@@ -14,6 +14,7 @@ export default function Uptime({ data, validator_data }) {
     <Widget
       title={<span className="text-lg font-medium">Uptime</span>}
       right={<span className="whitespace-nowrap text-gray-400 dark:text-gray-600 sm:mr-1 xl:mr-1.5">Latest {numberFormat(process.env.NEXT_PUBLIC_NUM_UPTIME_DISPLAY_BLOCKS, '0,0')} Blocks</span>}
+      className="dark:border-gray-900"
     >
       <div className="flex flex-wrap items-center my-1 -ml-0.5">
         {(data || [...Array(Number(process.env.NEXT_PUBLIC_NUM_UPTIME_DISPLAY_BLOCKS)).keys()].map(i => { return { i, skeleton: true } })

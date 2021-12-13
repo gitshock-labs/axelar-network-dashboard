@@ -124,7 +124,7 @@ export default function TransactionsTable({ data, noLoad, hasVote, location, cla
             Cell: props => (
               !props.row.original.skeleton ?
                 <Link href={`/block/${props.value}`}>
-                  <a className="text-blue-600 dark:text-white font-medium">
+                  <a className="text-blue-500 dark:text-gray-400 font-medium">
                     {numberFormat(props.value, '0,0')}
                   </a>
                 </Link>
@@ -139,7 +139,7 @@ export default function TransactionsTable({ data, noLoad, hasVote, location, cla
             Cell: props => (
               !props.row.original.skeleton ?
                 props.value ?
-                  <span className="bg-gray-100 dark:bg-gray-800 rounded capitalize text-gray-900 dark:text-gray-100 font-semibold px-2 py-1">
+                  <span className="bg-gray-100 dark:bg-gray-900 rounded capitalize text-gray-900 dark:text-gray-100 font-semibold px-2 py-1">
                     {getName(props.value)}
                   </span>
                   :
@@ -156,12 +156,12 @@ export default function TransactionsTable({ data, noLoad, hasVote, location, cla
               !props.row.original.skeleton ?
                 <div className="flex items-center space-x-1">
                   {props.value === 'success' ?
-                    <FaCheckCircle size={16} className="text-green-500" />
+                    <FaCheckCircle size={16} className="text-green-500 dark:text-white" />
                     :
                     props.value === 'pending' ?
                       <FaClock size={16} className="text-gray-500" />
                       :
-                      <FaTimesCircle size={16} className="text-red-500" />
+                      <FaTimesCircle size={16} className="text-red-500 dark:text-white" />
                   }
                   <span className="capitalize">{props.value}</span>
                 </div>
@@ -268,7 +268,7 @@ export default function TransactionsTable({ data, noLoad, hasVote, location, cla
         className={`${(!location && !noLoad) || ['index'].includes(location) ? 'min-h-full' : ''} ${className}`}
       />
       {transactions && !(transactions.data?.length > 0) && (
-        <div className={`bg-${!location ? 'white' : 'gray-50'} dark:bg-gray-800 text-gray-300 dark:text-gray-500 text-base font-medium italic text-center my-4 py-2`}>
+        <div className={`bg-${!location ? 'white' : 'gray-50'} dark:bg-gray-900 text-gray-300 dark:text-gray-500 text-base font-medium italic text-center my-4 py-2`}>
           No Transactions
         </div>
       )}

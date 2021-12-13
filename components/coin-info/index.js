@@ -100,10 +100,10 @@ export default function CoinInfo() {
   }, [denoms_data])
 
   return (
-    <div className="w-full bg-gray-100 dark:bg-gray-900 rounded grid grid-flow-row grid-cols-2 sm:flex items-start text-2xs lg:text-xs gap-3 sm:gap-4 lg:gap-6 mt-0 sm:mt-auto mb-4 sm:mb-auto ml-0 sm:ml-2 py-3 px-4">
+    <div className="w-full bg-gray-100 dark:bg-black rounded grid grid-flow-row grid-cols-2 sm:flex items-start text-2xs lg:text-xs gap-3 sm:gap-4 lg:gap-6 mt-0 sm:mt-auto mb-4 sm:mb-auto ml-0 sm:ml-2 py-3 px-4">
       <div className="flex flex-col space-y-1 lg:space-y-0.5">
-        <span className="text-gray-700 dark:text-gray-500 font-semibold">Price</span>
-        <span className="text-gray-900 dark:text-gray-300 font-light">
+        <span className="text-gray-700 dark:text-gray-300 font-semibold">Price</span>
+        <span className="text-gray-900 dark:text-gray-100 font-light">
           {chain_data ?
             chain_data.coin ?
               <>{CURRENCY_SYMBOL}{numberFormat(chain_data.coin[CURRENCY], '0,0.00000000')}</>
@@ -115,8 +115,8 @@ export default function CoinInfo() {
         </span>
       </div>
       <div className="flex flex-col space-y-1 lg:space-y-0.5">
-        <span className="text-gray-700 dark:text-gray-500 font-semibold">Market Cap</span>
-        <span className="uppoercase text-gray-900 dark:text-gray-300 font-light">
+        <span className="text-gray-700 dark:text-gray-300 font-semibold">Market Cap</span>
+        <span className="uppoercase text-gray-900 dark:text-gray-100 font-light">
           {chain_data ?
             chain_data.coin ?
               <>{CURRENCY_SYMBOL}{numberFormat(chain_data.coin[`${CURRENCY}_market_cap`], '0,0.00a')}</>
@@ -128,8 +128,8 @@ export default function CoinInfo() {
         </span>
       </div>
       <div className="flex flex-col space-y-1 lg:space-y-0.5">
-        <span className="text-gray-700 dark:text-gray-500 font-semibold">Inflation</span>
-        <span className="text-gray-900 dark:text-gray-300 font-light">
+        <span className="text-gray-700 dark:text-gray-300 font-semibold">Inflation</span>
+        <span className="text-gray-900 dark:text-gray-100 font-light">
           {chain_data ?
             typeof chain_data.inflation === 'number' ?
               <>{numberFormat(chain_data.inflation * 100, '0,0.00')}%</>
@@ -141,8 +141,8 @@ export default function CoinInfo() {
         </span>
       </div>
       <div className="flex flex-col space-y-1 lg:space-y-0.5">
-        <span className="text-gray-700 dark:text-gray-500 font-semibold">Proposer Reward</span>
-        <span className="text-gray-900 dark:text-gray-300 font-light">
+        <span className="text-gray-700 dark:text-gray-300 font-semibold">Proposer Reward</span>
+        <span className="text-gray-900 dark:text-gray-100 font-light">
           {chain_data ?
             !isNaN(chain_data.distribution_params?.base_proposer_reward) ?
               <div className="whitespace-nowrap">
@@ -163,8 +163,8 @@ export default function CoinInfo() {
         </span>
       </div>
       <div className="flex flex-col space-y-1 lg:space-y-0.5">
-        <span className="text-gray-700 dark:text-gray-500 font-semibold">Community Tax</span>
-        <span className="text-gray-900 dark:text-gray-300 font-light">
+        <span className="text-gray-700 dark:text-gray-300 font-semibold">Community Tax</span>
+        <span className="text-gray-900 dark:text-gray-100 font-light">
           {chain_data ?
             !isNaN(chain_data.distribution_params?.community_tax) ?
               <>{numberFormat(Number(chain_data.distribution_params.community_tax) * 100, '0,0.00')}%</>
@@ -176,8 +176,8 @@ export default function CoinInfo() {
         </span>
       </div>
       <div className="flex flex-col space-y-1 lg:space-y-0.5">
-        <span className="text-gray-700 dark:text-gray-500 font-semibold">Community Pool</span>
-        <span className="text-gray-900 dark:text-gray-300 font-light">
+        <span className="text-gray-700 dark:text-gray-300 font-semibold">Community Pool</span>
+        <span className="text-gray-900 dark:text-gray-100 font-light">
           {chain_data ?
             chain_data.community_pool ?
               <div className="space-x-2">

@@ -10,7 +10,7 @@ import { numberFormat, getName, ellipseAddress } from '../../lib/utils'
 
 export default function TransactionDetail({ data }) {
   return (
-    <Widget className="p-4 md:p-8">
+    <Widget className="dark:border-gray-900 p-4 md:p-8">
       <div className="w-full flex flex-col space-y-4">
         <div className="flex flex-col md:flex-row items-start space-y-2 md:space-y-0 space-x-0 md:space-x-2">
           <span className="w-40 lg:w-64 text-xs lg:text-base font-semibold">Tx Hash:</span>
@@ -29,12 +29,12 @@ export default function TransactionDetail({ data }) {
             data.status && (
               <div className="flex flex-wrap items-center text-xs lg:text-base space-x-1">
                 {data.status === 'success' ?
-                  <FaCheckCircle size={18} className="text-green-500" />
+                  <FaCheckCircle size={18} className="text-green-500 dark:text-white" />
                   :
                   data.status === 'pending' ?
-                    <FaClock size={18} className="text-gray-500" />
+                    <FaClock size={18} className="text-gray-500 dark:text-white" />
                     :
-                    <FaTimesCircle size={18} className="text-red-500" />
+                    <FaTimesCircle size={18} className="text-red-500 dark:text-white" />
                 }
                 <span className="capitalize">{data.status}</span>
               </div>
