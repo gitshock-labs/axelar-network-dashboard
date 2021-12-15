@@ -19,23 +19,23 @@ const Summary = ({ data, keygens, successKeygens, failedKeygens, signAttempts, f
 
   const activeValidators = validators_data?.filter(validator => ['BOND_STATUS_BONDED'].includes(validator.status))
 
-  let evmVotingThreshold = data?.evm?.params
+  let evmVotingThreshold = data?.evm?.chains
 
-  if (evmVotingThreshold?.length > 0 && chains) {
-    for (let i = 0; i < chains.length; i++) {
-      const chain = chains[i]
+  // if (evmVotingThreshold?.length > 0 && chains) {
+  //   for (let i = 0; i < chains.length; i++) {
+  //     const chain = chains[i]
 
-      if (chain.threshold && evmVotingThreshold.findIndex(_chain => _chain?.chain === chain?.name) < 0) {
-        evmVotingThreshold.push({ ...evmVotingThreshold[0], chain: chain?.name })
-      }
-    }
-  }
+  //     if (chain.threshold && evmVotingThreshold.findIndex(_chain => _chain?.params?.chain === chain?.name) < 0) {
+  //       evmVotingThreshold.push({ ...evmVotingThreshold[0], chain: chain?.name })
+  //     }
+  //   }
+  // }
 
   evmVotingThreshold = evmVotingThreshold?.map(_chain => {
-    const maintainValidators = activeValidators?.findIndex(validator => validator.supported_chains?.includes(idFromEvmId(_chain.chain))) > -1 && activeValidators.filter(validator => validator.supported_chains?.includes(idFromEvmId(_chain.chain)))
+    const maintainValidators = activeValidators?.findIndex(validator => validator.supported_chains?.includes(idFromEvmId(_chain?.params?.chain))) > -1 && activeValidators.filter(validator => validator.supported_chains?.includes(idFromEvmId(_chain?.params?.chain)))
 
     return {
-      ..._chain,
+      ..._chain?.params,
       num_maintain_validators: maintainValidators?.length,
       maintain_staking: denoms_data && maintainValidators && denomAmount(_.sumBy(maintainValidators, 'tokens'), feeDenom, denoms_data),
       total_staking: denoms_data && activeValidators && denomAmount(_.sumBy(activeValidators, 'tokens'), feeDenom, denoms_data),
