@@ -627,7 +627,7 @@ export default function Leaderboard({ n = 100 }) {
             headerClassName: 'whitespace-nowrap justify-end text-right',
           },
         ].filter(column => debug === 'true' || !(_.concat(['score'], Object.keys(weight)).includes(column.accessor)))}
-        data={snapshotsData?.fromSnapshot === fromSnapshot && snapshotsData?.toSnapshot === toSnapshot ?
+        data={snapshotsData && snapshotsData?.fromSnapshot === fromSnapshot && snapshotsData?.toSnapshot === toSnapshot ?
           snapshotsData.data?.map((validator, i) => { return { ...validator, i } }) || []
           :
           [...Array(25).keys()].map(i => { return { i, skeleton: true } })
