@@ -262,15 +262,15 @@ export default function Snapshot({ height }) {
                     :
                     <span className="text-gray-500 dark:text-gray-400">-</span>
                   }
-                  {typeof props.row.original.broadcaster_funded === 'object' ?
-                    <span className={`max-w-min ${props.row.original.broadcaster_funded.amount >= Number(process.env.NEXT_PUBLIC_MIN_BROADCAST_FUND) ? 'bg-green-500 dark:bg-green-700' : 'bg-red-500 dark:bg-red-700'} rounded-xl flex items-center text-white text-2xs font-semibold space-x-1 mb-1 ml-auto px-2 py-1`}>
+                  {typeof props.row.original.broadcaster_funded === 'object' && props.row.original.broadcaster_funded?.denom ?
+                    <span className={`max-w-min ${props.row.original.broadcaster_funded?.amount >= Number(process.env.NEXT_PUBLIC_MIN_BROADCAST_FUND) ? 'bg-green-500 dark:bg-green-700' : 'bg-red-500 dark:bg-red-700'} rounded-xl flex items-center text-white text-2xs font-semibold space-x-1 mb-1 ml-auto px-2 py-1`}>
                       {props.row.original.broadcaster_funded?.amount >= Number(process.env.NEXT_PUBLIC_MIN_BROADCAST_FUND) ?
                         <FaCheckCircle size={14} />
                         :
                         <FaTimesCircle size={14} />
                       }
                       <span>{numberFormat(props.row.original.broadcaster_funded?.amount, '0,0.0000000')}</span>
-                      <span className="uppercase">{props.row.original.broadcaster_funded.denom}</span>
+                      <span className="uppercase">{props.row.original.broadcaster_funded?.denom}</span>
                     </span>
                     :
                     <span>{props.row.original.broadcaster_funded}</span>
