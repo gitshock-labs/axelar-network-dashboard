@@ -240,10 +240,10 @@ const Summary = ({ data, crosschainData, tvlData, avgTransfersTimeRange, setAvgT
       <div className="flex items-center text-gray-900 dark:text-gray-100 text-base font-semibold mt-8 sm:mx-3">
         Cross-chain transfer
         <span className="bg-gray-200 dark:bg-gray-900 rounded-3xl capitalize text-2xs ml-2 px-1.5 py-1">
-          Beta
+          Coming Soon
         </span>
       </div>
-      <div className="w-full grid grid-flow-row grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-8 sm:gap-4 mt-1.5 mb-4">
+      {/*<div className="w-full grid grid-flow-row grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-8 sm:gap-4 mt-1.5 mb-4">
         <Widget
           title="Number of Transactions"
           className="bg-transparent sm:bg-white sm:dark:bg-gray-900 border-0 sm:border border-gray-100 dark:border-gray-900 p-0 sm:p-4"
@@ -596,7 +596,7 @@ const Summary = ({ data, crosschainData, tvlData, avgTransfersTimeRange, setAvgT
             <TimelyHighestTransfer highestTransferData={chartData && (chartData.highest_transfer_24h.find(transfer => transfer?.chain === chainSelect) || {})} setTimeFocus={_timeFocus => setTimeFocus(_timeFocus)} />
           </div>
         </Widget>
-      </div>
+      </div>*/}
     </>
   )
 }
