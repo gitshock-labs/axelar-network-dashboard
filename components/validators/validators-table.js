@@ -342,7 +342,7 @@ export default function ValidatorsTable({ status }) {
               !props.row.original.skeleton && typeof props.value === 'number' ?
                 <>
                   {props.value > 0 ?
-                    <div className="w-44 mt-0.5 ml-auto">
+                    <div className="w-40 mt-0.5 ml-auto">
                       <ProgressBarWithText
                         width={props.value}
                         text={<div className="text-white mx-1" style={{ fontSize: '.55rem' }}>
@@ -354,7 +354,7 @@ export default function ValidatorsTable({ status }) {
                       />
                     </div>
                     :
-                    <div className="w-44 text-gray-400 dark:text-gray-600 text-right ml-auto">No Uptime</div>
+                    <div className="w-40 text-gray-400 dark:text-gray-600 text-right ml-auto">No Uptime</div>
                   }
                   {typeof props.row.original.start_height === 'number' && (
                     <div className="text-3xs text-right space-x-1 mt-1.5">
@@ -365,7 +365,7 @@ export default function ValidatorsTable({ status }) {
                 </>
                 :
                 <>
-                  <div className="skeleton w-44 h-4 mt-0.5 ml-auto" />
+                  <div className="skeleton w-40 h-4 mt-0.5 ml-auto" />
                   <div className="skeleton w-24 h-3.5 mt-1.5 ml-auto" />
                 </>
             ),
@@ -385,7 +385,7 @@ export default function ValidatorsTable({ status }) {
               !props.row.original.skeleton && typeof props.value === 'number' ?
                 <>
                   {props.value > 0 ?
-                    <div className="w-44 mt-0.5 ml-auto">
+                    <div className="w-40 mt-0.5 ml-auto">
                       <ProgressBarWithText
                         width={props.value}
                         text={<div className="text-white mx-1" style={{ fontSize: '.55rem' }}>
@@ -397,7 +397,7 @@ export default function ValidatorsTable({ status }) {
                       />
                     </div>
                     :
-                    <div className="w-44 text-gray-400 dark:text-gray-600 text-right ml-auto">No Heartbeat</div>
+                    <div className="w-40 text-gray-400 dark:text-gray-600 text-right ml-auto">No Heartbeat</div>
                   }
                   {typeof props.row.original.start_proxy_height === 'number' && (
                     <div className="text-3xs text-right space-x-1 mt-1.5">
@@ -408,7 +408,7 @@ export default function ValidatorsTable({ status }) {
                 </>
                 :
                 <>
-                  <div className="skeleton w-44 h-4 mt-0.5 ml-auto" />
+                  <div className="skeleton w-40 h-4 mt-0.5 ml-auto" />
                   <div className="skeleton w-24 h-3.5 mt-1.5 ml-auto" />
                 </>
             ),
