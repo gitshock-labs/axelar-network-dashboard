@@ -461,12 +461,12 @@ export default function Validator({ address }) {
               heartbeats = heartbeats.map(_heartbeat => response.data.find(__heartbeat => (__heartbeat?.height - (__heartbeat?.height % blocksPerHeartbeat) + blockFraction) === (_heartbeat?.height - (_heartbeat?.height % blocksPerHeartbeat) + blockFraction)) || _heartbeat)
             }
 
-            response = await getIneligibilities({ query: `{__name__=~"axelar_tss_heartbeat",address="${validatorData?.operator_address}",height=~"${toRegexRange(beginBlock, latestBlock)}"}` })
+            // response = await getIneligibilities({ query: `{__name__=~"axelar_tss_heartbeat",address="${validatorData?.operator_address}",height=~"${toRegexRange(beginBlock, latestBlock)}"}` })
 
-            const ineligibilities = response?.filter(metric => metric?.address && metric.address === validatorData?.operator_address)
+            // const ineligibilities = response?.filter(metric => metric?.address && metric.address === validatorData?.operator_address)
 
             heartbeats = heartbeats.map(_heartbeat => {
-              const _ineligibilities = ineligibilities?.find(_block => (_block?.height - (_block?.height % blocksPerHeartbeat) + blockFraction) === (_heartbeat?.height - (_heartbeat?.height % blocksPerHeartbeat) + blockFraction))
+              const _ineligibilities = null//ineligibilities?.find(_block => (_block?.height - (_block?.height % blocksPerHeartbeat) + blockFraction) === (_heartbeat?.height - (_heartbeat?.height % blocksPerHeartbeat) + blockFraction))
 
               return {
                 ..._heartbeat,
