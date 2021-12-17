@@ -325,7 +325,7 @@ export default function Leaderboard({ n = 100 }) {
             vote_participation_fraction: (v.vote_participated / vote_participations) || 0,
             keygen_participation_fraction: (v.keygen_participated / keygen_participations) || 0,
             sign_participation_fraction: (v.sign_participated / sign_participations) || 0,
-            heartbeats_fraction: 1 - (((v.missed_heartbeats + (_.sumBy(ineligibilities, 'value') / ineligibilities.length)) / (total_blocks / Number(process.env.NEXT_PUBLIC_NUM_BLOCKS_PER_HEARTBEAT))) || 0),
+            heartbeats_fraction: 1 - (((v.missed_heartbeats/* + (_.sumBy(ineligibilities, 'value') / ineligibilities.length)*/) / (total_blocks / Number(process.env.NEXT_PUBLIC_NUM_BLOCKS_PER_HEARTBEAT))) || 0),
             uptime_fraction: (v.up_blocks / total_blocks) || 0,
             jailed_fraction: 1 - ((v.num_blocks_jailed / total_blocks) || 0),
             debug: {
@@ -333,7 +333,8 @@ export default function Leaderboard({ n = 100 }) {
               vote_participation_fraction: '-',//`${v.vote_participated} PARTICIPATED / ${vote_participations} TOTAL_VOTE`,
               keygen_participation_fraction: `${v.keygen_participated} PARTICIPATED / ${keygen_participations} TOTAL_KEYGEN`,
               sign_participation_fraction: `${v.sign_participated} PARTICIPATED / ${sign_participations} TOTAL_SIGN`,
-              heartbeats_fraction: `1 - ((${v.missed_heartbeats} MISSED +\n((${ineligibilities.map(({ key, value}) => `${value} ${''/*key?.replace('ineligibilities_', '').toUpperCase()*/}`.trim()).join(' + ')}) / ${ineligibilities.length})) / (${total_blocks} / ${Number(process.env.NEXT_PUBLIC_NUM_BLOCKS_PER_HEARTBEAT)}))`,
+              // heartbeats_fraction: `1 - ((${v.missed_heartbeats} MISSED +\n((${ineligibilities.map(({ key, value}) => `${value} ${''/*key?.replace('ineligibilities_', '').toUpperCase()*/}`.trim()).join(' + ')}) / ${ineligibilities.length})) / (${total_blocks} / ${Number(process.env.NEXT_PUBLIC_NUM_BLOCKS_PER_HEARTBEAT)}))`,
+              heartbeats_fraction: `1 - (${v.missed_heartbeats} MISSED /\n(${total_blocks} / ${Number(process.env.NEXT_PUBLIC_NUM_BLOCKS_PER_HEARTBEAT)}))`,
               uptime_fraction: `${v.up_blocks} / ${total_blocks}`,
               jailed_fraction: `1 - (${v.num_blocks_jailed} / ${total_blocks})`,
             },

@@ -17,10 +17,18 @@ const Summary = ({ data }) => {
   if (data) {
     for (let i = 0; i < data.length; i++) {
       const validator_data = data[i]
-      for (let j = 0; j < Object.entries(validator_data.ineligibilities).length; j++) {
-        const [ineligibility, count] = Object.entries(validator_data.ineligibilities)[j]
 
-        ineligibilities[ineligibility] = (ineligibilities[ineligibility] || 0) + (count || 0)
+      // for (let j = 0; j < Object.entries(validator_data.ineligibilities).length; j++) {
+      //   const [ineligibility, count] = Object.entries(validator_data.ineligibilities)[j]
+
+      //   ineligibilities[ineligibility] = (ineligibilities[ineligibility] || 0) + (count || 0)
+      // }
+
+      if (validator_data?.tss_illegibility_info) {
+        for (let j = 0; j < validator_data.tss_illegibility_info.length; j++) {
+          const ineligibility = validator_data.tss_illegibility_info[j], count = 1
+          ineligibilities[ineligibility] = (ineligibilities[ineligibility] || 0) + (count || 0)
+        }
       }
     }
   }

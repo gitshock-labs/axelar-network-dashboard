@@ -503,7 +503,7 @@ export default function Dashboard() {
           latest_block: { ...consensusStateData },
           block_height: status_data && Number(status_data.latest_block_height),
           block_height_at: status_data && moment(status_data.latest_block_time).valueOf(),
-          avg_block_time: status_data && moment(status_data.latest_block_time).diff(moment(status_data.earliest_block_time), 'seconds') / Number(status_data.latest_block_height),
+          avg_block_time: status_data && moment(status_data.latest_block_time).diff(moment(status_data.earliest_block_time), 'seconds') / (Number(status_data.latest_block_height) - Number(status_data.earliest_block_height_for_cal || status_data.earliest_block_height)),
           active_validators: validators_data?.filter(validator_data => ['BOND_STATUS_BONDED'].includes(validator_data.status)).length,
           total_validators: validators_data?.length,
           denom: denomSymbol(chain_data?.staking_params?.bond_denom, denoms_data),

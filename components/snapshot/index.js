@@ -284,32 +284,32 @@ export default function Snapshot({ height }) {
             ),
             headerClassName: 'justify-end text-right',
           },
-          {
-            Header: 'Ineligibilities',
-            accessor: 'ineligibilities',
-            sortType: (rowA, rowB) => _.sum(Object.values(rowA.original.ineligibilities || {})) > _.sum(Object.values(rowB.original.ineligibilities || {})) ? 1 : -1,
-            Cell: props => (
-              !props.row.original.skeleton ?
-                <div className="flex flex-col items-end text-right space-y-1">
-                  {Object.keys(props.value).length > 0 ?
-                    Object.entries(props.value).map(([key, value]) => (
-                      <span key={key} className="max-w-min bg-gray-100 dark:bg-gray-900 rounded-lg capitalize text-gray-900 dark:text-gray-200 text-2xs font-semibold px-1.5 py-1">
-                        {getName(key)}: {numberFormat(value, '0,0')}
-                      </span>
-                    ))
-                    :
-                    <span className="text-gray-400 dark:text-gray-600">-</span>
-                  }
-                </div>
-                :
-                <div className="flex flex-col items-end space-y-1 ml-auto">
-                  {[...Array(6).keys()].map(i => (
-                    <div key={i} className="skeleton w-24 h-4 ml-1" />
-                  ))}
-                </div>
-            ),
-            headerClassName: 'justify-end text-right',
-          },
+          // {
+          //   Header: 'Ineligibilities',
+          //   accessor: 'ineligibilities',
+          //   sortType: (rowA, rowB) => _.sum(Object.values(rowA.original.ineligibilities || {})) > _.sum(Object.values(rowB.original.ineligibilities || {})) ? 1 : -1,
+          //   Cell: props => (
+          //     !props.row.original.skeleton ?
+          //       <div className="flex flex-col items-end text-right space-y-1">
+          //         {Object.keys(props.value).length > 0 ?
+          //           Object.entries(props.value).map(([key, value]) => (
+          //             <span key={key} className="max-w-min bg-gray-100 dark:bg-gray-900 rounded-lg capitalize text-gray-900 dark:text-gray-200 text-2xs font-semibold px-1.5 py-1">
+          //               {getName(key)}: {numberFormat(value, '0,0')}
+          //             </span>
+          //           ))
+          //           :
+          //           <span className="text-gray-400 dark:text-gray-600">-</span>
+          //         }
+          //       </div>
+          //       :
+          //       <div className="flex flex-col items-end space-y-1 ml-auto">
+          //         {[...Array(6).keys()].map(i => (
+          //           <div key={i} className="skeleton w-24 h-4 ml-1" />
+          //         ))}
+          //       </div>
+          //   ),
+          //   headerClassName: 'justify-end text-right',
+          // },
           {
             Header: 'Key Share',
             accessor: 'key_shares',
@@ -520,9 +520,9 @@ export default function Snapshot({ height }) {
                       }
                       {props.row.original.illegible && props.row.original.tss_illegibility_info && (
                         <div className="flex flex-col items-end space-y-1.5 mt-2">
-                          {Object.entries(props.row.original.tss_illegibility_info).filter(([key, value]) => value).map(([key, value]) => (
-                            <span key={key} className="max-w-min bg-gray-100 dark:bg-gray-900 rounded-lg capitalize text-gray-900 dark:text-gray-200 text-2xs font-semibold px-1.5 py-1">
-                              {getName(key)}
+                          {Object.values(props.row.original.tss_illegibility_info).filter(value => value).map((value, i) => (
+                            <span key={i} className="max-w-min bg-gray-100 dark:bg-gray-900 rounded-lg capitalize text-gray-900 dark:text-gray-200 text-2xs font-semibold px-1.5 py-1">
+                              {getName(value)}
                             </span>
                           ))}
                         </div>
