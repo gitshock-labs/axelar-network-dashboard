@@ -6,6 +6,7 @@ import { useSelector, shallowEqual } from 'react-redux'
 import _ from 'lodash'
 import moment from 'moment'
 import Loader from 'react-loader-spinner'
+import { BiNetworkChart } from 'react-icons/bi'
 
 import ChainAssetSelect from './chainAssetSelect'
 import TimelyTransactions from './charts/timely-transactions'
@@ -242,6 +243,12 @@ const Summary = ({ data, crosschainData, tvlData, avgTransfersTimeRange, setAvgT
         <span className="bg-gray-200 dark:bg-gray-900 rounded-3xl capitalize text-2xs ml-2 px-1.5 py-1">
           Beta
         </span>
+        <Link href="/crosschain">
+          <a className="flex items-center text-blue-600 dark:text-white text-sm font-normal space-x-1 ml-auto">
+            <span>Explore More</span>
+            <BiNetworkChart size={20} />
+          </a>
+        </Link>
       </div>
       <div className="w-full grid grid-flow-row grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-8 sm:gap-2 mt-1.5 mb-4">
         <Widget

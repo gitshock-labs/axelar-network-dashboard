@@ -293,12 +293,17 @@ export default function Dashboard() {
               transfers: {
                 terms: { field: 'chain.keyword', size: 10000 },
                 aggs: {
-                  times: {
-                    terms: { field: 'created_at.day', size: 10000 },
+                  assets: {
+                    terms: { field: 'contract.name.keyword', size: 10000 },
                     aggs: {
-                      amounts: {
-                        sum: {
-                          field: 'amount',
+                      times: {
+                        terms: { field: 'created_at.day', size: 10000 },
+                        aggs: {
+                          amounts: {
+                            sum: {
+                              field: 'amount',
+                            },
+                          },
                         },
                       },
                     },
@@ -315,7 +320,10 @@ export default function Dashboard() {
           for (let time = moment(today).subtract(daily_time_range, 'days').valueOf(); time <= today.valueOf(); time += day_ms) {
             let timeData = transfer.times?.find(_time => _time.time === time) || { time, tx: 0, amount: 0 }
 
-            timeData = { ...timeData, amount: timeData.amount / chainDenomDivider(idFromMaintainerId(transfer.chain)) }
+            timeData = {
+              ...timeData,
+              amount: denomAmount(timeData.amount, transfer.asset, denoms_data),
+            }
 
             times.push(timeData)
           }
@@ -323,9 +331,12 @@ export default function Dashboard() {
           return {
             ...transfer,
             times,
-            name: chainName(idFromMaintainerId(transfer.chain)),
-            image: chainImage(idFromMaintainerId(transfer.chain)),
-            amount: transfer.amount / chainDenomDivider(idFromMaintainerId(transfer.chain)),
+            chain_name: chainName(idFromMaintainerId(transfer.chain)),
+            chain_image: chainImage(idFromMaintainerId(transfer.chain)),
+            asset_name: denomName(transfer.asset, denoms_data),
+            asset_image: denomImage(transfer.asset, denoms_data),
+            asset_symbol: denomSymbol(transfer.asset, denoms_data),
+            amount: denomAmount(transfer.amount, transfer.asset, denoms_data),
           }
         }), ['tx'], ['desc'])
 
@@ -335,12 +346,17 @@ export default function Dashboard() {
               transfers: {
                 terms: { field: 'chain.keyword', size: 10000 },
                 aggs: {
-                  times: {
-                    terms: { field: 'created_at.day', size: 10000 },
+                  assets: {
+                    terms: { field: 'contract.name.keyword', size: 10000 },
                     aggs: {
-                      amounts: {
-                        max: {
-                          field: 'amount',
+                      times: {
+                        terms: { field: 'created_at.day', size: 10000 },
+                        aggs: {
+                          amounts: {
+                            max: {
+                              field: 'amount',
+                            },
+                          },
                         },
                       },
                     },
@@ -357,7 +373,10 @@ export default function Dashboard() {
           for (let time = moment(today).subtract(daily_time_range, 'days').valueOf(); time <= today.valueOf(); time += day_ms) {
             let timeData = transfer.times?.find(_time => _time.time === time) || { time, tx: 0, amount: 0 }
 
-            timeData = { ...timeData, amount: timeData.amount / chainDenomDivider(idFromMaintainerId(transfer.chain)) }
+            timeData = {
+              ...timeData,
+              amount: denomAmount(timeData.amount, transfer.asset, denoms_data),
+            }
 
             times.push(timeData)
           }
@@ -365,9 +384,12 @@ export default function Dashboard() {
           return {
             ...transfer,
             times,
-            name: chainName(idFromMaintainerId(transfer.chain)),
-            image: chainImage(idFromMaintainerId(transfer.chain)),
-            amount: transfer.amount / chainDenomDivider(idFromMaintainerId(transfer.chain)),
+            chain_name: chainName(idFromMaintainerId(transfer.chain)),
+            chain_image: chainImage(idFromMaintainerId(transfer.chain)),
+            asset_name: denomName(transfer.asset, denoms_data),
+            asset_image: denomImage(transfer.asset, denoms_data),
+            asset_symbol: denomSymbol(transfer.asset, denoms_data),
+            amount: denomAmount(transfer.amount, transfer.asset, denoms_data),
           }
         }), ['tx'], ['desc'])
 
