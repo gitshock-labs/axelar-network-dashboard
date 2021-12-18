@@ -285,7 +285,7 @@ const Summary = ({ data, crosschainData, tvlData, avgTransfersTimeRange, setAvgT
                       </div>
                     </div>
                     <div className="flex items-center space-x-1 ml-auto">
-                      <span className="font-mono text-gray-800 dark:text-gray-100 text-base font-semibold">{numberFormat(coinTransfer.tx, coinTransfer.tx >= 1000000 ? '0,0.00a' : '0,0')}</span>
+                      <span className="font-mono text-gray-800 dark:text-gray-100 text-base font-semibold">{numberFormat(coinTransfer.tx, coinTransfer.tx >= 100000 ? '0,0.00a' : '0,0')}</span>
                       <span className="text-gray-400 dark:text-gray-600 text-xs">Txs</span>
                     </div>
                   </div>
@@ -349,7 +349,7 @@ const Summary = ({ data, crosschainData, tvlData, avgTransfersTimeRange, setAvgT
                       </div>
                     </div>
                     <div className="text-right ml-auto">
-                      <div className="font-mono text-gray-800 dark:text-gray-100 text-base font-semibold">{numberFormat(coinTransfer.amount, coinTransfer.amount >= 1000000 ? '0,0.00a' : '0,0.00000000')}</div>
+                      <div className="font-mono text-gray-800 dark:text-gray-100 text-base font-semibold">{numberFormat(coinTransfer.amount, coinTransfer.amount >= 100000 ? '0,0.00a' : '0,0.00000000')}</div>
                       <div className="uppercase text-gray-400 dark:text-gray-600 text-xs -mt-0.5">{coinTransfer.asset_symbol}</div>
                     </div>
                   </div>
@@ -409,7 +409,7 @@ const Summary = ({ data, crosschainData, tvlData, avgTransfersTimeRange, setAvgT
                       </div>
                     </div>
                     <div className="text-right ml-auto">
-                      <div className="font-mono text-gray-800 dark:text-gray-100 text-base font-semibold">{numberFormat(coinTransfer.amount, coinTransfer.amount >= 1000000 ? '0,0.00a' : '0,0.000')}</div>
+                      <div className="font-mono text-gray-800 dark:text-gray-100 text-base font-semibold">{numberFormat(coinTransfer.amount, coinTransfer.amount >= 100000 ? '0,0.00a' : '0,0.000')}</div>
                       <div className="uppercase text-gray-400 dark:text-gray-600 text-xs -mt-0.5">{coinTransfer.asset_symbol}</div>
                     </div>
                   </div>
@@ -479,7 +479,7 @@ const Summary = ({ data, crosschainData, tvlData, avgTransfersTimeRange, setAvgT
                       </div>
                     </div>
                     <div className="text-right ml-auto">
-                      <div className="font-mono text-gray-800 dark:text-gray-100 text-base font-semibold">{numberFormat(coinTransfer.amount, coinTransfer.amount >= 1000000 ? '0,0.00a' : '0,0.000')}</div>
+                      <div className="font-mono text-gray-800 dark:text-gray-100 text-base font-semibold">{numberFormat(coinTransfer.amount, coinTransfer.amount >= 100000 ? '0,0.00a' : '0,0.000')}</div>
                       <div className="uppercase text-gray-400 dark:text-gray-600 text-xs -mt-0.5">{coinTransfer.asset_symbol}</div>
                     </div>
                   </div>
@@ -559,7 +559,7 @@ const Summary = ({ data, crosschainData, tvlData, avgTransfersTimeRange, setAvgT
                       </div>
                     </div>
                     <div className="text-right ml-auto">
-                      <div className="font-mono text-gray-800 dark:text-gray-100 text-base font-semibold">{numberFormat(coinTransfer.amount, coinTransfer.amount >= 1000000 ? '0,0.00a' : '0,0.000')}</div>
+                      <div className="font-mono text-gray-800 dark:text-gray-100 text-base font-semibold">{numberFormat(coinTransfer.amount, coinTransfer.amount >= 100000 ? '0,0.00a' : '0,0.000')}</div>
                       <div className="uppercase text-gray-400 dark:text-gray-600 text-xs -mt-0.5">{coinTransfer.asset_symbol}</div>
                     </div>
                   </div>
