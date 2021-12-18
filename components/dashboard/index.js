@@ -29,7 +29,7 @@ export default function Dashboard() {
   const [crosschainSummaryData, setCrosschainSummaryData] = useState(null)
   const [crosschainTVLData, setCrosschainTVLData] = useState(null)
   const [avgTransfersTimeRange, setAvgTransfersTimeRange] = useState(null)
-  const [chainSelect, setChainSelect] = useState(null)
+  const [chainAssetSelect, setChainAssetSelect] = useState(null)
   const [crosschainChartData, setCrosschainChartData] = useState(null)
   const [consensusStateData, setConsensusStateData] = useState(null)
   const [loadValsProfile, setLoadValsProfile] = useState(false)
@@ -73,14 +73,19 @@ export default function Dashboard() {
                 transfers: {
                   terms: { field: 'chain.keyword', size: 10000 },
                   aggs: {
-                    amounts: {
-                      sum: {
-                        field: 'amount',
-                      },
-                    },
-                    since: {
-                      min: {
-                        field: 'created_at.ms',
+                    assets: {
+                      terms: { field: 'contract.name.keyword', size: 10000 },
+                      aggs: {
+                        amounts: {
+                          sum: {
+                            field: 'amount',
+                          },
+                        },
+                        since: {
+                          min: {
+                            field: 'created_at.ms',
+                          },
+                        },
                       },
                     },
                   },
@@ -93,9 +98,12 @@ export default function Dashboard() {
         const total_transfers = !(isInterval || !avgTransfersTimeRange) ? crosschainSummaryData?.total_transfers : _.orderBy(response?.data?.map(transfer => {
           return {
             ...transfer,
-            name: chainName(idFromMaintainerId(transfer.chain)),
-            image: chainImage(idFromMaintainerId(transfer.chain)),
-            amount: transfer.amount / chainDenomDivider(idFromMaintainerId(transfer.chain)),
+            chain_name: chainName(idFromMaintainerId(transfer.chain)),
+            chain_image: chainImage(idFromMaintainerId(transfer.chain)),
+            asset_name: denomName(transfer.asset, denoms_data),
+            asset_image: denomImage(transfer.asset, denoms_data),
+            asset_symbol: denomSymbol(transfer.asset, denoms_data),
+            amount: denomAmount(transfer.amount, transfer.asset, denoms_data),
           }
         }), ['tx'], ['desc'])
 
@@ -105,9 +113,14 @@ export default function Dashboard() {
               transfers: {
                 terms: { field: 'chain.keyword', size: 10000 },
                 aggs: {
-                  amounts: {
-                    avg: {
-                      field: 'amount',
+                  assets: {
+                    terms: { field: 'contract.name.keyword', size: 10000 },
+                    aggs: {
+                      amounts: {
+                        avg: {
+                          field: 'amount',
+                        },
+                      },
                     },
                   },
                 },
@@ -120,9 +133,12 @@ export default function Dashboard() {
         const avg_transfers = _.orderBy(response?.data?.map(transfer => {
           return {
             ...transfer,
-            name: chainName(idFromMaintainerId(transfer.chain)),
-            image: chainImage(idFromMaintainerId(transfer.chain)),
-            amount: transfer.amount / chainDenomDivider(idFromMaintainerId(transfer.chain)),
+            chain_name: chainName(idFromMaintainerId(transfer.chain)),
+            chain_image: chainImage(idFromMaintainerId(transfer.chain)),
+            asset_name: denomName(transfer.asset, denoms_data),
+            asset_image: denomImage(transfer.asset, denoms_data),
+            asset_symbol: denomSymbol(transfer.asset, denoms_data),
+            amount: denomAmount(transfer.amount, transfer.asset, denoms_data),
           }
         }), ['tx'], ['desc'])
 
@@ -133,9 +149,14 @@ export default function Dashboard() {
                 transfers: {
                   terms: { field: 'chain.keyword', size: 10000 },
                   aggs: {
-                    amounts: {
-                      max: {
-                        field: 'amount',
+                    assets: {
+                      terms: { field: 'contract.name.keyword', size: 10000 },
+                      aggs: {
+                        amounts: {
+                          max: {
+                            field: 'amount',
+                          },
+                        },
                       },
                     },
                   },
@@ -149,9 +170,12 @@ export default function Dashboard() {
         const highest_transfer_24h = !(isInterval || !avgTransfersTimeRange) ? crosschainSummaryData?.highest_transfer_24h : _.orderBy(response?.data?.map(transfer => {
           return {
             ...transfer,
-            name: chainName(idFromMaintainerId(transfer.chain?.toLowerCase())),
-            image: chainImage(idFromMaintainerId(transfer.chain?.toLowerCase())),
-            amount: transfer.amount / chainDenomDivider(idFromMaintainerId(transfer.chain?.toLowerCase())),
+            chain_name: chainName(idFromMaintainerId(transfer.chain)),
+            chain_image: chainImage(idFromMaintainerId(transfer.chain)),
+            asset_name: denomName(transfer.asset, denoms_data),
+            asset_image: denomImage(transfer.asset, denoms_data),
+            asset_symbol: denomSymbol(transfer.asset, denoms_data),
+            amount: denomAmount(transfer.amount, transfer.asset, denoms_data),
           }
         }), ['tx'], ['desc'])
 
@@ -173,16 +197,90 @@ export default function Dashboard() {
   }, [denoms_data, avgTransfersTimeRange])
 
   useEffect(() => {
-    if (!chainSelect && crosschainSummaryData?.total_transfers?.[0]?.chain) {
-      setChainSelect(crosschainSummaryData.total_transfers[0].chain)
+    const controller = new AbortController()
+
+    const getData = async isInterval => {
+      if (denoms_data) {
+        let tvls
+        const tvls_updated_at = moment().valueOf()
+
+        if (!controller.signal.aborted) {
+          if (isInterval || !avgTransfersTimeRange) {
+            const responseOut = (await transfers({
+              aggs: {
+                assets: {
+                  terms: { field: 'contract.name.keyword', size: 10000 },
+                  aggs: {
+                    amounts: {
+                      sum: {
+                        field: 'amount',
+                      },
+                    },
+                  },
+                },
+              },
+              query: { match: { 'logs.events.attributes.value': 'ConfirmDeposit' } },
+            }))?.data || []
+
+            const responseIn = (await transfers({
+              aggs: {
+                assets: {
+                  terms: { field: 'contract.name.keyword', size: 10000 },
+                  aggs: {
+                    amounts: {
+                      sum: {
+                        field: 'amount',
+                      },
+                    },
+                  },
+                },
+              },
+              query: { match: { 'logs.events.attributes.value': 'ConfirmERC20Deposit' } },
+            }))?.data || []
+
+            const allAssets = _.uniq(_.concat(responseIn, responseOut).map(transfer => transfer.asset)).filter(asset => asset)
+
+            tvls = _.orderBy(allAssets.map(asset => {
+              return {
+                asset_name: denomName(asset, denoms_data),
+                asset_image: denomImage(asset, denoms_data),
+                asset_symbol: denomSymbol(asset, denoms_data),
+                amount: _.sum(_.concat(
+                  responseIn.filter(transfer => transfer.asset === asset).map(transfer => denomAmount(transfer.amount, asset, denoms_data)),
+                  responseOut.filter(transfer => transfer.asset === asset).map(transfer => -1 * denomAmount(transfer.amount, asset, denoms_data)),
+                )),
+              }
+            }), ['amount'], ['desc'])
+          }
+        }
+
+        setCrosschainTVLData({
+          tvls,
+          tvls_updated_at,
+        })
+      }
     }
-  }, [crosschainSummaryData, chainSelect])
+
+    getData()
+
+    const interval = setInterval(() => getData(true), 30 * 1000)
+    return () => {
+      controller?.abort()
+      clearInterval(interval)
+    }
+  }, [denoms_data, avgTransfersTimeRange])
+
+  useEffect(() => {
+    if (!chainAssetSelect && crosschainSummaryData?.total_transfers?.[0]?.id) {
+      setChainAssetSelect(crosschainSummaryData.total_transfers[0].id)
+    }
+  }, [crosschainSummaryData, chainAssetSelect])
 
   useEffect(() => {
     const controller = new AbortController()
 
     const getData = async () => {
-      if (denoms_data && chainSelect) {
+      if (denoms_data && chainAssetSelect) {
         const today = moment().utc().startOf('day')
         const daily_time_range = 30
         const day_ms = 24 * 60 * 60 * 1000
@@ -287,103 +385,7 @@ export default function Dashboard() {
       controller?.abort()
       clearInterval(interval)
     }
-  }, [denoms_data, chainSelect])
-
-  useEffect(() => {
-    const controller = new AbortController()
-
-    const getData = async () => {
-      if (denoms_data) {
-        const tvls_updated_at = moment().valueOf()
-
-        let response
-
-        if (!controller.signal.aborted) {
-          setCrosschainTVLData({
-            tvls: [],
-            tvls_updated_at,
-          })
-        }
-      }
-    }
-
-    getData()
-
-    const interval = setInterval(() => getData(), 60 * 1000)
-    return () => {
-      controller?.abort()
-      clearInterval(interval)
-    }
-  }, [denoms_data])
-
-  // useEffect(() => {
-  //   const getData = async isInterval => {
-  //     if (denoms_data && validators_data && (!loadValsProfile || isInterval)) {
-  //       let tvls
-  //       const tvls_updated_at = moment().valueOf()
-
-  //       const _validators_data = validators_data.filter(validator_data => ['BOND_STATUS_BONDED'].includes(validator_data?.status))
-  //       const total_active_validators = _validators_data.length
-
-  //       for (let i = 0; i < _validators_data.length; i++) {
-  //         const validator_data = _validators_data[i]
-  //         const address = validator_data?.operator_address
-
-  //         const response = await allDelegations(address)
-
-  //         tvls = _.concat(tvls || [], Object.values(_.groupBy(response?.data?.map(delegation => {
-  //           return {
-  //             delegator_address: delegation?.delegation?.delegator_address,
-  //             denom: denomSymbol(delegation?.balance?.denom, denoms_data),
-  //             name: denomName(delegation?.balance?.denom, denoms_data),
-  //             image: denomImage(delegation?.balance?.denom, denoms_data),
-  //             amount: denomAmount(delegation?.balance?.amount, delegation?.balance?.denom, denoms_data),
-  //           }
-  //         }) || [], 'denom')).map(value => {
-  //           return {
-  //             ...value?.[0],
-  //             delegator_addresses: _.uniqBy(value, 'delegator_address'),
-  //             amount: _.sumBy(value, 'amount'),
-  //           }
-  //         }))
-
-  //         if (!isInterval && (i % 3 === 0 || i === _validators_data.length - 1)) {
-  //           setCrosschainTVLData({
-  //             tvls: _.orderBy(Object.values(_.groupBy(tvls, 'denom')).map(value => {
-  //               return {
-  //                 ...value?.[0],
-  //                 amount: _.sumBy(value, 'amount'),
-  //                 num_delegators: _.uniq(value?.flatMap(delegate => delegate.delegator_addresses) || []).length,
-  //               }
-  //             }), ['num_delegators'], ['desc']),
-  //             tvls_updated_at,
-  //             total_loaded_validators: tvls.length,
-  //             total_active_validators,
-  //           })
-  //         }
-  //       }
-
-  //       if (isInterval) {
-  //         setCrosschainTVLData({
-  //           tvls: (tvls && Object.values(_.groupBy(tvls, 'denom')).map(value => {
-  //             return {
-  //               ...value?.[0],
-  //               amount: _.sumBy(value, 'amount'),
-  //             }
-  //           })) || [],
-  //           tvls_updated_at,
-  //           total_loaded_validators: tvls?.length || 0,
-  //           total_active_validators,
-  //         })
-  //       }
-  //     }
-  //   }
-
-  //   getData()
-
-  //   const interval = setInterval(() => getData(true), 60 * 1000)
-  //   return () => clearInterval(interval)
-  // }, [denoms_data, validators_data, loadValsProfile])
+  }, [denoms_data, chainAssetSelect])
 
   useEffect(() => {
     const controller = new AbortController()
@@ -525,8 +527,8 @@ export default function Dashboard() {
         tvlData={crosschainTVLData}
         avgTransfersTimeRange={avgTransfersTimeRange || 'all-time'}
         setAvgTransfersTimeRange={timeRange => setAvgTransfersTimeRange(timeRange)}
-        chainSelect={chainSelect || crosschainSummaryData?.total_transfers?.[0]?.chain}
-        setChainSelect={chain => setChainSelect(chain)}
+        chainAssetSelect={chainAssetSelect || crosschainSummaryData?.total_transfers?.[0]?.chain}
+        setChainAssetSelect={chain => setChainAssetSelect(chain)}
         chartData={crosschainChartData}
       />
       <div className="w-full grid grid-flow-row grid-cols-1 lg:grid-cols-2 gap-5 mt-6 mb-4">

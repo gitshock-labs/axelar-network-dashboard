@@ -2,12 +2,12 @@ import { useState, useEffect, useRef } from 'react'
 
 import { MdExpandMore, MdExpandLess } from 'react-icons/md'
 
-import Chains from './chains'
+import ChainAssets from './chainAssets'
 
 import { randImage } from '../../../lib/utils'
 
-export default function DropdownChain({ chains, chainSelect, setChainSelect }) {
-  const chain = chains?.find(_chain => _chain.chain === chainSelect) || chains?.[0]
+export default function DropdownChainAsset({ chainAssets, chainAssetSelect, setChainAssetSelect }) {
+  const chainAsset = chainAssets?.find(_chainAsset => _chainAsset.id === chainAssetSelect) || chainAssets?.[0]
 
   const [hidden, setHidden] = useState(true)
 
@@ -39,14 +39,25 @@ export default function DropdownChain({ chains, chainSelect, setChainSelect }) {
         onClick={handleDropdownClick}
         className="flex items-center justify-start space-x-1.5 mx-1"
       >
-        {chain && (
+        {chainAsset && (
           <>
+            {/*<img
+              src={chainAsset.asset_image || randImage(i)}
+              alt=""
+              className="w-6 h-6 rounded-full"
+            />*/}
+            <span className="uppercase text-gray-900 dark:text-gray-100 text-xs font-semibold">
+              ${chainAsset.asset_symbol}
+            </span>
+            <span className="text-gray-400 dark:text-gray-600 text-xs font-normal">on</span>
             <img
-              src={chain.image || randImage(chains.findIndex(_chain => _chain.chain === chainSelect))}
+              src={chainAsset.chain_image || randImage(i)}
               alt=""
               className="w-6 h-6 rounded-full"
             />
-            <span className="uppercase text-sm font-semibold">{chain.name}</span>
+            <span className="text-gray-600 dark:text-gray-400 text-xs font-semibold">
+              {chainAsset.chain_name}
+            </span>
             {hidden ?
               <MdExpandMore className="bg-gray-200 dark:bg-gray-800 rounded text-gray-600 dark:text-gray-400 -ml-0.5 mb-0.5" />
               :
@@ -59,11 +70,11 @@ export default function DropdownChain({ chains, chainSelect, setChainSelect }) {
         ref={dropdownRef} 
         className={`dropdown ${hidden ? '' : 'open'} absolute top-0 left-0 mt-6`}
       >
-        <div className="dropdown-content w-32 bottom-start">
-          <Chains
-            chains={chains}
-            handleDropdownClick={chain => {
-              setChainSelect(chain)
+        <div className="dropdown-content w-48 bottom-start">
+          <ChainAssets
+            chainAssets={chainAssets}
+            handleDropdownClick={chainAsset => {
+              setChainAssetSelect(chainAsset)
               handleDropdownClick()
             }}
           />
