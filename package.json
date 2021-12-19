@@ -9,6 +9,7 @@
     "deploy": "aws s3 sync out/ s3://dashboard.axelar.network --acl public-read"
   },
   "dependencies": {
+    "@antv/g6": "^4.5.1",
     "bech32": "^2.0.0",
     "create-hash": "^1.2.0",
     "lodash": "^4.17.21",

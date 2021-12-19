@@ -14,28 +14,7 @@ export default function Crosschain() {
   const { data } = useSelector(state => ({ data: state.data }), shallowEqual)
   const { denoms_data } = { ...data }
 
-  const [summaryData, setSummaryData] = useState(null)
   const [transfersData, setTransfersData] = useState(null)
-
-  useEffect(() => {
-    const controller = new AbortController()
-
-    const getData = async () => {
-      if (!controller.signal.aborted) {
-        // const response = await keygenSummary()
-
-        // setSummaryData({ data: response || {}})
-      }
-    }
-
-    getData()
-
-    const interval = setInterval(() => getData(), 60 * 1000)
-    return () => {
-      controller?.abort()
-      clearInterval(interval)
-    }
-  }, [])
 
   useEffect(() => {
     const controller = new AbortController()
@@ -112,7 +91,7 @@ export default function Crosschain() {
 
   return (
     <div className="max-w-full my-4 xl:my-6 mx-auto">
-      <NetworkGraph data={summaryData?.data} />
+      <NetworkGraph data={transfersData?.data} />
       <TransfersTable data={transfersData} />
     </div>
   )
