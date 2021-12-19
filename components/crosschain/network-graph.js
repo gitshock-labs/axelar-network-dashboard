@@ -187,7 +187,7 @@ export default function NetworkGraph({ data }) {
                 repeat: true,
                 duration: 3000,
               },
-            );
+            )
           },
         },
         'quadratic',
