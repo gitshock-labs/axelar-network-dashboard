@@ -206,7 +206,7 @@ export default function Dashboard() {
 
         if (!controller.signal.aborted) {
           if (isInterval || !avgTransfersTimeRange) {
-            const responseOut = (await transfers({
+            const responseIn = (await transfers({
               aggs: {
                 assets: {
                   terms: { field: 'contract.name.keyword', size: 10000 },
@@ -222,7 +222,7 @@ export default function Dashboard() {
               query: { match: { 'logs.events.attributes.value': 'ConfirmDeposit' } },
             }))?.data || []
 
-            const responseIn = (await transfers({
+            const responseOut = (await transfers({
               aggs: {
                 assets: {
                   terms: { field: 'contract.name.keyword', size: 10000 },
