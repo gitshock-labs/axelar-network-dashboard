@@ -73,7 +73,7 @@ export default function TransactionLogs({ data }) {
                 <div className="flex flex-col">
                   {!activity.skeleton ?
                     <>
-                      <span className="h-6 text-xs pt-1">Module</span>
+                      <span className="h-6 text-xs mt-0.5 pt-1">Module</span>
                       <span className="uppercase font-semibold mt-1.5">{activity.module}</span>
                     </>
                     :
@@ -121,6 +121,21 @@ export default function TransactionLogs({ data }) {
                       <div className="skeleton w-12 h-6" />
                       <div />
                       <div className="skeleton w-12 h-4" />
+                    </>
+                  }
+                </div>
+              )}
+              {activity.chain && (
+                <div className="flex flex-col">
+                  {!activity.skeleton ?
+                    <>
+                      <span className="h-6 text-xs mt-0.5 pt-1">Chain</span>
+                      <span className="uppercase font-semibold mt-1.5">{activity.chain}</span>
+                    </>
+                    :
+                    <>
+                      <div className="skeleton w-16 h-4" />
+                      <div className="skeleton w-18 h-6 mt-2" />
                     </>
                   }
                 </div>
