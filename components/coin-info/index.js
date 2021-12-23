@@ -1,12 +1,13 @@
 import { useEffect } from 'react'
 import { useSelector, useDispatch, shallowEqual } from 'react-redux'
 
+import { status as getStatus } from '../../lib/api/rpc'
 import { stakingParams, stakingPool, bankSupply, communityPool, mintInflation, distributionParams } from '../../lib/api/cosmos'
 import { simplePrice } from '../../lib/api/coingecko'
 import { denomSymbol, denomAmount } from '../../lib/object/denom'
 import { numberFormat, ellipseAddress } from '../../lib/utils'
 
-import { CHAIN_DATA } from '../../reducers/types'
+import { STATUS_DATA, CHAIN_DATA } from '../../reducers/types'
 
 const CURRENCY = 'usd'
 const CURRENCY_SYMBOL = '$'
@@ -15,6 +16,29 @@ export default function CoinInfo() {
   const dispatch = useDispatch()
   const { data } = useSelector(state => ({ data: state.data }), shallowEqual)
   const { denoms_data, chain_data } = { ...data }
+
+  useEffect(() => {
+    const controller = new AbortController()
+
+    const getData = async () => {
+      if (!controller.signal.aborted) {
+        const response = await getStatus()
+
+        if (response) {
+          dispatch({
+            type: STATUS_DATA,
+            value: response,
+          })
+        }
+      }
+    }
+
+    getData()
+
+    return () => {
+      controller?.abort()
+    }
+  }, [])
 
   useEffect(() => {
     const controller = new AbortController()

@@ -1,18 +1,45 @@
 import { useState, useEffect } from 'react'
-import { useSelector, shallowEqual } from 'react-redux'
+import { useSelector, useDispatch, shallowEqual } from 'react-redux'
 
 import _ from 'lodash'
 
+import { status as getStatus } from '../../lib/api/rpc'
 import { transfers } from '../../lib/api/opensearch'
 import { denomSymbol, denomName, denomAmount, denomImage } from '../../lib/object/denom'
 import { chainName, chainImage, idFromMaintainerId, chainDenomDivider } from '../../lib/object/chain'
 import { numberFormat } from '../../lib/utils'
 
+import { STATUS_DATA } from '../../reducers/types'
+
 export default function TransferInfo() {
+  const dispatch = useDispatch()
   const { data } = useSelector(state => ({ data: state.data }), shallowEqual)
   const { denoms_data } = { ...data }
 
   const [transferData, setTransferData] = useState(null)
+
+  useEffect(() => {
+    const controller = new AbortController()
+
+    const getData = async () => {
+      if (!controller.signal.aborted) {
+        const response = await getStatus()
+
+        if (response) {
+          dispatch({
+            type: STATUS_DATA,
+            value: response,
+          })
+        }
+      }
+    }
+
+    getData()
+
+    return () => {
+      controller?.abort()
+    }
+  }, [])
 
   useEffect(() => {
     const controller = new AbortController()
