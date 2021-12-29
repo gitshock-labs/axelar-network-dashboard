@@ -593,84 +593,88 @@ const Summary = ({ data, crosschainData, tvlData, avgTransfersTimeRange, setAvgT
           </span>
         </Widget>
       </div>
-      <div className="text-gray-900 dark:text-gray-100 text-base font-semibold mt-8 sm:mt-4 sm:mx-2">
-        {chainAssetSelect && chartData ?
-          <div className="flex justify-start">
-            <ChainAssetSelect
-              chainAssets={crosschainData?.total_transfers}
-              chainAssetSelect={chainAssetSelect}
-              setChainAssetSelect={chainAsset => setChainAssetSelect(chainAsset)}
-            />
-          </div>
-          :
-          <div className="skeleton w-20 h-6 mb-0.5" />
-        }
-      </div>
-      <div className="w-full grid grid-flow-row grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-2 mb-4">
-        <Widget
-          title={<span className="text-black dark:text-white text-base font-semibold">Transactions</span>}
-          description={<span className="text-gray-400 dark:text-gray-500 text-xs font-normal">Number of transactions by day</span>}
-          right={[chainAssetSelect && chartData?.total_transfers?.find(transfer => transfer?.id === chainAssetSelect)?.times?.find(_time => _time.time === timeFocus)].filter(_time => _time).map((_time, i) => (
-            <div key={i} className="min-w-max text-right">
-              <div className="flex items-center justify-end space-x-1.5">
-                <span className="font-mono text-base font-semibold">
-                  {typeof _time.tx === 'number' ? numberFormat(_time.tx, '0,0') : '- '}
-                </span>
-                <span className="text-gray-400 dark:text-gray-600 text-xs">Txs</span>
+      {chartData && (
+        <>
+          <div className="text-gray-900 dark:text-gray-100 text-base font-semibold mt-8 sm:mt-4 sm:mx-2">
+            {chainAssetSelect && chartData ?
+              <div className="flex justify-start">
+                <ChainAssetSelect
+                  chainAssets={crosschainData?.total_transfers}
+                  chainAssetSelect={chainAssetSelect}
+                  setChainAssetSelect={chainAsset => setChainAssetSelect(chainAsset)}
+                />
               </div>
-              <div className="text-gray-400 dark:text-gray-500 font-medium" style={{ fontSize: '.65rem' }}>{moment(_time.time).utc().format('MMM, D YYYY [(UTC)]')}</div>
-            </div>
-          ))}
-          contentClassName="items-start"
-          className="dark:border-gray-900 pb-0 px-2 sm:px-4"
-        >
-          <div>
-            <TimelyTransactions txsData={chartData && (chartData.total_transfers.find(transfer => transfer?.id === chainAssetSelect) || {})} setTimeFocus={_timeFocus => setTimeFocus(_timeFocus)} />
+              :
+              <div className="skeleton w-20 h-6 mb-0.5" />
+            }
           </div>
-        </Widget>
-        <Widget
-          title={<span className="text-black dark:text-white text-base font-semibold">Volume</span>}
-          description={<span className="text-gray-400 dark:text-gray-500 text-xs font-normal">Transfer volume by day</span>}
-          right={[chainAssetSelect && chartData?.total_transfers?.find(transfer => transfer?.id === chainAssetSelect)?.times?.find(_time => _time.time === timeFocus)].filter(_time => _time).map((_time, i) => (
-            <div key={i} className="min-w-max text-right">
-              <div className="flex items-center justify-end space-x-1.5">
-                <span className="font-mono text-base font-semibold">
-                  {typeof _time.amount === 'number' ? numberFormat(_time.amount, '0,0.00000000') : '- '}
-                </span>
-                <span className="uppercase text-gray-400 dark:text-gray-600 text-xs">{chartData.total_transfers.find(transfer => transfer?.id === chainAssetSelect)?.denom}</span>
+          <div className="w-full grid grid-flow-row grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-2 mb-4">
+            <Widget
+              title={<span className="text-black dark:text-white text-base font-semibold">Transactions</span>}
+              description={<span className="text-gray-400 dark:text-gray-500 text-xs font-normal">Number of transactions by day</span>}
+              right={[chainAssetSelect && chartData?.total_transfers?.find(transfer => transfer?.id === chainAssetSelect)?.times?.find(_time => _time.time === timeFocus)].filter(_time => _time).map((_time, i) => (
+                <div key={i} className="min-w-max text-right">
+                  <div className="flex items-center justify-end space-x-1.5">
+                    <span className="font-mono text-base font-semibold">
+                      {typeof _time.tx === 'number' ? numberFormat(_time.tx, '0,0') : '- '}
+                    </span>
+                    <span className="text-gray-400 dark:text-gray-600 text-xs">Txs</span>
+                  </div>
+                  <div className="text-gray-400 dark:text-gray-500 font-medium" style={{ fontSize: '.65rem' }}>{moment(_time.time).utc().format('MMM, D YYYY [(UTC)]')}</div>
+                </div>
+              ))}
+              contentClassName="items-start"
+              className="dark:border-gray-900 pb-0 px-2 sm:px-4"
+            >
+              <div>
+                <TimelyTransactions txsData={chartData && (chartData.total_transfers.find(transfer => transfer?.id === chainAssetSelect) || {})} setTimeFocus={_timeFocus => setTimeFocus(_timeFocus)} />
               </div>
-              <div className="text-gray-400 dark:text-gray-500 font-medium" style={{ fontSize: '.65rem' }}>{moment(_time.time).utc().format('MMM, D YYYY [(UTC)]')}</div>
-            </div>
-          ))}
-          contentClassName="items-start"
-          className="dark:border-gray-900 pb-0 px-2 sm:px-4"
-        >
-          <div>
-            <TimelyVolume volumeData={chartData && (chartData.total_transfers.find(transfer => transfer?.id === chainAssetSelect) || {})} setTimeFocus={_timeFocus => setTimeFocus(_timeFocus)} />
-          </div>
-        </Widget>
-        <Widget
-          title={<span className="text-black dark:text-white text-base font-semibold">Highest Transfer</span>}
-          description={<span className="text-gray-400 dark:text-gray-500 text-xs font-normal">Highest transfer size by day</span>}
-          right={[chainAssetSelect && chartData?.highest_transfer_24h?.find(transfer => transfer?.id === chainAssetSelect)?.times?.find(_time => _time.time === timeFocus)].filter(_time => _time).map((_time, i) => (
-            <div key={i} className="min-w-max text-right">
-              <div className="flex items-center justify-end space-x-1.5">
-                <span className="font-mono text-base font-semibold">
-                  {typeof _time.amount === 'number' ? numberFormat(_time.amount, '0,0.00000000') : '- '}
-                </span>
-                <span className="uppercase text-gray-400 dark:text-gray-600 text-xs">{chartData.highest_transfer_24h.find(transfer => transfer?.id === chainAssetSelect)?.denom}</span>
+            </Widget>
+            <Widget
+              title={<span className="text-black dark:text-white text-base font-semibold">Volume</span>}
+              description={<span className="text-gray-400 dark:text-gray-500 text-xs font-normal">Transfer volume by day</span>}
+              right={[chainAssetSelect && chartData?.total_transfers?.find(transfer => transfer?.id === chainAssetSelect)?.times?.find(_time => _time.time === timeFocus)].filter(_time => _time).map((_time, i) => (
+                <div key={i} className="min-w-max text-right">
+                  <div className="flex items-center justify-end space-x-1.5">
+                    <span className="font-mono text-base font-semibold">
+                      {typeof _time.amount === 'number' ? numberFormat(_time.amount, '0,0.00000000') : '- '}
+                    </span>
+                    <span className="uppercase text-gray-400 dark:text-gray-600 text-xs">{chartData.total_transfers.find(transfer => transfer?.id === chainAssetSelect)?.denom}</span>
+                  </div>
+                  <div className="text-gray-400 dark:text-gray-500 font-medium" style={{ fontSize: '.65rem' }}>{moment(_time.time).utc().format('MMM, D YYYY [(UTC)]')}</div>
+                </div>
+              ))}
+              contentClassName="items-start"
+              className="dark:border-gray-900 pb-0 px-2 sm:px-4"
+            >
+              <div>
+                <TimelyVolume volumeData={chartData && (chartData.total_transfers.find(transfer => transfer?.id === chainAssetSelect) || {})} setTimeFocus={_timeFocus => setTimeFocus(_timeFocus)} />
               </div>
-              <div className="text-gray-400 dark:text-gray-500 font-medium" style={{ fontSize: '.65rem' }}>{moment(_time.time).utc().format('MMM, D YYYY [(UTC)]')}</div>
-            </div>
-          ))}
-          contentClassName="items-start"
-          className="dark:border-gray-900 pb-0 px-2 sm:px-4"
-        >
-          <div>
-            <TimelyHighestTransfer highestTransferData={chartData && (chartData.highest_transfer_24h.find(transfer => transfer?.id === chainAssetSelect) || {})} setTimeFocus={_timeFocus => setTimeFocus(_timeFocus)} />
+            </Widget>
+            <Widget
+              title={<span className="text-black dark:text-white text-base font-semibold">Highest Transfer</span>}
+              description={<span className="text-gray-400 dark:text-gray-500 text-xs font-normal">Highest transfer size by day</span>}
+              right={[chainAssetSelect && chartData?.highest_transfer_24h?.find(transfer => transfer?.id === chainAssetSelect)?.times?.find(_time => _time.time === timeFocus)].filter(_time => _time).map((_time, i) => (
+                <div key={i} className="min-w-max text-right">
+                  <div className="flex items-center justify-end space-x-1.5">
+                    <span className="font-mono text-base font-semibold">
+                      {typeof _time.amount === 'number' ? numberFormat(_time.amount, '0,0.00000000') : '- '}
+                    </span>
+                    <span className="uppercase text-gray-400 dark:text-gray-600 text-xs">{chartData.highest_transfer_24h.find(transfer => transfer?.id === chainAssetSelect)?.denom}</span>
+                  </div>
+                  <div className="text-gray-400 dark:text-gray-500 font-medium" style={{ fontSize: '.65rem' }}>{moment(_time.time).utc().format('MMM, D YYYY [(UTC)]')}</div>
+                </div>
+              ))}
+              contentClassName="items-start"
+              className="dark:border-gray-900 pb-0 px-2 sm:px-4"
+            >
+              <div>
+                <TimelyHighestTransfer highestTransferData={chartData && (chartData.highest_transfer_24h.find(transfer => transfer?.id === chainAssetSelect) || {})} setTimeFocus={_timeFocus => setTimeFocus(_timeFocus)} />
+              </div>
+            </Widget>
           </div>
-        </Widget>
-      </div>
+        </>
+      )}
     </>
   )
 }
