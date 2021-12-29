@@ -200,9 +200,7 @@ export default function NetworkGraph({ data }) {
 
   return (
     <div className="w-full mb-6">
-      {data?.length > 0 && (
-        <div id="crosschain" className="flex items-center justify-start" />
-      )}
+      <div id="crosschain" className={`${data?.length > 0 ? 'flex' : 'hidden'} items-center justify-start`} />
     </div>
   )
 }
