@@ -53,7 +53,7 @@ export default function NetworkGraph({ data }) {
         fitViewPadding: [10, 10, 10, 10],
         fitCenter: true,
         layout: {
-          type: 'radial',
+          type: 'gForce',
           preventOverlap: true,
           linkDistance: 160,
           nodeSpacing: 8,
