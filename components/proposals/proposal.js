@@ -21,6 +21,7 @@ export default function Proposal({ id }) {
   const [proposal, setProposal] = useState(null)
   const [loadValsProfile, setLoadValsProfile] = useState(false)
   const [validatorsSet, setValidatorsSet] = useState(false)
+  const [validatorProfilesSet, setValidatorProfilesSet] = useState(false)
 
   useEffect(() => {
     const controller = new AbortController()
@@ -123,7 +124,7 @@ export default function Proposal({ id }) {
   }, [id, denoms_data])
 
   useEffect(() => {
-    if (validators_data && proposal?.data?.votes?.length > 0 && (!validatorsSet || loadValsProfile)) {
+    if (validators_data && proposal?.data?.votes?.length > 0 && (!validatorsSet || !validatorProfilesSet)) {
       const votes = proposal.data.votes.map(vote => {
         return {
           ...vote,
@@ -133,8 +134,11 @@ export default function Proposal({ id }) {
 
       setProposal({ data: { ...proposal.data, votes }, id })
       setValidatorsSet(true)
+      if (votes.findIndex(_vote => _vote?.validator_data?.description?.identity && !_vote?.validator_data?.description?.image) < 0) {
+        setValidatorProfilesSet(loadValsProfile)
+      }
     }
-  }, [proposal, validators_data, loadValsProfile, validatorsSet])
+  }, [proposal, validators_data, loadValsProfile, validatorsSet, validatorProfilesSet])
 
   const votes = proposal?.id === id && Object.entries(_.groupBy(proposal?.data?.votes || [], 'option')).map(([key, value]) => { return { option: key, value: value?.length || 0 } })
 

@@ -26,7 +26,7 @@ export default function VotesTable({ data, className = '' }) {
                   {numberFormat((props.flatRows?.indexOf(props.row) > -1 ? props.flatRows.indexOf(props.row) : props.value) + 1, '0,0')}
                 </div>
                 :
-                <div className="skeleton w-4 h-4 my-0.5" />
+                <div className="skeleton w-6 h-4 my-0.5" />
             ),
           },
           {
