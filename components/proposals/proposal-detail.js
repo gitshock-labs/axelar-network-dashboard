@@ -95,6 +95,19 @@ export default function ProposalDetail({ data }) {
           }
         </div>
         <div className="flex flex-col md:flex-row items-start space-y-2 md:space-y-0 space-x-0 md:space-x-2">
+          <span className="w-40 lg:w-64 text-xs lg:text-base font-semibold">Deposit End Time:</span>
+          {data ?
+            data.deposit_end_time && (
+              <div className="flex flex-wrap text-xs lg:text-base space-x-1">
+                <span className="text-gray-500 dark:text-gray-400">{moment(data.deposit_end_time).fromNow()}</span>
+                <span>({moment(data.deposit_end_time).format('MMM D, YYYY h:mm:ss A')})</span>
+              </div>
+            )
+            :
+            <div className="skeleton w-60 h-6 mt-1" />
+          }
+        </div>
+        <div className="flex flex-col md:flex-row items-start space-y-2 md:space-y-0 space-x-0 md:space-x-2">
           <span className="w-40 lg:w-64 text-xs lg:text-base font-semibold">Voting Start Time:</span>
           {data ?
             data.voting_start_time && (
@@ -114,19 +127,6 @@ export default function ProposalDetail({ data }) {
               <div className="flex flex-wrap text-xs lg:text-base space-x-1">
                 <span className="text-gray-500 dark:text-gray-400">{moment(data.voting_end_time).fromNow()}</span>
                 <span>({moment(data.voting_end_time).format('MMM D, YYYY h:mm:ss A')})</span>
-              </div>
-            )
-            :
-            <div className="skeleton w-60 h-6 mt-1" />
-          }
-        </div>
-        <div className="flex flex-col md:flex-row items-start space-y-2 md:space-y-0 space-x-0 md:space-x-2">
-          <span className="w-40 lg:w-64 text-xs lg:text-base font-semibold">Deposit End Time:</span>
-          {data ?
-            data.deposit_end_time && (
-              <div className="flex flex-wrap text-xs lg:text-base space-x-1">
-                <span className="text-gray-500 dark:text-gray-400">{moment(data.deposit_end_time).fromNow()}</span>
-                <span>({moment(data.deposit_end_time).format('MMM D, YYYY h:mm:ss A')})</span>
               </div>
             )
             :

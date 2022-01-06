@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useSelector, shallowEqual } from 'react-redux'
+import { useSelector, useDispatch, shallowEqual } from 'react-redux'
 
 import _ from 'lodash'
 import moment from 'moment'
@@ -8,14 +8,91 @@ import ProposalDetail from './proposal-detail'
 import VotesTable from './votes-table'
 import Widget from '../widget'
 
-import { proposal as getProposal, allProposalVotes } from '../../lib/api/cosmos'
-import { numberFormat } from '../../lib/utils'
+import { allValidators, proposal as getProposal, allProposalVotes, validatorProfile } from '../../lib/api/cosmos'
+import { numberFormat, randImage } from '../../lib/utils'
+
+import { VALIDATORS_DATA } from '../../reducers/types'
 
 export default function Proposal({ id }) {
+  const dispatch = useDispatch()
   const { data } = useSelector(state => ({ data: state.data }), shallowEqual)
-  const { denoms_data } = { ...data }
+  const { denoms_data, validators_data } = { ...data }
 
   const [proposal, setProposal] = useState(null)
+  const [loadValsProfile, setLoadValsProfile] = useState(false)
+  const [validatorsSet, setValidatorsSet] = useState(false)
+
+  useEffect(() => {
+    const controller = new AbortController()
+
+    const getValidators = async () => {
+      if (!controller.signal.aborted) {
+        const response = await allValidators({}, validators_data, null, null, null, denoms_data)
+
+        if (response) {
+          dispatch({
+            type: VALIDATORS_DATA,
+            value: response.data,
+          })
+
+          setLoadValsProfile(true)
+        }
+      }
+    }
+
+    if (denoms_data) {
+      getValidators()
+    }
+
+    const interval = setInterval(() => getValidators(), 10 * 60 * 1000)
+    return () => {
+      controller?.abort()
+      clearInterval(interval)
+    }
+  }, [denoms_data])
+
+  useEffect(() => {
+    const controller = new AbortController()
+
+    const getValidatorsProfile = async () => {
+      if (loadValsProfile && validators_data?.findIndex(validator_data => validator_data?.description && !validator_data.description.image) > -1) {
+        const data = _.cloneDeep(validators_data)
+
+        for (let i = 0; i < data.length; i++) {
+          if (!controller.signal.aborted) {
+            const validator_data = data[i]
+
+            if (validator_data?.description) {
+              if (validator_data.description.identity && !validator_data.description.image) {
+                const responseProfile = await validatorProfile({ key_suffix: validator_data.description.identity })
+
+                if (responseProfile?.them?.[0]?.pictures?.primary?.url) {
+                  validator_data.description.image = responseProfile.them[0].pictures.primary.url
+                }
+              }
+
+              validator_data.description.image = validator_data.description.image || randImage(i)
+
+              data[i] = validator_data
+            }
+          }
+        }
+
+        if (!controller.signal.aborted) {
+          dispatch({
+            type: VALIDATORS_DATA,
+            value: data,
+          })
+        }
+      }
+    }
+
+    getValidatorsProfile()
+
+    return () => {
+      controller?.abort()
+    }
+  }, [loadValsProfile])
 
   useEffect(() => {
     const controller = new AbortController()
@@ -44,6 +121,20 @@ export default function Proposal({ id }) {
       clearInterval(interval)
     }
   }, [id, denoms_data])
+
+  useEffect(() => {
+    if (validators_data && proposal?.data?.votes?.length > 0 && (!validatorsSet || loadValsProfile)) {
+      const votes = proposal.data.votes.map(vote => {
+        return {
+          ...vote,
+          validator_data: validators_data?.find(_validator_data => _validator_data?.delegator_address?.toLowerCase() === vote?.voter?.toLowerCase()),
+        }
+      })
+
+      setProposal({ data: { ...proposal.data, votes }, id })
+      setValidatorsSet(true)
+    }
+  }, [proposal, validators_data, loadValsProfile, validatorsSet])
 
   const votes = proposal?.id === id && Object.entries(_.groupBy(proposal?.data?.votes || [], 'option')).map(([key, value]) => { return { option: key, value: value?.length || 0 } })
 
