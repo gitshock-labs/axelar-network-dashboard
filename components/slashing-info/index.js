@@ -1,7 +1,9 @@
+import Link from 'next/link'
 import { useEffect } from 'react'
 import { useSelector, useDispatch, shallowEqual } from 'react-redux'
 
 import _ from 'lodash'
+import { HiOutlineExternalLink } from 'react-icons/hi'
 
 import { slashingParams, stakingParams } from '../../lib/api/cosmos'
 import { numberFormat } from '../../lib/utils'
@@ -144,6 +146,14 @@ export default function SlashingInfo() {
             <div className="skeleton w-8 h-4 mx-auto" />
           }
         </span>
+      </div>
+      <div className="flex flex-col items-center space-y-1 lg:space-y-0.5">
+        <span className="text-gray-700 dark:text-gray-300 font-semibold">Proposals</span>
+        <Link href="/proposals">
+          <a className="text-blue-600 dark:text-white">
+            <HiOutlineExternalLink size={16} />
+          </a>
+        </Link>
       </div>
     </div>
   )

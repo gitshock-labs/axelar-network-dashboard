@@ -498,7 +498,7 @@ export default function ValidatorsTable({ status }) {
             disableSortBy: true,
             Cell: props => (
               !props.row.original.skeleton ?
-                <div className="text-right">
+                <div className="text-right my-1">
                   {props.row.original.tombstoned ?
                     <span className="bg-red-600 rounded-xl capitalize text-white font-semibold px-2 py-1">
                       Tombstoned
@@ -513,7 +513,7 @@ export default function ValidatorsTable({ status }) {
                   }
                 </div>
                 :
-                <div className="skeleton w-16 h-6 ml-auto" />
+                <div className="skeleton w-16 h-6 my-0.5 ml-auto" />
             ),
             headerClassName: 'justify-end text-right',
           },
