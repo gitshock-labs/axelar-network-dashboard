@@ -8,8 +8,8 @@ import ProposalDetail from './proposal-detail'
 import VotesTable from './votes-table'
 import Widget from '../widget'
 
-import { allValidators, proposal as getProposal, allProposalVotes, validatorProfile } from '../../lib/api/cosmos'
-import { numberFormat, randImage } from '../../lib/utils'
+import { allValidators, proposal as getProposal, allProposalVotes, allProposalTally, validatorProfile } from '../../lib/api/cosmos'
+import { numberFormat, randImage, getName } from '../../lib/utils'
 
 import { VALIDATORS_DATA } from '../../reducers/types'
 
@@ -142,23 +142,35 @@ export default function Proposal({ id }) {
 
   const votes = proposal?.id === id && Object.entries(_.groupBy(proposal?.data?.votes || [], 'option')).map(([key, value]) => { return { option: key, value: value?.length || 0 } })
 
+  const end = proposal?.data?.voting_end_time && proposal.data.voting_end_time < moment().valueOf()
+
   return (
     <div className="max-w-6xl my-4 xl:my-6 mx-auto">
       <ProposalDetail data={proposal?.id === id && proposal?.data} />
       <Widget
         title={<div className="flex items-center text-gray-900 dark:text-white text-lg font-semibold space-x-2.5 mt-3 md:ml-2">
-          <span>Votes</span>
+          <span>{end ? 'Final Tally' : 'Votes'}</span>
           <div className="flex items-center space-x-1.5">
-            {Array.isArray(votes) && votes.map((vote, i) => (
-              <span className={`bg-${['YES'].includes(vote?.option) ? 'green-600 dark:bg-green-700' : ['NO'].includes(vote?.option) ? 'red-600 dark:bg-red-700' : 'gray-400 dark:bg-gray-900'} rounded-xl capitalize whitespace-nowrap text-white text-sm font-semibold px-2 py-1`}>
-                {numberFormat(vote.value, '0,0')} {vote?.option?.replace('_', ' ')}
-              </span>
-            ))}
+            {end ?
+              proposal?.id === id && Object.entries(proposal?.data?.final_tally_result).map(([key, value]) => (
+                <span key={key} className="max-w-min bg-gray-100 dark:bg-gray-900 rounded-xl capitalize whitespace-nowrap text-gray-900 dark:text-gray-200 text-xs font-semibold px-2 py-1">
+                  {getName(key)}: {numberFormat(value, '0,0')}
+                </span>
+              ))
+              :
+              Array.isArray(votes) && votes.map((vote, i) => (
+                <span className={`bg-${['YES'].includes(vote?.option) ? 'green-600 dark:bg-green-700' : ['NO'].includes(vote?.option) ? 'red-600 dark:bg-red-700' : 'gray-400 dark:bg-gray-900'} rounded-xl capitalize whitespace-nowrap text-white text-sm font-semibold px-2 py-1`}>
+                  {numberFormat(vote.value, '0,0')} {vote?.option?.replace('_', ' ')}
+                </span>
+              ))
+            }
           </div>
         </div>}
         className="bg-transparent border-0 p-0 md:pt-4 md:pb-8 md:px-8"
       >
-        <VotesTable data={proposal?.id === id && proposal?.data?.votes} />
+        {!end && (
+          <VotesTable data={proposal?.id === id && proposal?.data?.votes} />
+        )}
       </Widget>
     </div>
   )
