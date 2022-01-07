@@ -105,13 +105,11 @@ export default function Snapshots({ n = 100 }) {
               if (snapshot?.snapshot_block < latestBlock && !snapshot?.time) {
                 const _response = await getBlock(snapshot?.snapshot_block)
 
-                if (_response?.data?.time) {
-                  snapshot.time = moment(_response.data.time).valueOf()
+                snapshot.time = _response?.data?.time ? moment(_response.data.time).valueOf() : 'N/A'
 
-                  data[i] = snapshot
+                data[i] = snapshot
 
-                  setSnapshots({ data })
-                }
+                setSnapshots({ data })
               }
           }
         }
@@ -182,10 +180,13 @@ export default function Snapshots({ n = 100 }) {
               :
               <div className="flex items-center justify-center space-x-1">
                 <span className="font-medium">Block Time:</span>
-                {snapshot.time ?
+                {typeof snapshot.time === 'number' ?
                   <span>{moment(snapshot.time).format('MMM D, YYYY h:mm:ss A z')}</span>
                   :
-                  <div className="skeleton w-32 h-4" />
+                  snapshot.time ?
+                    <span>{snapshot.time}</span>
+                    :
+                    <div className="skeleton w-32 h-4" />
                 }
               </div>
             }
