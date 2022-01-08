@@ -162,7 +162,7 @@ export default function Dashboard() {
                   },
                 },
               },
-              query: { range: { 'created_at.ms': { gt: moment().subtract(24, 'hour').valueOf() } } },
+              query: { range: { 'created_at.ms': { gt: moment().subtract(24, 'hours').valueOf() } } },
             })
           }
         }

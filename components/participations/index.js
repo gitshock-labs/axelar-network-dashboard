@@ -97,7 +97,7 @@ export default function Participations() {
             for (let k = 0; k < keyRoles.length; k++) {
               const key_role = keyRoles[k]
 
-              const response = await axelard({ cmd: `axelard q tss ${tssType} ${key_chain} ${key_role} -oj` })
+              const response = await axelard({ cmd: `axelard q tss ${tssType} ${key_chain} ${key_role} -oj`, cache: true })
 
               if (response?.data?.stdout) {
                 let keyIds = convertToJson(response.data.stdout)
