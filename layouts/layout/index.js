@@ -9,7 +9,7 @@ import Footer from '../../components/footer'
 import { denoms as getDenoms } from '../../lib/api/query'
 import meta from '../../lib/meta'
 
-import { DENOMS_DATA } from '../../reducers/types'
+import { DENOMS_DATA, THEME } from '../../reducers/types'
 
 export default function Layout({ children }) {
   const dispatch = useDispatch()
@@ -19,6 +19,17 @@ export default function Layout({ children }) {
 
   const router = useRouter()
   const { asPath } = { ...router }
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      if (localStorage.getItem(THEME) && localStorage.getItem(THEME) !== theme) {
+        dispatch({
+          type: THEME,
+          value: localStorage.getItem(THEME),
+        })
+      }
+    }
+  }, [theme])
 
   useEffect(() => {
     const controller = new AbortController()
