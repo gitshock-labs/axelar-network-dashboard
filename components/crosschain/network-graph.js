@@ -53,7 +53,7 @@ export default function NetworkGraph({ data }) {
         fitViewPadding: [10, 10, 10, 10],
         fitCenter: true,
         layout: {
-          type: 'gForce',
+          type: 'circular',
           preventOverlap: true,
           linkDistance: 160,
           nodeSpacing: 8,
@@ -136,7 +136,7 @@ export default function NetworkGraph({ data }) {
               textBaseline: 'bottom',
             },
           },
-          curveOffset: (assetIndex % 2 === 0 ? -1 : 1) * (assetIndex + 1) * 10,
+          curveOffset: (assetIndex % 2 === 0 ? -1 : 1) * (assetIndex + 1) * 20,
           style: {
             stroke: theme === 'dark' ? '#333' : '#ddd',
             // endArrow: {
