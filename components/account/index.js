@@ -463,7 +463,7 @@ export default function Account({ address }) {
       <Widget
         title={<div className="flex sm:items-center overflow-x-auto text-gray-900 dark:text-white text-lg font-semibold mt-3">
           <span className="mr-4">Transactions</span>
-          <div className="block sm:flex items-center overflow-x-auto space-x-1 mt-0.5 sm:ml-auto">
+          <div className="block sm:flex flex-wrap items-center justify-end overflow-x-auto space-x-1 mt-0.5 sm:ml-auto">
             {Object.entries(actions).map(([key, value]) => (
               <div
                 key={key}
@@ -472,7 +472,7 @@ export default function Account({ address }) {
                 style={{ textTransform: 'none', fontSize: '.7rem' }}
               >
                 <span>{key === 'undefined' ? 'Failed' : key?.endsWith('Request') ? key.replace('Request', '') : key}</span>
-                <span className="text-2xs text-indigo-600 dark:text-indigo-400 font-bold mt-0.5"> {numberFormat(value, '0,0')}</span>
+                <span className="text-2xs text-indigo-600 dark:text-indigo-400 font-bold"> {numberFormat(value, '0,0')}</span>
               </div>
             ))}
           </div>
