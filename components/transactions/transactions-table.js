@@ -92,7 +92,7 @@ export default function TransactionsTable({ data, noLoad, hasVote, location, cla
               style={{ textTransform: 'none', fontSize: '.7rem' }}
             >
               <span>{key === 'undefined' ? 'Failed' : key?.endsWith('Request') ? key.replace('Request', '') : key}</span>
-              <span className="text-2xs text-indigo-600 dark:text-indigo-400 font-bold mt-0.5"> {numberFormat(value, '0,0')}</span>
+              <span className="text-2xs text-indigo-600 dark:text-indigo-400 font-bold"> {numberFormat(value, '0,0')}</span>
             </div>
           ))}
         </div>
