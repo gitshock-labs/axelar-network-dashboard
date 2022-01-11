@@ -463,7 +463,7 @@ export default function Account({ address }) {
       <Widget
         title={<div className="flex sm:items-center overflow-x-auto text-gray-900 dark:text-white text-lg font-semibold mt-3">
           <span className="mr-4">Transactions</span>
-          <div className="block sm:flex flex-wrap items-center justify-end overflow-x-auto space-x-1 mt-0.5 sm:ml-auto">
+          <div className={`block sm:flex flex-wrap items-center justify-end ${Object.keys(actions).length > 6 ? '' : 'overflow-x-auto'} space-x-1 mt-0.5 sm:ml-auto`}>
             {Object.entries(actions).map(([key, value]) => (
               <div
                 key={key}
