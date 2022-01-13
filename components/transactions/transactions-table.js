@@ -139,7 +139,7 @@ export default function TransactionsTable({ data, noLoad, hasVote, location, cla
             Cell: props => (
               !props.row.original.skeleton ?
                 props.value ?
-                  <span className="bg-gray-100 dark:bg-gray-900 rounded capitalize text-gray-900 dark:text-gray-100 font-semibold px-2 py-1">
+                  <span className={`bg-gray-100 dark:bg-gray-${location === 'index' ? 900 : 800} rounded capitalize text-gray-900 dark:text-gray-100 font-semibold px-2 py-1`}>
                     {getName(props.value)}
                   </span>
                   :

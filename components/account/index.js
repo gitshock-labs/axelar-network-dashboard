@@ -240,7 +240,10 @@ export default function Account({ address }) {
     const controller = new AbortController()
 
     const getData = async () => {
-      const data = transactions?.data || {}
+      const data = (transactions?.address === address && transactions?.data) || {}
+
+      setLoading(true)
+      setTransactions({ data, address })
 
       if (!controller.signal.aborted) {
         // if (address.startsWith('cosmos')) {
@@ -343,6 +346,8 @@ export default function Account({ address }) {
           setTransactions({ data, address })
         // }
       }
+
+      setLoading(false)
     }
 
     if (address && denoms_data) {
@@ -359,7 +364,7 @@ export default function Account({ address }) {
   useEffect(() => {
     const getData = async () => {
       if (transactions?.data) {
-        const data = transactions.data
+        const data = (transactions?.address === address && transactions?.data) || {}
 
         setLoading(true)
 
