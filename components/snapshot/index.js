@@ -492,7 +492,7 @@ export default function Snapshot({ height }) {
           {
             Header: 'Status',
             accessor: 'status',
-            sortType: (rowA, rowB) => rowA.original.status > rowB.original.status ? 1 : -1,
+            sortType: (rowA, rowB) => rowA.original.status > rowB.original.status ? 1 : rowA.original.status < rowB.original.status ? -1 : Object.values(rowA.original.tss_illegibility_info || {}).filter(v => v).length < Object.values(rowB.original.tss_illegibility_info || {}).filter(v => v).length ? 1 : -1,
             Cell: props => (
               !props.row.original.skeleton ?
                 <div className="flex flex-col items-end text-right space-y-1 my-1">
