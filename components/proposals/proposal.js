@@ -130,7 +130,7 @@ export default function Proposal({ id }) {
           ...vote,
           validator_data: validators_data?.find(_validator_data => _validator_data?.delegator_address?.toLowerCase() === vote?.voter?.toLowerCase()),
         }
-      }), ['validator_data.tokens'], ['desc'])
+      }), ['validator_data.tokens', 'validator_data.description.moniker'], ['desc', 'asc'])
 
       setProposal({ data: { ...proposal.data, votes }, id })
       setValidatorsSet(true)
