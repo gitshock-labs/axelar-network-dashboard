@@ -106,7 +106,14 @@ export default function Proposal({ id }) {
 
         response = await allProposalVotes(id)
 
-        data.votes = response?.data || []
+        const votes = _.orderBy((response?.data || []).map(vote => {
+          return {
+            ...vote,
+            validator_data: validators_data?.find(_validator_data => _validator_data?.delegator_address?.toLowerCase() === vote?.voter?.toLowerCase()),
+          }
+        }), ['validator_data.tokens', 'validator_data.description.moniker'], ['desc', 'asc'])
+
+        data.votes = votes
 
         setProposal({ data, id })
       }
@@ -121,7 +128,7 @@ export default function Proposal({ id }) {
       controller?.abort()
       clearInterval(interval)
     }
-  }, [id, denoms_data])
+  }, [id, denoms_data, validators_data])
 
   useEffect(() => {
     if (validators_data && proposal?.data?.votes?.length > 0 && (!validatorsSet || !validatorProfilesSet)) {
