@@ -125,12 +125,12 @@ export default function Proposal({ id }) {
 
   useEffect(() => {
     if (validators_data && proposal?.data?.votes?.length > 0 && (!validatorsSet || !validatorProfilesSet)) {
-      const votes = proposal.data.votes.map(vote => {
+      const votes = _.orderBy(proposal.data.votes.map(vote => {
         return {
           ...vote,
           validator_data: validators_data?.find(_validator_data => _validator_data?.delegator_address?.toLowerCase() === vote?.voter?.toLowerCase()),
         }
-      })
+      }), ['validator_data.tokens'], ['desc'])
 
       setProposal({ data: { ...proposal.data, votes }, id })
       setValidatorsSet(true)
