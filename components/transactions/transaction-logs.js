@@ -121,7 +121,7 @@ export default function TransactionLogs({ data }) {
                                 </span>
                                 :
                                 activity.log ?
-                                  <span className="text-gray-400 dark:text-gray-600 text-xs">{activity.log}</span>
+                                  <span className="max-w-md text-gray-400 dark:text-gray-600 text-xs">{activity.log}</span>
                                   :
                                   <span className="h-3" />
                           }
