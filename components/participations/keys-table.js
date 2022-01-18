@@ -183,7 +183,7 @@ export default function KeysTable({ data, corruption_signing_threshold, page, cl
                 <div className="flex flex-col text-right space-y-0.5 my-1">
                   {props.value > -1 ?
                     <>
-                      <span className="font-semibold">{numberFormat(props.value, '0,0')} / {numberFormat(_.sumBy(props.row.original.validator_shares || props.row.original.validators, 'share'), '0,0')}</span>
+                      <span className="font-semibold">{numberFormat(props.value + 1, '0,0')} / {numberFormat(_.sumBy(props.row.original.validator_shares || props.row.original.validators, 'share'), '0,0')}</span>
                       <span className="text-gray-400 dark:text-gray-500 text-xs">({numberFormat(props.value * 100 / _.sumBy(props.row.original.validator_shares || props.row.original.validators, 'share'), '0,0.00')}%)</span>
                     </>
                     :
