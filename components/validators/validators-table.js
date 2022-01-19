@@ -11,7 +11,7 @@ import { ProgressBarWithText } from '../progress-bars'
 import Copy from '../copy'
 
 import { status as getStatus } from '../../lib/api/rpc'
-import { allValidators, validatorSelfDelegation, validatorProfile, broadcastersData, chainMaintainer } from '../../lib/api/cosmos'
+import { allValidators, validatorSelfDelegation, validatorProfile, validatorStatusData, broadcastersData, chainMaintainer } from '../../lib/api/cosmos'
 import { heartbeats as getHeartbeats } from '../../lib/api/opensearch'
 import { lastHeartbeatBlock, firstHeartbeatBlock } from '../../lib/object/hb'
 import { chains, chainName, chainImage } from '../../lib/object/chain'
@@ -69,6 +69,15 @@ export default function ValidatorsTable({ status }) {
               value: response.data,
             })
           // }
+
+          response = await validatorStatusData(response.data)
+
+          if (response) {
+            dispatch({
+              type: VALIDATORS_DATA,
+              value: response.data,
+            })
+          }
         }
 
         setValidatorsLoaded(true)

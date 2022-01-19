@@ -18,7 +18,7 @@ import Widget from '../widget'
 
 import { getUptime, uptimeForJailedInfo, uptimeForJailedInfoSync, jailedInfo, getHeartbeat, getIneligibilities, keygens as getKeygens } from '../../lib/api/query'
 import { status as getStatus } from '../../lib/api/rpc'
-import { allValidators, validatorSets, slashingParams, allBankBalances, allDelegations, distributionRewards, distributionCommissions, broadcastersData, chainMaintainer } from '../../lib/api/cosmos'
+import { allValidators, validatorSets, slashingParams, allBankBalances, allDelegations, distributionRewards, distributionCommissions, validatorStatusData, broadcastersData, chainMaintainer } from '../../lib/api/cosmos'
 import { getKeygensByValidator } from '../../lib/api/executor'
 import { signAttempts as getSignAttempts, successKeygens as getSuccessKeygens, failedKeygens as getFailedKeygens, heartbeats as getHeartbeats } from '../../lib/api/opensearch'
 import { chains } from '../../lib/object/chain'
@@ -149,11 +149,23 @@ export default function Validator({ address }) {
     const getData = async () => {
       let response, validatorData
 
-      const validator_data = validators_data?.[validators_data.findIndex(validator_data => validator_data.operator_address === address)]
+      const validator_data = validators_data?.find(validator_data => validator_data.operator_address === address)
 
       if (validator_data?.start_proxy_height || validator_data?.start_height/* || !['BOND_STATUS_BONDED'].includes(validator_data?.status)*/ || validator_data?.deregistering) {
         validatorData = { ...validatorData, ...validator_data }
-      
+
+        setValidator({ data: validatorData, address })
+
+        if (!controller.signal.aborted) {
+          response = await validatorStatusData(validators_data)
+
+          if (response?.data?.findIndex(_validator_data => _validator_data?.operator_address === validatorData?.operator_address) > -1) {
+            validatorData = { ...validatorData, ...response.data.find(_validator_data => _validator_data?.operator_address === validatorData?.operator_address) }
+
+            setValidator({ data: validatorData, address })
+          }
+        }
+
         if (!controller.signal.aborted) {
           response = await validatorSets()
 
@@ -168,7 +180,7 @@ export default function Validator({ address }) {
           }
         }
 
-        setValidator({ data: validatorData || {}, address })
+        setValidator({ data: validatorData, address })
 
         response = await broadcastersData([validatorData], address, denoms_data)
 
@@ -176,7 +188,7 @@ export default function Validator({ address }) {
           validatorData = { ...validatorData, ...response.data[0] }
         }
 
-        setValidator({ data: validatorData || {}, address, broadcaster_loaded: true })
+        setValidator({ data: validatorData, address, broadcaster_loaded: true })
 
         const _health = {
           broadcaster_registration: !(validatorData?.tss_illegibility_info?.no_proxy_registered) && validatorData?.broadcaster_address ? true : false,

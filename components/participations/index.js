@@ -7,7 +7,7 @@ import Summary from './summary'
 import KeysTable from './keys-table'
 
 import { keygenSummary, keygens as getKeygens } from '../../lib/api/query'
-import { allValidators, chainMaintainer } from '../../lib/api/cosmos'
+import { allValidators, validatorStatusData, chainMaintainer } from '../../lib/api/cosmos'
 import { getKeygenById, axelard } from '../../lib/api/executor'
 import { successKeygens as getSuccessKeygens, failedKeygens as getFailedKeygens, signAttempts as getSignAttempts } from '../../lib/api/opensearch'
 import { chains } from '../../lib/object/chain'
@@ -35,13 +35,22 @@ export default function Participations() {
 
     const getValidators = async () => {
       if (!controller.signal.aborted) {
-        const response = await allValidators({}, validators_data, 'active', null, null, denoms_data, true)
+        let response = await allValidators({}, validators_data, 'active', null, null, denoms_data, true)
 
         if (response) {
           dispatch({
             type: VALIDATORS_DATA,
             value: response.data,
           })
+
+          response = await validatorStatusData(response.data)
+
+          if (response) {
+            dispatch({
+              type: VALIDATORS_DATA,
+              value: response.data,
+            })
+          }
         }
       }
     }
