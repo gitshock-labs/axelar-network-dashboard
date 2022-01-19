@@ -258,7 +258,7 @@ const Summary = ({ data, crosschainData, tvlData, avgTransfersTimeRange, setAvgT
         >
           <span className="flex flex-col space-y-1.5 mt-1">
             {crosschainData ?
-              <div className="max-h-48 sm:max-h-96 flex flex-col overflow-y-auto space-y-2.5 mt-1">
+              <div className="max-h-48 sm:max-h-72 flex flex-col overflow-y-auto space-y-2.5 mt-1">
                 {crosschainData.total_transfers?.map((coinTransfer, i) => (
                   <div key={i} className="flex items-start">
                     <div>
@@ -322,7 +322,7 @@ const Summary = ({ data, crosschainData, tvlData, avgTransfersTimeRange, setAvgT
         >
           <span className="flex flex-col space-y-1.5 mt-1">
             {crosschainData ?
-              <div className="max-h-48 sm:max-h-96 flex flex-col overflow-y-auto space-y-2.5 mt-1">
+              <div className="max-h-48 sm:max-h-72 flex flex-col overflow-y-auto space-y-2.5 mt-1">
                 {crosschainData.total_transfers?.map((coinTransfer, i) => (
                   <div key={i} className="flex items-start">
                     <div>
@@ -388,7 +388,7 @@ const Summary = ({ data, crosschainData, tvlData, avgTransfersTimeRange, setAvgT
         >
           <span className="flex flex-col space-y-1.5 mt-1">
             {tvlData ?
-              <div className="max-h-48 sm:max-h-96 flex flex-col overflow-y-auto space-y-2.5 mt-1">
+              <div className="max-h-48 sm:max-h-72 flex flex-col overflow-y-auto space-y-2.5 mt-1">
                 {tvlData.tvls?.map((coinTransfer, i) => (
                   <div key={i} className="flex items-start">
                     <div>
@@ -452,7 +452,7 @@ const Summary = ({ data, crosschainData, tvlData, avgTransfersTimeRange, setAvgT
         >
           <span className="flex flex-col space-y-1.5 mt-1">
             {crosschainData ?
-              <div className="max-h-48 sm:max-h-96 flex flex-col overflow-y-auto space-y-2.5 mt-1">
+              <div className="max-h-48 sm:max-h-72 flex flex-col overflow-y-auto space-y-2.5 mt-1">
                 {crosschainData.avg_transfers?.map((coinTransfer, i) => (
                   <div key={i} className="flex items-start">
                     <div>
@@ -532,7 +532,7 @@ const Summary = ({ data, crosschainData, tvlData, avgTransfersTimeRange, setAvgT
         >
           <span className="flex flex-col space-y-1.5 mt-1">
             {crosschainData ?
-              <div className="max-h-48 sm:max-h-96 flex flex-col overflow-y-auto space-y-2.5 mt-1">
+              <div className="max-h-48 sm:max-h-72 flex flex-col overflow-y-auto space-y-2.5 mt-1">
                 {crosschainData.highest_transfer_24h?.map((coinTransfer, i) => (
                   <div key={i} className="flex items-start">
                     <div>
