@@ -11,21 +11,22 @@ import { ProgressBarWithText } from '../progress-bars'
 import Copy from '../copy'
 
 import { status as getStatus } from '../../lib/api/rpc'
-import { allValidators, validatorSelfDelegation, validatorProfile } from '../../lib/api/cosmos'
+import { allValidators, validatorSelfDelegation, validatorProfile, broadcastersData, chainMaintainer } from '../../lib/api/cosmos'
 import { heartbeats as getHeartbeats } from '../../lib/api/opensearch'
 import { lastHeartbeatBlock, firstHeartbeatBlock } from '../../lib/object/hb'
-import { chainName, chainImage } from '../../lib/object/chain'
+import { chains, chainName, chainImage } from '../../lib/object/chain'
 import { numberFormat, getName, ellipseAddress, randImage } from '../../lib/utils'
 
-import { STATUS_DATA, VALIDATORS_DATA } from '../../reducers/types'
+import { STATUS_DATA, VALIDATORS_DATA, VALIDATORS_CHAINS_DATA } from '../../reducers/types'
 
 export default function ValidatorsTable({ status }) {
   const dispatch = useDispatch()
   const { data } = useSelector(state => ({ data: state.data }), shallowEqual)
-  const { denoms_data, status_data, validators_data } = { ...data }
+  const { denoms_data, status_data, validators_data, validators_chains_data } = { ...data }
 
+  const [validatorsData, setValidatorsData] = useState(null)
   const [statusLoaded, setStatusLoaded] = useState(null)
-  const [heartbeatLoaded, setHeartbeatLoaded] = useState(null)
+  const [validatorsLoaded, setValidatorsLoaded] = useState(null)
 
   useEffect(() => {
     const controller = new AbortController()
@@ -62,68 +63,15 @@ export default function ValidatorsTable({ status }) {
         let response = await allValidators({}, validators_data, status, null, Number(status_data.latest_block_height), denoms_data, !!status)
 
         if (response) {
-          if (validators_data?.findIndex(_validator_data => typeof _validator_data.heartbeats_uptime === 'number') < 0) {
+          // if (validators_data?.findIndex(_validator_data => typeof _validator_data.heartbeats_uptime === 'number') < 0) {
             dispatch({
               type: VALIDATORS_DATA,
               value: response.data,
             })
-          }
-
-          if (response.data) {
-            const validators_data = response.data
-
-            response = await getHeartbeats({
-              _source: false,
-              aggs: {
-                heartbeats: {
-                  terms: { field: 'sender.keyword', size: 10000 },
-                  aggs: {
-                    heightgroup: {
-                      terms: { field: 'height_group', size: 100000 },
-                    },
-                  },
-                },
-              },
-              query: {
-                bool: {
-                  must: [
-                    { range: { height: { gte: firstHeartbeatBlock(Number(status_data.latest_block_height) - Number(process.env.NEXT_PUBLIC_NUM_HEARTBEAT_BLOCKS)), lte: Number(status_data.latest_block_height) } } },
-                  ],
-                },
-              },
-            })
-
-            for (let i = 0; i < validators_data.length; i++) {
-              const validator_data = validators_data[i]
-
-              const _last = lastHeartbeatBlock(Number(status_data.latest_block_height))
-              // const _first = firstHeartbeatBlock(validator_data?.start_proxy_height || validator_data?.start_height)
-              let _first = Number(status_data.latest_block_height) - Number(process.env.NEXT_PUBLIC_NUM_HEARTBEAT_BLOCKS)
-              _first = _first >= 0 ? firstHeartbeatBlock(_first) : firstHeartbeatBlock(_first)
-
-              const totalHeartbeats = Math.floor((_last - _first) / Number(process.env.NEXT_PUBLIC_NUM_BLOCKS_PER_HEARTBEAT)) + 1
-
-              const up_heartbeats = response?.data?.[validator_data?.broadcaster_address] || 0
-
-              let missed_heartbeats = totalHeartbeats - up_heartbeats
-              missed_heartbeats = missed_heartbeats < 0 ? 0 : missed_heartbeats
-
-              let heartbeats_uptime = totalHeartbeats > 0 ? up_heartbeats * 100 / totalHeartbeats : 0
-              heartbeats_uptime = heartbeats_uptime > 100 ? 100 : heartbeats_uptime
-
-              validator_data.heartbeats_uptime = heartbeats_uptime
-
-              validators_data[i] = validator_data
-            }
-
-            dispatch({
-              type: VALIDATORS_DATA,
-              value: validators_data,
-            })
-          }
+          // }
         }
 
-        setHeartbeatLoaded(true)
+        setValidatorsLoaded(true)
       }
     }
 
@@ -143,10 +91,67 @@ export default function ValidatorsTable({ status }) {
 
     const getData = async () => {
       if (!controller.signal.aborted) {
-        for (let i = 0; i < validators_data.length; i++) {
-          let validator_data = validators_data[i]
+        let response = await broadcastersData(validators_data, null, denoms_data)
 
-          // validator_data = await validatorSelfDelegation(validator_data, validators_data, status)
+        let _validators_data = validators_data
+
+        if (response?.data) {
+          _validators_data = response.data
+
+          response = await getHeartbeats({
+            _source: false,
+            aggs: {
+              heartbeats: {
+                terms: { field: 'sender.keyword', size: 10000 },
+                aggs: {
+                  heightgroup: {
+                    terms: { field: 'height_group', size: 100000 },
+                  },
+                },
+              },
+            },
+            query: {
+              bool: {
+                must: [
+                  { range: { height: { gte: firstHeartbeatBlock(Number(status_data.latest_block_height) - Number(process.env.NEXT_PUBLIC_NUM_HEARTBEAT_BLOCKS)), lte: Number(status_data.latest_block_height) } } },
+                ],
+              },
+            },
+          })
+
+          for (let i = 0; i < _validators_data.length; i++) {
+            const validator_data = _validators_data[i]
+
+            const _last = lastHeartbeatBlock(Number(status_data.latest_block_height))
+            // const _first = firstHeartbeatBlock(validator_data?.start_proxy_height || validator_data?.start_height)
+            let _first = Number(status_data.latest_block_height) - Number(process.env.NEXT_PUBLIC_NUM_HEARTBEAT_BLOCKS)
+            _first = _first >= 0 ? firstHeartbeatBlock(_first) : firstHeartbeatBlock(_first)
+
+            const totalHeartbeats = Math.floor((_last - _first) / Number(process.env.NEXT_PUBLIC_NUM_BLOCKS_PER_HEARTBEAT)) + 1
+
+            const up_heartbeats = response?.data?.[validator_data?.broadcaster_address] || 0
+
+            let missed_heartbeats = totalHeartbeats - up_heartbeats
+            missed_heartbeats = missed_heartbeats < 0 ? 0 : missed_heartbeats
+
+            let heartbeats_uptime = totalHeartbeats > 0 ? up_heartbeats * 100 / totalHeartbeats : 0
+            heartbeats_uptime = heartbeats_uptime > 100 ? 100 : heartbeats_uptime
+
+            validator_data.heartbeats_uptime = heartbeats_uptime
+
+            _validators_data[i] = validator_data
+          }
+
+          dispatch({
+            type: VALIDATORS_DATA,
+            value: _validators_data,
+          })
+        }
+
+        for (let i = 0; i < _validators_data.length; i++) {
+          let validator_data = _validators_data[i]
+
+          // validator_data = await validatorSelfDelegation(validator_data, _validators_data, status)
 
           if (validator_data) {
             let imageLoaded = false
@@ -165,12 +170,12 @@ export default function ValidatorsTable({ status }) {
               validator_data.description.image = validator_data.description.image || randImage(i)
             }
 
-            validators_data[i] = validator_data
+            _validators_data[i] = validator_data
 
             if (imageLoaded) {
               dispatch({
                 type: VALIDATORS_DATA,
-                value: validators_data,
+                value: _validators_data,
               })
             }
           }
@@ -178,8 +183,8 @@ export default function ValidatorsTable({ status }) {
       }
     }
 
-    if (status && status_data && denoms_data && validators_data && heartbeatLoaded) {
-      setHeartbeatLoaded(false)
+    if (status && status_data && denoms_data && validators_data && validatorsLoaded) {
+      setValidatorsLoaded(false)
 
       getData()
     }
@@ -187,7 +192,49 @@ export default function ValidatorsTable({ status }) {
     return () => {
       controller?.abort()
     }
-  }, [status, status_data, denoms_data, validators_data, heartbeatLoaded])
+  }, [status, status_data, denoms_data, validators_data, validatorsLoaded])
+
+  useEffect(() => {
+    const controller = new AbortController()
+
+    const getData = async id => {
+      if (!controller.signal.aborted) {
+        const response = await chainMaintainer(id)
+
+        if (response) {
+          dispatch({
+            type: VALIDATORS_CHAINS_DATA,
+            value: response,
+          })
+        }
+      }
+    }
+
+    if (['active'].includes(status)) {
+      const _chains = chains.filter(_chain => !_chain.hidden && !_chain.is_cosmos).map(_chain => _chain?.id)
+
+      for (let i = 0; i < _chains.length; i++) {
+        const chain = _chains[i]
+
+        getData(chain)
+      }
+    }
+
+    return () => {
+      controller?.abort()
+    }
+  }, [status])
+
+  useEffect(() => {
+    if (validators_data) {
+      setValidatorsData(validators_data.map(validator_data => {
+        return {
+          ...validator_data,
+          supported_chains: validators_chains_data && Object.entries(validators_chains_data).filter(([key, value]) => value?.includes(validator_data?.operator_address)).map(([key, value]) => key),
+        }
+      }))
+    }
+  }, [validators_data, validators_chains_data, validatorsLoaded])
 
   return (
     <div className="max-w-7xl my-4 xl:my-6 mx-auto">
@@ -196,7 +243,7 @@ export default function ValidatorsTable({ status }) {
           <Link key={i} href={`/validators${i > 0 ? `/${_status}` : ''}`}>
             <a className={`min-w-max btn btn-default btn-rounded ${_status === status ? 'bg-gray-700 dark:bg-gray-900 text-white' : 'bg-trasparent hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 hover:text-gray-700 dark:hover:text-gray-100'}`}>
               {_status}
-              {validators_data && _status === status ? ` (${validators_data.filter(validator => status === 'inactive' ? !(['BOND_STATUS_BONDED'].includes(validator.status)) : status === 'illegible' ? validator.illegible : status === 'deregistering' ? validator.deregistering : ['BOND_STATUS_BONDED'].includes(validator.status)).length})` : ''}
+              {validatorsData && _status === status ? ` (${validatorsData.filter(validator => status === 'inactive' ? !(['BOND_STATUS_BONDED'].includes(validator.status)) : status === 'illegible' ? validator.illegible : status === 'deregistering' ? validator.deregistering : ['BOND_STATUS_BONDED'].includes(validator.status)).length})` : ''}
             </a>
           </Link>
         ))}
@@ -272,7 +319,7 @@ export default function ValidatorsTable({ status }) {
                   {props.value > 0 ?
                     <>
                       <span className="font-medium">{numberFormat(Math.floor(props.value / Number(process.env.NEXT_PUBLIC_POWER_REDUCTION)), '0,0.00')}</span>
-                      <span className="text-gray-400 dark:text-gray-600">{numberFormat(props.value * 100 / _.sumBy(validators_data.filter(validator => !validator.jailed && ['BOND_STATUS_BONDED'].includes(validator.status)), 'tokens'), '0,0.000')}%</span>
+                      <span className="text-gray-400 dark:text-gray-600">{numberFormat(props.value * 100 / _.sumBy(validatorsData.filter(validator => !validator.jailed && ['BOND_STATUS_BONDED'].includes(validator.status)), 'tokens'), '0,0.000')}%</span>
                     </>
                     :
                     <span className="text-gray-400 dark:text-gray-600">-</span>
@@ -518,16 +565,16 @@ export default function ValidatorsTable({ status }) {
             headerClassName: 'justify-end text-right',
           },
         ].filter(column => ['inactive'].includes(status) ? !(['self_delegation'/*, 'uptime', 'heartbeats_uptime'*/, 'supported_chains'].includes(column.accessor)) : ['illegible', 'deregistering'].includes(status) ? !(['self_delegation', /*'uptime', */, 'supported_chains', 'jailed'].includes(column.accessor)) : !(['self_delegation', 'jailed'].includes(column.accessor)))}
-        data={validators_data ?
-          validators_data.filter(validator => status === 'inactive' ? !(['BOND_STATUS_BONDED'].includes(validator.status)) : status === 'illegible' ? validator.illegible : status === 'deregistering' ? validator.deregistering : !validator.jailed && ['BOND_STATUS_BONDED'].includes(validator.status)).map((validator, i) => { return { ...validator, i } })
+        data={validatorsData ?
+          validatorsData.filter(validator => status === 'inactive' ? !(['BOND_STATUS_BONDED'].includes(validator.status)) : status === 'illegible' ? validator.illegible : status === 'deregistering' ? validator.deregistering : !validator.jailed && ['BOND_STATUS_BONDED'].includes(validator.status)).map((validator, i) => { return { ...validator, i } })
           :
           [...Array(25).keys()].map(i => { return { i, skeleton: true } })
         }
-        noPagination={validators_data ? validators_data.filter(validator => status === 'inactive' ? !(['BOND_STATUS_BONDED'].includes(validator.status)) : status === 'illegible' ? validator.illegible : status === 'deregistering' ? validator.deregistering : !validator.jailed && ['BOND_STATUS_BONDED'].includes(validator.status)).length <= 10 : true}
+        noPagination={validatorsData ? validatorsData.filter(validator => status === 'inactive' ? !(['BOND_STATUS_BONDED'].includes(validator.status)) : status === 'illegible' ? validator.illegible : status === 'deregistering' ? validator.deregistering : !validator.jailed && ['BOND_STATUS_BONDED'].includes(validator.status)).length <= 10 : true}
         defaultPageSize={100}
-        className={`${validators_data && ['active'].includes(status) ? 'small' : ''} no-border`}
+        className={`${validatorsData && ['active'].includes(status) ? 'small' : ''} no-border`}
       />
-      {validators_data?.filter(validator => status === 'inactive' ? !(['BOND_STATUS_BONDED'].includes(validator.status)) : status === 'illegible' ? validator.illegible : status === 'deregistering' ? validator.deregistering : !validator.jailed && ['BOND_STATUS_BONDED'].includes(validator.status)).length < 1 && (
+      {validatorsData?.filter(validator => status === 'inactive' ? !(['BOND_STATUS_BONDED'].includes(validator.status)) : status === 'illegible' ? validator.illegible : status === 'deregistering' ? validator.deregistering : !validator.jailed && ['BOND_STATUS_BONDED'].includes(validator.status)).length < 1 && (
         <div className="bg-white dark:bg-gray-900 text-gray-300 dark:text-gray-500 text-base font-medium italic text-center my-4 py-2">
           No Validators
         </div>

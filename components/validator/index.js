@@ -18,19 +18,20 @@ import Widget from '../widget'
 
 import { getUptime, uptimeForJailedInfo, uptimeForJailedInfoSync, jailedInfo, getHeartbeat, getIneligibilities, keygens as getKeygens } from '../../lib/api/query'
 import { status as getStatus } from '../../lib/api/rpc'
-import { allValidators, validatorSets, slashingParams, allBankBalances, allDelegations, distributionRewards, distributionCommissions } from '../../lib/api/cosmos'
+import { allValidators, validatorSets, slashingParams, allBankBalances, allDelegations, distributionRewards, distributionCommissions, broadcastersData, chainMaintainer } from '../../lib/api/cosmos'
 import { getKeygensByValidator } from '../../lib/api/executor'
 import { signAttempts as getSignAttempts, successKeygens as getSuccessKeygens, failedKeygens as getFailedKeygens, heartbeats as getHeartbeats } from '../../lib/api/opensearch'
+import { chains } from '../../lib/object/chain'
 import { feeDenom, denomSymbol, denomAmount } from '../../lib/object/denom'
 import { blocksPerHeartbeat, blockFraction, lastHeartbeatBlock, firstHeartbeatBlock } from '../../lib/object/hb'
 import { getName, rand } from '../../lib/utils'
 
-import { STATUS_DATA, VALIDATORS_DATA, JAILED_SYNC_DATA } from '../../reducers/types'
+import { STATUS_DATA, VALIDATORS_DATA, VALIDATORS_CHAINS_DATA, JAILED_SYNC_DATA } from '../../reducers/types'
 
 export default function Validator({ address }) {
   const dispatch = useDispatch()
   const { data } = useSelector(state => ({ data: state.data }), shallowEqual)
-  const { denoms_data, chain_data, status_data, validators_data, jailed_sync_data } = { ...data }
+  const { denoms_data, chain_data, status_data, validators_data, validators_chains_data, jailed_sync_data } = { ...data }
 
   const [validator, setValidator] = useState(null)
   const [uptime, setUptime] = useState(null)
@@ -108,6 +109,43 @@ export default function Validator({ address }) {
   useEffect(() => {
     const controller = new AbortController()
 
+    const getData = async id => {
+      if (!controller.signal.aborted) {
+        const response = await chainMaintainer(id)
+
+        if (response) {
+          dispatch({
+            type: VALIDATORS_CHAINS_DATA,
+            value: response,
+          })
+        }
+      }
+    }
+
+    if (address) {
+      const _chains = chains.filter(_chain => !_chain.hidden && !_chain.is_cosmos).map(_chain => _chain?.id)
+
+      for (let i = 0; i < _chains.length; i++) {
+        const chain = _chains[i]
+
+        getData(chain)
+      }
+    }
+
+    return () => {
+      controller?.abort()
+    }
+  }, [address])
+
+  useEffect(() => {
+    if (address && validators_chains_data) {
+      setSupportedChains({ data: Object.entries(validators_chains_data || {}).filter(([key, value]) => value?.includes(address.toLowerCase())).map(([key, value]) => key), address })
+    }
+  }, [address, validators_chains_data])
+
+  useEffect(() => {
+    const controller = new AbortController()
+
     const getData = async () => {
       let response, validatorData
 
@@ -132,7 +170,13 @@ export default function Validator({ address }) {
 
         setValidator({ data: validatorData || {}, address })
 
-        setSupportedChains({ data: validatorData?.supported_chains || [], address })
+        response = await broadcastersData([validatorData], address, denoms_data)
+
+        if (response?.data?.[0]) {
+          validatorData = { ...validatorData, ...response.data[0] }
+        }
+
+        setValidator({ data: validatorData || {}, address, broadcaster_loaded: true })
 
         const _health = {
           broadcaster_registration: !(validatorData?.tss_illegibility_info?.no_proxy_registered) && validatorData?.broadcaster_address ? true : false,
@@ -187,6 +231,9 @@ export default function Validator({ address }) {
         _health.heartbeats_uptime = _health.heartbeats_uptime > 100 ? 100 : _health.heartbeats_uptime
 
         setHealth({ data: _health, address })
+      }
+      else {
+        setValidator({ data: validatorData || {}, address, broadcaster_loaded: true })
       }
     }
 
@@ -437,7 +484,7 @@ export default function Validator({ address }) {
     const controller = new AbortController()
 
     const getData = async () => {
-      if (address && validator?.address === address && status_data) {
+      if (address && validator?.address === address && validator.broadcaster_loaded && status_data) {
         if (!controller.signal.aborted) {
           const validatorData = validator?.data
 

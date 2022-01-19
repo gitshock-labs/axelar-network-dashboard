@@ -13,11 +13,16 @@ import { numberFormat } from '../../lib/utils'
 
 const Summary = ({ data, keygens, successKeygens, failedKeygens, signAttempts, failedSignAttempts }) => {
   const { _data } = useSelector(state => ({ _data: state.data }), shallowEqual)
-  const { denoms_data, validators_data } = { ..._data }
+  const { denoms_data, validators_data, validators_chains_data } = { ..._data }
 
   const keyRequirements = _.groupBy(data?.tss?.params?.key_requirements || [], 'key_type')
 
-  const activeValidators = validators_data?.filter(validator => ['BOND_STATUS_BONDED'].includes(validator.status))
+  const activeValidators = validators_data?.filter(validator => ['BOND_STATUS_BONDED'].includes(validator.status)).map(validator_data => {
+    return {
+      ...validator_data,
+      supported_chains: _.uniq(_.concat(validator_data?.supported_chains || [], Object.entries(validators_chains_data || {}).filter(([key, value]) => value?.includes(validator_data?.operator_address)).map(([key, value]) => key))),
+    }
+  })
 
   let evmVotingThreshold = data?.evm?.chains
 

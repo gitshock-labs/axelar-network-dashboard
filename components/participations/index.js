@@ -7,18 +7,18 @@ import Summary from './summary'
 import KeysTable from './keys-table'
 
 import { keygenSummary, keygens as getKeygens } from '../../lib/api/query'
-import { allValidators } from '../../lib/api/cosmos'
+import { allValidators, chainMaintainer } from '../../lib/api/cosmos'
 import { getKeygenById, axelard } from '../../lib/api/executor'
 import { successKeygens as getSuccessKeygens, failedKeygens as getFailedKeygens, signAttempts as getSignAttempts } from '../../lib/api/opensearch'
 import { chains } from '../../lib/object/chain'
 import { getName, convertToJson } from '../../lib/utils'
 
-import { VALIDATORS_DATA, KEYGENS_DATA } from '../../reducers/types'
+import { VALIDATORS_DATA, VALIDATORS_CHAINS_DATA, KEYGENS_DATA } from '../../reducers/types'
 
 export default function Participations() {
   const dispatch = useDispatch()
   const { data } = useSelector(state => ({ data: state.data }), shallowEqual)
-  const { denoms_data, validators_data } = { ...data }
+  const { denoms_data, validators_data, validators_chains_data } = { ...data }
 
   const [summaryData, setSummaryData] = useState(null)
   const [keygens, setKeygens] = useState(null)
@@ -60,6 +60,35 @@ export default function Participations() {
   useEffect(() => {
     const controller = new AbortController()
 
+    const getData = async id => {
+      if (!controller.signal.aborted) {
+        const response = await chainMaintainer(id)
+
+        if (response) {
+          dispatch({
+            type: VALIDATORS_CHAINS_DATA,
+            value: response,
+          })
+        }
+      }
+    }
+
+    const _chains = chains.filter(_chain => !_chain.hidden && !_chain.is_cosmos).map(_chain => _chain?.id)
+
+    for (let i = 0; i < _chains.length; i++) {
+      const chain = _chains[i]
+
+      getData(chain)
+    }
+  
+    return () => {
+      controller?.abort()
+    }
+  }, [])
+
+  useEffect(() => {
+    const controller = new AbortController()
+
     const getData = async () => {
       if (!controller.signal.aborted) {
         const response = await keygenSummary()
@@ -95,23 +124,25 @@ export default function Participations() {
             const tssType = tssTypes[j]
 
             for (let k = 0; k < keyRoles.length; k++) {
-              const key_role = keyRoles[k]
+              if (!controller.signal.aborted) {
+                const key_role = keyRoles[k]
 
-              const response = await axelard({ cmd: `axelard q tss ${tssType} ${key_chain} ${key_role} -oj`, cache: true })
+                const response = await axelard({ cmd: `axelard q tss ${tssType} ${key_chain} ${key_role} -oj`, cache: true })
 
-              if (response?.data?.stdout) {
-                let keyIds = convertToJson(response.data.stdout)
+                if (response?.data?.stdout) {
+                  let keyIds = convertToJson(response.data.stdout)
 
-                if (keyIds) {
-                  keyIds = Array.isArray(keyIds) ? keyIds : [keyIds]
+                  if (keyIds) {
+                    keyIds = Array.isArray(keyIds) ? keyIds : [keyIds]
 
-                  data = _.uniqBy(_.concat(data || [], keyIds.map(key_id => {
-                    return {
-                      key_id,
-                      key_chain,
-                      key_role,
-                    }
-                  })), 'key_id')
+                    data = _.uniqBy(_.concat(data || [], keyIds.map(key_id => {
+                      return {
+                        key_id,
+                        key_chain,
+                        key_role,
+                      }
+                    })), 'key_id')
+                  }
                 }
               }
             }
