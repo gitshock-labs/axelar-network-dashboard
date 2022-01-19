@@ -6,7 +6,7 @@ export default function ParticipationsIndex() {
   return (
     <>
       <SectionTitle
-        title="Participation Details"
+        title="Latest Participation Details"
         subtitle="Threshold Participation"
         right={<CoinInfo />}
         className="flex-col sm:flex-row items-start sm:items-center"
