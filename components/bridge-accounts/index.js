@@ -11,7 +11,7 @@ import { bridgeAccounts as getBridgeAccounts } from '../../lib/api/query'
 import { axelard } from '../../lib/api/executor'
 import { randImage } from '../../lib/utils'
 
-export default function Bridge() {
+export default function BridgeAccounts() {
   const [bridgeAccounts, setBridgeAccounts] = useState(null)
   const [timer, setTimer] = useState(null)
 

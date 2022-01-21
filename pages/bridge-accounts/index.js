@@ -1,8 +1,8 @@
 import CoinInfo from '../../components/coin-info'
-import Bridge from '../../components/bridge'
+import BridgeAccounts from '../../components/bridge-accounts'
 import SectionTitle from '../../components/section-title'
 
-export default function BridgeIndex() {
+export default function BridgeAccountsIndex() {
   return (
     <>
       <SectionTitle
@@ -11,7 +11,7 @@ export default function BridgeIndex() {
         right={<CoinInfo />}
         className="flex-col sm:flex-row items-start sm:items-center"
       />
-      <Bridge />
+      <BridgeAccounts />
     </>
   )
 }
