@@ -1,6 +1,6 @@
 {
-  "short_name": "Axelar Validator",
-  "name": "Axelar Validator Dashboard",
+  "short_name": "AxelarScan",
+  "name": "AxelarScan | The Axelar Network Explorer",
   "start_url": ".",
   "display": "standalone",
   "theme_color": "#050707",
@@ -27,12 +27,6 @@
       "src": "/icons/android-chrome-192x192.png",
       "type": "image/png",
       "sizes": "192x192",
-      "density": "4.0"
-    },
-    {
-      "src": "/icons/android-chrome-512x512.png",
-      "type": "image/png",
-      "sizes": "512x512",
       "density": "4.0"
     }
   ] 

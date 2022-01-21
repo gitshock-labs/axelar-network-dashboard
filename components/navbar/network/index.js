@@ -5,7 +5,7 @@ import Networks from './networks'
 import { networks } from '../../../lib/menus'
 
 export default function DropdownNetwork() {
-  const network_id = process.env.NEXT_PUBLIC_NETWORK_ID
+  const network_id = process.env.NEXT_PUBLIC_NETWORK
   const network = networks[networks.findIndex(network => network.id === network_id)] || networks[0]
 
   const [hidden, setHidden] = useState(true)
