@@ -161,3 +161,7 @@ body {
 .font-default .recharts-label {
   @apply font-sans;
 }
+
+.max-w-8xl {
+  max-width: 88rem;
+}

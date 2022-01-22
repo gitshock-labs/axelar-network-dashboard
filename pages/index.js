@@ -29,7 +29,9 @@ export default function Index() {
         right={<CoinInfo />}
         className="flex-col sm:flex-row items-start sm:items-center"
       />
-      <Dashboard />
+      <div className="max-w-8xl mx-auto">
+        <Dashboard />
+      </div>
       <div className="dark:bg-black" />
       <div className="bg-yellow-500" />
     </>

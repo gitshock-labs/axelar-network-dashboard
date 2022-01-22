@@ -11,7 +11,9 @@ export default function ParticipationsIndex() {
         right={<CoinInfo />}
         className="flex-col sm:flex-row items-start sm:items-center"
       />
-      <Participations />
+      <div className="max-w-8xl mx-auto">
+        <Participations />
+      </div>
     </>
   )
 }
