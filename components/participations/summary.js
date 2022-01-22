@@ -11,7 +11,7 @@ import { feeDenom, denomSymbol, denomAmount } from '../../lib/object/denom'
 import { idFromEvmId, chains, chainImage } from '../../lib/object/chain'
 import { numberFormat } from '../../lib/utils'
 
-const Summary = ({ data, keygens, successKeygens, failedKeygens, signAttempts, failedSignAttempts }) => {
+const Summary = ({ data, successKeygens, failedKeygens, signAttempts, failedSignAttempts }) => {
   const { _data } = useSelector(state => ({ _data: state.data }), shallowEqual)
   const { denoms_data, validators_data, validators_chains_data } = { ..._data }
 
@@ -162,11 +162,8 @@ const Summary = ({ data, keygens, successKeygens, failedKeygens, signAttempts, f
       >
         <span className="flex flex-col space-y-1 mt-1.5">
           <div className="flex flex-row space-x-1.5">
-            {keygens || typeof successKeygens === 'number' ?
-              keygens ?
-                <span className="h-8 text-3xl font-semibold">{numberFormat(keygens.length, '0,0')}</span>
-                :
-                <span className="h-8 text-3xl font-semibold">{numberFormat(successKeygens, '0,0')}</span>
+            {typeof successKeygens === 'number' ?
+              <span className="h-8 text-3xl font-semibold">{numberFormat(successKeygens, '0,0')}</span>
               :
               <div className="skeleton w-12 h-7 mt-1" />
             }
@@ -295,7 +292,6 @@ const Summary = ({ data, keygens, successKeygens, failedKeygens, signAttempts, f
 
 Summary.propTypes = {
   data: PropTypes.any,
-  keygens: PropTypes.any,
   successKeygens: PropTypes.any,
   failedKeygens: PropTypes.any,
   signAttempts: PropTypes.any,

@@ -6,14 +6,14 @@ import _ from 'lodash'
 import Summary from './summary'
 import KeysTable from './keys-table'
 
-import { keygenSummary, keygens as getKeygens } from '../../lib/api/query'
+import { keygenSummary } from '../../lib/api/query'
 import { allValidators, validatorStatusData, chainMaintainer } from '../../lib/api/cosmos'
 import { getKeygenById, axelard } from '../../lib/api/executor'
 import { successKeygens as getSuccessKeygens, failedKeygens as getFailedKeygens, signAttempts as getSignAttempts } from '../../lib/api/opensearch'
 import { chains } from '../../lib/object/chain'
 import { getName, convertToJson } from '../../lib/utils'
 
-import { VALIDATORS_DATA, VALIDATORS_CHAINS_DATA, KEYGENS_DATA } from '../../reducers/types'
+import { VALIDATORS_DATA, VALIDATORS_CHAINS_DATA } from '../../reducers/types'
 
 export default function Participations() {
   const dispatch = useDispatch()
@@ -21,7 +21,6 @@ export default function Participations() {
   const { denoms_data, validators_data, validators_chains_data } = { ...data }
 
   const [summaryData, setSummaryData] = useState(null)
-  const [keygens, setKeygens] = useState(null)
   const [successKeygens, setSuccessKeygens] = useState(null)
   const [failedKeygens, setFailedKeygens] = useState(null)
   const [signAttempts, setSignAttempts] = useState(null)
@@ -178,53 +177,6 @@ export default function Participations() {
 
     const getData = async () => {
       let response, data
-
-      // if (!controller.signal.aborted) {
-      //   response = await getKeygens()
-
-      //   if (response) {
-      //     dispatch({
-      //       type: KEYGENS_DATA,
-      //       value: response,
-      //     })
-      //   }
-
-      //   let data = (response || []).map((key_id, i) => {
-      //     return {
-      //       key_id,
-      //       ...(keygens?.data?.findIndex(keygen => keygen.key_id === key_id) > -1 ?
-      //         keygens.data[keygens.data.findIndex(keygen => keygen.key_id === key_id)]
-      //         :
-      //         null
-      //       ),
-      //     }
-      //   })
-
-      //   for (let i = 0; i < data.length; i++) {
-      //     let keygen = data[i]
-
-      //     if (keygen?.key_id) {
-      //       keygen = await getKeygenById(keygen.key_id, { cache: true }) || keygen
-      //     }
-
-      //     data[i] = {
-      //       ...keygen,
-      //       key_chain: keys?.find(_key => _key.key_id === keygen.key_id)?.key_chain || keygen.key_chain,// || keygen?.key_id?.split('-')[0],
-      //       key_chain_loading: true,
-      //       key_role: keys?.find(_key => _key.key_id === keygen.key_id)?.key_role || keygen.key_role || (keygen?.key_id?.split('-').length > 2 && `${keygen.key_id.split('-')[1].toUpperCase()}_KEY`),
-      //       validators: keygen.validators?.map(validator => {
-      //         return {
-      //           ...validator,
-      //           ...(validators_data?.find(validator_data => validator_data.operator_address === validator.address)),
-      //         }
-      //       }),
-      //     }
-      //   }
-
-      //   data = _.orderBy(data, ['snapshot_block_number'], ['desc'])
-
-      //   setKeygens({ data })
-      // }
 
       if (!controller.signal.aborted) {
         response = await getSuccessKeygens({ size: 1000, sort: [{ height: 'desc' }] })
@@ -392,25 +344,6 @@ export default function Participations() {
 
   useEffect(() => {
     if (validators_data) {
-      if (keygens?.data) {
-        const data = keygens.data.map(keygen => {
-          return {
-            ...keygen,
-            key_chain: keys?.find(_key => _key.key_id === keygen.key_id)?.key_chain || keygen.key_chain,
-            key_chain_loading: false,
-            key_role: keys?.find(_key => _key.key_id === keygen.key_id)?.key_role || keygen.key_role,
-            validators: keygen.validators?.map(validator => {
-              return {
-                ...validator,
-                ...validators_data?.find(validator_data => validator_data.operator_address === validator.address),
-              }
-            }),
-          }
-        })
-
-        setKeygens({ data })
-      }
-
       if (successKeygens?.data) {
         const data = successKeygens.data.map(successKeygen => {
           return {
@@ -529,7 +462,6 @@ export default function Participations() {
     <div className={`max-w-${[/*'keygen_failed', 'sign_success', 'sign_failed'*/].includes(table) ? '7xl' : 'full'} my-4 xl:my-6 mx-auto`}>
       <Summary
         data={summaryData?.data}
-        keygens={keygens?.data}
         successKeygens={successKeygens && (typeof successKeygens.total === 'number' ? successKeygens.total : successKeygens.data?.length)}
         failedKeygens={failedKeygens && (typeof failedKeygens.total === 'number' ? failedKeygens.total : failedKeygens.data?.length)}
         signAttempts={signAttempts && (typeof signAttempts.total === 'number' ? signAttempts.total : signAttempts.data?.length)}
@@ -565,7 +497,7 @@ export default function Participations() {
             />
             :
             <KeysTable
-              data={keygens || successKeygens}
+              data={successKeygens}
               page={table}
               corruption_signing_threshold={summaryData?.data?.corruption_signing_threshold}
             />

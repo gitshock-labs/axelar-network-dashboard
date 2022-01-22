@@ -16,7 +16,7 @@ import TransactionsTable from '../transactions/transactions-table'
 import DelegationsTable from './delegations-table'
 import Widget from '../widget'
 
-import { getUptime, uptimeForJailedInfo, uptimeForJailedInfoSync, jailedInfo, getHeartbeat, getIneligibilities, keygens as getKeygens } from '../../lib/api/query'
+import { getUptime, uptimeForJailedInfo, uptimeForJailedInfoSync, jailedInfo, getHeartbeat, getIneligibilities } from '../../lib/api/query'
 import { status as getStatus } from '../../lib/api/rpc'
 import { allValidators, validatorSets, slashingParams, allBankBalances, allDelegations, distributionRewards, distributionCommissions, validatorStatusData, broadcastersData, chainMaintainer } from '../../lib/api/cosmos'
 import { getKeygensByValidator } from '../../lib/api/executor'

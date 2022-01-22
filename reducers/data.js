@@ -1,4 +1,4 @@
-import { DENOMS_DATA, CHAIN_DATA, SLASHING_DATA, STATUS_DATA, VALIDATORS_DATA, VALIDATORS_CHAINS_DATA, KEYGENS_DATA, JAILED_SYNC_DATA } from './types'
+import { DENOMS_DATA, CHAIN_DATA, SLASHING_DATA, STATUS_DATA, VALIDATORS_DATA, VALIDATORS_CHAINS_DATA, JAILED_SYNC_DATA } from './types'
 
 export default function data(
   state = {
@@ -8,7 +8,6 @@ export default function data(
     [`${STATUS_DATA}`]: null,
     [`${VALIDATORS_DATA}`]: null,
     [`${VALIDATORS_CHAINS_DATA}`]: null,
-    [`${KEYGENS_DATA}`]: null,
     [`${JAILED_SYNC_DATA}`]: null,
   },
   action
@@ -43,11 +42,6 @@ export default function data(
       return {
         ...state,
         [`${VALIDATORS_CHAINS_DATA}`]: action.value ? { ...state[`${VALIDATORS_CHAINS_DATA}`], ...action.value }  : {}
-      }
-    case KEYGENS_DATA:
-      return {
-        ...state,
-        [`${KEYGENS_DATA}`]: action.value
       }
     case JAILED_SYNC_DATA:
       return {
