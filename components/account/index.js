@@ -11,7 +11,7 @@ import Widget from '../widget'
 
 import { allValidators, allBankBalances, allStakingDelegations, allStakingUnbonding, distributionRewards, distributionCommissions, transactionsByEvents, transactionsByEventsPaging, validatorProfile } from '../../lib/api/cosmos'
 import { denomSymbol, denomAmount } from '../../lib/object/denom'
-import { numberFormat, randImage } from '../../lib/utils'
+import { numberFormat, randImage, sleep } from '../../lib/utils'
 
 import { VALIDATORS_DATA } from '../../reducers/types'
 
@@ -445,6 +445,8 @@ export default function Account({ address }) {
           }
         }
 
+        await sleep(0.5 * 1000)
+
         setLoading(false)
       }
     }
@@ -466,7 +468,7 @@ export default function Account({ address }) {
     <div className="max-w-6xl my-4 xl:my-6 mx-auto">
       <AccountDetail data={account?.address === address && account?.data} />
       <Widget
-        title={<div className="flex sm:items-center overflow-x-auto text-gray-900 dark:text-white text-lg font-semibold mt-3">
+        title={<div className="flex sm:items-center overflow-x-auto text-gray-900 dark:text-white text-lg font-semibold">
           <span className="mr-4">Transactions</span>
           <div className={`block sm:flex flex-wrap items-center justify-end ${Object.keys(actions).length > 6 ? '' : 'overflow-x-auto'} space-x-1 mt-0.5 sm:ml-auto`}>
             {Object.entries(actions).map(([key, value]) => (
