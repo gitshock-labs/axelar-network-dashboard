@@ -17,9 +17,9 @@ const LATEST_SIZE = 100
 const MAX_PAGE = 10
 
 export default function TransactionsTable({ data, noLoad, hasVote, location, className = '' }) {
-  const { _data, preferences } = useSelector(state => ({ _data: state.data, preferences: state.preferences }), shallowEqual)
-  const { denoms_data } = { ..._data }
+  const { preferences, denoms } = useSelector(state => ({  preferences: state.preferences, denoms: state.denoms }), shallowEqual)
   const { theme } = { ...preferences }
+  const { denoms_data } = { ...denoms }
 
   const [page, setPage] = useState(0)
   const [moreLoading, setMoreLoading] = useState(false)
@@ -30,10 +30,10 @@ export default function TransactionsTable({ data, noLoad, hasVote, location, cla
   useEffect(() => {
     const controller = new AbortController()
 
-    const getData = async isInterval => {
+    const getData = async is_interval => {
       if (denoms_data) {
         if (!controller.signal.aborted) {
-          if (!location && page && !isInterval) {
+          if (!location && page && !is_interval) {
             setMoreLoading(true)
           }
 
@@ -51,7 +51,7 @@ export default function TransactionsTable({ data, noLoad, hasVote, location, cla
 
           setTransactions({ data: _data || [] })
 
-          if (!location && page && !isInterval) {
+          if (!location && page && !is_interval) {
             setMoreLoading(false)
           }
         }
@@ -66,7 +66,7 @@ export default function TransactionsTable({ data, noLoad, hasVote, location, cla
     }
 
     if (!noLoad) {
-      const interval = setInterval(() => getData(true), (location === 'index' ? 5 : 10) * 1000)
+      const interval = setInterval(() => getData(true), 5 * 1000)
       return () => {
         controller?.abort()
         clearInterval(interval)
@@ -139,7 +139,7 @@ export default function TransactionsTable({ data, noLoad, hasVote, location, cla
             Cell: props => (
               !props.row.original.skeleton ?
                 props.value ?
-                  <span className={`bg-gray-100 dark:bg-gray-${location === 'index' ? 900 : 800} rounded capitalize text-gray-900 dark:text-gray-100 font-semibold px-2 py-1`}>
+                  <span className={`bg-gray-100 dark:bg-gray-${location === 'index' ? 900 : 800} rounded-lg capitalize text-gray-900 dark:text-gray-100 font-semibold px-2 py-1`}>
                     {getName(props.value)}
                   </span>
                   :
@@ -182,11 +182,11 @@ export default function TransactionsTable({ data, noLoad, hasVote, location, cla
                       <span className="uppercase font-medium">{props.row.original.symbol}</span>
                     </span>
                     :
-                    props.row.original.activities?.findIndex(activity => activity.amount/* && activity.symbol*/) > -1 ?
-                      props.row.original.activities.filter(activity => activity.amount).map((activity, i) => (
+                    props.row.original.activities?.findIndex(a => a.amount) > -1 ?
+                      props.row.original.activities.filter(a => a.amount).map((a, i) => (
                         <div key={i} className="flex items-center justify-end space-x-1">
-                          <span>{numberFormat(activity.amount, '0,0.00000000')}</span>
-                          <span className="uppercase font-medium">{ellipseAddress(activity.symbol || activity.denom, 6)}</span>
+                          <span>{numberFormat(a.amount, '0,0.00000000')}</span>
+                          <span className="uppercase font-medium">{a.symbol || a.denom}</span>
                         </div>
                       ))
                       :
@@ -228,7 +228,7 @@ export default function TransactionsTable({ data, noLoad, hasVote, location, cla
             Cell: props => (
               !props.row.original.skeleton ?
                 props.value ?
-                  <span className={`${props.value === 'approved' ? 'bg-green-500' : 'bg-red-500'} rounded capitalize text-white font-semibold px-2 py-1`}>
+                  <span className={`${props.value === 'approved' ? 'bg-green-500' : 'bg-red-500'} rounded-lg capitalize text-white font-semibold px-2 py-1`}>
                     {props.value}
                   </span>
                   :
@@ -259,7 +259,7 @@ export default function TransactionsTable({ data, noLoad, hasVote, location, cla
           },
         ].filter(column => ['blocks'].includes(location) ? !(['height', 'vote'].includes(column.accessor)) : ['index'].includes(location) ? !(['height', 'value', 'fee', 'vote'].includes(column.accessor)) : ['validator'].includes(location) ? !((hasVote ? ['value', 'fee'] : ['value', 'fee', 'vote']).includes(column.accessor)) : !(['vote'].includes(column.accessor)))}
         data={transactions ?
-          transactions.data?.filter(tx => !(!noLoad && !location) || !(filterActions?.length > 0) || filterActions.includes(tx.type) || (filterActions.includes('undefined') && !tx.type)).map((transaction, i) => { return { ...transaction, i } })
+          transactions.data?.filter(tx => !(!noLoad && !location) || !(filterActions?.length > 0) || filterActions.includes(tx.type) || (filterActions.includes('undefined') && !tx.type)).map((transaction, i) => { return { ...transaction, i } }) || []
           :
           [...Array(!location ? 25 : 10).keys()].map(i => { return { i, skeleton: true } })
         }
@@ -268,7 +268,7 @@ export default function TransactionsTable({ data, noLoad, hasVote, location, cla
         className={`${(!location && !noLoad) || ['index'].includes(location) ? 'min-h-full' : ''} ${className}`}
       />
       {transactions && !(transactions.data?.length > 0) && (
-        <div className={`bg-${!location ? 'white' : 'gray-50'} dark:bg-gray-900 text-gray-300 dark:text-gray-500 text-base font-medium italic text-center my-4 py-2`}>
+        <div className={`bg-${!location ? 'white' : 'gray-50'} dark:bg-gray-900 rounded-xl text-gray-300 dark:text-gray-500 text-base font-medium italic text-center my-4 mx-2 py-2`}>
           No Transactions
         </div>
       )}

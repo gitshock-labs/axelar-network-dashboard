@@ -80,12 +80,12 @@ export default function Datatable({ columns, data, rowSelectEnable = false, noPa
 
   return (
     <>
-      <table ref={tableRef} { ...getTableProps() } className={`table ${className}`}>
+      <table ref={tableRef} { ...getTableProps() } className={`table rounded-2xl ${className}`}>
         <thead>
           {headerGroups.map(headerGroup => (
             <tr { ...headerGroup.getHeaderGroupProps() }>
-              {headerGroup.headers.map(column => (
-                <th { ...column.getHeaderProps(column.getSortByToggleProps()) } className={column.className}>
+              {headerGroup.headers.map((column, i) => (
+                <th { ...column.getHeaderProps(column.getSortByToggleProps()) } className={`${column.className} ${i === 0 ? 'rounded-tl-xl' : i === headerGroup.headers.length - 1 ? 'rounded-tr-xl' : ''}`}>
                   <div className={`flex flex-row items-center ${column.headerClassName?.includes('justify-') ? '' : 'justify-start'} ${column.headerClassName || ''}`}>
                     <span>{column.render('Header')}</span>
                     <span className={`ml-${column.isSorted ? 2 : 0}`}>
@@ -123,7 +123,7 @@ export default function Datatable({ columns, data, rowSelectEnable = false, noPa
               disabled={loading}
               value={pageSize}
               onChange={event => setPageSize(Number(event.target.value))}
-              className="form-select dark:bg-gray-800 outline-none border-gray-200 dark:border-gray-800 shadow-none focus:shadow-none text-xs"
+              className="form-select dark:bg-gray-800 outline-none border-gray-200 dark:border-gray-800 shadow-none focus:shadow-none rounded-lg text-xs"
             >
               {[10, 25, 50, 100].map(pageSize => (
                 <option key={pageSize} value={pageSize}>

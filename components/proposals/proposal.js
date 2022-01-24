@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useSelector, useDispatch, shallowEqual } from 'react-redux'
+import { useSelector, shallowEqual } from 'react-redux'
 
 import _ from 'lodash'
 import moment from 'moment'
@@ -11,10 +11,7 @@ import Widget from '../widget'
 import { proposal as getProposal, allProposalVotes } from '../../lib/api/cosmos'
 import { numberFormat, randImage, getName } from '../../lib/utils'
 
-import { VALIDATORS_DATA } from '../../reducers/types'
-
 export default function Proposal({ id }) {
-  const dispatch = useDispatch()
   const { denoms, validators } = useSelector(state => ({ denoms: state.denoms, validators: state.validators }), shallowEqual)
   const { denoms_data } = { ...denoms }
   const { validators_data } = { ...validators }

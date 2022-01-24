@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { useState, useEffect } from 'react'
-import { useSelector, useDispatch, shallowEqual } from 'react-redux'
+import { useSelector, shallowEqual } from 'react-redux'
 
 import StackGrid from 'react-stack-grid'
 import _ from 'lodash'
@@ -13,12 +13,8 @@ import Widget from '../widget'
 import Datatable from '../datatable'
 import Copy from '../copy'
 
-import { status as getStatus } from '../../lib/api/rpc'
 import { historical } from '../../lib/api/opensearch'
-import { chains } from '../../lib/object/chain'
 import { numberFormat, ellipseAddress } from '../../lib/utils'
-
-import { STATUS_DATA } from '../../reducers/types'
 
 const snapshot_block_size = Number(process.env.NEXT_PUBLIC_SNAPSHOT_BLOCK_SIZE)
 
@@ -33,16 +29,15 @@ const weight = {
 }
 
 export default function Leaderboard({ n = 100 }) {
-  const dispatch = useDispatch()
-  const { data, preferences } = useSelector(state => ({ data: state.data, preferences: state.preferences }), shallowEqual)
-  const { status_data } = { ...data }
+  const { preferences, cosmos_chains, status } = useSelector(state => ({ preferences: state.preferences, cosmos_chains: state.cosmos_chains, status: state.status }), shallowEqual)
   const { theme } = { ...preferences }
+  const { cosmos_chains_data } = { ...cosmos_chains }
+  const { status_data } = { ...status }
 
   const router = useRouter()
   const { query } = { ...router }
   const { debug } = { ...query }
 
-  const [statusLoaded, setStatusLoaded] = useState(null)
   const [snapshots, setSnapshots] = useState(null)
   const [fromSnapshot, setFromSnapshot] = useState(null)
   const [toSnapshot, setToSnapshot] = useState(null)
@@ -54,37 +49,9 @@ export default function Leaderboard({ n = 100 }) {
     const controller = new AbortController()
 
     const getData = async () => {
-      if (!controller.signal.aborted) {
-        const response = await getStatus()
-
-        if (response) {
-          dispatch({
-            type: STATUS_DATA,
-            value: response,
-          })
-        }
-
-        setStatusLoaded(true)
-      }
-    }
-
-    getData()
-
-    const interval = setInterval(() => getData(), 10 * 1000)
-    return () => {
-      controller?.abort()
-      clearInterval(interval)
-    }
-  }, [])
-
-  useEffect(() => {
-    const controller = new AbortController()
-
-    const getData = async () => {
-      if (!controller.signal.aborted) {
-        if (status_data) {
+      if (status_data) {
+        if (!controller.signal.aborted) {
           const latestBlock = Number(status_data.latest_block_height)
-
           const snapshot_block = latestBlock - (latestBlock % snapshot_block_size)
 
           let response
@@ -115,44 +82,21 @@ export default function Leaderboard({ n = 100 }) {
 
           setSnapshots({ data })
 
-          for (let i = 0; i < data.length; i++) {
-            if (!controller.signal.aborted) {
-              const snapshot = data[i]
-
-              if (snapshot?.snapshot_block < latestBlock) {
-                const _response = await getBlock(snapshot?.snapshot_block)
-
-                if (_response?.data?.time) {
-                  snapshot.time = moment(_response.data.time).valueOf()
-
-                  data[i] = snapshot
-
-                  setSnapshots({ data })
-                }
-              }
-            }
-          }
-
           if (!fromSnapshot && !toSnapshot) {
             setFromSnapshot(_.last(_.slice(data, 0/*, 10*/))?.snapshot_block)
             setToSnapshot(_.head(data)?.snapshot_block)
-
             setLoading(true)
           }
         }
       }
     }
 
-    if (statusLoaded) {
-      setStatusLoaded(false)
-
-      getData()
-    }
+    getData()
 
     return () => {
       controller?.abort()
     }
-  }, [statusLoaded])
+  }, [status_data])
 
   useEffect(() => {
     if (fromSnapshot && toSnapshot) {
@@ -180,6 +124,7 @@ export default function Leaderboard({ n = 100 }) {
 
   useEffect(() => {
     const getData = async () => {
+      console.log(loading ,fromSnapshot ,toSnapshot)
       if (loading && fromSnapshot && toSnapshot) {
         setReadyToLoad(false)
 
@@ -304,7 +249,7 @@ export default function Leaderboard({ n = 100 }) {
         const validators = response?.data || []
 
         const total_blocks = toSnapshot - (fromSnapshot - snapshot_block_size)
-        const supported_chains = _.uniq(validators.flatMap(v => v.supported_chains.map(_chain => _chain.chain))).filter(_chain => !(chains?.find(__chain => __chain.id === _chain)?.is_cosmos))
+        const supported_chains = _.uniq(validators.flatMap(v => v.supported_chains.map(_chain => _chain.chain))).filter(_chain => !cosmos_chains_data?.find(__chain => __chain.id === _chain))
         const supported_chains_num_snapshots = Object.fromEntries(supported_chains.map(chain => {
           return [
             chain,
@@ -366,7 +311,6 @@ export default function Leaderboard({ n = 100 }) {
         }
 
         setSnapshotsData({ data, total: response?.total || data.length, fromSnapshot, toSnapshot })
-
         setLoading(false)
       }
     }
@@ -380,7 +324,7 @@ export default function Leaderboard({ n = 100 }) {
     <>
       {snapshots?.data?.length > 0 && (
         <>
-          <div className="flex flex-wrap items-center mb-2">
+          <div className="flex flex-wrap items-center mt-4 mb-2 -ml-0.5">
             <span
               onClick={() => {
                 setFromSnapshot(_.last(snapshots.data)?.snapshot_block)
@@ -407,7 +351,7 @@ export default function Leaderboard({ n = 100 }) {
                 <select
                   value={fromSnapshot}
                   onChange={e => setFromSnapshot(Number(e.target.value))}
-                  className="max-w-min dark:bg-gray-900 outline-none border-gray-200 dark:border-gray-800 shadow-none focus:shadow-none text-xs"
+                  className="max-w-min dark:bg-gray-900 outline-none border-gray-200 dark:border-gray-800 shadow-none focus:shadow-none rounded-lg text-xs"
                 >
                   {snapshots.data.map((_snapshot, i) => (
                     <option key={i} value={_snapshot.snapshot_block}>
@@ -423,7 +367,7 @@ export default function Leaderboard({ n = 100 }) {
                 <select
                   value={toSnapshot}
                   onChange={e => setToSnapshot(Number(e.target.value))}
-                  className="max-w-min dark:bg-gray-900 outline-none border-gray-200 dark:border-gray-800 shadow-none focus:shadow-none text-xs"
+                  className="max-w-min dark:bg-gray-900 outline-none border-gray-200 dark:border-gray-800 shadow-none focus:shadow-none rounded-lg text-xs"
                 >
                   {snapshots.data.map((_snapshot, i) => (
                     <option key={i} value={_snapshot.snapshot_block}>
@@ -638,7 +582,7 @@ export default function Leaderboard({ n = 100 }) {
         className="small no-border"
       />
       {snapshotsData && snapshotsData?.data?.length < 1 && (
-        <div className="bg-white dark:bg-gray-900 text-gray-300 dark:text-gray-500 text-base font-medium italic text-center my-4 py-2">
+        <div className="bg-white dark:bg-gray-900 rounded-xl text-gray-300 dark:text-gray-500 text-base font-medium italic text-center my-4 mx-2 py-2">
           No Validators
         </div>
       )}

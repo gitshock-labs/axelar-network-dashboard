@@ -32,7 +32,7 @@ export default function TransactionLogs({ data }) {
 
         return (
           <div key={i}>
-            <div className="md:min-w-max max-w-3xl bg-white dark:bg-gray-900 overflow-x-auto rounded shadow-lg flex items-center space-x-4 p-4">
+            <div className="md:min-w-max max-w-3xl bg-white dark:bg-gray-900 overflow-x-auto rounded-xl shadow-lg flex items-center space-x-4 p-4">
               {activity.skeleton || hasActivities ?
                 <>
                   {(activity.skeleton || (activity.sender && !activity.depositor)) && (
@@ -99,7 +99,7 @@ export default function TransactionLogs({ data }) {
                       {!activity.skeleton ?
                         <>
                           {activity.action ?
-                            <span className="bg-gray-100 dark:bg-gray-800 rounded capitalize text-gray-900 dark:text-gray-100 font-semibold px-2 py-1">
+                            <span className="bg-gray-100 dark:bg-gray-800 rounded-lg capitalize text-gray-900 dark:text-gray-100 font-semibold px-2 py-1">
                               {getName(activity.action)}
                             </span>
                             :

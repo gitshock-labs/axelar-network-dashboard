@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { useSelector, shallowEqual } from 'react-redux'
 
 import _ from 'lodash'
+import { Img } from 'react-image'
 
 import Datatable from '../datatable'
 import Copy from '../copy'
@@ -67,7 +68,7 @@ export default function VotesTable({ data, className = '' }) {
                   <Link href={`/validator/${props.row.original.validator_data?.operator_address}`}>
                     <a>
                       {props.row.original.validator_data?.description?.image ?
-                        <img
+                        <Img
                           src={props.row.original.validator_data.description.image}
                           alt=""
                           className="w-6 h-6 rounded-full"

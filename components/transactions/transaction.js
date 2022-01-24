@@ -9,13 +9,11 @@ import TransactionRawLogs from './transaction-raw-logs'
 import Widget from '../widget'
 
 import { transaction as getTransaction } from '../../lib/api/cosmos'
-import { gaiad } from '../../lib/api/executor'
-import { getTxStatus, getTxType, getTxFee, getTxSymbol, getTxGasUsed, getTxGasLimit, getTxMemo, getTxActivities } from '../../lib/object/tx'
 import { numberFormat, convertToJson } from '../../lib/utils'
 
 export default function Transaction({ tx }) {
-  const { data } = useSelector(state => ({ data: state.data }), shallowEqual)
-  const { denoms_data } = { ...data }
+  const { denoms } = useSelector(state => ({ denoms: state.denoms }), shallowEqual)
+  const { denoms_data } = { ...denoms }
 
   const [transaction, setTransaction] = useState(null)
 
@@ -23,35 +21,18 @@ export default function Transaction({ tx }) {
     const controller = new AbortController()
 
     const getData = async () => {
-      if (!controller.signal.aborted) {
-        let response = await getTransaction(tx, null, denoms_data)
+      if (tx && denoms_data) {
+        if (!controller.signal.aborted) {
+          const response = await getTransaction(tx, null, denoms_data)
 
-        // if (!response?.data) {
-        //   response = await gaiad({ cmd: `gaiad q tx ${tx} -oj` })
-
-        //   if (response?.data?.stdout && convertToJson(response.data.stdout)) {
-        //     response.data = convertToJson(response.data.stdout)
-
-        //     response.data.status = getTxStatus(response.data)
-        //     response.data.type = getTxType(response.data)
-        //     response.data.fee = getTxFee(response.data, denoms_data)
-        //     response.data.symbol = getTxSymbol(response.data, denoms_data)
-        //     response.data.gas_used = getTxGasUsed(response.data)
-        //     response.data.gas_limit = getTxGasLimit(response.data)
-        //     response.data.memo = getTxMemo(response.data)
-        //     response.data.activities = getTxActivities(response.data, denoms_data)
-        //   }
-        // }
-
-        if (response) {
-          setTransaction({ data: response.data || {}, tx })
+          if (response) {
+            setTransaction({ data: response.data || {}, tx })
+          }
         }
       }
     }
 
-    if (tx && denoms_data) {
-      getData()
-    }
+    getData()
 
     const interval = setInterval(() => getData(), 5 * 60 * 1000)
     return () => {
@@ -61,7 +42,7 @@ export default function Transaction({ tx }) {
   }, [tx, denoms_data])
 
   return (
-    <div className="max-w-6xl my-4 xl:my-6 mx-auto">
+    <div className="max-w-6xl my-2 xl:my-4 mx-auto">
       <TransactionDetail data={transaction?.tx === tx && transaction?.data} />
       <Widget
         title={<div className="flex items-center text-gray-900 dark:text-white text-lg font-semibold space-x-1 mt-3">

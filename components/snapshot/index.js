@@ -1,8 +1,10 @@
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
+import { useSelector, shallowEqual } from 'react-redux'
 
 import _ from 'lodash'
 import moment from 'moment'
+import { Img } from 'react-image'
 import { FaCheckCircle, FaTimesCircle } from 'react-icons/fa'
 import { FiKey } from 'react-icons/fi'
 import { BiDownload } from 'react-icons/bi'
@@ -13,10 +15,13 @@ import { ProgressBarWithText } from '../progress-bars'
 import Copy from '../copy'
 
 import { historical } from '../../lib/api/opensearch'
-import { chainName, chainImage } from '../../lib/object/chain'
+import { chain_manager } from '../../lib/object/chain'
 import { numberFormat, getName, ellipseAddress } from '../../lib/utils'
 
 export default function Snapshot({ height }) {
+  const { chains } = useSelector(state => ({ chains: state.chains }), shallowEqual)
+  const { chains_data } = { ...chains }
+
   const [snapshot, setSnapshot] = useState(null)
 
   useEffect(() => {
@@ -67,7 +72,7 @@ export default function Snapshot({ height }) {
   return (
     <div className="w-full my-4 xl:my-6 mx-auto">
       <Summary data={snapshot && snapshot.height === height && snapshot.data} />
-      {snapshot && snapshot.height === height && snapshot.data && (
+      {snapshot?.data && snapshot.height === height && (
         <div className="w=full flex items-center mb-2">
           <button
             onClick={() => downloadFile()}
@@ -151,24 +156,6 @@ export default function Snapshot({ height }) {
             ),
             headerClassName: 'min-w-max justify-start sm:justify-end text-left sm:text-right',
           },
-          // {
-          //   Header: 'Commission',
-          //   accessor: 'commission.commission_rates.rate',
-          //   sortType: (rowA, rowB) => Number(rowA.original.commission.commission_rates.rate) > Number(rowB.original.commission.commission_rates.rate) ? 1 : -1,
-          //   Cell: props => (
-          //     !props.row.original.skeleton ?
-          //       <div className="text-right">
-          //         {!isNaN(props.value) ?
-          //           <span>{numberFormat(props.value * 100, '0,0.00')}%</span>
-          //           :
-          //           <span className="text-gray-400 dark:text-gray-600">-</span>
-          //         }
-          //       </div>
-          //       :
-          //       <div className="skeleton w-8 h-4 ml-auto" />
-          //   ),
-          //   headerClassName: 'justify-end text-right',
-          // },
           {
             Header: 'Uptime',
             accessor: 'uptime',
@@ -463,16 +450,16 @@ export default function Snapshot({ height }) {
                   {props.value.length > 0 ?
                     <div className="w-24 flex flex-wrap items-center justify-end">
                       {props.value.map((_chain, i) => (
-                        chainImage(_chain) ?
-                          <img
+                        chain_manager.image(_chain, chains_data) ?
+                          <Img
                             key={i}
-                            alt={chainName(_chain)}
-                            src={chainImage(_chain)}
+                            alt={chain_manager.title(_chain, chains_data)}
+                            src={chain_manager.image(_chain, chains_data)}
                             className="w-6 h-6 rounded-full mb-1 ml-1"
                           />
                           :
                           <span key={i} className="max-w-min bg-gray-100 dark:bg-gray-900 rounded-xl text-gray-900 dark:text-gray-200 text-xs font-semibold mb-1 ml-1 px-1.5 py-0.5">
-                            {chainName(_chain)}
+                            {chain_manager.title(_chain, chains_data)}
                           </span>
                       ))}
                     </div>
@@ -548,7 +535,7 @@ export default function Snapshot({ height }) {
         className="small no-border"
       />
       {snapshot && snapshot?.data?.length < 1 && (
-        <div className="bg-white dark:bg-gray-900 text-gray-300 dark:text-gray-500 text-base font-medium italic text-center my-4 py-2">
+        <div className="bg-white dark:bg-gray-900 rounded-xl text-gray-300 dark:text-gray-500 text-base font-medium italic text-center my-4 mx-2 py-2">
           No Validators
         </div>
       )}

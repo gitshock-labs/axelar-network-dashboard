@@ -1,6 +1,7 @@
 import Link from 'next/link'
 
 import moment from 'moment'
+import { Img } from 'react-image'
 
 import Widget from '../widget'
 import Copy from '../copy'
@@ -23,7 +24,7 @@ export default function BlockDetail({ data, validator_data }) {
         <div className="flex flex-col lg:flex-row items-start lg:items-center space-x-0 lg:space-x-2">
           <span className="font-semibold">Height:</span>
           {data ?
-            <span>{data.height}</span>
+            <span>{numberFormat(data.height, '0,0')}</span>
             :
             <div className="skeleton w-16 h-4" />
           }
@@ -69,7 +70,7 @@ export default function BlockDetail({ data, validator_data }) {
                 <Link href={`/validator/${data.operator_address}`}>
                   <a>
                     {data.proposer_image ?
-                      <img
+                      <Img
                         src={data.proposer_image}
                         alt=""
                         className="w-6 h-6 rounded-full"

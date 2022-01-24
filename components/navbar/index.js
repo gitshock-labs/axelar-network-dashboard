@@ -266,11 +266,11 @@ export default function Navbar() {
       if (loadProfileTrigger && validators_data?.findIndex(v => v?.description && !v.description.image) > -1) {
         const data = _.cloneDeep(validators_data)
 
-        let updated = false
-
         for (let i = 0; i < data.length; i++) {
           if (!controller.signal.aborted) {
             const v = data[i]
+
+            let updated = false
 
             if (v?.description) {
               if (v.description.identity && !v.description.image) {
@@ -286,15 +286,15 @@ export default function Navbar() {
               v.description.image = v.description.image || randImage(i)
 
               data[i] = v
+            
+              if (updated) {
+                dispatch({
+                  type: VALIDATORS_DATA,
+                  value: data,
+                })
+              }
             }
           }
-        }
-
-        if (updated && !controller.signal.aborted) {
-          dispatch({
-            type: VALIDATORS_DATA,
-            value: data,
-          })
         }
       }
     }

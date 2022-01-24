@@ -1,114 +1,37 @@
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
-import { useSelector, useDispatch, shallowEqual } from 'react-redux'
+import { useSelector, shallowEqual } from 'react-redux'
 
 import _ from 'lodash'
 import moment from 'moment'
+import { Img } from 'react-image'
 import Loader from 'react-loader-spinner'
 
 import Datatable from '../datatable'
 import Copy from '../copy'
 
-import { allValidators, validatorProfile } from '../../lib/api/cosmos'
 import { blocks as getBlocks } from '../../lib/api/opensearch'
 import { numberFormat, ellipseAddress, randImage } from '../../lib/utils'
-
-import { VALIDATORS_DATA } from '../../reducers/types'
 
 const LATEST_SIZE = 100
 const MAX_PAGE = 10
 
 export default function BlocksTable({ n, className = '' }) {
-  const dispatch = useDispatch()
-  const { data, preferences } = useSelector(state => ({ data: state.data, preferences: state.preferences }), shallowEqual)
-  const { denoms_data, validators_data } = { ...data }
+  const { preferences, denoms, validators } = useSelector(state => ({ preferences: state.preferences, denoms: state.denoms, validators: state.validators }), shallowEqual)
   const { theme } = { ...preferences }
-
+  const { denoms_data } = { ...denoms }
+  const { validators_data } = { ...validators }
+  
   const [page, setPage] = useState(0)
   const [moreLoading, setMoreLoading] = useState(false)
   const [blocks, setBlocks] = useState(null)
-  const [loadValsProfile, setLoadValsProfile] = useState(false)
 
   useEffect(() => {
     const controller = new AbortController()
 
-    const getValidators = async () => {
+    const getData = async is_interval => {
       if (!controller.signal.aborted) {
-        if (typeof n !== 'number') {
-          const response = await allValidators({}, validators_data, null, null, null, denoms_data)
-
-          if (response) {
-            dispatch({
-              type: VALIDATORS_DATA,
-              value: response.data,
-            })
-
-            setLoadValsProfile(true)
-          }
-        }
-      }
-    }
-
-    if (denoms_data) {
-      getValidators()
-    }
-
-    const interval = setInterval(() => getValidators(), 10 * 60 * 1000)
-    return () => {
-      controller?.abort()
-      clearInterval(interval)
-    }
-  }, [n, denoms_data])
-
-  useEffect(() => {
-    const controller = new AbortController()
-
-    const getValidatorsProfile = async () => {
-      if (loadValsProfile && validators_data?.findIndex(validator_data => validator_data?.description && !validator_data.description.image) > -1) {
-        const data = _.cloneDeep(validators_data)
-
-        for (let i = 0; i < data.length; i++) {
-          if (!controller.signal.aborted) {
-            const validator_data = data[i]
-
-            if (validator_data?.description) {
-              if (validator_data.description.identity && !validator_data.description.image) {
-                const responseProfile = await validatorProfile({ key_suffix: validator_data.description.identity })
-
-                if (responseProfile?.them?.[0]?.pictures?.primary?.url) {
-                  validator_data.description.image = responseProfile.them[0].pictures.primary.url
-                }
-              }
-
-              validator_data.description.image = validator_data.description.image || randImage(i)
-
-              data[i] = validator_data
-            }
-          }
-        }
-
-        if (!controller.signal.aborted) {
-          dispatch({
-            type: VALIDATORS_DATA,
-            value: data,
-          })
-        }
-      }
-    }
-
-    getValidatorsProfile()
-
-    return () => {
-      controller?.abort()
-    }
-  }, [loadValsProfile])
-
-  useEffect(() => {
-    const controller = new AbortController()
-
-    const getData = async isInterval => {
-      if (!controller.signal.aborted) {
-        if (!n && page && !isInterval) {
+        if (!n && page && !is_interval) {
           setMoreLoading(true)
         }
 
@@ -126,7 +49,7 @@ export default function BlocksTable({ n, className = '' }) {
 
         setBlocks({ data: _data || [] })
 
-        if (!n && page && !isInterval) {
+        if (!n && page && !is_interval) {
           setMoreLoading(false)
         }
       }
@@ -134,7 +57,7 @@ export default function BlocksTable({ n, className = '' }) {
 
     getData()
 
-    const interval = setInterval(() => getData(true), (n ? 5 : 10) * 1000)
+    const interval = setInterval(() => getData(true), 5 * 1000)
     return () => {
       controller?.abort()
       clearInterval(interval)
@@ -186,7 +109,7 @@ export default function BlocksTable({ n, className = '' }) {
                     <Link href={`/validator/${props.row.original.operator_address}`}>
                       <a>
                         {props.row.original.proposer_image ?
-                          <img
+                          <Img
                             src={props.row.original.proposer_image}
                             alt=""
                             className="w-6 h-6 rounded-full"
@@ -269,8 +192,8 @@ export default function BlocksTable({ n, className = '' }) {
           blocks.data.filter((block, i) => !n || i < n).map((block, i) => {
             let proposer_name, proposer_image, operator_address
 
-            if (block?.proposer_address && validators_data?.findIndex(validator_data => validator_data.consensus_address === block.proposer_address) > -1) {
-              const validator_data = validators_data[validators_data.findIndex(validator_data => validator_data.consensus_address === block.proposer_address)]
+            if (block?.proposer_address && validators_data?.findIndex(v => v.consensus_address === block.proposer_address) > -1) {
+              const validator_data = validators_data.find(v => v.consensus_address === block.proposer_address)
 
               operator_address = validator_data.operator_address
 
@@ -290,7 +213,7 @@ export default function BlocksTable({ n, className = '' }) {
         className={`min-h-full ${className}`}
       />
       {blocks && !(blocks.data?.length > 0) && (
-        <div className={`bg-${!n ? 'white' : 'gray-50'} dark:bg-gray-900 text-gray-300 dark:text-gray-500 text-base font-medium italic text-center my-4 py-2`}>
+        <div className={`bg-${!n ? 'white' : 'gray-50'} dark:bg-gray-900 rounded-xl text-gray-300 dark:text-gray-500 text-base font-medium italic text-center my-4 py-2`}>
           No Blocks
         </div>
       )}

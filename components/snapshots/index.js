@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
-import { useSelector, useDispatch, shallowEqual } from 'react-redux'
+import { useSelector, shallowEqual } from 'react-redux'
 
 import StackGrid from 'react-stack-grid'
 import _ from 'lodash'
@@ -10,22 +10,17 @@ import { FiServer } from 'react-icons/fi'
 
 import Widget from '../widget'
 
-import { status as getStatus } from '../../lib/api/rpc'
 import { historical } from '../../lib/api/opensearch'
 import { block as getBlock } from '../../lib/api/cosmos'
 import { numberFormat } from '../../lib/utils'
 
-import { STATUS_DATA } from '../../reducers/types'
-
 const snapshot_block_size = Number(process.env.NEXT_PUBLIC_SNAPSHOT_BLOCK_SIZE)
 
 export default function Snapshots({ n = 100 }) {
-  const dispatch = useDispatch()
-  const { data, preferences } = useSelector(state => ({ data: state.data, preferences: state.preferences }), shallowEqual)
-  const { status_data } = { ...data }
+  const { preferences, status } = useSelector(state => ({ preferences: state.preferences, status: state.status }), shallowEqual)
   const { theme } = { ...preferences }
+  const { status_data } = { ...status }
 
-  const [statusLoaded, setStatusLoaded] = useState(null)
   const [snapshots, setSnapshots] = useState(null)
   const [timer, setTimer] = useState(null)
 
@@ -33,39 +28,10 @@ export default function Snapshots({ n = 100 }) {
     const controller = new AbortController()
 
     const getData = async () => {
-      if (!controller.signal.aborted) {
-        const response = await getStatus()
-
-        if (response) {
-          dispatch({
-            type: STATUS_DATA,
-            value: response,
-          })
-        }
-
-        setStatusLoaded(true)
-      }
-    }
-
-    getData()
-
-    const interval = setInterval(() => getData(), 10 * 1000)
-    return () => {
-      controller?.abort()
-      clearInterval(interval)
-    }
-  }, [])
-
-  useEffect(() => {
-    const controller = new AbortController()
-
-    const getData = async () => {
-      if (!controller.signal.aborted) {
-        if (status_data) {
+      if (status_data) {
+        if (!controller.signal.aborted) {
           const latestBlock = Number(status_data.latest_block_height)
-
           const snapshot_block = latestBlock - (latestBlock % snapshot_block_size)
-
           let response
 
           if (latestBlock >= snapshot_block_size) {
@@ -89,7 +55,7 @@ export default function Snapshots({ n = 100 }) {
             return {
               snapshot_block: Number(key),
               num_validators: value,
-              time: snapshots?.data?.find(_snapshot => _snapshot.snapshot_block === Number(key))?.time,
+              time: snapshots?.data?.find(s => s.snapshot_block === Number(key))?.time,
             }
           }), ['snapshot_block'], ['desc'])
 
@@ -116,18 +82,14 @@ export default function Snapshots({ n = 100 }) {
       }
     }
 
-    if (statusLoaded) {
-      setStatusLoaded(false)
-
-      getData()
-    }
+    getData()
 
     const interval = setInterval(() => getData(), 5 * 60 * 1000)
     return () => {
       controller?.abort()
       clearInterval(interval)
     }
-  }, [statusLoaded])
+  }, [status_data])
 
   useEffect(() => {
     const run = async () => setTimer(moment().unix())

@@ -78,7 +78,7 @@ export default function TransactionDetail({ data }) {
             {data ?
               <div className="text-xs lg:text-base">
                 {data.type ?
-                  <span className="bg-gray-100 dark:bg-gray-800 rounded capitalize text-gray-900 dark:text-gray-100 font-semibold px-2 py-1">
+                  <span className="bg-gray-100 dark:bg-gray-800 rounded-lg capitalize text-gray-900 dark:text-gray-100 font-semibold px-2 py-1">
                     {getName(data.type)}
                   </span>
                   :
