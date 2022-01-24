@@ -74,7 +74,7 @@ export default function SubNavbar() {
         }
       </div>
       <span className="sm:ml-auto" />
-      {pathname?.startsWith('/validator') ?
+      {pathname?.startsWith('/validator') || pathname?.startsWith('/proposal') ?
         <>
           <div className="flex items-center space-x-1.5 mr-4">
             <div className="flex items-center text-gray-500 dark:text-gray-500 space-x-1.5">

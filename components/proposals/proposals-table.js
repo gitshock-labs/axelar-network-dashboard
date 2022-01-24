@@ -11,8 +11,8 @@ import { allProposals } from '../../lib/api/cosmos'
 import { numberFormat, getName } from '../../lib/utils'
 
 export default function ProposalsTable({ className = '' }) {
-  const { _data } = useSelector(state => ({ _data: state.data }), shallowEqual)
-  const { denoms_data } = { ..._data }
+  const { denoms } = useSelector(state => ({ denoms: state.denoms }), shallowEqual)
+  const { denoms_data } = { ...denoms }
 
   const [proposals, setProposals] = useState(null)
 
@@ -224,7 +224,7 @@ export default function ProposalsTable({ className = '' }) {
         className="no-border"
       />
       {proposals?.length < 1 && (
-        <div className="bg-white dark:bg-gray-900 text-gray-300 dark:text-gray-500 text-base font-medium italic text-center my-4 py-2">
+        <div className="bg-white dark:bg-gray-900 rounded-xl text-gray-300 dark:text-gray-500 text-base font-medium italic text-center my-4 mx-2 py-2">
           No Proposals
         </div>
       )}

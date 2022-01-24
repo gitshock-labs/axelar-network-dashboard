@@ -8,122 +8,48 @@ import ProposalDetail from './proposal-detail'
 import VotesTable from './votes-table'
 import Widget from '../widget'
 
-import { allValidators, proposal as getProposal, allProposalVotes, allProposalTally, validatorProfile } from '../../lib/api/cosmos'
+import { proposal as getProposal, allProposalVotes } from '../../lib/api/cosmos'
 import { numberFormat, randImage, getName } from '../../lib/utils'
 
 import { VALIDATORS_DATA } from '../../reducers/types'
 
 export default function Proposal({ id }) {
   const dispatch = useDispatch()
-  const { data } = useSelector(state => ({ data: state.data }), shallowEqual)
-  const { denoms_data, validators_data } = { ...data }
+  const { denoms, validators } = useSelector(state => ({ denoms: state.denoms, validators: state.validators }), shallowEqual)
+  const { denoms_data } = { ...denoms }
+  const { validators_data } = { ...validators }
 
   const [proposal, setProposal] = useState(null)
-  const [loadValsProfile, setLoadValsProfile] = useState(false)
-  const [validatorsSet, setValidatorsSet] = useState(false)
-  const [validatorProfilesSet, setValidatorProfilesSet] = useState(false)
-
-  useEffect(() => {
-    const controller = new AbortController()
-
-    const getValidators = async () => {
-      if (!controller.signal.aborted) {
-        const response = await allValidators({}, validators_data, null, null, null, denoms_data)
-
-        if (response) {
-          dispatch({
-            type: VALIDATORS_DATA,
-            value: response.data,
-          })
-
-          setLoadValsProfile(true)
-        }
-      }
-    }
-
-    if (denoms_data) {
-      getValidators()
-    }
-
-    const interval = setInterval(() => getValidators(), 10 * 60 * 1000)
-    return () => {
-      controller?.abort()
-      clearInterval(interval)
-    }
-  }, [denoms_data])
-
-  useEffect(() => {
-    const controller = new AbortController()
-
-    const getValidatorsProfile = async () => {
-      if (loadValsProfile && validators_data?.findIndex(validator_data => validator_data?.description && !validator_data.description.image) > -1) {
-        const data = _.cloneDeep(validators_data)
-
-        for (let i = 0; i < data.length; i++) {
-          if (!controller.signal.aborted) {
-            const validator_data = data[i]
-
-            if (validator_data?.description) {
-              if (validator_data.description.identity && !validator_data.description.image) {
-                const responseProfile = await validatorProfile({ key_suffix: validator_data.description.identity })
-
-                if (responseProfile?.them?.[0]?.pictures?.primary?.url) {
-                  validator_data.description.image = responseProfile.them[0].pictures.primary.url
-                }
-              }
-
-              validator_data.description.image = validator_data.description.image || randImage(i)
-
-              data[i] = validator_data
-            }
-          }
-        }
-
-        if (!controller.signal.aborted) {
-          dispatch({
-            type: VALIDATORS_DATA,
-            value: data,
-          })
-        }
-      }
-    }
-
-    getValidatorsProfile()
-
-    return () => {
-      controller?.abort()
-    }
-  }, [loadValsProfile])
+  const [validatorsSet, setValidatorsSet] = useState(null)
+  const [profilesSet, setProfilesSet] = useState(null)
 
   useEffect(() => {
     const controller = new AbortController()
 
     const getData = async () => {
-      if (!controller.signal.aborted) {
-        let response = await getProposal(id, null, denoms_data)
+      if (id && denoms_data) {
+        if (!controller.signal.aborted) {
+          let response = await getProposal(id, null, denoms_data)
+          const data = { ...response }
 
-        const data = { ...response }     
+          response = await allProposalVotes(id)
+          const votes = _.orderBy((response?.data || []).map(vote => {
+            return {
+              ...vote,
+              validator_data: validators_data?.find(v => v?.delegator_address?.toLowerCase() === vote?.voter?.toLowerCase()),
+            }
+          }), ['validator_data.tokens', 'validator_data.description.moniker'], ['desc', 'asc'])
 
-        response = await allProposalVotes(id)
+          data.votes = votes
 
-        const votes = _.orderBy((response?.data || []).map(vote => {
-          return {
-            ...vote,
-            validator_data: validators_data?.find(_validator_data => _validator_data?.delegator_address?.toLowerCase() === vote?.voter?.toLowerCase()),
-          }
-        }), ['validator_data.tokens', 'validator_data.description.moniker'], ['desc', 'asc'])
-
-        data.votes = votes
-
-        setProposal({ data, id })
+          setProposal({ data, id })
+        }
       }
     }
 
-    if (id && denoms_data) {
-      getData()
-    }
+    getData()
 
-    const interval = setInterval(() => getData(), 5 * 60 * 1000)
+    const interval = setInterval(() => getData(), 3 * 60 * 1000)
     return () => {
       controller?.abort()
       clearInterval(interval)
@@ -131,28 +57,29 @@ export default function Proposal({ id }) {
   }, [id, denoms_data, validators_data])
 
   useEffect(() => {
-    if (validators_data && proposal?.data?.votes?.length > 0 && (!validatorsSet || !validatorProfilesSet)) {
+    if (validators_data && proposal?.data?.votes?.length > 0 && (!validatorsSet || !profilesSet)) {
       const votes = _.orderBy(proposal.data.votes.map(vote => {
         return {
           ...vote,
-          validator_data: validators_data?.find(_validator_data => _validator_data?.delegator_address?.toLowerCase() === vote?.voter?.toLowerCase()),
+          validator_data: validators_data?.find(v => v?.delegator_address?.toLowerCase() === vote?.voter?.toLowerCase()),
         }
       }), ['validator_data.tokens', 'validator_data.description.moniker'], ['desc', 'asc'])
 
       setProposal({ data: { ...proposal.data, votes }, id })
+
       setValidatorsSet(true)
+
       if (votes.findIndex(_vote => _vote?.validator_data?.description?.identity && !_vote?.validator_data?.description?.image) < 0) {
-        setValidatorProfilesSet(loadValsProfile)
+        setProfilesSet(true)
       }
     }
-  }, [proposal, validators_data, loadValsProfile, validatorsSet, validatorProfilesSet])
+  }, [proposal, validators_data])
 
   const votes = proposal?.id === id && Object.entries(_.groupBy(proposal?.data?.votes || [], 'option')).map(([key, value]) => { return { option: key, value: value?.length || 0 } })
-
   const end = proposal?.data?.voting_end_time && proposal.data.voting_end_time < moment().valueOf()
 
   return (
-    <div className="max-w-6xl my-4 xl:my-6 mx-auto">
+    <div className="max-w-6xl my-2 xl:my-4 mx-auto">
       <ProposalDetail data={proposal?.id === id && proposal?.data} />
       <Widget
         title={<div className="flex items-center text-gray-900 dark:text-white text-lg font-semibold space-x-2.5 mt-3 md:ml-2">

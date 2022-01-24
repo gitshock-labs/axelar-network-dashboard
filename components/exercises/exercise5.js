@@ -2,9 +2,9 @@ import dynamic from 'next/dynamic'
 import { useState, useRef } from 'react'
 import { useSelector, shallowEqual } from 'react-redux'
 
+import _ from 'lodash'
 import { useForm } from 'react-hook-form'
 import Loader from 'react-loader-spinner'
-import _ from 'lodash'
 import { FaCheckCircle, FaTimesCircle } from 'react-icons/fa'
 
 import Copy from '../copy'
@@ -15,8 +15,8 @@ import { ethTx } from '../../lib/api/cryptoapis'
 import { convertToJson, sleep } from '../../lib/utils'
 
 export default function Exercise5() {
-  const { _data, preferences } = useSelector(state => ({ _data: state.data, preferences: state.preferences }), shallowEqual)
-  const { denoms_data } = { ..._data }
+  const { preferences, denoms } = useSelector(state => ({ preferences: state.preferences, denoms: state.denoms }), shallowEqual)
+  const { denoms_data } = { ...denoms }
   const { theme } = { ...preferences }
 
   const { handleSubmit, register, setFocus, formState: { errors }, setError, clearErrors } = useForm()
@@ -24,7 +24,6 @@ export default function Exercise5() {
   const [processing, setProcessing] = useState([])
 
   const processingRef = useRef()
-
   const resultRef = useRef()
 
   const items = [
@@ -362,7 +361,7 @@ export default function Exercise5() {
   const ReactJson = typeof window !== 'undefined' && dynamic(import('react-json-view'))
 
   return (
-    <div className="w-full grid grid-flow-row grid-cols-1 sm:grid-cols-2 gap-2 md:gap-4 my-4">
+    <div className="w-full grid grid-flow-row grid-cols-1 sm:grid-cols-2 gap-2 md:gap-4">
       <form
         onSubmit={handleSubmit(onSubmit)}
         className="form w-full max-w-lg flex flex-wrap"

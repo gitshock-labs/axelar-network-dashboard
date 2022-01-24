@@ -2,7 +2,7 @@ import PropTypes from 'prop-types'
 
 const SectionTitle = ({ title, subtitle, right = null, className = '', subTitleClassName = '' }) => {
   return (
-    <div className="section-title w-full mt-4 mb-2">
+    <div className="section-title w-full mt-4">
       <div className={`flex flex-row ${className.includes(' items-') ? '' : 'items-center'} justify-between ${className}`}>
         <div className="flex flex-col">
           <div className="uppercase text-gray-500 text-xs font-normal">{title}</div>

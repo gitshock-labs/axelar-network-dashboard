@@ -6,11 +6,13 @@ import _ from 'lodash'
 import Datatable from '../datatable'
 import Copy from '../copy'
 
-import { numberFormat, getName, ellipseAddress } from '../../lib/utils'
+import { denomer } from '../../lib/object/denom'
+import { numberFormat, ellipseAddress } from '../../lib/utils'
 
 export default function VotesTable({ data, className = '' }) {
-  const { _data } = useSelector(state => ({ _data: state.data }), shallowEqual)
-  const { validators_data } = { ..._data }
+  const { denoms, validators } = useSelector(state => ({ denoms: state.denoms, validators: state.data }), shallowEqual)
+  const { denoms_data } = { ...denoms }
+  const { validators_data } = { ...validators }
 
   return (
     <>
@@ -112,7 +114,7 @@ export default function VotesTable({ data, className = '' }) {
                 <div className="flex flex-col justify-center text-left sm:text-right">
                   {props.value > 0 ?
                     <>
-                      <span className="font-medium">{numberFormat(Math.floor(props.value / Number(process.env.NEXT_PUBLIC_POWER_REDUCTION)), '0,0.00')}</span>
+                      <span className="font-medium">{numberFormat(Math.floor(denomer(props.value, 'uaxl', denoms_data)), '0,0.00')}</span>
                       {validators_data && (
                         <span className="text-gray-400 dark:text-gray-600">{numberFormat(props.value * 100 / _.sumBy(validators_data.filter(validator => !validator.jailed && ['BOND_STATUS_BONDED'].includes(validator.status)), 'tokens'), '0,0.000')}%</span>
                       )}
@@ -160,7 +162,7 @@ export default function VotesTable({ data, className = '' }) {
         className="small no-border mt-2"
       />
       {data?.length < 1 && (
-        <div className="bg-white dark:bg-gray-900 text-gray-300 dark:text-gray-500 text-base font-medium italic text-center my-4 py-2">
+        <div className="bg-white dark:bg-gray-900 rounded-xl text-gray-300 dark:text-gray-500 text-base font-medium italic text-center my-4 mx-2 py-2">
           No Votes
         </div>
       )}
