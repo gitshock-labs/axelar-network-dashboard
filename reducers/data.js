@@ -1,11 +1,7 @@
-import { DENOMS_DATA, CHAIN_DATA, SLASHING_DATA, STATUS_DATA, VALIDATORS_DATA, VALIDATORS_CHAINS_DATA, JAILED_SYNC_DATA } from './types'
+import { VALIDATORS_DATA, VALIDATORS_CHAINS_DATA, JAILED_SYNC_DATA } from './types'
 
 export default function data(
   state = {
-    [`${DENOMS_DATA}`]: null,
-    [`${CHAIN_DATA}`]: null,
-    [`${SLASHING_DATA}`]: null,
-    [`${STATUS_DATA}`]: null,
     [`${VALIDATORS_DATA}`]: null,
     [`${VALIDATORS_CHAINS_DATA}`]: null,
     [`${JAILED_SYNC_DATA}`]: null,
@@ -13,26 +9,6 @@ export default function data(
   action
 ) {
   switch (action.type) {
-    case DENOMS_DATA:
-      return {
-        ...state,
-        [`${DENOMS_DATA}`]: action.value
-      }
-    case CHAIN_DATA:
-      return {
-        ...state,
-        [`${CHAIN_DATA}`]: action.value
-      }
-    case SLASHING_DATA:
-      return {
-        ...state,
-        [`${SLASHING_DATA}`]: action.value
-      }
-    case STATUS_DATA:
-      return {
-        ...state,
-        [`${STATUS_DATA}`]: action.value
-      }
     case VALIDATORS_DATA:
       return {
         ...state,

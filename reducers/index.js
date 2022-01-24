@@ -1,9 +1,25 @@
 import { combineReducers } from 'redux'
 
 import preferences from './preferences'
-import data from './data'
+import chains from './chains'
+import cosmos_chains from './cosmos-chains'
+import assets from './assets'
+import denoms from './denoms'
+import status from './status'
+import env from './env'
+import validators from './validators'
+import validators_chains from './validators-chains'
+import jailed_sync from './jailed-sync'
 
 export default combineReducers({
   preferences,
-  data,
+  chains,
+  cosmos_chains,
+  assets,
+  denoms,
+  status,
+  env,
+  validators,
+  validators_chains,
+  jailed_sync,
 })

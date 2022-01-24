@@ -6,15 +6,13 @@ import { useSelector, useDispatch, shallowEqual } from 'react-redux'
 import Navbar from '../../components/navbar'
 import Footer from '../../components/footer'
 
-import { denoms as getDenoms } from '../../lib/api/query'
 import meta from '../../lib/meta'
 
-import { DENOMS_DATA, THEME } from '../../reducers/types'
+import { THEME } from '../../reducers/types'
 
 export default function Layout({ children }) {
   const dispatch = useDispatch()
-  const { data, preferences } = useSelector(state => ({ data: state.data, preferences: state.preferences }), shallowEqual)
-  const { denoms_data } = { ...data }
+  const { preferences } = useSelector(state => ({ preferences: state.preferences }), shallowEqual)
   const { theme } = { ...preferences }
 
   const router = useRouter()
@@ -30,31 +28,6 @@ export default function Layout({ children }) {
       }
     }
   }, [theme])
-
-  useEffect(() => {
-    const controller = new AbortController()
-
-    const getData = async () => {
-      if (!controller.signal.aborted) {
-        const response = await getDenoms()
-
-        if (response) {
-          dispatch({
-            type: DENOMS_DATA,
-            value: response,
-          })
-        }
-      }
-    }
-
-    getData()
-
-    const interval = setInterval(() => getData(), 10 * 60 * 1000)
-    return () => {
-      controller?.abort()
-      clearInterval(interval)
-    }
-  }, [])
 
   const headMeta = meta(asPath)
 
@@ -92,9 +65,9 @@ export default function Layout({ children }) {
         className={`antialiased disable-scrollbars font-sans text-sm ${theme}`}
       >
         <div className="wrapper">
-          <div className="main w-full bg-gray-50 dark:bg-black text-gray-900 dark:text-white">
+          <div className="main w-full bg-gray-50 dark:bg-black text-gray-900 dark:text-white" style={{ minHeight: 'calc(100vh - 44px)' }}>
             <Navbar />
-            <div className="w-full min-h-screen p-4">
+            <div className="w-full p-4">
               {children}
             </div>
           </div>

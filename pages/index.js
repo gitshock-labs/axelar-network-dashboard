@@ -1,6 +1,5 @@
 import { useRouter } from 'next/router'
 
-import CoinInfo from '../components/coin-info'
 import Dashboard from '../components/dashboard'
 import SectionTitle from '../components/section-title'
 
@@ -26,14 +25,12 @@ export default function Index() {
       <SectionTitle
         title="Overview"
         subtitle="Dashboard"
-        right={<CoinInfo />}
         className="flex-col sm:flex-row items-start sm:items-center"
       />
       <div className="max-w-8xl mx-auto">
         <Dashboard />
       </div>
-      <div className="dark:bg-black" />
-      <div className="bg-yellow-500" />
+      <div className="dark:bg-black bg-yellow-500" />
     </>
   )
 }
