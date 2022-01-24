@@ -4,9 +4,9 @@ import { useSelector, shallowEqual } from 'react-redux'
 import { Img } from 'react-image'
 
 export default function Logo() {
-  const { data, preferences } = useSelector(state => ({ data: state.data, preferences: state.preferences }), shallowEqual)
-  const { status_data } = { ...data }
+  const { preferences, status } = useSelector(state => ({ preferences: state.preferences, status: state.status }), shallowEqual)
   const { theme } = { ...preferences }
+  const { status_data } = { ...status }
 
   return (
     <div className="logo ml-2.5 mr-1 sm:mx-3">

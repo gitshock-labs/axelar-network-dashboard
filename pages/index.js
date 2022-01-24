@@ -1,7 +1,6 @@
 import { useRouter } from 'next/router'
 
 import Dashboard from '../components/dashboard'
-import SectionTitle from '../components/section-title'
 
 import { isMatchRoute } from '../lib/routes'
 
@@ -22,11 +21,6 @@ export default function Index() {
 
   return (
     <>
-      <SectionTitle
-        title="Overview"
-        subtitle="Dashboard"
-        className="flex-col sm:flex-row items-start sm:items-center"
-      />
       <div className="max-w-8xl mx-auto">
         <Dashboard />
       </div>

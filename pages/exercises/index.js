@@ -2,7 +2,7 @@ import { useRouter } from 'next/router'
 
 import { exercises } from '../../lib/menus'
 
-export default function Exercies() {
+export default function Exercises() {
   const router = useRouter()
   const { pathname } = { ...router }
 

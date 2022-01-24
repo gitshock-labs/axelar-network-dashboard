@@ -2,8 +2,7 @@ import { useEffect } from 'react'
 import { useSelector, useDispatch, shallowEqual } from 'react-redux'
 
 import BigNumber from 'bignumber.js'
-import { FiMenu, FiMoon, FiSun } from 'react-icons/fi'
-import { TiArrowRight } from 'react-icons/ti'
+import { FiMoon, FiSun } from 'react-icons/fi'
 
 import Logo from './logo'
 import DropdownNavigation from './navigation/dropdown'
@@ -11,11 +10,12 @@ import Navigation from './navigation'
 import Search from './search'
 import Network from './network'
 import SubNavbar from './sub-navbar'
+import PageTitle from './page-title'
 
 import { chains, cosmosChains, assets } from '../../lib/api/crosschain_config'
 import { denoms as getDenoms } from '../../lib/api/query'
 import { status } from '../../lib/api/rpc'
-import { slashingParams, stakingParams, stakingPool, bankSupply, communityPool, mintInflation, distributionParams } from '../../lib/api/cosmos'
+import { stakingParams, stakingPool, bankSupply, slashingParams, distributionParams, mintInflation, communityPool } from '../../lib/api/cosmos'
 import { simplePrice } from '../../lib/api/coingecko'
 import { currency } from '../../lib/object/currency'
 
@@ -159,6 +159,19 @@ export default function Navbar() {
           })
         }
 
+        response = await stakingPool()
+
+        dispatch({
+          type: ENV_DATA,
+          value: {
+            staking_pool: Object.fromEntries(Object.entries(response?.pool || {}).map(([key, value]) => {
+              const denom = denoms_data?.find(_denom => [_denom?.id, _denom?.ibc].includes(key))
+
+              return [key, isNaN(value) ? value : BigNumber(value).shiftedBy(-(denom?.contract_decimals || 6)).toNumber()]
+            })),
+          },
+        })
+
         const res = await fetch(process.env.NEXT_PUBLIC_NETWORK_RELEASES_URL)
         response = await res.text()
 
@@ -212,19 +225,6 @@ export default function Navbar() {
             }) || [],
           },
         })
-
-        response = await stakingPool()
-
-        dispatch({
-          type: ENV_DATA,
-          value: {
-            staking_pool: Object.fromEntries(Object.entries(response?.pool || {}).map(([key, value]) => {
-              const denom = denoms_data?.find(_denom => [_denom?.id, _denom?.ibc].includes(key))
-
-              return [key, isNaN(value) ? value : BigNumber(value).shiftedBy(-(denom?.contract_decimals || 6)).toNumber()]
-            })),
-          },
-        })
       }
     }
 
@@ -262,6 +262,7 @@ export default function Navbar() {
         </div>
       </div>
       <SubNavbar />
+      <PageTitle />
     </>
   )
 }

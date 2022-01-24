@@ -11,8 +11,8 @@ import { exercises } from '../../lib/menus'
 export default function Exercise() {
   const router = useRouter()
   const { query } = { ...router }
-  const { exercise_id } = { ...query }
-  const exercise = exercise_id && exercises.find(_exercise => _exercise.id === exercise_id)
+  const { id } = { ...query }
+  const exercise = id && exercises.find(_exercise => _exercise.id === id)
 
   return (
     <>
@@ -50,7 +50,7 @@ export default function Exercise() {
         right={<div className="flex flex-wrap">
           {exercises.filter(ex => !ex.disabled).map((item, i) => (
             <Link key={i} href={`/exercises/${item.id}`}>
-              <a className={`bg-transparent hover:bg-gray-200 dark:hover:bg-gray-800 rounded-lg flex items-center uppercase space-x-1.5 p-2 ${item.id === exercise_id ? 'text-gray-900 hover:text-gray-800 dark:text-gray-100 dark:hover:text-gray-200 font-bold' : 'text-gray-600 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 font-medium'}`}>
+              <a className={`bg-transparent hover:bg-gray-200 dark:hover:bg-gray-800 rounded-lg flex items-center uppercase space-x-1.5 p-2 ${item.id === id ? 'text-gray-900 hover:text-gray-800 dark:text-gray-100 dark:hover:text-gray-200 font-bold' : 'text-gray-600 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 font-medium'}`}>
                 <span className="text-xs">Ex {item.id}</span>
               </a>
             </Link>
@@ -59,7 +59,7 @@ export default function Exercise() {
         subTitleClassName="min-w-min"
         className="flex-col sm:flex-row items-start sm:items-center"
       />
-      <Exercises id={exercise_id} />
+      <Exercises id={id} />
     </>
   )
 }
