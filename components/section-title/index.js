@@ -6,7 +6,7 @@ const SectionTitle = ({ title, subtitle, right = null, className = '', subTitleC
       <div className={`flex flex-row ${className.includes(' items-') ? '' : 'items-center'} justify-between ${className}`}>
         <div className="flex flex-col">
           <div className="uppercase text-gray-500 text-xs font-normal">{title}</div>
-          <div className={`${subTitleClassName.includes('min-w-') ? '' : 'min-w-max'} text-xl font-semibold ${subTitleClassName}`}>{subtitle}</div>
+          <div className={`text-xl font-semibold ${subTitleClassName}`}>{subtitle}</div>
         </div>
         {right}
       </div>
