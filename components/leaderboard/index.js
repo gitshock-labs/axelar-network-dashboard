@@ -124,7 +124,6 @@ export default function Leaderboard({ n = 100 }) {
 
   useEffect(() => {
     const getData = async () => {
-      console.log(loading ,fromSnapshot ,toSnapshot)
       if (loading && fromSnapshot && toSnapshot) {
         setReadyToLoad(false)
 

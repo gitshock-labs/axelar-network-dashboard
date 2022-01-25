@@ -14,21 +14,25 @@ import Network from './network'
 import SubNavbar from './sub-navbar'
 import PageTitle from './page-title'
 
-import { chains, cosmosChains, assets } from '../../lib/api/crosschain_config'
+import { chains as getChains, cosmosChains, assets } from '../../lib/api/crosschain_config'
 import { denoms as getDenoms } from '../../lib/api/query'
-import { status } from '../../lib/api/rpc'
-import { stakingParams, stakingPool, bankSupply, slashingParams, distributionParams, mintInflation, communityPool, allValidators, validatorProfile } from '../../lib/api/cosmos'
+import { status as getStatus } from '../../lib/api/rpc'
+import { stakingParams, stakingPool, bankSupply, slashingParams, distributionParams, mintInflation, communityPool, allValidators, validatorProfile, allValidatorsStatus, allValidatorsBroadcaster, chainMaintainer } from '../../lib/api/cosmos'
+import { heartbeats as getHeartbeats } from '../../lib/api/opensearch'
 import { simplePrice } from '../../lib/api/coingecko'
 import { currency } from '../../lib/object/currency'
 import { denomer } from '../../lib/object/denom'
+import { lastHeartbeatBlock, firstHeartbeatBlock } from '../../lib/object/hb'
 
-import { THEME, CHAINS_DATA, COSMOS_CHAINS_DATA, ASSETS_DATA, DENOMS_DATA, STATUS_DATA, ENV_DATA, VALIDATORS_DATA } from '../../reducers/types'
+import { THEME, CHAINS_DATA, COSMOS_CHAINS_DATA, ASSETS_DATA, DENOMS_DATA, STATUS_DATA, ENV_DATA, VALIDATORS_DATA, VALIDATORS_CHAINS_DATA } from '../../reducers/types'
 
 export default function Navbar() {
   const dispatch = useDispatch()
-  const { preferences, denoms, validators } = useSelector(state => ({ preferences: state.preferences, denoms: state.denoms, validators: state.validators }), shallowEqual)
+  const { preferences, chains, denoms, status, validators } = useSelector(state => ({ preferences: state.preferences, chains: state.chains, denoms: state.denoms, status: state.status, validators: state.validators }), shallowEqual)
   const { theme } = { ...preferences }
+  const { chains_data } = { ...chains }
   const { denoms_data } = { ...denoms }
+  const { status_data } = { ...status }
   const { validators_data } = { ...validators }
 
   const router = useRouter()
@@ -38,7 +42,7 @@ export default function Navbar() {
 
   useEffect(() => {
     const getData = async () => {
-      const response = await chains()
+      const response = await getChains()
 
       dispatch({
         type: CHAINS_DATA,
@@ -128,7 +132,7 @@ export default function Navbar() {
 
   useEffect(() => {
     const getData = async () => {
-      const response = await status()
+      const response = await getStatus()
 
       dispatch({
         type: STATUS_DATA,
@@ -236,9 +240,84 @@ export default function Navbar() {
     const controller = new AbortController()
 
     const getData = async () => {
-      if (denoms_data) {
+      if (denoms_data && status_data) {
         if (!controller.signal.aborted) {
-          const response = await allValidators(null, validators_data, null, null, null, denoms_data)
+          let response
+
+          switch (pathname) {
+            case '/validators':
+            case '/validators/[status]':
+            case '/participations':
+              response = await allValidators(null, validators_data, query.status || 'active', null, Number(status_data.latest_block_height), denoms_data)
+              
+              dispatch({
+                type: VALIDATORS_DATA,
+                value: response?.data || [],
+              })
+
+              if (!['participations'].includes(pathname)) {
+                response = await allValidatorsBroadcaster(response?.data, null, denoms_data)
+                if (response?.data?.length > 0) {
+                  const vs = response.data
+
+                  response = await getHeartbeats({
+                    _source: false,
+                    aggs: {
+                      heartbeats: {
+                        terms: { field: 'sender.keyword', size: 10000 },
+                        aggs: {
+                          heightgroup: {
+                            terms: { field: 'height_group', size: 100000 },
+                          },
+                        },
+                      },
+                    },
+                    query: {
+                      bool: {
+                        must: [
+                          { range: { height: { gte: firstHeartbeatBlock(Number(status_data.latest_block_height) - Number(process.env.NEXT_PUBLIC_NUM_HEARTBEAT_BLOCKS)), lte: Number(status_data.latest_block_height) } } },
+                        ],
+                      },
+                    },
+                  })
+
+                  for (let i = 0; i < vs.length; i++) {
+                    const v = vs[i]
+
+                    const _last = lastHeartbeatBlock(Number(status_data.latest_block_height))
+                    // const _first = firstHeartbeatBlock(v?.start_proxy_height || v?.start_height)
+                    let _first = Number(status_data.latest_block_height) - Number(process.env.NEXT_PUBLIC_NUM_HEARTBEAT_BLOCKS)
+                    _first = _first >= 0 ? firstHeartbeatBlock(_first) : firstHeartbeatBlock(_first)
+
+                    const totalHeartbeats = Math.floor((_last - _first) / Number(process.env.NEXT_PUBLIC_NUM_BLOCKS_PER_HEARTBEAT)) + 1
+                    const up_heartbeats = response?.data?.[v?.broadcaster_address] || 0
+
+                    let missed_heartbeats = totalHeartbeats - up_heartbeats
+                    missed_heartbeats = missed_heartbeats < 0 ? 0 : missed_heartbeats
+
+                    let heartbeats_uptime = totalHeartbeats > 0 ? up_heartbeats * 100 / totalHeartbeats : 0
+                    heartbeats_uptime = heartbeats_uptime > 100 ? 100 : heartbeats_uptime
+
+                    v.heartbeats_uptime = heartbeats_uptime
+
+                    vs[i] = v
+                  }
+
+                  response.data = vs
+
+                  dispatch({
+                    type: VALIDATORS_DATA,
+                    value: response.data,
+                  })
+                }
+              }
+
+              response = await allValidatorsStatus(response?.data || [])
+              break
+            default:
+              response = await allValidators(null, validators_data, null, null, null, denoms_data)
+              break
+          }
 
           dispatch({
             type: VALIDATORS_DATA,
@@ -257,7 +336,38 @@ export default function Navbar() {
       controller?.abort()
       clearInterval(interval)
     }
-  }, [denoms_data, pathname])
+  }, [denoms_data, status_data, pathname])
+
+  useEffect(() => {
+    const controller = new AbortController()
+
+    const getData = async (id, chains) => {
+      if (!controller.signal.aborted) {
+        const response = await chainMaintainer(id, chains)
+
+        if (response) {
+          dispatch({
+            type: VALIDATORS_CHAINS_DATA,
+            value: response,
+          })
+        }
+      }
+    }
+
+    const getMaintainersData = () => {
+      if (chains_data && ['/validators', '/participations'].includes(pathname)) {
+        chains_data.map(c => c?.id).forEach(id => getData(id, chains_data))
+      }
+    }
+
+    getMaintainersData()
+
+    const interval = setInterval(() => getMaintainersData(), 5 * 60 * 1000)
+    return () => {
+      controller?.abort()
+      clearInterval(interval)
+    }
+  }, [chains_data, pathname])
 
   useEffect(() => {
     const controller = new AbortController()

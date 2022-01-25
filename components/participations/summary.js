@@ -7,49 +7,50 @@ import { FiServer } from 'react-icons/fi'
 
 import Widget from '../widget'
 
-import { feeDenom, denomSymbol, denomAmount } from '../../lib/object/denom'
-import { idFromEvmId, chains, chainImage } from '../../lib/object/chain'
+import { denomer } from '../../lib/object/denom'
+import { chain_manager } from '../../lib/object/chain'
 import { numberFormat } from '../../lib/utils'
 
-const Summary = ({ data, successKeygens, failedKeygens, signAttempts, failedSignAttempts }) => {
-  const { _data } = useSelector(state => ({ _data: state.data }), shallowEqual)
-  const { denoms_data, validators_data, validators_chains_data } = { ..._data }
+const Summary = ({ data, successKeygens, failedKeygens, successSignAttempts, failedSignAttempts }) => {
+  const { chains, denoms, validators, validators_chains } = useSelector(state => ({ chains: state.chains, denoms: state.denoms, validators: state.validators, validators_chains: state.validators_chains }), shallowEqual)
+  const { chains_data } = { ...chains }
+  const { denoms_data } = { ...denoms }
+  const { validators_data } = { ...validators }
+  const { validators_chains_data } = { ...validators_chains }
 
   const keyRequirements = _.groupBy(data?.tss?.params?.key_requirements || [], 'key_type')
-
-  const activeValidators = validators_data?.filter(validator => ['BOND_STATUS_BONDED'].includes(validator.status)).map(validator_data => {
+  const activeValidators = validators_data?.filter(v => ['BOND_STATUS_BONDED'].includes(v.status)).map(v => {
     return {
-      ...validator_data,
-      supported_chains: _.uniq(_.concat(validator_data?.supported_chains || [], Object.entries(validators_chains_data || {}).filter(([key, value]) => value?.includes(validator_data?.operator_address)).map(([key, value]) => key))),
+      ...v,
+      supported_chains: _.uniq(_.concat(v?.supported_chains || [], Object.entries(validators_chains_data || {}).filter(([key, value]) => value?.includes(v?.operator_address)).map(([key, value]) => key))),
     }
   })
 
   let evmVotingThreshold = data?.evm?.chains
+  if (evmVotingThreshold?.length > 0 && chains_data) {
+    for (let i = 0; i < chains_data.length; i++) {
+      const chain = chains_data[i]
 
-  // if (evmVotingThreshold?.length > 0 && chains) {
-  //   for (let i = 0; i < chains.length; i++) {
-  //     const chain = chains[i]
-
-  //     if (chain.threshold && evmVotingThreshold.findIndex(_chain => _chain?.params?.chain === chain?.name) < 0) {
-  //       evmVotingThreshold.push({ ...evmVotingThreshold[0], chain: chain?.name })
-  //     }
-  //   }
-  // }
-
-  evmVotingThreshold = evmVotingThreshold?.map(_chain => {
-    const maintainValidators = activeValidators?.findIndex(validator => validator.supported_chains?.includes(idFromEvmId(_chain?.params?.chain))) > -1 && activeValidators.filter(validator => validator.supported_chains?.includes(idFromEvmId(_chain?.params?.chain)))
-
-    return {
-      ..._chain?.params,
-      num_maintain_validators: maintainValidators?.length,
-      maintain_staking: denoms_data && maintainValidators && denomAmount(_.sumBy(maintainValidators, 'tokens'), feeDenom, denoms_data),
-      total_staking: denoms_data && activeValidators && denomAmount(_.sumBy(activeValidators, 'tokens'), feeDenom, denoms_data),
-      denom: denoms_data && denomSymbol(feeDenom, denoms_data),
+      if (evmVotingThreshold.findIndex(c => c?.params?.chain?.toLowerCase() === chain?.id) < 0) {
+        evmVotingThreshold.push({ ...evmVotingThreshold[0], params: { ...evmVotingThreshold[0]?.params, chain: chain?.id } })
+      }
     }
-  }).map(_chain => {
+  }
+
+  evmVotingThreshold = evmVotingThreshold?.map(c => {
+    const maintainValidators = activeValidators?.findIndex(v => v.supported_chains?.includes(chain_manager.maintainer_id(c?.params?.chain, chains_data))) > -1 && activeValidators.filter(v => v.supported_chains?.includes(chain_manager.maintainer_id(c?.params?.chain, chains_data)))
+
     return {
-      ..._chain,
-      staking_percentage: typeof _chain.maintain_staking === 'number' && typeof _chain.total_staking === 'number' && (_chain.maintain_staking * 100 / _chain.total_staking),
+      ...c,
+      num_maintain_validators: maintainValidators?.length,
+      maintain_staking: denoms_data && maintainValidators && denomer.amount(_.sumBy(maintainValidators, 'tokens'), 'uaxl', denoms_data),
+      total_staking: denoms_data && activeValidators && denomer.amount(_.sumBy(activeValidators, 'tokens'), 'uaxl', denoms_data),
+      denom: denoms_data && denomer.symbol('uaxl', denoms_data),
+    }
+  }).map(c => {
+    return {
+      ...c,
+      staking_percentage: typeof c.maintain_staking === 'number' && typeof c.total_staking === 'number' && (c.maintain_staking * 100 / c.total_staking),
     }
   })
 
@@ -187,8 +188,8 @@ const Summary = ({ data, successKeygens, failedKeygens, signAttempts, failedSign
       >
         <span className="flex flex-col space-y-1 mt-1.5">
           <div className="flex flex-row space-x-1.5">
-            {typeof signAttempts === 'number' ?
-              <span className="h-8 text-3xl font-semibold">{numberFormat(signAttempts, '0,0')}</span>
+            {typeof successSignAttempts === 'number' ?
+              <span className="h-8 text-3xl font-semibold">{numberFormat(successSignAttempts, '0,0')}</span>
               :
               <div className="skeleton w-12 h-7 mt-1" />
             }
@@ -207,16 +208,16 @@ const Summary = ({ data, successKeygens, failedKeygens, signAttempts, failedSign
         </span>
       </Widget>
       {evmVotingThreshold ?
-        evmVotingThreshold.map((_chain, i) => (
+        evmVotingThreshold.map((c, i) => (
           <Widget
             key={i}
             title={<div className="flex items-center">
               <img
-                src={chainImage(idFromEvmId(_chain?.chain))}
+                src={chain_manager.image(c?.params?.chain, chains_data)}
                 alt=""
                 className="w-6 h-6 rounded-full mr-1.5"
               />
-              <span>{_chain?.chain}</span>
+              <span className="capitalize">{chain_manager.title(c?.params?.chain, chains_data)}</span>
             </div>}
             className="xl:col-span-2 bg-transparent sm:bg-white sm:dark:bg-gray-900 border-0 sm:border border-gray-100 dark:border-gray-900 p-0 sm:p-4"
           >
@@ -226,7 +227,7 @@ const Summary = ({ data, successKeygens, failedKeygens, signAttempts, failedSign
                   <div className="uppercase text-gray-400 dark:text-gray-600 text-xs">Threshold</div>
                   <div className="grid grid-flow-row grid-cols-2 gap-2">
                     <span key={i} className="h-8 text-3xl lg:text-2xl xl:text-3xl font-semibold">
-                      {_chain.voting_threshold?.denominator > 0 ? numberFormat(_chain.voting_threshold.numerator * 100 / _chain.voting_threshold.denominator, '0,0.00') : '-'}
+                      {c?.params?.voting_threshold?.denominator > 0 ? numberFormat(c.params.voting_threshold.numerator * 100 / c.params.voting_threshold.denominator, '0,0.00') : '-'}
                       <span className="text-lg font-normal">%</span>
                     </span>
                   </div>
@@ -234,13 +235,13 @@ const Summary = ({ data, successKeygens, failedKeygens, signAttempts, failedSign
                 <div className="col-span-1">
                   <div className="uppercase text-gray-400 dark:text-gray-600 text-xs">Stake Maintaining</div>
                   <div className="grid grid-flow-row grid-cols-1 gap-2">
-                    {typeof _chain.staking_percentage === 'number' ?
+                    {typeof c.staking_percentage === 'number' ?
                       <span className="h-8 flex items-center text-3xl lg:text-2xl xl:text-3xl font-semibold">
-                        <span>{numberFormat(_chain.staking_percentage, '0,0.00')}</span>
+                        <span>{numberFormat(c.staking_percentage, '0,0.00')}</span>
                         <span className="text-lg font-normal mr-1 pt-2">%</span>
                         <span className="flex items-center text-gray-400 dark:text-gray-600 text-2xs space-x-1 pt-2">
                           (
-                          <span>{numberFormat(_chain.num_maintain_validators, '0,0')} / {numberFormat(activeValidators?.length, '0,0')}</span>
+                          <span>{numberFormat(c.num_maintain_validators, '0,0')} / {numberFormat(activeValidators?.length, '0,0')}</span>
                           <FiServer size={12} className="stroke-current" />
                           )
                         </span>
@@ -253,12 +254,12 @@ const Summary = ({ data, successKeygens, failedKeygens, signAttempts, failedSign
               </div>
               <div className="grid grid-flow-row grid-cols-2 gap-4">
                 <div className="col-span-1">
-                  {typeof _chain.staking_percentage === 'number' ?
+                  {typeof c.staking_percentage === 'number' ?
                     <span className="text-gray-400 dark:text-gray-600 text-xs font-normal mt-1">
-                      <span className="mr-1">{numberFormat(_chain.maintain_staking, '0,0.00a')}</span>
+                      <span className="mr-1">{numberFormat(c.maintain_staking, '0,0.00a')}</span>
                       <span className="mr-1">/</span>
-                      <span className="mr-1">{numberFormat(_chain.total_staking, '0,0.00a')}</span>
-                      <span className="uppercase font-medium mr-1">{_chain.denom}</span>
+                      <span className="mr-1">{numberFormat(c.total_staking, '0,0.00a')}</span>
+                      <span className="uppercase font-medium mr-1">{c.denom}</span>
                     </span>
                     :
                     <div className="skeleton w-20 h-4 mt-1" />
@@ -294,7 +295,7 @@ Summary.propTypes = {
   data: PropTypes.any,
   successKeygens: PropTypes.any,
   failedKeygens: PropTypes.any,
-  signAttempts: PropTypes.any,
+  successSignAttempts: PropTypes.any,
   failedSignAttempts: PropTypes.any,
 }
 
