@@ -1,9 +1,11 @@
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
-import { useSelector, shallowEqual } from 'react-redux'
+import { useSelector, useDispatch, shallowEqual } from 'react-redux'
 
 import _ from 'lodash'
 import moment from 'moment'
+import { providers, constants, Contract } from 'ethers'
+import BigNumber from 'bignumber.js'
 
 import Summary from './summary'
 import BlocksTable from '../blocks/blocks-table'
@@ -13,15 +15,23 @@ import Widget from '../widget'
 import { consensusState } from '../../lib/api/rpc'
 import { crosschainTxs } from '../../lib/api/opensearch'
 import { hexToBech32 } from '../../lib/object/key'
-import { denomer } from '../../lib/object/denom'
-import { chain_manager } from '../../lib/object/chain'
+import { getDenom, denomer } from '../../lib/object/denom'
+import { getChain } from '../../lib/object/chain'
+import { currency } from '../../lib/object/currency'
 import { numberFormat } from '../../lib/utils'
 
+import { TVL_DATA } from '../../reducers/types'
+
+BigNumber.config({ DECIMAL_PLACES: Number(process.env.NEXT_PUBLIC_MAX_BIGNUMBER_EXPONENTIAL_AT), EXPONENTIAL_AT: [-7, Number(process.env.NEXT_PUBLIC_MAX_BIGNUMBER_EXPONENTIAL_AT)] })
+
 export default function Dashboard() {
-  const { chains, cosmos_chains, denoms, status, env, validators } = useSelector(state => ({ chains: state.chains, cosmos_chains: state.cosmos_chains, denoms: state.denoms, status: state.status, env: state.env, validators: state.validators }), shallowEqual)
+  const dispatch = useDispatch()
+  const { chains, cosmos_chains, assets, denoms, tvl, status, env, validators } = useSelector(state => ({ chains: state.chains, cosmos_chains: state.cosmos_chains, assets: state.assets, denoms: state.denoms, tvl: state.tvl, status: state.status, env: state.env, validators: state.validators }), shallowEqual)
   const { chains_data } = { ...chains }
   const { cosmos_chains_data } = { ...cosmos_chains }
+  const { assets_data } = { ...assets }
   const { denoms_data } = { ...denoms }
+  const { tvl_data } = { ...tvl }
   const { status_data } = { ...status }
   const { env_data } = { ...env }
   const { validators_data } = { ...validators }
@@ -31,8 +41,7 @@ export default function Dashboard() {
 
   const [crosschainSummaryData, setCrosschainSummaryData] = useState(null)
   const [crosschainTVLData, setCrosschainTVLData] = useState(null)
-  const [avgTransfersTimeRange, setAvgTransfersTimeRange] = useState(null)
-  const [chainAssetSelect, setChainAssetSelect] = useState(null)
+  const [assetSelect, setAssetSelect] = useState(null)
   const [crosschainChartData, setCrosschainChartData] = useState(null)
 
   useEffect(() => {
@@ -91,219 +100,199 @@ export default function Dashboard() {
     getData()
   }, [denoms_data, status_data, env_data, validators_data, consensusStateData])
 
+  useEffect(() => {
+    const controller = new AbortController()
 
+    const getData = async () => {
+      if (chains_data && cosmos_chains_data && denoms_data) {
+        let response
 
+        if (!controller.signal.aborted) {
+          response = await crosschainTxs({
+            aggs: {
+              from_chains: {
+                terms: { field: 'send.sender_chain.keyword', size: 10000 },
+                aggs: {
+                  to_chains: {
+                    terms: { field: 'send.recipient_chain.keyword', size: 10000 },
+                    aggs: {
+                      assets: {
+                        terms: { field: 'send.denom.keyword', size: 10000 },
+                        aggs: {
+                          amounts: {
+                            sum: {
+                              field: 'send.amount',
+                            },
+                          },
+                          avg_amounts: {
+                            avg: {
+                              field: 'send.amount',
+                            },
+                          },
+                          since: {
+                            min: {
+                              field: 'send.created_at.ms',
+                            },
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          })
+        }
 
-  // useEffect(() => {
-  //   const controller = new AbortController()
+        const total_transfers = _.orderBy(response?.data?.map(t => {
+          return {
+            ...t,
+            from_chain: getChain(t?.from_chain, chains_data) || getChain(t?.from_chain, cosmos_chains_data),
+            to_chain: getChain(t?.to_chain, chains_data) || getChain(t?.to_chain, cosmos_chains_data),
+            asset: getDenom(t?.asset, denoms_data),
+            amount: denomer.amount(t?.amount, t?.asset, denoms_data),
+            avg_amount: denomer.amount(t?.avg_amount, t?.asset, denoms_data),
+          }
+        }).map(t => {
+          return {
+            ...t,
+            value: (t?.asset?.token_data?.[currency] && (t.asset.token_data[currency] * t.amount)) || -1,
+            avg_value: (t?.asset?.token_data?.[currency] && (t.asset.token_data[currency] * t.avg_amount)) || -1,
+          }
+        }), ['tx'], ['desc'])
 
-  //   const getData = async is_interval => {
-  //     if (denoms_data) {
-  //       let response
+        if (!controller.signal.aborted) {
+          response = await crosschainTxs({
+            aggs: {
+              from_chains: {
+                terms: { field: 'send.sender_chain.keyword', size: 10000 },
+                aggs: {
+                  to_chains: {
+                    terms: { field: 'send.recipient_chain.keyword', size: 10000 },
+                    aggs: {
+                      assets: {
+                        terms: { field: 'send.denom.keyword', size: 10000 },
+                        aggs: {
+                          max_amounts: {
+                            max: {
+                              field: 'send.amount',
+                            },
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            query: { range: { 'send.created_at.ms': { gt: moment().subtract(24, 'hours').valueOf() } } },
+          })
+        }
 
-  //       if (!controller.signal.aborted) {
-  //         if (is_interval || !avgTransfersTimeRange) {
-  //           response = await crosschainTxs({
-  //             aggs: {
-  //               transfers: {
-  //                 terms: { field: 'chain.keyword', size: 10000 },
-  //                 aggs: {
-  //                   assets: {
-  //                     terms: { field: 'contract.name.keyword', size: 10000 },
-  //                     aggs: {
-  //                       amounts: {
-  //                         sum: {
-  //                           field: 'amount',
-  //                         },
-  //                       },
-  //                       since: {
-  //                         min: {
-  //                           field: 'created_at.ms',
-  //                         },
-  //                       },
-  //                     },
-  //                   },
-  //                 },
-  //               },
-  //             },
-  //           })
-  //         }
-  //       }
+        const highest_transfer_24h = _.orderBy(response?.data?.map(t => {
+          return {
+            ...t,
+            from_chain: getChain(t?.from_chain, chains_data) || getChain(t?.from_chain, cosmos_chains_data),
+            to_chain: getChain(t?.to_chain, chains_data) || getChain(t?.to_chain, cosmos_chains_data),
+            asset: getDenom(t?.asset, denoms_data),
+            max_amount: denomer.amount(t?.max_amount, t?.asset, denoms_data),
+          }
+        }).map(t => {
+          return {
+            ...t,
+            max_value: (t?.asset?.token_data?.[currency] && (t.asset.token_data[currency] * t.max_amount)) || -1,
+          }
+        }), ['max_value', 'max_amount'], ['desc', 'desc'])
 
-  //       const total_transfers = !(is_interval || !avgTransfersTimeRange) ? crosschainSummaryData?.total_transfers : _.orderBy(response?.data?.map(transfer => {
-  //         return {
-  //           ...transfer,
-  //           chain_name: chainName(idFromMaintainerId(transfer.chain)),
-  //           chain_image: chainImage(idFromMaintainerId(transfer.chain)),
-  //           asset_name: denomName(transfer.asset, denoms_data),
-  //           asset_image: denomImage(transfer.asset, denoms_data),
-  //           asset_symbol: denomSymbol(transfer.asset, denoms_data),
-  //           amount: denomAmount(transfer.amount, transfer.asset, denoms_data),
-  //         }
-  //       }), ['tx'], ['desc'])
+        setCrosschainSummaryData({
+          total_transfers,
+          highest_transfer_24h,
+        })
+      }
+    }
 
-  //       if (!controller.signal.aborted) {
-  //         response = await transfers({
-  //           aggs: {
-  //             transfers: {
-  //               terms: { field: 'chain.keyword', size: 10000 },
-  //               aggs: {
-  //                 assets: {
-  //                   terms: { field: 'contract.name.keyword', size: 10000 },
-  //                   aggs: {
-  //                     amounts: {
-  //                       avg: {
-  //                         field: 'amount',
-  //                       },
-  //                     },
-  //                   },
-  //                 },
-  //               },
-  //             },
-  //           },
-  //           query: avgTransfersTimeRange?.split('').findIndex(c => !isNaN(c)) > -1 ? { range: { 'created_at.ms': { gt: moment().subtract(avgTransfersTimeRange.substring(0, avgTransfersTimeRange.split('').findIndex(c => isNaN(c))), [avgTransfersTimeRange.split('').find(c => isNaN(c))].map(timeRange => timeRange === 'y' ? 'year' : timeRange === 'm' ? 'month' : timeRange === 'h' ? 'hour' : 'day')).valueOf() } } } : undefined,
-  //         })
-  //       }
+    getData()
 
-  //       const avg_transfers = _.orderBy(response?.data?.map(transfer => {
-  //         return {
-  //           ...transfer,
-  //           chain_name: chainName(idFromMaintainerId(transfer.chain)),
-  //           chain_image: chainImage(idFromMaintainerId(transfer.chain)),
-  //           asset_name: denomName(transfer.asset, denoms_data),
-  //           asset_image: denomImage(transfer.asset, denoms_data),
-  //           asset_symbol: denomSymbol(transfer.asset, denoms_data),
-  //           amount: denomAmount(transfer.amount, transfer.asset, denoms_data),
-  //         }
-  //       }), ['tx'], ['desc'])
+    const interval = setInterval(() => getData(), 30 * 1000)
+    return () => {
+      controller?.abort()
+      clearInterval(interval)
+    }
+  }, [chains_data, cosmos_chains_data, denoms_data])
 
-  //       if (!controller.signal.aborted) {
-  //         if (is_interval || !avgTransfersTimeRange) {
-  //           response = await transfers({
-  //             aggs: {
-  //               transfers: {
-  //                 terms: { field: 'chain.keyword', size: 10000 },
-  //                 aggs: {
-  //                   assets: {
-  //                     terms: { field: 'contract.name.keyword', size: 10000 },
-  //                     aggs: {
-  //                       amounts: {
-  //                         max: {
-  //                           field: 'amount',
-  //                         },
-  //                       },
-  //                     },
-  //                   },
-  //                 },
-  //               },
-  //             },
-  //             query: { range: { 'created_at.ms': { gt: moment().subtract(24, 'hours').valueOf() } } },
-  //           })
-  //         }
-  //       }
+  useEffect(() => {
+    const controller = new AbortController()
 
-  //       const highest_transfer_24h = !(is_interval || !avgTransfersTimeRange) ? crosschainSummaryData?.highest_transfer_24h : _.orderBy(response?.data?.map(transfer => {
-  //         return {
-  //           ...transfer,
-  //           chain_name: chainName(idFromMaintainerId(transfer.chain)),
-  //           chain_image: chainImage(idFromMaintainerId(transfer.chain)),
-  //           asset_name: denomName(transfer.asset, denoms_data),
-  //           asset_image: denomImage(transfer.asset, denoms_data),
-  //           asset_symbol: denomSymbol(transfer.asset, denoms_data),
-  //           amount: denomAmount(transfer.amount, transfer.asset, denoms_data),
-  //         }
-  //       }), ['tx'], ['desc'])
+    const getContractSupply = async (chain, contract) => {
+      let supply
 
-  //       setCrosschainSummaryData({
-  //         total_transfers,
-  //         avg_transfers,
-  //         highest_transfer_24h,
-  //       })
-  //     }
-  //   }
+      if (chain && contract) {
+        const provider_urls = chain.provider_params?.[0]?.rpcUrls?.filter(rpc => rpc && !rpc.startsWith('wss://') && !rpc.startsWith('ws://')).map(rpc => new providers.JsonRpcProvider(rpc)) || []
+        const provider = new providers.FallbackProvider(provider_urls)
 
-  //   getData()
+        const _contract = new Contract(contract.contract_address, ['function totalSupply() view returns (uint256)'], provider)
+        supply = await _contract.totalSupply()
+      }
 
-  //   const interval = setInterval(() => getData(true), 30 * 1000)
-  //   return () => {
-  //     controller?.abort()
-  //     clearInterval(interval)
-  //   }
-  // }, [denoms_data, avgTransfersTimeRange])
+      return supply && BigNumber(supply.toString()).shiftedBy(-contract.contract_decimals).toNumber()
+    }
 
-  // useEffect(() => {
-  //   const controller = new AbortController()
+    const getData = async (chain, assets) => {
+      if (!controller.signal.aborted) {
+        if (assets) {
+          for (let i = 0; i < assets.length; i++) {
 
-  //   const getData = async isInterval => {
-  //     if (denoms_data) {
-  //       let tvls
-  //       const tvls_updated_at = moment().valueOf()
+            const contract = assets[i]?.contracts?.find(contract => contract?.chain_id === chain.chain_id)
 
-  //       if (!controller.signal.aborted) {
-  //         if (isInterval || !avgTransfersTimeRange) {
-  //           const responseIn = (await crosschainTxs({
-  //             aggs: {
-  //               assets: {
-  //                 terms: { field: 'contract.name.keyword', size: 10000 },
-  //                 aggs: {
-  //                   amounts: {
-  //                     sum: {
-  //                       field: 'amount',
-  //                     },
-  //                   },
-  //                 },
-  //               },
-  //             },
-  //             query: { match: { 'logs.events.attributes.value': 'ConfirmDeposit' } },
-  //           }))?.data || []
+            if (contract) {
+              const supply = await getContractSupply(chain, contract)
 
-  //           const responseOut = (await crosschainTxs({
-  //             aggs: {
-  //               assets: {
-  //                 terms: { field: 'contract.name.keyword', size: 10000 },
-  //                 aggs: {
-  //                   amounts: {
-  //                     sum: {
-  //                       field: 'amount',
-  //                     },
-  //                   },
-  //                 },
-  //               },
-  //             },
-  //             query: { match: { 'logs.events.attributes.value': 'ConfirmERC20Deposit' } },
-  //           }))?.data || []
+              dispatch({
+                type: TVL_DATA,
+                value: { [`${chain.id}_${contract.contract_address}`]: supply },
+              })
+            }
+          }
+        }
+      }
+    }
 
-  //           const allAssets = _.uniq(_.concat(responseIn, responseOut).map(transfer => transfer.asset)).filter(asset => asset)
+    const getTVLData = () => {
+      if (chains_data && assets_data) {
+        chains_data.forEach(c => getData(c, assets_data))
+      }
+    }
 
-  //           tvls = _.orderBy(allAssets.map(asset => {
-  //             return {
-  //               asset_name: denomName(asset, denoms_data),
-  //               asset_image: denomImage(asset, denoms_data),
-  //               asset_symbol: denomSymbol(asset, denoms_data),
-  //               amount: _.sum(_.concat(
-  //                 responseIn.filter(transfer => transfer.asset === asset).map(transfer => denomAmount(transfer.amount, asset, denoms_data)),
-  //                 responseOut.filter(transfer => transfer.asset === asset).map(transfer => -1 * denomAmount(transfer.amount, asset, denoms_data)),
-  //               )),
-  //             }
-  //           }), ['amount'], ['desc'])
-  //         }
-  //       }
+    getTVLData()
 
-  //       setCrosschainTVLData({
-  //         tvls,
-  //         tvls_updated_at,
-  //       })
-  //     }
-  //   }
+    const interval = setInterval(() => getTVLData(), 30 * 1000)
+    return () => {
+      controller?.abort()
+      clearInterval(interval)
+    }
+  }, [chains_data, assets_data])
 
-  //   getData()
+  useEffect(() => {
+    if (tvl_data) {
+      const data = Object.entries(tvl_data).map(([key, value]) => {
+        const chain = chains_data?.find(c => c?.id === _.head(key.split('_')))
+        const asset = assets_data?.find(a => a?.contracts?.findIndex(c => c?.chain_id === chain?.chain_id && c.contract_address === _.last(key.split('_'))) > -1)
+        const denom = denoms_data?.find(d => d?.id === asset?.id)
+        const amount = value
+        const _value = (denom?.token_data?.[currency] * amount) || 0
 
-  //   const interval = setInterval(() => getData(true), 30 * 1000)
-  //   return () => {
-  //     controller?.abort()
-  //     clearInterval(interval)
-  //   }
-  // }, [denoms_data, avgTransfersTimeRange])
+        return {
+          chain,
+          asset,
+          denom,
+          amount,
+          value: _value,
+        }
+      })
+
+      setCrosschainTVLData({ data, updated_at: moment().valueOf() })
+    }
+  }, [denoms_data, tvl_data])
 
   // useEffect(() => {
   //   if (!chainAssetSelect && crosschainSummaryData?.total_transfers?.[0]?.id) {
@@ -450,10 +439,8 @@ export default function Dashboard() {
         data={summaryData}
         crosschainData={crosschainSummaryData}
         tvlData={crosschainTVLData}
-        avgTransfersTimeRange={avgTransfersTimeRange || 'all-time'}
-        setAvgTransfersTimeRange={timeRange => setAvgTransfersTimeRange(timeRange)}
-        chainAssetSelect={chainAssetSelect || crosschainSummaryData?.total_transfers?.[0]?.chain}
-        setChainAssetSelect={chain => setChainAssetSelect(chain)}
+        assetSelect={assetSelect || crosschainSummaryData?.total_transfers?.[0]?.chain}
+        setAssetSelect={chain => setAssetSelect(chain)}
         chartData={crosschainChartData}
       />
       <div className="w-full grid grid-flow-row grid-cols-1 lg:grid-cols-2 gap-5 mt-6 mb-4">

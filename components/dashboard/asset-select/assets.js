@@ -1,9 +1,9 @@
 import { randImage } from '../../../lib/utils'
 
-export default function ChainAssets({ chainAssets, handleDropdownClick }) {
+export default function Assets({ assets, handleDropdownClick }) {
   return (
     <div className="flex flex-wrap py-1">
-      {chainAssets?.map((item, i) => (
+      {assets?.map((item, i) => (
         <div
           key={i}
           onClick={() => handleDropdownClick(item.id)}

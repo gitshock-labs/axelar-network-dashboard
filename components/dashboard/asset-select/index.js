@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 
 import { MdExpandMore, MdExpandLess } from 'react-icons/md'
 
-import ChainAssets from './chainAssets'
+import Assets from './assets'
 
 import { randImage } from '../../../lib/utils'
 

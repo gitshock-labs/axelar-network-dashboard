@@ -20,6 +20,7 @@
     "bignumber.js": "^9.0.2",
     "create-hash": "^1.2.0",
     "env-cmd": "^10.1.0",
+    "ethers": "^5.5.3",
     "lodash": "^4.17.21",
     "moment": "^2.29.1",
     "next": "^11.0.0",

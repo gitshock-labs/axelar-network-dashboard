@@ -137,7 +137,7 @@ export default function NetworkGraph({ data }) {
               textBaseline: 'bottom',
             },
           },
-          curveOffset: (index % 2 === 0 ? -1 : 1) * (index + 1) * 30,
+          curveOffset: (index % 2 === 0 ? -1 : 1) * Math.ceil((index + 1) / 2) * 35,
           style: {
             stroke: theme === 'dark' ? '#333' : '#ddd',
           },

@@ -120,7 +120,7 @@ export default function TransfersTable({ data, className = '' }) {
           {
             Header: 'Volume',
             accessor: 'amount',
-            disableSortBy: true,
+            sortType: (rowA, rowB) => rowA.original.value > rowB.original.value ? 1 : rowA.original.value < rowB.original.value ? -1 : rowA.original.amount > rowB.original.amount ? 1 : -1,
             Cell: props => (
               !props.row.original.skeleton ?
                 <div className="text-right my-1.5">
@@ -130,7 +130,7 @@ export default function TransfersTable({ data, className = '' }) {
                         <span className="font-mono font-semibold">{numberFormat(props.value, props.value >= 100000 ? '0,0.00a' : '0,0.000')}</span>
                         <span className="text-gray-400 dark:text-gray-600">{props.row.original.asset?.symbol?.replace('axelar', '')}</span>
                       </span>
-                      {typeof props.row.original.value === 'number' && (
+                      {props.row.original.value > 0 && (
                         <span className="font-mono text-gray-400 dark:text-gray-600 text-2xs font-medium">
                           {currency_symbol}{numberFormat(props.row.original.value, '0,0.00')}
                         </span>
@@ -152,7 +152,7 @@ export default function TransfersTable({ data, className = '' }) {
           {
             Header: 'Avg. Size',
             accessor: 'avg_amount',
-            disableSortBy: true,
+            sortType: (rowA, rowB) => rowA.original.avg_value > rowB.original.avg_value ? 1 : rowA.original.avg_value < rowB.original.avg_value ? -1 : rowA.original.avg_amount > rowB.original.avg_amount ? 1 : -1,
             Cell: props => (
               !props.row.original.skeleton ?
                 <div className="text-right my-1.5">
@@ -162,7 +162,7 @@ export default function TransfersTable({ data, className = '' }) {
                         <span className="font-mono font-semibold">{numberFormat(props.value, props.value >= 100000 ? '0,0.00a' : '0,0.000')}</span>
                         <span className="text-gray-400 dark:text-gray-600">{props.row.original.asset?.symbol?.replace('axelar', '')}</span>
                       </span>
-                      {typeof props.row.original.avg_value === 'number' && (
+                      {props.row.original.avg_value > 0 && (
                         <span className="font-mono text-gray-400 dark:text-gray-600 text-2xs font-medium">
                           {currency_symbol}{numberFormat(props.row.original.avg_value, '0,0.00')}
                         </span>

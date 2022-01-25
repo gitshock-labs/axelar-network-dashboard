@@ -5,6 +5,7 @@ import chains from './chains'
 import cosmos_chains from './cosmos-chains'
 import assets from './assets'
 import denoms from './denoms'
+import tvl from './tvl'
 import status from './status'
 import env from './env'
 import validators from './validators'
@@ -17,6 +18,7 @@ export default combineReducers({
   cosmos_chains,
   assets,
   denoms,
+  tvl,
   status,
   env,
   validators,

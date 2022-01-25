@@ -73,11 +73,10 @@ export default function Crosschain() {
             avg_amount: denomer.amount(t?.avg_amount, t?.asset, denoms_data),
           }
         }).map(t => {
-          console.log(t.asset)
           return {
             ...t,
-            value: t?.asset?.token_data?.[currency] && (t.asset.token_data[currency] * t.amount),
-            avg_value: t?.asset?.token_data?.[currency] && (t.asset.token_data[currency] * t.avg_amount),
+            value: (t?.asset?.token_data?.[currency] && (t.asset.token_data[currency] * t.amount)) || -1,
+            avg_value: (t?.asset?.token_data?.[currency] && (t.asset.token_data[currency] * t.avg_amount)) || -1,
           }
         }), ['tx'], ['desc'])
 

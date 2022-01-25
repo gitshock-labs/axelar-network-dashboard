@@ -6,21 +6,22 @@ import { useSelector, shallowEqual } from 'react-redux'
 import _ from 'lodash'
 import moment from 'moment'
 import Loader from 'react-loader-spinner'
-import { BiNetworkChart } from 'react-icons/bi'
+import { BiNetworkChart, BiCode } from 'react-icons/bi'
+import { TiArrowRight } from 'react-icons/ti'
 
-import ChainAssetSelect from './chainAssetSelect'
+import AssetSelect from './asset-select'
 import TimelyTransactions from './charts/timely-transactions'
 import TimelyVolume from './charts/timely-volume'
 import TimelyHighestTransfer from './charts/timely-highest-transfer'
 import Widget from '../widget'
 import Copy from '../copy'
-import { ProgressBarWithText } from '../progress-bars'
+import Popover from '../popover'
 
-import { numberFormat, ellipseAddress, randImage } from '../../lib/utils'
+import { chainTitle } from '../../lib/object/chain'
+import { currency_symbol } from '../../lib/object/currency'
+import { numberFormat, ellipseAddress } from '../../lib/utils'
 
-const timeRanges = ['all-time', '30d', '7d', '24h']
-
-const Summary = ({ data, crosschainData, tvlData, avgTransfersTimeRange, setAvgTransfersTimeRange, chainAssetSelect, setChainAssetSelect, chartData }) => {
+const Summary = ({ data, crosschainData, tvlData, assetSelect, setAssetSelect, chartData }) => {
   const { preferences } = useSelector(state => ({ preferences: state.preferences }), shallowEqual)
   const { theme } = { ...preferences }
 
@@ -38,7 +39,7 @@ const Summary = ({ data, crosschainData, tvlData, avgTransfersTimeRange, setAvgT
           </div>}
           className="bg-transparent sm:bg-white sm:dark:bg-gray-900 shadow border-0 px-4 sm:py-4"
         >
-          <span className="flex flex-col space-y-1 mt-1">
+          <div className="flex flex-col space-y-1 mt-1">
             {data ?
               <span className="h-8">
                 {data?.latest_block?.operator_address ?
@@ -104,13 +105,13 @@ const Summary = ({ data, crosschainData, tvlData, avgTransfersTimeRange, setAvgT
                 }
               </div>
             </span>
-          </span>
+          </div>
         </Widget>
         <Widget
           title="Latest Block Height"
           className="bg-transparent sm:bg-white sm:dark:bg-gray-900 shadow border-0 px-4 sm:py-4"
         >
-          <span className="flex flex-col space-y-1 mt-1">
+          <div className="flex flex-col space-y-1 mt-1">
             {data ?
               <span className="h-8 font-mono text-3xl font-semibold">
                 {typeof data.block_height === 'number' && numberFormat(data.block_height, '0,0')}
@@ -125,13 +126,13 @@ const Summary = ({ data, crosschainData, tvlData, avgTransfersTimeRange, setAvgT
                 <div className="skeleton w-32 h-3.5 mt-0.5" />
               }
             </span>
-          </span>
+          </div>
         </Widget>
         <Widget
           title="Average Block Time"
           className="bg-transparent sm:bg-white sm:dark:bg-gray-900 shadow border-0 px-4 sm:py-4"
         >
-          <span className="flex flex-col item space-y-1 mt-1">
+          <div className="flex flex-col item space-y-1 mt-1">
             {data ?
               <span className="h-8 font-mono text-3xl font-semibold">
                 {typeof data.avg_block_time === 'number' && numberFormat(data.avg_block_time, '0.00')}
@@ -140,13 +141,13 @@ const Summary = ({ data, crosschainData, tvlData, avgTransfersTimeRange, setAvgT
               <div className="skeleton w-24 h-7 mt-1" />
             }
             <span className="text-gray-400 dark:text-gray-600 text-sm font-normal">seconds</span>
-          </span>
+          </div>
         </Widget>
         <Widget
           title="Active Validators"
           className="bg-transparent sm:bg-white sm:dark:bg-gray-900 shadow border-0 px-4 sm:py-4"
         >
-          <span className="flex flex-col space-y-1 mt-1">
+          <div className="flex flex-col space-y-1 mt-1">
             {typeof data?.active_validators === 'number' ?
               <span className="h-8 font-mono text-3xl font-semibold">
                 {numberFormat(data.active_validators, '0,0')}
@@ -165,13 +166,13 @@ const Summary = ({ data, crosschainData, tvlData, avgTransfersTimeRange, setAvgT
               }
               <span>validators</span>
             </span>
-          </span>
+          </div>
         </Widget>
         <Widget
           title="Online Voting Power"
           className="bg-transparent sm:bg-white sm:dark:bg-gray-900 shadow border-0 px-4 sm:py-4"
         >
-          <span className="flex flex-col space-y-1 mt-1">
+          <div className="flex flex-col space-y-1 mt-1">
             {data?.online_voting_power_now ?
               <span className="h-8 font-mono text-3xl font-semibold">
                 {data.online_voting_power_now}
@@ -199,14 +200,11 @@ const Summary = ({ data, crosschainData, tvlData, avgTransfersTimeRange, setAvgT
                 {data && ellipseAddress(data.denom)}
               </span>
             </span>
-          </span>
+          </div>
         </Widget>
       </div>
-      <div className="flex items-center text-gray-900 dark:text-gray-100 text-base font-semibold mt-8 sm:mx-3">
-        Cross-chain Transfers
-        <span className="bg-gray-200 dark:bg-gray-900 rounded-3xl capitalize text-2xs ml-2 px-1.5 py-1">
-          Beta
-        </span>
+      <div className="flex items-center text-base mt-8 sm:mx-3">
+        <span className="font-mono text-gray-400 dark:text-gray-600">Cross-chain Transfers</span>
         <Link href="/crosschain">
           <a className="flex items-center text-blue-600 dark:text-white text-sm font-normal space-x-1 ml-auto">
             <span>Explore More</span>
@@ -214,54 +212,56 @@ const Summary = ({ data, crosschainData, tvlData, avgTransfersTimeRange, setAvgT
           </a>
         </Link>
       </div>
-      <div className="w-full grid grid-flow-row grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-8 sm:gap-2 mt-1.5 mb-4">
+      <div className="w-full grid grid-flow-row grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 mt-2 mb-4">
         <Widget
           title={<span className="text-black dark:text-white text-base font-semibold">Transactions</span>}
           description={<span className="text-gray-400 dark:text-gray-500 text-xs font-normal">Number of cross-chain transactions</span>}
-          className="bg-transparent sm:bg-white sm:dark:bg-gray-900 border-0 sm:border border-gray-100 dark:border-gray-900 p-0 sm:p-4"
+          className="bg-transparent sm:bg-white sm:dark:bg-gray-900 border-0 px-4 sm:py-4"
         >
-          <span className="flex flex-col space-y-1.5 mt-1">
+          <div className="flex flex-col space-y-2 mt-1">
             {crosschainData ?
-              <div className="max-h-48 sm:max-h-72 flex flex-col overflow-y-auto space-y-2.5 mt-1">
-                {crosschainData.total_transfers?.map((coinTransfer, i) => (
-                  <div key={i} className="flex items-start">
-                    <div>
-                      <div className="flex items-center space-x-8">
+              <div className="max-h-48 sm:max-h-56 flex flex-col overflow-y-auto space-y-3">
+                {crosschainData.total_transfers?.map((t, i) => (
+                  <div key={i} className="flex items-center justify-between my-1">
+                    <div className="flex items-center space-x-2">
+                      <img
+                        src={t.from_chain?.image}
+                        alt=""
+                        className="w-8 h-8 rounded-full"
+                      />
+                      <div className="flex items-center space-x-0.5">
+                        <BiCode size={20} />
                         <img
-                          src={coinTransfer.asset_image || randImage(i)}
+                          src={t.asset?.image}
                           alt=""
-                          className="w-5 h-5 rounded-full"
-                        />
-                        <img
-                          src={coinTransfer.chain_image || randImage(i)}
-                          alt=""
-                          className="w-5 h-5 rounded-full"
+                          className="w-4 h-4 rounded-full"
                         />
                       </div>
-                      <div className="flex items-center space-x-1 mt-0.5">
-                        <span className="uppercase text-gray-900 dark:text-gray-100 text-xs font-semibold">
-                          ${coinTransfer.asset_symbol}
-                        </span>
-                        <span className="text-gray-400 dark:text-gray-600 text-xs font-normal">on</span>
-                        <span className="text-gray-600 dark:text-gray-400 text-xs font-semibold">
-                          {coinTransfer.chain_name}
-                        </span>
-                      </div>
+                      <img
+                        src={t.to_chain?.image}
+                        alt=""
+                        className="w-8 h-8 rounded-full"
+                      />
                     </div>
-                    <div className="flex items-center space-x-1 ml-auto">
-                      <span className="font-mono text-gray-800 dark:text-gray-100 text-base font-semibold">{numberFormat(coinTransfer.tx, coinTransfer.tx >= 100000 ? '0,0.00a' : '0,0')}</span>
-                      <span className="text-gray-400 dark:text-gray-600 text-xs">Txs</span>
+                    <div className="flex items-center space-x-1">
+                      <span className="font-mono text-gray-800 dark:text-gray-100 text-base font-semibold">
+                        {numberFormat(t.tx, t.tx >= 100000 ? '0,0.00a' : '0,0')}
+                      </span>
                     </div>
                   </div>
                 ))}
               </div>
               :
-              <div className="flex flex-col space-y-3 mt-2">
+              <div className="flex flex-col space-y-3">
                 {[...Array(5).keys()].map(i => (
-                  <div key={i} className="flex items-start">
-                    <div>
-                      <div className="skeleton w-5 h-5 rounded-full" />
-                      <div className="skeleton w-12 h-3 mt-1.5" />
+                  <div key={i} className="flex items-center justify-between my-1">
+                    <div className="flex items-center space-x-2">
+                      <div className="skeleton w-8 h-8 rounded-full" />
+                      <div className="flex items-center space-x-0.5">
+                        <BiCode size={20} />
+                        <div className="skeleton w-4 h-4 rounded-full" />
+                      </div>
+                      <div className="skeleton w-8 h-8 rounded-full" />
                     </div>
                     <div className="skeleton w-16 h-5 ml-auto" />
                   </div>
@@ -271,66 +271,71 @@ const Summary = ({ data, crosschainData, tvlData, avgTransfersTimeRange, setAvgT
             <span className="flex items-center text-gray-400 dark:text-gray-600 text-sm font-normal space-x-1.5 ml-auto">
               <span>total</span>
               {crosschainData ?
-                <span className="font-mono text-gray-600 dark:text-gray-400 font-medium">{numberFormat(_.sumBy(crosschainData.total_transfers, 'tx'), '0,0')}</span>
+                <span className="font-mono text-gray-700 dark:text-gray-300 font-semibold">{numberFormat(_.sumBy(crosschainData.total_transfers, 'tx'), '0,0')}</span>
                 :
-                <div className="skeleton w-6 h-3.5" />
+                <div className="skeleton w-6 h-4" />
               }
-              <span>Txs</span>
+              <span>transactions</span>
             </span>
-          </span>
+          </div>
         </Widget>
         <Widget
           title={<span className="text-black dark:text-white text-base font-semibold">Volume</span>}
           description={<span className="text-gray-400 dark:text-gray-500 text-xs font-normal">Transfer volume across chain</span>}
-          className="bg-transparent sm:bg-white sm:dark:bg-gray-900 border-0 sm:border border-gray-100 dark:border-gray-900 p-0 sm:p-4"
+          className="bg-transparent sm:bg-white sm:dark:bg-gray-900 border-0 px-4 sm:py-4"
         >
-          <span className="flex flex-col space-y-1.5 mt-1">
+          <div className="flex flex-col space-y-2 mt-1">
             {crosschainData ?
-              <div className="max-h-48 sm:max-h-72 flex flex-col overflow-y-auto space-y-2.5 mt-1">
-                {crosschainData.total_transfers?.map((coinTransfer, i) => (
-                  <div key={i} className="flex items-start">
-                    <div>
-                      <div className="flex items-center space-x-8">
+              <div className="max-h-48 sm:max-h-56 flex flex-col overflow-y-auto space-y-3">
+                {_.orderBy(crosschainData.total_transfers || [], ['value', 'amount', 'tx'], ['desc', 'desc', 'desc']).map((t, i) => (
+                  <div key={i} className="flex items-center justify-between my-1">
+                    <div className="flex items-center space-x-2">
+                      <img
+                        src={t.from_chain?.image}
+                        alt=""
+                        className="w-8 h-8 rounded-full"
+                      />
+                      <div className="flex items-center space-x-0.5">
+                        <BiCode size={20} />
                         <img
-                          src={coinTransfer.asset_image || randImage(i)}
+                          src={t.asset?.image}
                           alt=""
-                          className="w-5 h-5 rounded-full"
-                        />
-                        <img
-                          src={coinTransfer.chain_image || randImage(i)}
-                          alt=""
-                          className="w-5 h-5 rounded-full"
+                          className="w-4 h-4 rounded-full"
                         />
                       </div>
-                      <div className="flex items-center space-x-1 mt-0.5">
-                        <span className="uppercase text-gray-900 dark:text-gray-100 text-xs font-semibold">
-                          ${coinTransfer.asset_symbol}
-                        </span>
-                        <span className="text-gray-400 dark:text-gray-600 text-xs font-normal">on</span>
-                        <span className="text-gray-600 dark:text-gray-400 text-xs font-semibold">
-                          {coinTransfer.chain_name}
-                        </span>
-                      </div>
+                      <img
+                        src={t.to_chain?.image}
+                        alt=""
+                        className="w-8 h-8 rounded-full"
+                      />
                     </div>
-                    <div className="text-right ml-auto">
-                      <div className="font-mono text-gray-800 dark:text-gray-100 text-base font-semibold">{numberFormat(coinTransfer.amount, coinTransfer.amount >= 100000 ? '0,0.00a' : '0,0.00000000')}</div>
-                      <div className="uppercase text-gray-400 dark:text-gray-600 text-xs -mt-0.5">{coinTransfer.asset_symbol}</div>
+                    <div className="flex flex-col items-end space-y-1.5">
+                      <span className="text-2xs space-x-1">
+                        <span className="font-mono font-semibold">{numberFormat(t.amount, t.amount >= 100000 ? '0,0.00a' : '0,0.000')}</span>
+                        <span className="text-gray-400 dark:text-gray-600">{t.asset?.symbol?.replace('axelar', '')}</span>
+                      </span>
+                      {t.value > 0 && (
+                        <span className="font-mono text-gray-400 dark:text-gray-600 text-3xs font-medium">
+                          {currency_symbol}{numberFormat(t.value, '0,0.00')}
+                        </span>
+                      )}
                     </div>
                   </div>
                 ))}
               </div>
               :
-              <div className="flex flex-col space-y-3 mt-2">
+              <div className="flex flex-col space-y-3">
                 {[...Array(5).keys()].map(i => (
-                  <div key={i} className="flex items-start">
-                    <div>
-                      <div className="skeleton w-5 h-5 rounded-full" />
-                      <div className="skeleton w-12 h-3 mt-1.5" />
+                  <div key={i} className="flex items-center justify-between my-1">
+                    <div className="flex items-center space-x-2">
+                      <div className="skeleton w-8 h-8 rounded-full" />
+                      <div className="flex items-center space-x-0.5">
+                        <BiCode size={20} />
+                        <div className="skeleton w-4 h-4 rounded-full" />
+                      </div>
+                      <div className="skeleton w-8 h-8 rounded-full" />
                     </div>
-                    <div className="ml-auto">
-                      <div className="skeleton w-16 h-5 ml-auto" />
-                      <div className="skeleton w-8 h-3 mt-1.5 ml-auto" />
-                    </div>
+                    <div className="skeleton w-16 h-5 ml-auto" />
                   </div>
                 ))}
               </div>
@@ -338,151 +343,219 @@ const Summary = ({ data, crosschainData, tvlData, avgTransfersTimeRange, setAvgT
             <span className="flex items-center text-gray-400 dark:text-gray-600 text-sm font-normal space-x-1.5">
               <span>since</span>
               {crosschainData ?
-                <span className="font-medium">{moment(_.minBy(crosschainData.total_transfers, 'since')?.since).format('MMM D, YYYY')}</span>
+                <span className="text-gray-700 dark:text-gray-300 font-medium">{moment(_.minBy(crosschainData.total_transfers, 'since')?.since).format('MMM D, YYYY')}</span>
                 :
-                <div className="skeleton w-20 h-3.5" />
+                <div className="skeleton w-20 h-4" />
               }
             </span>
-          </span>
+          </div>
         </Widget>
         <Widget
           title={<span className="text-black dark:text-white text-base font-semibold">TVL</span>}
-          description={<span className="text-gray-400 dark:text-gray-500 text-xs font-normal">Total Value Locked on {process.env.NEXT_PUBLIC_APP_NAME}</span>}
-          className="bg-transparent sm:bg-white sm:dark:bg-gray-900 border-0 sm:border border-gray-100 dark:border-gray-900 p-0 sm:p-4"
+          description={<span className="text-gray-400 dark:text-gray-500 text-xs font-normal">Total Value Locked on Axelar Network</span>}
+          className="bg-transparent sm:bg-white sm:dark:bg-gray-900 border-0 px-4 sm:py-4"
         >
-          <span className="flex flex-col space-y-1.5 mt-1">
+          <div className="flex flex-col space-y-2 mt-1">
             {tvlData ?
-              <div className="max-h-48 sm:max-h-72 flex flex-col overflow-y-auto space-y-2.5 mt-1">
-                {tvlData.tvls?.map((coinTransfer, i) => (
-                  <div key={i} className="flex items-start">
-                    <div>
-                      <div className="flex items-center">
-                        <img
-                          src={coinTransfer.asset_image || randImage(i)}
-                          alt=""
-                          className="w-5 h-5 rounded-full"
-                        />
-                      </div>
-                      <div className="flex items-center space-x-1.5 mt-0.5">
-                        <span className="text-gray-900 dark:text-gray-100 text-xs font-semibold">
-                          {coinTransfer.asset_name}
+              <div className="max-h-48 sm:max-h-56 flex flex-col overflow-y-auto space-y-3">
+                {_.orderBy(Object.entries(_.groupBy(tvlData.data || [], 'asset.id')).map(([key, value]) => {
+                  return {
+                    asset: _.head(value)?.asset,
+                    denom: _.head(value)?.denom,
+                    amount: _.sumBy(value, 'amount'),
+                    value: _.sumBy(value, 'value'),
+                    contracts: value.map(v => {
+                      return {
+                        chain: v.chain,
+                        contract: v.asset?.contracts?.find(c => c.chain_id === v.chain?.chain_id),
+                        denom: v.denom,
+                        amount: v.amount,
+                        value: v.value,
+                      }
+                    })
+                  }
+                }), ['value', 'amount'], ['desc', 'desc']).map((t, i) => (
+                  <div key={i} className="flex items-center justify-between my-1">
+                    <div className="flex items-center space-x-2">
+                      <img
+                        src={t.asset?.image}
+                        alt=""
+                        className="w-8 h-8 rounded-full"
+                      />
+                      <div className="flex flex-col space-y-1.5">
+                        <span className="text-2xs font-semibold">
+                          {t.denom?.title}
                         </span>
-                        <span className="uppercase text-gray-400 dark:text-gray-400 text-xs font-normal">
-                          ${coinTransfer.asset_symbol}
+                        <span className="font-mono text-gray-400 dark:text-gray-600 text-3xs font-medium">
+                          {t.denom?.symbol}
                         </span>
                       </div>
                     </div>
-                    <div className="text-right ml-auto">
-                      <div className="font-mono text-gray-800 dark:text-gray-100 text-base font-semibold">{numberFormat(coinTransfer.amount, coinTransfer.amount >= 100000 ? '0,0.00a' : '0,0.000')}</div>
-                      <div className="uppercase text-gray-400 dark:text-gray-600 text-xs -mt-0.5">{coinTransfer.asset_symbol}</div>
-                    </div>
+                    <Popover
+                      placement="top"
+                      title={<span className="normal-case">Supply on EVMs</span>}
+                      content={<div className="w-60 space-y-2">
+                        {_.orderBy(t.contracts || [], ['amount'], ['desc']).map((c, j) => (
+                          <div key={j} className="flex items-center justify-between space-x-2">
+                            <div className="flex flex-col">
+                              <span className="font-semibold">{chainTitle(c.chain)}</span>
+                              <div className="flex items-center space-x-1">
+                                {c.contract?.contract_address ?
+                                  <>
+                                    <Copy
+                                      text={c.contract.contract_address}
+                                      copyTitle={<span className="text-xs font-normal">
+                                        {ellipseAddress(c.contract.contract_address, 6)}
+                                      </span>}
+                                    />
+                                    {c.chain?.explorer?.url && (
+                                      <a
+                                        href={`${c.chain.explorer.url}${c.chain.explorer.contract_path?.replace('{address}', c.contract.contract_address)}`}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="text-blue-600 dark:text-white"
+                                      >
+                                        {c.chain.explorer.icon ?
+                                          <img
+                                            src={c.chain.explorer.icon}
+                                            alt=""
+                                            className="w-3.5 h-3.5 rounded-full opacity-60 hover:opacity-100"
+                                          />
+                                          :
+                                          <TiArrowRight size={16} className="transform -rotate-45" />
+                                        }
+                                      </a>
+                                    )}
+                                  </>
+                                  :
+                                  '-'
+                                }
+                              </div>
+                            </div>
+                            <div className="flex flex-col items-end space-y-1.5">
+                              <span className="text-2xs space-x-1">
+                                <span className="font-mono font-semibold">{numberFormat(c.amount, c.amount >= 100000 ? '0,0.00a' : '0,0.000')}</span>
+                                <span className="text-gray-400 dark:text-gray-600">{c.denom?.symbol?.replace('axelar', '')}</span>
+                              </span>
+                              {c.value > 0 && (
+                                <span className="font-mono text-gray-400 dark:text-gray-600 text-3xs font-medium">
+                                  {currency_symbol}{numberFormat(c.value, '0,0.00')}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                      </div>}
+                    >
+                      <div className="flex flex-col items-end space-y-1.5">
+                        <span className="text-2xs space-x-1">
+                          <span className="font-mono font-semibold">{numberFormat(t.amount, t.amount >= 100000 ? '0,0.00a' : '0,0.000')}</span>
+                          <span className="text-gray-400 dark:text-gray-600">{t.asset?.symbol?.replace('axelar', '')}</span>
+                        </span>
+                        {t.value > 0 && (
+                          <span className="font-mono text-gray-400 dark:text-gray-600 text-3xs font-medium">
+                            {currency_symbol}{numberFormat(t.value, '0,0.00')}
+                          </span>
+                        )}
+                      </div>
+                    </Popover>
                   </div>
                 ))}
               </div>
               :
-              <div className="flex flex-col space-y-3 mt-2">
+              <div className="flex flex-col space-y-3">
                 {[...Array(5).keys()].map(i => (
-                  <div key={i} className="flex items-start">
-                    <div>
-                      <div className="skeleton w-5 h-5 rounded-full" />
-                      <div className="skeleton w-12 h-3 mt-1.5" />
+                  <div key={i} className="flex items-center justify-between my-1">
+                    <div className="flex items-center space-x-2">
+                      <div className="skeleton w-8 h-8 rounded-full" />
+                      <div className="skeleton w-16 h-5" />
                     </div>
-                    <div className="ml-auto">
-                      <div className="skeleton w-16 h-5 ml-auto" />
-                      <div className="skeleton w-8 h-3 mt-1.5 ml-auto" />
-                    </div>
+                    <div className="skeleton w-16 h-5 ml-auto" />
                   </div>
                 ))}
               </div>
             }
-            <div className="flex items-center">
+            <span className="flex items-center justify-between text-gray-400 dark:text-gray-600 text-sm font-normal space-x-1.5">
+              <span>last updated on</span>
               {tvlData ?
-                tvlData.tvls_updated_at ?
-                  <span className="text-gray-400 dark:text-gray-600 text-xs font-medium pt-0.5">
-                    {moment(tvlData.tvls_updated_at).format('MMM D YYYY, h:mm A z')}
-                  </span>
-                  :
-                  null
+                <span className="text-gray-700 dark:text-gray-300 font-medium">{moment(tvlData.updated_at).format('MMM D, h:mm:ss A')}</span>
                 :
-                <div className="skeleton w-20 h-3.5" />
+                <div className="skeleton w-20 h-4" />
               }
-            </div>
-          </span>
+            </span>
+          </div>
         </Widget>
         <Widget
           title={<span className="text-black dark:text-white text-base font-semibold">Size</span>}
           description={<span className="text-gray-400 dark:text-gray-500 text-xs font-normal">Average size of cross-chain transfers</span>}
-          className="bg-transparent sm:bg-white sm:dark:bg-gray-900 border-0 sm:border border-gray-100 dark:border-gray-900 p-0 sm:p-4"
+          className="bg-transparent sm:bg-white sm:dark:bg-gray-900 border-0 px-4 sm:py-4"
         >
-          <span className="flex flex-col space-y-1.5 mt-1">
+          <div className="flex flex-col space-y-2 mt-1">
             {crosschainData ?
-              <div className="max-h-48 sm:max-h-72 flex flex-col overflow-y-auto space-y-2.5 mt-1">
-                {crosschainData.avg_transfers?.map((coinTransfer, i) => (
-                  <div key={i} className="flex items-start">
-                    <div>
-                      <div className="flex items-center space-x-8">
+              <div className="max-h-48 sm:max-h-56 flex flex-col overflow-y-auto space-y-3">
+                {_.orderBy(crosschainData.total_transfers || [], ['avg_value', 'avg_amount', 'tx'], ['desc', 'desc', 'desc']).map((t, i) => (
+                  <div key={i} className="flex items-center justify-between my-1">
+                    <div className="flex items-center space-x-2">
+                      <img
+                        src={t.from_chain?.image}
+                        alt=""
+                        className="w-8 h-8 rounded-full"
+                      />
+                      <div className="flex items-center space-x-0.5">
+                        <BiCode size={20} />
                         <img
-                          src={coinTransfer.asset_image || randImage(i)}
+                          src={t.asset?.image}
                           alt=""
-                          className="w-5 h-5 rounded-full"
-                        />
-                        <img
-                          src={coinTransfer.chain_image || randImage(i)}
-                          alt=""
-                          className="w-5 h-5 rounded-full"
+                          className="w-4 h-4 rounded-full"
                         />
                       </div>
-                      <div className="flex items-center space-x-1 mt-0.5">
-                        <span className="uppercase text-gray-900 dark:text-gray-100 text-xs font-semibold">
-                          ${coinTransfer.asset_symbol}
-                        </span>
-                        <span className="text-gray-400 dark:text-gray-600 text-xs font-normal">on</span>
-                        <span className="text-gray-600 dark:text-gray-400 text-xs font-semibold">
-                          {coinTransfer.chain_name}
-                        </span>
-                      </div>
+                      <img
+                        src={t.to_chain?.image}
+                        alt=""
+                        className="w-8 h-8 rounded-full"
+                      />
                     </div>
-                    <div className="text-right ml-auto">
-                      <div className="font-mono text-gray-800 dark:text-gray-100 text-base font-semibold">{numberFormat(coinTransfer.amount, coinTransfer.amount >= 100000 ? '0,0.00a' : '0,0.000')}</div>
-                      <div className="uppercase text-gray-400 dark:text-gray-600 text-xs -mt-0.5">{coinTransfer.asset_symbol}</div>
+                    <div className="flex flex-col items-end space-y-1.5">
+                      <span className="text-2xs space-x-1">
+                        <span className="font-mono font-semibold">{numberFormat(t.avg_amount, t.avg_amount >= 100000 ? '0,0.00a' : '0,0.000')}</span>
+                        <span className="text-gray-400 dark:text-gray-600">{t.asset?.symbol?.replace('axelar', '')}</span>
+                      </span>
+                      {t.avg_value > 0 && (
+                        <span className="font-mono text-gray-400 dark:text-gray-600 text-3xs font-medium">
+                          {currency_symbol}{numberFormat(t.avg_value, '0,0.00')}
+                        </span>
+                      )}
                     </div>
                   </div>
                 ))}
               </div>
               :
-              <div className="flex flex-col space-y-3 mt-2">
+              <div className="flex flex-col space-y-3">
                 {[...Array(5).keys()].map(i => (
-                  <div key={i} className="flex items-start">
-                    <div>
-                      <div className="skeleton w-5 h-5 rounded-full" />
-                      <div className="skeleton w-12 h-3 mt-1.5" />
+                  <div key={i} className="flex items-center justify-between my-1">
+                    <div className="flex items-center space-x-2">
+                      <div className="skeleton w-8 h-8 rounded-full" />
+                      <div className="flex items-center space-x-0.5">
+                        <BiCode size={20} />
+                        <div className="skeleton w-4 h-4 rounded-full" />
+                      </div>
+                      <div className="skeleton w-8 h-8 rounded-full" />
                     </div>
-                    <div className="ml-auto">
-                      <div className="skeleton w-16 h-5 ml-auto" />
-                      <div className="skeleton w-8 h-3 mt-1.5 ml-auto" />
-                    </div>
+                    <div className="skeleton w-16 h-5 ml-auto" />
                   </div>
                 ))}
               </div>
             }
-            <span className="text-gray-400 dark:text-gray-600 text-sm font-normal mx-auto">
+            <span className="flex items-center text-gray-400 dark:text-gray-600 text-sm font-normal space-x-1.5 ml-auto">
+              <span>from</span>
               {crosschainData ?
-                <div className="flex items-center space-x-0.5 mt-0">
-                  {timeRanges.map((item, i) => (
-                    <div
-                      key={i}
-                      onClick={() => setAvgTransfersTimeRange(item)}
-                      className={`bg-transparent hover:bg-gray-50 dark:hover:bg-gray-800 rounded cursor-pointer flex items-center uppercase text-xs p-1 ${avgTransfersTimeRange === item ? 'bg-gray-100 dark:bg-gray-700 text-gray-900 hover:text-gray-800 dark:text-gray-100 dark:hover:text-gray-200 font-bold' : 'text-gray-500 hover:text-gray-700 dark:text-gray-500 dark:hover:text-gray-300 font-medium'}`}
-                    >
-                      <span>{item}</span>
-                    </div>
-                  ))}
-                </div>
+                <span className="font-mono text-gray-700 dark:text-gray-300 font-semibold">{numberFormat(_.sumBy(crosschainData.total_transfers, 'tx'), '0,0')}</span>
                 :
-                <div className="skeleton w-32 h-4 mt-1" />
+                <div className="skeleton w-6 h-4" />
               }
+              <span>transactions</span>
             </span>
-          </span>
+          </div>
         </Widget>
         <Widget
           title={<span className="text-black dark:text-white text-base font-semibold">Highest Transfer</span>}
@@ -492,55 +565,60 @@ const Summary = ({ data, crosschainData, tvlData, avgTransfersTimeRange, setAvgT
               24h
             </span>
           </span>}
-          className="bg-transparent sm:bg-white sm:dark:bg-gray-900 border-0 sm:border border-gray-100 dark:border-gray-900 p-0 sm:p-4"
+          className="bg-transparent sm:bg-white sm:dark:bg-gray-900 border-0 px-4 sm:py-4"
         >
-          <span className="flex flex-col space-y-1.5 mt-1">
+          <div className="flex flex-col space-y-2 mt-1">
             {crosschainData ?
-              <div className="max-h-48 sm:max-h-72 flex flex-col overflow-y-auto space-y-2.5 mt-1">
-                {crosschainData.highest_transfer_24h?.map((coinTransfer, i) => (
-                  <div key={i} className="flex items-start">
-                    <div>
-                      <div className="flex items-center space-x-8">
+              <div className="max-h-48 sm:max-h-56 flex flex-col overflow-y-auto space-y-3">
+                {_.orderBy(crosschainData.highest_transfer_24h || [], ['max_value', 'max_amount', 'tx'], ['desc', 'desc', 'desc']).map((t, i) => (
+                  <div key={i} className="flex items-center justify-between my-1">
+                    <div className="flex items-center space-x-2">
+                      <img
+                        src={t.from_chain?.image}
+                        alt=""
+                        className="w-8 h-8 rounded-full"
+                      />
+                      <div className="flex items-center space-x-0.5">
+                        <BiCode size={20} />
                         <img
-                          src={coinTransfer.asset_image || randImage(i)}
+                          src={t.asset?.image}
                           alt=""
-                          className="w-5 h-5 rounded-full"
-                        />
-                        <img
-                          src={coinTransfer.chain_image || randImage(i)}
-                          alt=""
-                          className="w-5 h-5 rounded-full"
+                          className="w-4 h-4 rounded-full"
                         />
                       </div>
-                      <div className="flex items-center space-x-1 mt-0.5">
-                        <span className="uppercase text-gray-900 dark:text-gray-100 text-xs font-semibold">
-                          ${coinTransfer.asset_symbol}
-                        </span>
-                        <span className="text-gray-400 dark:text-gray-600 text-xs font-normal">on</span>
-                        <span className="text-gray-600 dark:text-gray-400 text-xs font-semibold">
-                          {coinTransfer.chain_name}
-                        </span>
-                      </div>
+                      <img
+                        src={t.to_chain?.image}
+                        alt=""
+                        className="w-8 h-8 rounded-full"
+                      />
                     </div>
-                    <div className="text-right ml-auto">
-                      <div className="font-mono text-gray-800 dark:text-gray-100 text-base font-semibold">{numberFormat(coinTransfer.amount, coinTransfer.amount >= 100000 ? '0,0.00a' : '0,0.000')}</div>
-                      <div className="uppercase text-gray-400 dark:text-gray-600 text-xs -mt-0.5">{coinTransfer.asset_symbol}</div>
+                    <div className="flex flex-col items-end space-y-1.5">
+                      <span className="text-2xs space-x-1">
+                        <span className="font-mono font-semibold">{numberFormat(t.max_amount, t.max_amount >= 100000 ? '0,0.00a' : '0,0.000')}</span>
+                        <span className="text-gray-400 dark:text-gray-600">{t.asset?.symbol?.replace('axelar', '')}</span>
+                      </span>
+                      {t.max_value > 0 && (
+                        <span className="font-mono text-gray-400 dark:text-gray-600 text-3xs font-medium">
+                          {currency_symbol}{numberFormat(t.max_value, '0,0.00')}
+                        </span>
+                      )}
                     </div>
                   </div>
                 ))}
               </div>
               :
-              <div className="flex flex-col space-y-3 mt-2">
+              <div className="flex flex-col space-y-3">
                 {[...Array(5).keys()].map(i => (
-                  <div key={i} className="flex items-start">
-                    <div>
-                      <div className="skeleton w-5 h-5 rounded-full" />
-                      <div className="skeleton w-12 h-3 mt-1.5" />
+                  <div key={i} className="flex items-center justify-between my-1">
+                    <div className="flex items-center space-x-2">
+                      <div className="skeleton w-8 h-8 rounded-full" />
+                      <div className="flex items-center space-x-0.5">
+                        <BiCode size={20} />
+                        <div className="skeleton w-4 h-4 rounded-full" />
+                      </div>
+                      <div className="skeleton w-8 h-8 rounded-full" />
                     </div>
-                    <div className="ml-auto">
-                      <div className="skeleton w-16 h-5 ml-auto" />
-                      <div className="skeleton w-8 h-3 mt-1.5 ml-auto" />
-                    </div>
+                    <div className="skeleton w-16 h-5 ml-auto" />
                   </div>
                 ))}
               </div>
@@ -548,13 +626,13 @@ const Summary = ({ data, crosschainData, tvlData, avgTransfersTimeRange, setAvgT
             <span className="flex items-center text-gray-400 dark:text-gray-600 text-sm font-normal space-x-1.5 ml-auto">
               <span>from</span>
               {crosschainData ?
-                <span className="font-mono text-gray-600 dark:text-gray-400 font-medium">{numberFormat(_.sumBy(crosschainData.highest_transfer_24h, 'tx'), '0,0')}</span>
+                <span className="font-mono text-gray-700 dark:text-gray-300 font-semibold">{numberFormat(_.sumBy(crosschainData.highest_transfer_24h, 'tx'), '0,0')}</span>
                 :
-                <div className="skeleton w-6 h-3.5" />
+                <div className="skeleton w-6 h-4" />
               }
-              <span>Txs</span>
+              <span>transactions</span>
             </span>
-          </span>
+          </div>
         </Widget>
       </div>
       {chartData && (
