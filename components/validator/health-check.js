@@ -53,7 +53,7 @@ export default function HealthCheck({ data, health }) {
             <div className="skeleton w-28 h-6" />
           }
         </div>*/}
-        <div className={`flex flex-col space-y-${data && 'tss_illegibility_info' in data && health ? 1 : 2}`}>
+        <div className={`flex flex-col space-y-${data?.broadcaster_loaded && health ? 1 : 2}`}>
           <span className="font-semibold">Broadcaster Funded</span>
           {health ?
             typeof health.broadcaster_funded === 'object' ?
