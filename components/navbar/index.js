@@ -38,6 +38,7 @@ export default function Navbar() {
   const router = useRouter()
   const { pathname, query } = { ...router }
 
+  const [statusTrigger, setStatusTrigger] = useState(null)
   const [loadProfileTrigger, setLoadProfileTrigger] = useState(null)
 
   useEffect(() => {
@@ -131,17 +132,28 @@ export default function Navbar() {
   }, [])
 
   useEffect(() => {
-    const getData = async () => {
-      const response = await getStatus()
+    const getData = async is_interval => {
+      if (!status_data || is_interval) {
+        const response = await getStatus(null, is_interval && status_data)
 
-      dispatch({
-        type: STATUS_DATA,
-        value: response,
-      })
+        dispatch({
+          type: STATUS_DATA,
+          value: response,
+        })
+
+        if (!is_interval) {
+          setStatusTrigger(moment().valueOf())
+        }
+      }
     }
 
     getData()
-  }, [])
+
+    const interval = setInterval(() => getData(true), 5 * 1000)
+    return () => {
+      clearInterval(interval)
+    }
+  }, [status_data])
 
   useEffect(() => {
     const getData = async () => {
@@ -247,8 +259,9 @@ export default function Navbar() {
           switch (pathname) {
             case '/validators':
             case '/validators/[status]':
+            case '/validator/[address]':
             case '/participations':
-              response = await allValidators(null, validators_data, query.status || 'active', null, Number(status_data.latest_block_height), denoms_data)
+              response = await allValidators(null, validators_data, query.status || (query.address ? null : 'active'), query.address, Number(status_data.latest_block_height), denoms_data)
               
               dispatch({
                 type: VALIDATORS_DATA,
@@ -257,6 +270,7 @@ export default function Navbar() {
 
               if (!['participations'].includes(pathname)) {
                 response = await allValidatorsBroadcaster(response?.data, null, denoms_data)
+
                 if (response?.data?.length > 0) {
                   const vs = response.data
 
@@ -336,7 +350,7 @@ export default function Navbar() {
       controller?.abort()
       clearInterval(interval)
     }
-  }, [denoms_data, status_data, pathname])
+  }, [denoms_data, statusTrigger, pathname])
 
   useEffect(() => {
     const controller = new AbortController()
@@ -355,7 +369,7 @@ export default function Navbar() {
     }
 
     const getMaintainersData = () => {
-      if (chains_data && ['/validators', '/participations'].includes(pathname)) {
+      if (chains_data && ['/validators', '/validator/[address]', '/participations'].includes(pathname)) {
         chains_data.map(c => c?.id).forEach(id => getData(id, chains_data))
       }
     }

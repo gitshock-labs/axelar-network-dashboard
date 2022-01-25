@@ -1,16 +1,21 @@
+import { useSelector, shallowEqual } from 'react-redux'
+
 import Widget from '../widget'
 import Copy from '../copy'
 
-import { chainName, chainImage } from '../../lib/object/chain'
+import { chain_manager } from '../../lib/object/chain'
 import { numberFormat, getName, ellipseAddress } from '../../lib/utils'
 
 export default function AxelarSpecific({ data, keygens, signs, supportedChains, rewards }) {
-  const keygenParticipated = keygens && keygens.filter(_keygen => _keygen?.participated).length
-  const keygenNotParticipated = keygens && keygens.filter(_keygen => _keygen?.not_participated).length
+  const { chains } = useSelector(state => ({ chains: state.chains }), shallowEqual)
+  const { chains_data } = { ...chains }
+
+  const keygenParticipated = keygens && keygens.filter(k => k?.participated).length
+  const keygenNotParticipated = keygens && keygens.filter(k => k?.not_participated).length
   const totalKeygen = keygenParticipated + keygenNotParticipated
 
-  const signParticipated = signs && signs.filter(_sign => _sign?.participated).length
-  const signNotParticipated = signs && signs.filter(_sign => _sign?.not_participated).length
+  const signParticipated = signs && signs.filter(s => s?.participated).length
+  const signNotParticipated = signs && signs.filter(s => s?.not_participated).length
   const totalSign = signParticipated + signNotParticipated
 
   return (
@@ -70,16 +75,16 @@ export default function AxelarSpecific({ data, keygens, signs, supportedChains, 
           {supportedChains ?
             <span className="flex flex-wrap items-center text-gray-500 dark:text-gray-400">
               {supportedChains.length > 0 ?
-                supportedChains.map((supportedChain, i) => (
+                supportedChains.map((id, i) => (
                   <span key={i} className="min-w-max max-w-min bg-gray-100 dark:bg-gray-800 rounded-xl flex items-center text-gray-800 dark:text-gray-200 text-xs font-semibold space-x-1 px-2 py-1 my-1 mr-2">
-                    {chainImage(supportedChain) && (
+                    {chain_manager.image(id, chains_data) && (
                       <img
                         alt=""
-                        src={chainImage(supportedChain)}
+                        src={chain_manager.image(id, chains_data)}
                         className="w-5 h-5 rounded-full"
                       />
                     )}
-                    <span className="whitespace-nowrap">{chainName(supportedChain)}</span>
+                    <span className="whitespace-nowrap">{chain_manager.title(id, chains_data)}</span>
                   </span>
                 ))
                 :

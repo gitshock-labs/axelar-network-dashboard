@@ -27,8 +27,8 @@ export default function Snapshots({ n = 100 }) {
   useEffect(() => {
     const controller = new AbortController()
 
-    const getData = async () => {
-      if (status_data) {
+    const getData = async is_interval => {
+      if (status_data && ( && !status_data.is_interval || is_interval)) {
         if (!controller.signal.aborted) {
           const latestBlock = Number(status_data.latest_block_height)
           const snapshot_block = latestBlock - (latestBlock % snapshot_block_size)
@@ -84,7 +84,7 @@ export default function Snapshots({ n = 100 }) {
 
     getData()
 
-    const interval = setInterval(() => getData(), 5 * 60 * 1000)
+    const interval = setInterval(() => getData(true), 5 * 60 * 1000)
     return () => {
       controller?.abort()
       clearInterval(interval)

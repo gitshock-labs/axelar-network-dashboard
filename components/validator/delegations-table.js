@@ -42,7 +42,7 @@ export default function DelegationsTable({ data }) {
                   <span className="flex items-center space-x-1">
                     <span>{numberFormat(props.value, '0,0.00000000')}</span>
                     {props.row.original.denom && (
-                      <span className="uppercase font-medium">{ellipseAddress(props.row.original.denom)}</span>
+                      <span className="uppercase font-medium">{props.row.original.denom}</span>
                     )}
                   </span>
                   :
@@ -62,7 +62,7 @@ export default function DelegationsTable({ data }) {
         className="no-border"
       />
       {data?.length < 1 && (
-        <div className="bg-gray-50 dark:bg-gray-800 text-gray-300 dark:text-gray-500 text-base font-medium italic text-center my-4 py-2">
+        <div className="bg-gray-50 dark:bg-gray-800 rounded-xl text-gray-300 dark:text-gray-500 text-base font-medium italic text-center my-4 py-2">
           No Delegations
         </div>
       )}

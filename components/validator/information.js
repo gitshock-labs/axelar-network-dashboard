@@ -1,5 +1,4 @@
 import Link from 'next/link'
-import { useSelector, shallowEqual } from 'react-redux'
 
 import moment from 'moment'
 import _ from 'lodash'
@@ -11,9 +10,6 @@ import Copy from '../copy'
 import { numberFormat, getName, ellipseAddress } from '../../lib/utils'
 
 export default function Information({ data }) {
-  const { _data } = useSelector(state => ({ _data: state.data }), shallowEqual)
-  const { chain_data } = { ..._data }
-
   return (
     <Widget
       title={data ?

@@ -16,259 +16,150 @@ import TransactionsTable from '../transactions/transactions-table'
 import DelegationsTable from './delegations-table'
 import Widget from '../widget'
 
-import { getUptime, uptimeForJailedInfo, uptimeForJailedInfoSync, jailedInfo, getHeartbeat, getIneligibilities } from '../../lib/api/query'
-import { status as getStatus } from '../../lib/api/rpc'
-import { allValidators, validatorSets, slashingParams, allBankBalances, allDelegations, distributionRewards, distributionCommissions, validatorStatusData, broadcastersData, chainMaintainer } from '../../lib/api/cosmos'
+import { getUptime, uptimeForJailedInfoSync, jailedInfo, getHeartbeat, getIneligibilities } from '../../lib/api/query'
+import { validatorSets, allBankBalances, allDelegations, distributionRewards, distributionCommissions } from '../../lib/api/cosmos'
 import { getKeygensByValidator } from '../../lib/api/executor'
-import { signAttempts as getSignAttempts, successKeygens as getSuccessKeygens, failedKeygens as getFailedKeygens, heartbeats as getHeartbeats } from '../../lib/api/opensearch'
-import { chains } from '../../lib/object/chain'
-import { feeDenom, denomSymbol, denomAmount } from '../../lib/object/denom'
+import { heartbeats as getHeartbeats, successKeygens as getSuccessKeygens, failedKeygens as getFailedKeygens, signAttempts as getSignAttempts } from '../../lib/api/opensearch'
+import { chain_manager } from '../../lib/object/chain'
+import { denomer } from '../../lib/object/denom'
 import { blocksPerHeartbeat, blockFraction, lastHeartbeatBlock, firstHeartbeatBlock } from '../../lib/object/hb'
-import { getName, rand } from '../../lib/utils'
+import { getName } from '../../lib/utils'
 
-import { STATUS_DATA, VALIDATORS_DATA, VALIDATORS_CHAINS_DATA, JAILED_SYNC_DATA } from '../../reducers/types'
+import { JAILED_SYNC_DATA } from '../../reducers/types'
 
 export default function Validator({ address }) {
   const dispatch = useDispatch()
-  const { data } = useSelector(state => ({ data: state.data }), shallowEqual)
-  const { denoms_data, chain_data, status_data, validators_data, validators_chains_data, jailed_sync_data } = { ...data }
+  const { chains, denoms, status, env, validators, validators_chains, jailed_sync } = useSelector(state => ({ chains: state.chains, denoms: state.denoms, status: state.status, env: state.env, validators: state.validators, validators_chains: state.validators_chains, jailed_sync: state.jailed_sync }), shallowEqual)
+  const { chains_data } = { ...chains }
+  const { denoms_data } = { ...denoms }
+  const { status_data } = { ...status }
+  const { env_data } = { ...env }
+  const { validators_data } = { ...validators }
+  const { validators_chains_data } = { ...validators_chains }
+  const { jailed_sync_data } = { ...jailed_sync }
 
   const [validator, setValidator] = useState(null)
+  const [delegations, setDelegations] = useState(null)
   const [uptime, setUptime] = useState(null)
   const [maxMissed, setMaxMissed] = useState(Number(process.env.NEXT_PUBLIC_DEFAULT_MAX_MISSED))
   const [jailed, setJailed] = useState(null)
   const [heartbeat, setHeartbeat] = useState(null)
+  const [health, setHealth] = useState(null)
+
   const [tab, setTab] = useState('key_share')
   const [keyShares, setKeyShares] = useState(null)
   const [keygens, setKeygens] = useState(null)
   const [signs, setSigns] = useState(null)
-  const [delegations, setDelegations] = useState(null)
-  const [health, setHealth] = useState(null)
   const [supportedChains, setSupportedChains] = useState(null)
   const [rewards, setRewards] = useState(null)
-
-  const [statusLoaded, setStatusLoaded] = useState(null)
-  const [validatorsLoaded, setValidatorsLoaded] = useState(null)
 
   useEffect(() => {
     const controller = new AbortController()
 
     const getData = async () => {
-      if (!controller.signal.aborted) {
-        const response = await getStatus()
+      if (address && denoms_data && status_data && !status_data.is_interval && validators_data) {
+        let response, data = {}
 
-        if (response) {
-          dispatch({
-            type: STATUS_DATA,
-            value: response,
-          })
+        const validator_data = validators_data?.find(v => v.operator_address === address)
+
+        if (validator_data?.start_proxy_height || validator_data?.start_height || validator_data?.deregistering) {
+          data = { ...data, ...validator_data }
+          const broadcaster_loaded = data.broadcaster_loaded
+          setValidator({ data, address, broadcaster_loaded })
+
+          if (!controller.signal.aborted) {
+            if (!data.proposer_priority) {
+              response = await validatorSets()
+
+              if (response?.result?.validators?.findIndex(v => v.address === data.consensus_address) > -1) {
+                const v = response.result.validators?.find(v => v.address === data.consensus_address)
+
+                data = {
+                  ...data,
+                  proposer_priority: v?.proposer_priority,
+                  voting_power: Number(v?.voting_power),
+                }
+                setValidator({ data, address, broadcaster_loaded })
+              }
+            }
+          }
+
+          if (broadcaster_loaded) {
+            const _health = {
+              broadcaster_registration: !data.tss_illegibility_info?.no_proxy_registered && data.broadcaster_address ? true : false,
+            }
+            _health.num_block_before_registered = data && 'tss_illegibility_info' in data && _health ? _health.broadcaster_registration ? typeof data?.start_proxy_height === 'number' && typeof data?.start_height === 'number' ? data.start_proxy_height >= data.start_height ? data.start_proxy_height - data.start_height : 0 : '-' : 'No Proxy' : null
+
+            if (data.broadcaster_address) {
+              response = await allBankBalances(data.broadcaster_address)
+
+              if (response?.data) {
+                _health.broadcaster_funded = _.head(response.data.filter(b => b?.denom === 'uaxl').map(b => { return { amount: denomer.amount(b.amount, b.denom, denoms_data), denom: denomer.symbol(b.denom, denoms_data) } }))
+              }
+            }
+            else {
+              _health.broadcaster_funded = 'No Proxy'
+            }
+
+            response = await getHeartbeats({
+              aggs: {
+                heartbeats: {
+                  terms: { field: 'sender.keyword' },
+                  aggs: {
+                    heightgroup: {
+                      terms: { field: 'height_group', size: 100000 },
+                    },
+                  },
+                },
+              },
+              query: {
+                bool: {
+                  must: [
+                    { match: { sender: data.broadcaster_address } },
+                    { range: { height: { gte: data.start_proxy_height || data.start_height, lte: Number(status_data.latest_block_height) } } },
+                  ],
+                },
+              },
+            })
+
+            const _last = lastHeartbeatBlock(Number(status_data.latest_block_height))
+            const _first = firstHeartbeatBlock(data?.start_proxy_height || data?.start_height)
+
+            const totalHeartbeats = Math.floor((_last - _first) / Number(process.env.NEXT_PUBLIC_NUM_BLOCKS_PER_HEARTBEAT)) + 1
+            _health.total_heartbeats = totalHeartbeats
+            _health.up_heartbeats = response?.data?.[data?.broadcaster_address] || 0
+
+            _health.missed_heartbeats = _health.total_heartbeats - _health.up_heartbeats
+            _health.missed_heartbeats = _health.missed_heartbeats < 0 ? 0 : _health.missed_heartbeats
+
+            _health.heartbeats_uptime = _health.total_heartbeats > 0 ? _health.up_heartbeats * 100 / _health.total_heartbeats : 0
+            _health.heartbeats_uptime = _health.heartbeats_uptime > 100 ? 100 : _health.heartbeats_uptime
+
+            setHealth({ data: _health, address })
+          }
         }
-
-        setStatusLoaded(true)
+        else {
+          setValidator({ data, address, broadcaster_loaded: true })
+        }
       }
     }
 
     getData()
 
-    const interval = setInterval(() => getData(), 3 * 60 * 1000)
-    return () => {
-      controller?.abort()
-      clearInterval(interval)
-    }
-  }, [])
-
-  useEffect(() => {
-    const controller = new AbortController()
-
-    const getValidators = async () => {
-      if (!controller.signal.aborted) {
-        const response = await allValidators({}, validators_data, null, address, Number(status_data.latest_block_height), denoms_data)
-
-        if (response) {
-          dispatch({
-            type: VALIDATORS_DATA,
-            value: response.data,
-          })
-        }
-
-        setValidatorsLoaded(true)
-      }
-    }
-
-    if (address && status_data && denoms_data && statusLoaded) {
-      setStatusLoaded(false)
-
-      getValidators()
-    }
-
     return () => {
       controller?.abort()
     }
-  }, [address, status_data, denoms_data, statusLoaded])
-
-  useEffect(() => {
-    const controller = new AbortController()
-
-    const getData = async id => {
-      if (!controller.signal.aborted) {
-        const response = await chainMaintainer(id)
-
-        if (response) {
-          dispatch({
-            type: VALIDATORS_CHAINS_DATA,
-            value: response,
-          })
-        }
-      }
-    }
-
-    if (address) {
-      const _chains = chains.filter(_chain => !_chain.hidden && !_chain.is_cosmos).map(_chain => _chain?.id)
-
-      for (let i = 0; i < _chains.length; i++) {
-        const chain = _chains[i]
-
-        getData(chain)
-      }
-    }
-
-    return () => {
-      controller?.abort()
-    }
-  }, [address])
-
-  useEffect(() => {
-    if (address && validators_chains_data) {
-      setSupportedChains({ data: Object.entries(validators_chains_data || {}).filter(([key, value]) => value?.includes(address.toLowerCase())).map(([key, value]) => key), address })
-    }
-  }, [address, validators_chains_data])
-
-  useEffect(() => {
-    const controller = new AbortController()
-
-    const getData = async () => {
-      let response, validatorData
-
-      const validator_data = validators_data?.find(validator_data => validator_data.operator_address === address)
-
-      if (validator_data?.start_proxy_height || validator_data?.start_height/* || !['BOND_STATUS_BONDED'].includes(validator_data?.status)*/ || validator_data?.deregistering) {
-        validatorData = { ...validatorData, ...validator_data }
-
-        setValidator({ data: validatorData, address })
-
-        if (!controller.signal.aborted) {
-          response = await validatorStatusData(validators_data)
-
-          if (response?.data?.findIndex(_validator_data => _validator_data?.operator_address === validatorData?.operator_address) > -1) {
-            validatorData = { ...validatorData, ...response.data.find(_validator_data => _validator_data?.operator_address === validatorData?.operator_address) }
-
-            setValidator({ data: validatorData, address })
-          }
-        }
-
-        if (!controller.signal.aborted) {
-          response = await validatorSets()
-
-          if (response?.result?.validators?.findIndex(validator_data => validator_data.address === validatorData.consensus_address) > -1) {
-            const _validatorData = response.result.validators?.find(validator_data => validator_data.address === validatorData.consensus_address)
-
-            validatorData = {
-              ...validatorData,
-              proposer_priority: _validatorData?.proposer_priority,
-              voting_power: Number(_validatorData?.voting_power),
-            }
-          }
-        }
-
-        setValidator({ data: validatorData, address })
-
-        response = await broadcastersData([validatorData], address, denoms_data)
-
-        if (response?.data?.[0]) {
-          validatorData = { ...validatorData, ...response.data[0] }
-        }
-
-        setValidator({ data: validatorData, address, broadcaster_loaded: true })
-
-        const _health = {
-          broadcaster_registration: !(validatorData?.tss_illegibility_info?.no_proxy_registered) && validatorData?.broadcaster_address ? true : false,
-        }
-
-        _health.num_block_before_registered = validatorData && 'tss_illegibility_info' in validatorData && _health ? _health.broadcaster_registration ? typeof validatorData?.start_proxy_height === 'number' && typeof validatorData?.start_height === 'number' ? validatorData.start_proxy_height >= validatorData.start_height ? validatorData.start_proxy_height - validatorData.start_height : 0 : '-' : 'No Proxy' : null
-
-        if (validatorData?.broadcaster_address) {
-          response = await allBankBalances(validatorData.broadcaster_address)
-
-          if (response?.data) {
-            _health.broadcaster_funded = _.head(response.data.filter(balance => balance?.denom === feeDenom).map(balance => { return { amount: denomAmount(balance.amount, balance.denom, denoms_data), denom: denomSymbol(balance.denom, denoms_data) } }))
-          }
-        }
-        else {
-          _health.broadcaster_funded = 'No Proxy'
-        }
-
-        response = await getHeartbeats({
-          aggs: {
-            heartbeats: {
-              terms: { field: 'sender.keyword' },
-              aggs: {
-                heightgroup: {
-                  terms: { field: 'height_group', size: 100000 },
-                },
-              },
-            },
-          },
-          query: {
-            bool: {
-              must: [
-                { match: { sender: validatorData?.broadcaster_address } },
-                { range: { height: { gte: validatorData?.start_proxy_height || validatorData?.start_height, lte: Number(status_data.latest_block_height) } } },
-              ],
-            },
-          },
-        })
-
-        const _last = lastHeartbeatBlock(Number(status_data.latest_block_height))
-        const _first = firstHeartbeatBlock(validatorData?.start_proxy_height || validatorData?.start_height)
-
-        const totalHeartbeats = Math.floor((_last - _first) / Number(process.env.NEXT_PUBLIC_NUM_BLOCKS_PER_HEARTBEAT)) + 1
-        _health.total_heartbeats = totalHeartbeats
-
-        _health.up_heartbeats = response?.data?.[validatorData?.broadcaster_address] || 0
-
-        _health.missed_heartbeats = _health.total_heartbeats - _health.up_heartbeats
-        _health.missed_heartbeats = _health.missed_heartbeats < 0 ? 0 : _health.missed_heartbeats
-
-        _health.heartbeats_uptime = _health.total_heartbeats > 0 ? _health.up_heartbeats * 100 / _health.total_heartbeats : 0
-        _health.heartbeats_uptime = _health.heartbeats_uptime > 100 ? 100 : _health.heartbeats_uptime
-
-        setHealth({ data: _health, address })
-      }
-      else {
-        setValidator({ data: validatorData || {}, address, broadcaster_loaded: true })
-      }
-    }
-
-    if (address && denoms_data && status_data && validators_data && validatorsLoaded) {
-      setValidatorsLoaded(false)
-
-      getData()
-    }
-
-    return () => {
-      controller?.abort()
-    }
-  }, [address, denoms_data, status_data, validators_data, validatorsLoaded])
+  }, [address, denoms_data, status_data, validators_data])
 
   useEffect(() => {
     const controller = new AbortController()
 
     const getDataSync = async (beginBlock, address, from, i) => {
-      const _data = await uptimeForJailedInfoSync(beginBlock, address, from)
+      const data = await uptimeForJailedInfoSync(beginBlock, address, from)
 
       dispatch({
         type: JAILED_SYNC_DATA,
-        value: _data,
+        value: data,
         i,
       })
     }
@@ -276,46 +167,42 @@ export default function Validator({ address }) {
     const getData = async () => {
       if (address && validator?.address === address) {
         if (!controller.signal.aborted) {
-          const validatorData = validator?.data
+          const validator_data = validator?.data
+          let response, jailed_data
 
-          let jailedData, response
-
-          if (validatorData?.jailed_until > 0) {
-            response = await slashingParams()
-
-            const _maxMissed = response?.params ? Number(response.params.signed_blocks_window) - (Number(response.params.min_signed_per_window) * Number(response.params.signed_blocks_window)) : Number(process.env.NEXT_PUBLIC_DEFAULT_MAX_MISSED)
+          if (validator_data?.jailed_until > 0) {
+            const _maxMissed = env_data?.slashing_params ? Number(env_data.slashing_params.signed_blocks_window) - (Number(env_data.slashing_params.min_signed_per_window) * Number(env_data.slashing_params.signed_blocks_window)) : Number(process.env.NEXT_PUBLIC_DEFAULT_MAX_MISSED)
             setMaxMissed(_maxMissed)
 
-            const beginBlock = Number(status_data.latest_block_height) - Number(process.env.NEXT_PUBLIC_NUM_UPTIME_BLOCKS) > validatorData?.start_height ? Number(status_data.latest_block_height) - Number(process.env.NEXT_PUBLIC_NUM_UPTIME_BLOCKS) : validatorData?.start_height
-
+            const beginBlock = Number(status_data.latest_block_height) - Number(process.env.NEXT_PUBLIC_NUM_UPTIME_BLOCKS) > validator_data.start_height ? Number(status_data.latest_block_height) - Number(process.env.NEXT_PUBLIC_NUM_UPTIME_BLOCKS) : validator_data.start_height
             const numBlock = Number(status_data.latest_block_height) - beginBlock
 
-            if (!(validatorData?.uptime)) {
-              jailedData = {
+            if (!validator_data.uptime) {
+              jailed_data = {
                 times_jailed: -1,
                 avg_jail_response_time: -1,
               }
             }
-            else if (numBlock * (1 - (validatorData?.uptime / 100)) > _maxMissed) {
+            else if (numBlock * (1 - (validator_data?.uptime / 100)) > _maxMissed) {
               const chunkSize = _.head([...Array(Number(process.env.NEXT_PUBLIC_NUM_UPTIME_BLOCKS)).keys()].map(i => i + 1).filter(i => Math.ceil(Number(process.env.NEXT_PUBLIC_NUM_UPTIME_BLOCKS) / i) <= Number(process.env.NEXT_PUBLIC_NUM_UPTIME_BLOCKS_CHUNK))) || Number(process.env.NEXT_PUBLIC_NUM_UPTIME_BLOCKS)
-              _.chunk([...Array(Number(process.env.NEXT_PUBLIC_NUM_UPTIME_BLOCKS)).keys()], chunkSize).forEach((chunk, i) => getDataSync(beginBlock, validatorData?.consensus_address, i * chunkSize, i))
+              _.chunk([...Array(Number(process.env.NEXT_PUBLIC_NUM_UPTIME_BLOCKS)).keys()], chunkSize).forEach((chunk, i) => getDataSync(beginBlock, validator_data.consensus_address, i * chunkSize, i))
             }
             else {
-              jailedData = {
+              jailed_data = {
                 times_jailed: 0,
                 avg_jail_response_time: 0,
               }
             }
           }
           else {
-            jailedData = {
+            jailed_data = {
               times_jailed: 0,
               avg_jail_response_time: 0,
             }
           }
 
-          if (jailedData) {
-            setJailed({ data: jailedData, address })
+          if (jailed_data) {
+            setJailed({ data: jailed_data, address })
           }
         }
       }
@@ -333,24 +220,22 @@ export default function Validator({ address }) {
   }, [address, validator])
 
   useEffect(() => {
-    if (jailed_sync_data && Object.keys(jailed_sync_data).length >= Number(process.env.NEXT_PUBLIC_NUM_UPTIME_BLOCKS_CHUNK)) {
+    if (Object.keys(jailed_sync_data || {}).length >= Number(process.env.NEXT_PUBLIC_NUM_UPTIME_BLOCKS_CHUNK)) {
+      const uptime_data = jailedInfo(Object.values(jailed_sync_data).flatMap(u => u), status_data && (moment(status_data.latest_block_time).diff(moment(status_data.earliest_block_time), 'milliseconds') / Number(status_data.latest_block_height)))?.data
+      let jailed_data
 
-      const uptimeData = jailedInfo(Object.values(jailed_sync_data).flatMap(_uptime => _uptime), status_data && (moment(status_data.latest_block_time).diff(moment(status_data.earliest_block_time), 'milliseconds') / Number(status_data.latest_block_height)))?.data
-
-      let jailedData
-
-      if (uptimeData) {
-        const _jailedData = []
+      if (uptime_data) {
+        const _jailed_data = []
 
         let numMissed = 0, _jailed = false
 
-        for (let i = 0; i < uptimeData.length; i++) {
-          const block = uptimeData[i]
+        for (let i = 0; i < uptime_data.length; i++) {
+          const block = uptime_data[i]
 
           if (block?.up) {
             if (_jailed) {
-              if (_jailedData.length - 1 >= 0) {
-                _jailedData[_jailedData.length - 1].unjail_time = block.time
+              if (_jailed_data.length - 1 >= 0) {
+                _jailed_data[_jailed_data.length - 1].unjail_time = block.time
               }
             }
 
@@ -362,15 +247,15 @@ export default function Validator({ address }) {
           }
 
           if (numMissed > maxMissed && !_jailed) {
-            _jailedData.push(block)
+            _jailed_data.push(block)
 
             _jailed = true
           }
         }
 
         jailedData = {
-          times_jailed: _jailedData.length,
-          avg_jail_response_time: _jailedData.filter(_block => _block.unjail_time).length > 0 ? _.meanBy(_jailedData.filter(_block => _block.unjail_time).map(_block => { return { ..._block, response_time: _block.unjail_time - _block.time }}), 'response_time') : -1,
+          times_jailed: _jailed_data.length,
+          avg_jail_response_time: _jailed_data.filter(b => b.unjail_time).length > 0 ? _.meanBy(_jailed_data.filter(b => b.unjail_time).map(b => { return { ...b, response_time: b.unjail_time - b.time }}), 'response_time') : -1,
         }
       }
 
@@ -379,7 +264,7 @@ export default function Validator({ address }) {
         value: null,
       })
 
-      setJailed({ data: jailedData || {}, address })
+      setJailed({ data: jailed_data || {}, address })
     }
   }, [jailed_sync_data])
 
@@ -387,27 +272,25 @@ export default function Validator({ address }) {
     const controller = new AbortController()
 
     const getData = async () => {
-      if (address && denoms_data && validator?.address === address) {
+      if (address && validator?.address === address && denoms_data) {
         if (!controller.signal.aborted) {
           let response, _delegations
 
           if (!controller.signal.aborted) {
             response = await allDelegations(address)
 
-            if (response) {
-              _delegations = _.orderBy(response.data?.map(delegation => {
-                return {
-                  ...delegation.delegation,
-                  self: delegation.delegation.delegator_address === validator.data?.delegator_address,
-                  shares: delegation.delegation && denomAmount(delegation.delegation.shares, delegation.balance?.denom, denoms_data),
-                  ...delegation.balance,
-                  denom: denomSymbol(delegation.balance?.denom, denoms_data),
-                  amount: delegation.balance && denomAmount(delegation.balance.amount, delegation.balance.denom, denoms_data),
-                }
-              }) || [], ['self', 'shares'], ['desc', 'desc'])
+            _delegations = _.orderBy(response.data?.map(d => {
+              return {
+                ...d.delegation,
+                self: d.delegation.delegator_address === validator.data?.delegator_address,
+                shares: d.delegation && denomer.amount(d.delegation.shares, d.balance?.denom, denoms_data),
+                ...d.balance,
+                denom: denomer.symbol(d.balance?.denom, denoms_data),
+                amount: d.balance && denomer.amount(d.balance.amount, d.balance.denom, denoms_data),
+              }
+            }) || [], ['self', 'shares'], ['desc', 'desc'])
 
-              setDelegations({ data: _delegations, address })
-            }
+            setDelegations({ data: _delegations, address })
           }
 
           /*if (!controller.signal.aborted) {
@@ -419,8 +302,8 @@ export default function Validator({ address }) {
               _rewards.push({
                 ...response,
                 name: 'Distribution Rewards',
-                rewards: response.rewards && Object.entries(_.groupBy(response.rewards.flatMap(reward => reward.reward).map(reward => { return { ...reward, denom: denomSymbol(reward.denom, denoms_data), amount: reward.amount && (isNaN(reward.amount) ? -1 : denomAmount(reward.amount, reward.denom, denoms_data)) } }), 'denom')).map(([key, value]) => { return { denom: key, amount: _.sumBy(value, 'amount') } }),
-                total: response.total && Object.entries(_.groupBy(response.total.map(total => { return { ...total, denom: denomSymbol(total.denom, denoms_data), amount: total.amount && denomAmount(total.amount, total.denom, denoms_data) } }), 'denom')).map(([key, value]) => { return { denom: key, amount: _.sumBy(value, 'amount') } }),
+                rewards: response.rewards && Object.entries(_.groupBy(response.rewards.flatMap(r => r.reward).map(r => { return { ...r, denom: denomer.symbol(r.denom, denoms_data), amount: r.amount && (isNaN(r.amount) ? -1 : denomer.amount(r.amount, r.denom, denoms_data)) } }), 'denom')).map(([key, value]) => { return { denom: key, amount: _.sumBy(value, 'amount') } }),
+                total: response.total && Object.entries(_.groupBy(response.total.map(t => { return { ...t, denom: denomer.symbol(t.denom, denoms_data), amount: t.amount && denomer.amount(t.amount, t.denom, denoms_data) } }), 'denom')).map(([key, value]) => { return { denom: key, amount: _.sumBy(value, 'amount') } }),
               })
             }
 
@@ -430,21 +313,21 @@ export default function Validator({ address }) {
               _rewards.push({
                 ...response,
                 name: 'Distribution Commissions',
-                total: response?.commission?.commission?.map(commission => {
+                total: response?.commission?.commission?.map(c => {
                   return {
-                    ...commission,
-                    denom: denomSymbol(commission.denom, denoms_data),
-                    amount: commission.amount && (isNaN(commission.amount) ? -1 : denomAmount(commission.amount, commission.denom, denoms_data)),
+                    ...c,
+                    denom: denomer.symbol(c.denom, denoms_data),
+                    amount: c.amount && (isNaN(c.amount) ? -1 : denomer.amount(c.amount, c.denom, denoms_data)),
                   }
                 }),
               })
             }
 
-            _rewards = _rewards.map(_reward => {
+            _rewards = _rewards.map(r => {
               return {
-                ..._reward,
-                rewards_per_stake: _reward.total?.map(_denom => {
-                  const stake = _.sumBy(_delegations?.filter(_delegation => _delegation.denom === _denom.denom) || [], 'amount')
+                ...r,
+                rewards_per_stake: r.total?.map(_denom => {
+                  const stake = _.sumBy(_delegations?.filter(d => d.denom === _denom.denom) || [], 'amount')
 
                   return {
                     ..._denom,
@@ -472,15 +355,13 @@ export default function Validator({ address }) {
     const controller = new AbortController()
 
     const getData = async () => {
-      if (address && validator?.address === address && status_data) {
+      if (address && validator?.address === address && status_data && !status_data.is_interval) {
         if (!controller.signal.aborted) {
-          const validatorData = validator?.data
+          const data = validator?.data
 
-          const response = await getUptime(Number(status_data.latest_block_height), validatorData?.consensus_address)
+          const response = await getUptime(Number(status_data.latest_block_height), data?.consensus_address)
 
-          if (response) {
-            setUptime({ data: response.data || [], address })
-          }
+          setUptime({ data: response?.data || [], address })
         }
       }
     }
@@ -496,42 +377,40 @@ export default function Validator({ address }) {
     const controller = new AbortController()
 
     const getData = async () => {
-      if (address && validator?.address === address && validator.broadcaster_loaded && status_data) {
+      if (address && validator?.address === address && validator.broadcaster_loaded && status_data && !status_data.is_interval) {
         if (!controller.signal.aborted) {
-          const validatorData = validator?.data
+          const data = validator.data
 
           const latestBlock = Number(status_data.latest_block_height)
           let beginBlock = latestBlock - Number(process.env.NEXT_PUBLIC_NUM_HEARTBEAT_BLOCKS)
-          beginBlock = beginBlock > (validatorData?.start_proxy_height || 0) ? beginBlock : (validatorData?.start_proxy_height || 0)
+          beginBlock = beginBlock > (data?.start_proxy_height || 0) ? beginBlock : (data?.start_proxy_height || 0)
           beginBlock = firstHeartbeatBlock(beginBlock)
 
           let heartbeats = []
-
           for (let height = latestBlock; height >= beginBlock; height--) {
             if (height % Number(process.env.NEXT_PUBLIC_NUM_BLOCKS_PER_HEARTBEAT) === 1 && heartbeats.length < Number(process.env.NEXT_PUBLIC_NUM_HEARTBEAT_BLOCKS) / Number(process.env.NEXT_PUBLIC_NUM_BLOCKS_PER_HEARTBEAT)) {
               heartbeats.push({ height })
             }
           }
 
-          if (validatorData?.broadcaster_address) {
-            let response = await getHeartbeat(beginBlock, latestBlock, validatorData.broadcaster_address)
+          if (data.broadcaster_address) {
+            let response = await getHeartbeat(beginBlock, latestBlock, data.broadcaster_address)
 
             if (response?.data) {
-              heartbeats = heartbeats.map(_heartbeat => response.data.find(__heartbeat => (__heartbeat?.height - (__heartbeat?.height % blocksPerHeartbeat) + blockFraction) === (_heartbeat?.height - (_heartbeat?.height % blocksPerHeartbeat) + blockFraction)) || _heartbeat)
+              heartbeats = heartbeats.map(h => response.data.find(_h => (_h?.height - (_h?.height % blocksPerHeartbeat) + blockFraction) === (h?.height - (h?.height % blocksPerHeartbeat) + blockFraction)) || h)
             }
 
-            // response = await getIneligibilities({ query: `{__name__=~"axelar_tss_heartbeat",address="${validatorData?.operator_address}",height=~"${toRegexRange(beginBlock, latestBlock)}"}` })
+            // response = await getIneligibilities({ query: `{__name__=~"axelar_tss_heartbeat",address="${data?.operator_address}",height=~"${toRegexRange(beginBlock, latestBlock)}"}` })
+            // const ineligibilities = response?.filter(metric => metric?.address && metric.address === data?.operator_address)
 
-            // const ineligibilities = response?.filter(metric => metric?.address && metric.address === validatorData?.operator_address)
-
-            heartbeats = heartbeats.map(_heartbeat => {
-              const _ineligibilities = null//ineligibilities?.find(_block => (_block?.height - (_block?.height % blocksPerHeartbeat) + blockFraction) === (_heartbeat?.height - (_heartbeat?.height % blocksPerHeartbeat) + blockFraction))
+            heartbeats = heartbeats.map(h => {
+              const _ineligibilities = null//ineligibilities?.find(b => (b?.height - (b?.height % blocksPerHeartbeat) + blockFraction) === (h?.height - (h?.height % blocksPerHeartbeat) + blockFraction))
 
               return {
-                ..._heartbeat,
-                up: (_heartbeat?.sender && _heartbeat.sender === validatorData.broadcaster_address) || _ineligibilities,
-                height: _ineligibilities?.height ? Number(_ineligibilities?.height) : _heartbeat.height,
-                key_ids: _ineligibilities?.key_IDs?.split(',') || _heartbeat.key_ids,
+                ...h,
+                up: (h?.sender && h.sender === data.broadcaster_address) || _ineligibilities,
+                height: _ineligibilities?.height ? Number(_ineligibilities?.height) : h.height,
+                key_ids: _ineligibilities?.key_IDs?.split(',') || h.key_ids,
                 ineligibilities: {
                   ..._ineligibilities?.ineligibilities,
                 },
@@ -552,11 +431,20 @@ export default function Validator({ address }) {
   }, [address, validator, status_data])
 
   useEffect(() => {
+    if (address && validators_chains_data) {
+      setSupportedChains({
+        data: Object.entries(validators_chains_data || {}).filter(([key, value]) => value?.includes(address.toLowerCase())).map(([key, value]) => key),
+        address,
+      })
+    }
+  }, [address, validators_chains_data])
+
+  useEffect(() => {
     const controller = new AbortController()
 
     const getData = async () => {
       if (address) {
-        let response, keygensData, signsData
+        let response, keygens_data, signs_data
 
         if (!controller.signal.aborted) {
           response = await getKeygensByValidator(address)
@@ -568,86 +456,82 @@ export default function Validator({ address }) {
 
         if (!controller.signal.aborted) {
           response = await getSuccessKeygens({ size: 1000, sort: [{ height: 'desc' }] })
+          let data = Array.isArray(response?.data) ? response.data : []
 
-          let _data = Array.isArray(response?.data) ? response.data : []
+          for (let i = 0; i < data.length; i++) {
+            const keygen = data[i]
 
-          for (let i = 0; i < _data.length; i++) {
-            const _keygen = _data[i]
-
-            _data[i] = {
-              ..._keygen,
-              key_chain: _keygen.key_chain || (_keygen?.key_id?.split('-').length > 1 && getName(_keygen.key_id.split('-')[0])),
-              key_role: _keygen.key_role || (_keygen?.key_id?.split('-').length > 2 && `${_keygen.key_id.split('-')[1].toUpperCase()}_KEY`),
-              participated: _keygen.snapshot_validators?.validators?.findIndex(_validator => _validator?.validator?.toLowerCase() === address?.toLowerCase()) > -1 ? true : false,
-              not_participated: _keygen.snapshot_non_participant_validators?.validators?.findIndex(_validator => _validator?.validator?.toLowerCase() === address?.toLowerCase()) > -1 ? true : false,
+            data[i] = {
+              ...keygen,
+              key_chain: keygen.key_chain || (keygen?.key_id?.split('-').length > 1 && getName(keygen.key_id.split('-')[0])),
+              key_role: keygen.key_role || (keygen?.key_id?.split('-').length > 2 && `${keygen.key_id.split('-')[1].toUpperCase()}_KEY`),
+              participated: keygen.snapshot_validators?.validators?.findIndex(v => v?.validator?.toLowerCase() === address?.toLowerCase()) > -1 ? true : false,
+              not_participated: keygen.snapshot_non_participant_validators?.validators?.findIndex(v => v?.validator?.toLowerCase() === address?.toLowerCase()) > -1 ? true : false,
               success: true,
             }
           }
 
-          keygensData = _.orderBy(_.concat(keygensData || [], _data.filter(_keygen => _keygen.participated || _keygen.not_participated)), ['height'], ['desc'])
+          keygens_data = _.orderBy(_.concat(keygens_data || [], data.filter(k => k.participated || k.not_participated)), ['height'], ['desc'])
 
           response = await getFailedKeygens({ size: 1000, sort: [{ height: 'desc' }] })
+          data = Array.isArray(response?.data) ? response.data : []
 
-          _data = Array.isArray(response?.data) ? response.data : []
+          for (let i = 0; i < data.length; i++) {
+            const keygen = data[i]
 
-          for (let i = 0; i < _data.length; i++) {
-            const _keygen = _data[i]
-
-            _data[i] = {
-              ..._keygen,
-              key_chain: _keygen.key_chain || (_keygen?.key_id?.split('-').length > 1 && getName(_keygen.key_id.split('-')[0])),
-              key_role: _keygen.key_role || (_keygen?.key_id?.split('-').length > 2 && `${_keygen.key_id.split('-')[1].toUpperCase()}_KEY`),
-              participated: _keygen.snapshot_validators?.validators?.findIndex(_validator => _validator?.validator?.toLowerCase() === address?.toLowerCase()) > -1 ? true : false,
-              not_participated: _keygen.snapshot_non_participant_validators?.validators?.findIndex(_validator => _validator?.validator?.toLowerCase() === address?.toLowerCase()) > -1 ? true : false,
+            data[i] = {
+              ...keygen,
+              key_chain: keygen.key_chain || (keygen?.key_id?.split('-').length > 1 && getName(keygen.key_id.split('-')[0])),
+              key_role: keygen.key_role || (keygen?.key_id?.split('-').length > 2 && `${keygen.key_id.split('-')[1].toUpperCase()}_KEY`),
+              participated: keygen.snapshot_validators?.validators?.findIndex(v => v?.validator?.toLowerCase() === address?.toLowerCase()) > -1 ? true : false,
+              not_participated: keygen.snapshot_non_participant_validators?.validators?.findIndex(v => v?.validator?.toLowerCase() === address?.toLowerCase()) > -1 ? true : false,
               success: false,
             }
           }
 
-          keygensData = _.orderBy(_.concat(keygensData || [], _data.filter(_keygen => _keygen.participated || _keygen.not_participated)), ['height'], ['desc'])
+          keygens_data = _.orderBy(_.concat(keygens_data || [], data.filter(k => k.participated || k.not_participated)), ['height'], ['desc'])
 
-          setKeygens({ data: keygensData, total: keygensData.length, address })
+          setKeygens({ data: keygens_data, total: keygens_data.length, address })
         }
 
         if (!controller.signal.aborted) {
           response = await getSignAttempts({ size: 1000, query: { match: { result: true } }, sort: [{ height: 'desc' }] })
+          let data = Array.isArray(response?.data) ? response.data : []
 
-          let _data = Array.isArray(response?.data) ? response.data : []
+          for (let i = 0; i < data.length; i++) {
+            const sign = data[i]
 
-          for (let i = 0; i < _data.length; i++) {
-            const _sign = _data[i]
-
-            _data[i] = {
-              ..._sign,
-              key_chain: _sign.key_chain || (_sign?.key_id?.split('-').length > 1 && getName(_sign.key_id.split('-')[0])),
-              key_role: _sign.key_role || (_sign?.key_id?.split('-').length > 2 && `${_sign.key_id.split('-')[1].toUpperCase()}_KEY`),
-              participated: _sign.participants?.findIndex(_address => _address?.toLowerCase() === address?.toLowerCase()) > -1 ? true : false,
-              not_participated: _sign.non_participants?.findIndex(_address => _address?.toLowerCase() === address?.toLowerCase()) > -1 ? true : false,
+            data[i] = {
+              ...sign,
+              key_chain: sign.key_chain || (sign?.key_id?.split('-').length > 1 && getName(sign.key_id.split('-')[0])),
+              key_role: sign.key_role || (sign?.key_id?.split('-').length > 2 && `${sign.key_id.split('-')[1].toUpperCase()}_KEY`),
+              participated: sign.participants?.findIndex(a => a?.toLowerCase() === address?.toLowerCase()) > -1 ? true : false,
+              not_participated: sign.non_participants?.findIndex(a => a?.toLowerCase() === address?.toLowerCase()) > -1 ? true : false,
               success: true,
             }
           }
 
-          signsData = _.orderBy(_.concat(signsData || [], _data.filter(_keygen => _keygen.participated || _keygen.not_participated)), ['height'], ['desc'])
+          signs_data = _.orderBy(_.concat(signs_data || [], data.filter(s => s.participated || s.not_participated)), ['height'], ['desc'])
 
           response = await getSignAttempts({ size: 1000, query: { match: { result: false } }, sort: [{ height: 'desc' }] })
+          data = Array.isArray(response?.data) ? response.data : []
 
-          _data = Array.isArray(response?.data) ? response.data : []
+          for (let i = 0; i < data.length; i++) {
+            const sign = data[i]
 
-          for (let i = 0; i < _data.length; i++) {
-            const _sign = _data[i]
-
-            _data[i] = {
-              ..._sign,
-              key_chain: _sign.key_chain || (_sign?.key_id?.split('-').length > 1 && getName(_sign.key_id.split('-')[0])),
-              key_role: _sign.key_role || (_sign?.key_id?.split('-').length > 2 && `${_sign.key_id.split('-')[1].toUpperCase()}_KEY`),
-              participated: _sign.participants?.findIndex(_address => _address?.toLowerCase() === address?.toLowerCase()) > -1 ? true : false,
-              not_participated: _sign.non_participants?.findIndex(_address => _address?.toLowerCase() === address?.toLowerCase()) > -1 ? true : false,
+            data[i] = {
+              ...sign,
+              key_chain: sign.key_chain || (sign?.key_id?.split('-').length > 1 && getName(sign.key_id.split('-')[0])),
+              key_role: sign.key_role || (sign?.key_id?.split('-').length > 2 && `${sign.key_id.split('-')[1].toUpperCase()}_KEY`),
+              participated: sign.participants?.findIndex(a => a?.toLowerCase() === address?.toLowerCase()) > -1 ? true : false,
+              not_participated: sign.non_participants?.findIndex(a => a?.toLowerCase() === address?.toLowerCase()) > -1 ? true : false,
               success: false,
             }
           }
 
-          signsData = _.orderBy(_.concat(signsData || [], _data.filter(_keygen => _keygen.participated || _keygen.not_participated)), ['height'], ['desc'])
+          signs_data = _.orderBy(_.concat(signs_data || [], data.filter(s => s.participated || s.not_participated)), ['height'], ['desc'])
 
-          setSigns({ data: signsData, total: signsData.length, address })
+          setSigns({ data: signs_data, total: signs_data.length, address })
         }
       }
     }
@@ -662,9 +546,7 @@ export default function Validator({ address }) {
   return (
     <>
       <div className="my-4">
-        <Information
-          data={validator?.address === address && validator?.data}
-        />
+        <Information data={validator?.address === address && validator?.data} />
       </div>
       <div className="grid grid-flow-row grid-cols-1 sm:grid-cols-2 gap-4 my-4">
         <VotingPower data={validator?.address === address && validator?.data} />
@@ -683,14 +565,20 @@ export default function Validator({ address }) {
             data={validator?.address === address && validator?.data}
             jailed={jailed?.address === address && jailed?.data}
           />
-          <Uptime data={uptime?.address === address && uptime?.data} validator_data={validator?.address === address && validator?.data} />
+          <Uptime
+            data={uptime?.address === address && uptime?.data}
+            validator_data={validator?.address === address && validator?.data}
+          />
         </div>
         <div className="space-y-4">
           <HealthCheck
             data={validator?.address === address && validator?.data}
             health={health?.address === address && health?.data}
           />
-          <Heartbeat data={heartbeat?.address === address && heartbeat?.data} validator_data={validator?.address === address && validator?.data} />
+          <Heartbeat
+            data={heartbeat?.address === address && heartbeat?.data}
+            validator_data={validator?.address === address && validator?.data}
+          />
         </div>
         <div className="space-y-4">
           <AxelarSpecific
@@ -702,13 +590,13 @@ export default function Validator({ address }) {
           />
           <Widget
             title={<div className="grid grid-flow-row grid-cols-3 sm:grid-cols-4 md:grid-cols-3 xl:flex flex-row items-center space-x-1">
-              {['key_share', 'keygen', 'sign'].map((_tab, i) => (
+              {['key_share', 'keygen', 'sign'].map((t, i) => (
                 <div
                   key={i}
-                  onClick={() => setTab(_tab)}
-                  className={`max-w-min sm:max-w-max md:max-w-min lg:max-w-max btn btn-default btn-rounded cursor-pointer whitespace-nowrap bg-trasparent ${_tab === tab ? 'bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white font-semibold' : 'hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-500 hover:text-gray-700 text-white dark:hover:text-gray-100'}`}
+                  onClick={() => setTab(t)}
+                  className={`max-w-min sm:max-w-max md:max-w-min lg:max-w-max btn btn-default btn-rounded cursor-pointer whitespace-nowrap bg-trasparent ${t === tab ? 'bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white font-semibold' : 'hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-500 hover:text-gray-700 text-white dark:hover:text-gray-100'}`}
                 >
-                  {getName(_tab)}
+                  {getName(t)}
                 </div>
               ))}
             </div>}

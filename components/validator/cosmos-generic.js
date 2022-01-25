@@ -7,8 +7,8 @@ import Widget from '../widget'
 import { getName, numberFormat } from '../../lib/utils'
 
 export default function CosmosGeneric({ data, jailed }) {
-  const { _data } = useSelector(state => ({ _data: state.data }), shallowEqual)
-  const { status_data } = { ..._data }
+  const { status } = useSelector(state => ({ status: state.status }), shallowEqual)
+  const { status_data } = { ...status }
 
   let numMissedBlocks = typeof data?.uptime === 'number' && status_data?.latest_block_height && (
     (Number(process.env.NEXT_PUBLIC_NUM_UPTIME_BLOCKS) * (1 - data.uptime / 100))

@@ -24,8 +24,8 @@ export default function Participations() {
   const [failedKeygens, setFailedKeygens] = useState(null)
   const [successSignAttempts, setSuccessSignAttempts] = useState(null)
   const [failedSignAttempts, setFailedSignAttempts] = useState(null)
-  const [table, setTable] = useState('keygen_success')
 
+  const [table, setTable] = useState('keygen_success')
   const [keys, setKeys] = useState(null)
 
   useEffect(() => {
@@ -388,13 +388,13 @@ export default function Participations() {
         failedSignAttempts={failedSignAttempts && (typeof failedSignAttempts.total === 'number' ? failedSignAttempts.total : failedSignAttempts.data?.length)}
       />
       <div className="flex flex-row items-center overflow-x-auto space-x-1 my-2">
-        {['keygen_success', 'keygen_failed', 'sign_success', 'sign_failed'].map((_table, i) => (
+        {['keygen_success', 'keygen_failed', 'sign_success', 'sign_failed'].map((t, i) => (
           <div
             key={i}
-            onClick={() => setTable(_table)}
-            className={`btn btn-default btn-rounded cursor-pointer bg-trasparent ${_table === table ? 'bg-gray-700 dark:bg-gray-900 text-white' : 'bg-trasparent hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 hover:text-gray-700 dark:hover:text-gray-100'}`}
+            onClick={() => setTable(t)}
+            className={`btn btn-default btn-rounded cursor-pointer bg-trasparent ${t === table ? 'bg-gray-700 dark:bg-gray-900 text-white' : 'bg-trasparent hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 hover:text-gray-700 dark:hover:text-gray-100'}`}
           >
-            {_table.split('_').join(' - ')}
+            {t.split('_').join(' - ')}
           </div>
         ))}
       </div>
