@@ -6,13 +6,16 @@ import _ from 'lodash'
 import NetworkGraph from './network-graph'
 import TransfersTable from './transfers-table'
 
-import { transfers } from '../../lib/api/opensearch'
-import { denomSymbol, denomName, denomAmount, denomImage } from '../../lib/object/denom'
-import { chainName, chainImage, idFromMaintainerId } from '../../lib/object/chain'
+import { crosschainTxs } from '../../lib/api/opensearch'
+import { getChain } from '../../lib/object/chain'
+import { getDenom, denomer } from '../../lib/object/denom'
+import { currency } from '../../lib/object/currency'
 
 export default function Crosschain() {
-  const { data } = useSelector(state => ({ data: state.data }), shallowEqual)
-  const { denoms_data } = { ...data }
+  const { chains, cosmos_chains, denoms } = useSelector(state => ({ chains: state.chains, cosmos_chains: state.cosmos_chains, denoms: state.denoms }), shallowEqual)
+  const { chains_data } = { ...chains }
+  const { cosmos_chains_data } = { ...cosmos_chains }
+  const { denoms_data } = { ...denoms }
 
   const [transfersData, setTransfersData] = useState(null)
 
@@ -20,40 +23,37 @@ export default function Crosschain() {
     const controller = new AbortController()
 
     const getData = async () => {
-      if (denoms_data) {
-        let data
-
-        let response
+      if (chains_data && cosmos_chains_data && denoms_data) {
+        let response, data
 
         if (!controller.signal.aborted) {
-          response = await transfers({
+          response = await crosschainTxs({
             aggs: {
-              transfers: {
-                terms: { field: 'chain.keyword', size: 10000 },
+              from_chains: {
+                terms: { field: 'send.sender_chain.keyword', size: 10000 },
                 aggs: {
-                  assets: {
-                    terms: { field: 'contract.name.keyword', size: 10000 },
+                  to_chains: {
+                    terms: { field: 'send.recipient_chain.keyword', size: 10000 },
                     aggs: {
-                      amounts: {
-                        sum: {
-                          field: 'amount',
+                      assets: {
+                        terms: { field: 'send.denom.keyword', size: 10000 },
+                        aggs: {
+                          amounts: {
+                            sum: {
+                              field: 'send.amount',
+                            },
+                          },
+                          avg_amounts: {
+                            avg: {
+                              field: 'send.amount',
+                            },
+                          },
+                          since: {
+                            min: {
+                              field: 'send.created_at.ms',
+                            },
+                          },
                         },
-                      },
-                      avg_amounts: {
-                        avg: {
-                          field: 'amount',
-                        },
-                      },
-                      since: {
-                        min: {
-                          field: 'created_at.ms',
-                        },
-                      },
-                      token_address: {
-                        terms: { field: 'contract.address.keyword', size: 10000 },
-                      },
-                      transfer_action: {
-                        terms: { field: 'transfer_action.keyword', size: 10000 },
                       },
                     },
                   },
@@ -63,16 +63,21 @@ export default function Crosschain() {
           })
         }
 
-        data = _.orderBy(response?.data?.map(transfer => {
+        data = _.orderBy(response?.data?.map(t => {
           return {
-            ...transfer,
-            chain_name: chainName(idFromMaintainerId(transfer.chain)),
-            chain_image: chainImage(idFromMaintainerId(transfer.chain)),
-            asset_name: denomName(transfer.asset, denoms_data),
-            asset_image: denomImage(transfer.asset, denoms_data),
-            asset_symbol: denomSymbol(transfer.asset, denoms_data),
-            amount: denomAmount(transfer.amount, transfer.asset, denoms_data),
-            avg_amount: denomAmount(transfer.avg_amount, transfer.asset, denoms_data),
+            ...t,
+            from_chain: getChain(t?.from_chain, chains_data) || getChain(t?.from_chain, cosmos_chains_data),
+            to_chain: getChain(t?.to_chain, chains_data) || getChain(t?.to_chain, cosmos_chains_data),
+            asset: getDenom(t?.asset, denoms_data),
+            amount: denomer.amount(t?.amount, t?.asset, denoms_data),
+            avg_amount: denomer.amount(t?.avg_amount, t?.asset, denoms_data),
+          }
+        }).map(t => {
+          console.log(t.asset)
+          return {
+            ...t,
+            value: t?.asset?.token_data?.[currency] && (t.asset.token_data[currency] * t.amount),
+            avg_value: t?.asset?.token_data?.[currency] && (t.asset.token_data[currency] * t.avg_amount),
           }
         }), ['tx'], ['desc'])
 
@@ -87,7 +92,7 @@ export default function Crosschain() {
       controller?.abort()
       clearInterval(interval)
     }
-  }, [denoms_data])
+  }, [chains_data, cosmos_chains_data, denoms_data])
 
   return (
     <div className="max-w-full my-4 xl:my-6 mx-auto">

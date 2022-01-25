@@ -4,7 +4,7 @@ import { useSelector, shallowEqual } from 'react-redux'
 import _ from 'lodash'
 import G6 from '@antv/g6'
 
-import { chainName, chainImage } from '../../lib/object/chain'
+import { chainTitle } from '../../lib/object/chain'
 import { numberFormat } from '../../lib/utils'
 
 export default function NetworkGraph({ data }) {
@@ -23,22 +23,22 @@ export default function NetworkGraph({ data }) {
           const outDiv = document.createElement('div');
           outDiv.style.width = '180px'
           outDiv.innerHTML = `
-            <h4 class="font-semibold -mt-1.5">${e.item.getModel().data.asset_name} transfers</h4>
+            <h4 class="font-semibold -mt-1.5">${e.item.getModel().transfer.asset?.title} transfers</h4>
             <ul class="-mt-0.5">
               <li class="flex items-center space-x-1.5 mb-1">
                 <div class="flex items-center space-x-1">
-                  <img src="${e.item.getModel().data.chain_image}" alt="" class="w-4 h-4 rounded-full" />
-                  <span class="font-medium">${e.item.getModel().data.chain_name}</span>
+                  <img src="${e.item.getModel().transfer.from_chain?.image}" alt="" class="w-4 h-4 rounded-full" />
+                  <span class="font-medium">${e.item.getModel().transfer.from_chain?.short_name}</span>
                 </div>
                 <span>-></span>
                 <div class="flex items-center space-x-1">
-                  ${e.item.getModel().target === 'evms' ? '' : `<img src="${chainImage(e.item.getModel().target)}" alt="" class="w-4 h-4 rounded-full" />`}
-                  <span class="font-medium">${chainName(e.item.getModel().target) || 'EVMs'}</span>
+                  <img src="${e.item.getModel().transfer.to_chain?.image}" alt="" class="w-4 h-4 rounded-full" />
+                  <span class="font-medium">${e.item.getModel().transfer.to_chain?.short_name}</span>
                 </div>
               </li>
-              <li><span class="font-semibold">Transactions</span>: ${numberFormat(e.item.getModel().data.tx, '0,0')}</li>
-              <li><span class="font-semibold">Volume</span>: ${numberFormat(e.item.getModel().data.amount, e.item.getModel().data.amount >= 100000 ? '0,0.00a' : '0,0.000')} ${e.item.getModel().data.asset_symbol?.toUpperCase()}</li>
-              <li><span class="font-semibold">Avg. Size</span>: ${numberFormat(e.item.getModel().data.avg_amount, e.item.getModel().data.avg_amount >= 100000 ? '0,0.00a' : '0,0.000')} ${e.item.getModel().data.asset_symbol?.toUpperCase()}</li>
+              <li><span class="font-semibold">Transactions</span>: ${numberFormat(e.item.getModel().transfer.tx, '0,0')}</li>
+              <li><span class="font-semibold">Volume</span>: ${numberFormat(e.item.getModel().transfer.amount, e.item.getModel().transfer.amount >= 100000 ? '0,0.00a' : '0,0.000')} ${e.item.getModel().transfer.asset?.symbol}</li>
+              <li><span class="font-semibold">Avg. Size</span>: ${numberFormat(e.item.getModel().transfer.avg_amount, e.item.getModel().transfer.avg_amount >= 100000 ? '0,0.00a' : '0,0.000')} ${e.item.getModel().transfer.asset?.symbol}</li>
             </ul>`
           return outDiv
         },
@@ -56,10 +56,10 @@ export default function NetworkGraph({ data }) {
           type: 'circular',
           preventOverlap: true,
           linkDistance: 160,
-          nodeSpacing: 8,
+          nodeSpacing: 16,
         },
         defaultNode: {
-          size: 60,
+          size: 48,
         },
         defaultEdge: {
           labelCfg: {
@@ -95,67 +95,54 @@ export default function NetworkGraph({ data }) {
       }
 
       for (let i = 0; i < data.length; i++) {
-        const chainAsset = data[i]
+        const transfer = data[i]
 
-        const direction = ['ConfirmDeposit'].includes(chainAsset.transfer_action) ? 'out' : 'in'
-
-        nodes.push({
-          id: chainAsset.chain,
-          // comboId: direction === 'out' ? undefined : 'evms',
-          type: 'image',
-          img: chainAsset.chain_image,
-          label: chainAsset.chain_name,
-          labelCfg,
-          style,
-        })
-
-        if (direction === 'out') {
+        if (nodes.findIndex(n => n.id === transfer.from_chain?.id) < 0) {
           nodes.push({
-            id: 'evms',
-            label: 'EVMs',
+            id: transfer.from_chain?.id,
+            type: 'image',
+            img: transfer.from_chain?.image,
+            label: chainTitle(transfer.from_chain),
             labelCfg,
             style,
           })
         }
 
-        const assets = data.filter(_chainAsset => _chainAsset.chain === chainAsset.chain)
-        const assetIndex = assets.findIndex(_chainAsset => _chainAsset.id === chainAsset.id)
+        if (nodes.findIndex(n => n.id === transfer.to_chain?.id) < 0) {
+          nodes.push({
+            id: transfer.to_chain?.id,
+            type: 'image',
+            img: transfer.to_chain?.image,
+            label: chainTitle(transfer.to_chain),
+            labelCfg,
+            style,
+          })
+        }
+
+        const assets = data.filter(t => t.from_chain?.id === transfer.from_chain?.id && t.to_chain?.id === transfer.to_chain?.id)
+        const index = assets.findIndex(a => a.asset?.id === transfer.asset?.id)
 
         edges.push({
-          data: chainAsset,
-          id: chainAsset.id,
-          source: chainAsset.chain,
-          target: direction === 'out' ? 'evms' : 'axelarnet',
-          type: 'circle-running',//assets.length > 1 ? 'quadratic' : 'line',
-          label: `${numberFormat(chainAsset.amount, chainAsset.amount >= 100000 ? '0,0.00a' : '0,0.000')} ${chainAsset.asset_symbol?.toUpperCase()}`,
+          transfer,
+          id: transfer.id,
+          source: transfer.from_chain?.id,
+          target: transfer.to_chain?.id,
+          type: 'circle-running',
+          label: `${numberFormat(transfer.amount, transfer.amount >= 100000 ? '0,0.00a' : '0,0.000')} ${transfer.asset?.symbol}`,
           labelCfg: {
             style: {
               ...labelCfg?.style,
-              fontWeight: 400,
-              fontSize: 12,
+              fontWeight: 500,
+              fontSize: 10,
               textBaseline: 'bottom',
             },
           },
-          curveOffset: (assetIndex % 2 === 0 ? -1 : 1) * (assetIndex + 1) * 20,
+          curveOffset: (index % 2 === 0 ? -1 : 1) * (index + 1) * 30,
           style: {
             stroke: theme === 'dark' ? '#333' : '#ddd',
-            // endArrow: {
-            //   path: G6.Arrow.diamond(15, 20, 15),
-            //   d: 25,
-            //   fill: theme === 'dark' ? '#333' : '#ddd',
-            // },
           },
         })
       }
-
-      // combos.push({
-      //   id: 'evms',
-      //   label: 'EVMs',
-      //   labelCfg,
-      //   style,
-      //   fixSize: 200,
-      //   padding: 0,
-      // })
 
       G6.registerEdge(
         'circle-running',

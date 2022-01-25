@@ -6,7 +6,6 @@ import { TiArrowRight } from 'react-icons/ti'
 import SectionTitle from '../../section-title'
 import Copy from '../../copy'
 import LeaderboardNav from '../../leaderboard-nav'
-import CrosschainInfo from '../../crosschain-info'
 
 import { exercises } from '../../../lib/menus'
 import { numberFormat, ellipseAddress } from '../../../lib/utils'
@@ -111,7 +110,6 @@ export default function PageTitle() {
     case '/crosschain':
       title = 'Traffic'
       subtitle = 'Cross-chain'
-      right = (<CrosschainInfo />)
       break
     case '/participations':
       title = 'Latest'
