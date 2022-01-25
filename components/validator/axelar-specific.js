@@ -76,12 +76,12 @@ export default function AxelarSpecific({ data, keygens, signs, supportedChains, 
             <span className="flex flex-wrap items-center text-gray-500 dark:text-gray-400">
               {supportedChains.length > 0 ?
                 supportedChains.map((id, i) => (
-                  <span key={i} className="min-w-max max-w-min bg-gray-100 dark:bg-gray-800 rounded-xl flex items-center text-gray-800 dark:text-gray-200 text-xs font-semibold space-x-1 px-2 py-1 my-1 mr-2">
+                  <span key={i} className="min-w-max max-w-min bg-gray-100 dark:bg-gray-800 rounded-xl flex items-center text-gray-800 dark:text-gray-200 text-2xs font-semibold space-x-1 px-2 py-1 my-1 mr-2">
                     {chain_manager.image(id, chains_data) && (
                       <img
                         alt=""
                         src={chain_manager.image(id, chains_data)}
-                        className="w-5 h-5 rounded-full"
+                        className="w-4 h-4 rounded-full"
                       />
                     )}
                     <span className="whitespace-nowrap">{chain_manager.title(id, chains_data)}</span>

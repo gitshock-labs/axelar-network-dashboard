@@ -23,7 +23,7 @@ export default function Uptime({ data, validator_data }) {
             <Popover
               key={i}
               placement="top"
-              title={<div className="flex items-center space-x-2">
+              title={<div className="flex items-center justify-between space-x-2">
                 <span className="font-bold">Block: {numberFormat(block.height, '0,0')}</span>
                 <Link href={`/block/${block.height}`}>
                   <a className="flex items-center text-blue-600 dark:text-white ml-auto">

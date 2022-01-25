@@ -32,7 +32,7 @@ export default function Heartbeat({ data, validator_data }) {
             <Popover
               key={i}
               placement="top"
-              title={<div className="flex items-center">
+              title={<div className="flex items-center justify-between space-x-2">
                 <span className="font-bold">Block: {numberFormat(block.height, '0,0')}</span>
                 <Link href={`/block/${block.height}`}>
                   <a className="flex items-center text-blue-600 dark:text-white ml-auto">
@@ -73,7 +73,7 @@ export default function Heartbeat({ data, validator_data }) {
                       <span>Key IDs</span>
                     </span>
                     {block.key_ids.length > 0 ?
-                      <div className="max-h-80 overflow-y-auto">
+                      <div className="max-h-48 overflow-y-auto">
                         {block.key_ids.map((key_id, i) => (
                           <span key={i} className="flex items-center space-x-1">
                             <FiKey size={16} className="text-gray-600 dark:text-gray-400" />

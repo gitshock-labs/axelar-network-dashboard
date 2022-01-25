@@ -38,7 +38,7 @@ export default function Navbar() {
   const router = useRouter()
   const { pathname, query } = { ...router }
 
-  const [statusTrigger, setStatusTrigger] = useState(null)
+  const [loadValidatorsTrigger, setLoadValidatorsTrigger] = useState(null)
   const [loadProfileTrigger, setLoadProfileTrigger] = useState(null)
 
   useEffect(() => {
@@ -142,14 +142,14 @@ export default function Navbar() {
         })
 
         if (!is_interval) {
-          setStatusTrigger(moment().valueOf())
+          setLoadValidatorsTrigger(moment().valueOf())
         }
       }
     }
 
     getData()
 
-    const interval = setInterval(() => getData(true), 5 * 1000)
+    const interval = setInterval(() => getData(true), 7.5 * 1000)
     return () => {
       clearInterval(interval)
     }
@@ -350,7 +350,7 @@ export default function Navbar() {
       controller?.abort()
       clearInterval(interval)
     }
-  }, [denoms_data, statusTrigger, pathname])
+  }, [denoms_data, pathname, loadValidatorsTrigger])
 
   useEffect(() => {
     const controller = new AbortController()
@@ -403,14 +403,16 @@ export default function Navbar() {
                 if (responseProfile?.them?.[0]?.pictures?.primary?.url) {
                   v.description.image = responseProfile.them[0].pictures.primary?.url
 
-                  updated = true
+                  if (!query.address || (['/validator/[address]'].includes(pathname) && query.address?.toLowerCase() === v.operator_address?.toLowerCase())) {
+                    updated = true
+                  }
                 }
               }
 
               v.description.image = v.description.image || randImage(i)
 
               data[i] = v
-            
+
               if (updated) {
                 dispatch({
                   type: VALIDATORS_DATA,

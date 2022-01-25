@@ -14,9 +14,9 @@ export default function HealthCheck({ data, health }) {
       className="dark:border-gray-900"
     >
       <div className={`grid grid-flow-row grid-cols-1 sm:grid-cols-2 text-base sm:text-sm lg:text-base gap-4 ${health ? 'mt-3 mb-0.5' : 'mt-4 mb-1'}`}>
-        <div className={`flex flex-col space-y-${data && 'tss_illegibility_info' in data && health ? 1 : 2}`}>
+        <div className={`flex flex-col space-y-${data?.broadcaster_loaded && health ? 1 : 2}`}>
           <span className="font-semibold">Broadcaster Registration</span>
-          {data?.broadcaster_loaded && 'tss_illegibility_info' in data && health ?
+          {data?.broadcaster_loaded && health ?
             typeof health.broadcaster_registration === 'boolean' ?
               <span className={`max-w-min ${health.broadcaster_registration ? 'bg-green-500 dark:bg-green-700' : 'bg-red-500 dark:bg-red-700'} rounded-xl flex items-center text-white text-xs font-semibold space-x-1.5 px-2.5 py-1`}>
                 {health.broadcaster_registration ?

@@ -39,6 +39,7 @@ export default function Validator({ address }) {
   const { jailed_sync_data } = { ...jailed_sync }
 
   const [validator, setValidator] = useState(null)
+  const [votingPower, setVotingPower] = useState(null)
   const [delegations, setDelegations] = useState(null)
   const [uptime, setUptime] = useState(null)
   const [maxMissed, setMaxMissed] = useState(Number(process.env.NEXT_PUBLIC_DEFAULT_MAX_MISSED))
@@ -57,38 +58,20 @@ export default function Validator({ address }) {
     const controller = new AbortController()
 
     const getData = async () => {
-      if (address && denoms_data && status_data && !status_data.is_interval && validators_data) {
-        let response, data = {}
-
+      if (address && denoms_data && status_data && validators_data) {
+        let response, data
         const validator_data = validators_data?.find(v => v.operator_address === address)
 
         if (validator_data?.start_proxy_height || validator_data?.start_height || validator_data?.deregistering) {
           data = { ...data, ...validator_data }
-          const broadcaster_loaded = data.broadcaster_loaded
-          setValidator({ data, address, broadcaster_loaded })
 
-          if (!controller.signal.aborted) {
-            if (!data.proposer_priority) {
-              response = await validatorSets()
+          setValidator({ data, address, broadcaster_loaded: data.broadcaster_loaded })
 
-              if (response?.result?.validators?.findIndex(v => v.address === data.consensus_address) > -1) {
-                const v = response.result.validators?.find(v => v.address === data.consensus_address)
-
-                data = {
-                  ...data,
-                  proposer_priority: v?.proposer_priority,
-                  voting_power: Number(v?.voting_power),
-                }
-                setValidator({ data, address, broadcaster_loaded })
-              }
-            }
-          }
-
-          if (broadcaster_loaded) {
+          if (data.broadcaster_loaded && 'tss_illegibility_info' in data) {
             const _health = {
               broadcaster_registration: !data.tss_illegibility_info?.no_proxy_registered && data.broadcaster_address ? true : false,
             }
-            _health.num_block_before_registered = data && 'tss_illegibility_info' in data && _health ? _health.broadcaster_registration ? typeof data?.start_proxy_height === 'number' && typeof data?.start_height === 'number' ? data.start_proxy_height >= data.start_height ? data.start_proxy_height - data.start_height : 0 : '-' : 'No Proxy' : null
+            _health.num_block_before_registered = _health ? _health.broadcaster_registration ? typeof data?.start_proxy_height === 'number' && typeof data?.start_height === 'number' ? data.start_proxy_height >= data.start_height ? data.start_proxy_height - data.start_height : 0 : '-' : 'No Proxy' : null
 
             if (data.broadcaster_address) {
               response = await allBankBalances(data.broadcaster_address)
@@ -149,7 +132,124 @@ export default function Validator({ address }) {
     return () => {
       controller?.abort()
     }
-  }, [address, denoms_data, status_data, validators_data])
+  }, [address, validators_data])
+
+  useEffect(() => {
+    const controller = new AbortController()
+
+    const getData = async () => {
+      if (address && validator?.address === address && (!votingPower || !validator.broadcaster_loaded)) {
+        if (!controller.signal.aborted) {
+          let response, data = { ...validator.data }
+
+          if (!controller.signal.aborted) {
+            response = await validatorSets()
+
+            if (response?.result?.validators?.findIndex(v => v.address === data.consensus_address) > -1) {
+              const v = response.result.validators?.find(v => v.address === data.consensus_address)
+
+              data = {
+                ...data,
+                proposer_priority: v?.proposer_priority,
+                voting_power: Number(v?.voting_power),
+              }
+            }
+
+            setVotingPower({ data, address })
+          }
+        }
+      }
+    }
+
+    getData()
+
+    return () => {
+      controller?.abort()
+    }
+  }, [address, validator])
+
+  useEffect(() => {
+    const controller = new AbortController()
+
+    const getData = async () => {
+      if (address && validator?.address === address && (!delegations || !validator.broadcaster_loaded) && denoms_data) {
+        if (!controller.signal.aborted) {
+          let response, _delegations
+
+          if (!controller.signal.aborted) {
+            response = await allDelegations(address)
+
+            _delegations = _.orderBy(response.data?.map(d => {
+              return {
+                ...d.delegation,
+                self: d.delegation.delegator_address === validator.data?.delegator_address,
+                shares: d.delegation && denomer.amount(d.delegation.shares, d.balance?.denom, denoms_data),
+                ...d.balance,
+                denom: denomer.symbol(d.balance?.denom, denoms_data),
+                amount: d.balance && denomer.amount(d.balance.amount, d.balance.denom, denoms_data),
+              }
+            }) || [], ['self', 'shares'], ['desc', 'desc'])
+
+            setDelegations({ data: _delegations, address })
+          }
+
+          /*if (!controller.signal.aborted) {
+            let _rewards = []
+
+            response = await distributionRewards(validator.data?.delegator_address)
+
+            if (response && !response.error) {
+              _rewards.push({
+                ...response,
+                name: 'Distribution Rewards',
+                rewards: response.rewards && Object.entries(_.groupBy(response.rewards.flatMap(r => r.reward).map(r => { return { ...r, denom: denomer.symbol(r.denom, denoms_data), amount: r.amount && (isNaN(r.amount) ? -1 : denomer.amount(r.amount, r.denom, denoms_data)) } }), 'denom')).map(([key, value]) => { return { denom: key, amount: _.sumBy(value, 'amount') } }),
+                total: response.total && Object.entries(_.groupBy(response.total.map(t => { return { ...t, denom: denomer.symbol(t.denom, denoms_data), amount: t.amount && denomer.amount(t.amount, t.denom, denoms_data) } }), 'denom')).map(([key, value]) => { return { denom: key, amount: _.sumBy(value, 'amount') } }),
+              })
+            }
+
+            response = await distributionCommissions(validator.data?.operator_address)
+
+            if (response && !response.error) {
+              _rewards.push({
+                ...response,
+                name: 'Distribution Commissions',
+                total: response?.commission?.commission?.map(c => {
+                  return {
+                    ...c,
+                    denom: denomer.symbol(c.denom, denoms_data),
+                    amount: c.amount && (isNaN(c.amount) ? -1 : denomer.amount(c.amount, c.denom, denoms_data)),
+                  }
+                }),
+              })
+            }
+
+            _rewards = _rewards.map(r => {
+              return {
+                ...r,
+                rewards_per_stake: r.total?.map(_denom => {
+                  const stake = _.sumBy(_delegations?.filter(d => d.denom === _denom.denom) || [], 'amount')
+
+                  return {
+                    ..._denom,
+                    stake,
+                    amount_per_stake: _denom.amount / (stake > 0 ? stake : 1),
+                  }
+                }),
+              }
+            })
+
+            setRewards({ data: _rewards, address })
+          }*/
+        }
+      }
+    }
+
+    getData()
+
+    return () => {
+      controller?.abort()
+    }
+  }, [address, validator, denoms_data])
 
   useEffect(() => {
     const controller = new AbortController()
@@ -165,7 +265,7 @@ export default function Validator({ address }) {
     }
 
     const getData = async () => {
-      if (address && validator?.address === address) {
+      if (address && validator?.address === address && (!jailed || !validator.broadcaster_loaded)) {
         if (!controller.signal.aborted) {
           const validator_data = validator?.data
           let response, jailed_data
@@ -272,90 +372,7 @@ export default function Validator({ address }) {
     const controller = new AbortController()
 
     const getData = async () => {
-      if (address && validator?.address === address && denoms_data) {
-        if (!controller.signal.aborted) {
-          let response, _delegations
-
-          if (!controller.signal.aborted) {
-            response = await allDelegations(address)
-
-            _delegations = _.orderBy(response.data?.map(d => {
-              return {
-                ...d.delegation,
-                self: d.delegation.delegator_address === validator.data?.delegator_address,
-                shares: d.delegation && denomer.amount(d.delegation.shares, d.balance?.denom, denoms_data),
-                ...d.balance,
-                denom: denomer.symbol(d.balance?.denom, denoms_data),
-                amount: d.balance && denomer.amount(d.balance.amount, d.balance.denom, denoms_data),
-              }
-            }) || [], ['self', 'shares'], ['desc', 'desc'])
-
-            setDelegations({ data: _delegations, address })
-          }
-
-          /*if (!controller.signal.aborted) {
-            let _rewards = []
-
-            response = await distributionRewards(validator.data?.delegator_address)
-
-            if (response && !response.error) {
-              _rewards.push({
-                ...response,
-                name: 'Distribution Rewards',
-                rewards: response.rewards && Object.entries(_.groupBy(response.rewards.flatMap(r => r.reward).map(r => { return { ...r, denom: denomer.symbol(r.denom, denoms_data), amount: r.amount && (isNaN(r.amount) ? -1 : denomer.amount(r.amount, r.denom, denoms_data)) } }), 'denom')).map(([key, value]) => { return { denom: key, amount: _.sumBy(value, 'amount') } }),
-                total: response.total && Object.entries(_.groupBy(response.total.map(t => { return { ...t, denom: denomer.symbol(t.denom, denoms_data), amount: t.amount && denomer.amount(t.amount, t.denom, denoms_data) } }), 'denom')).map(([key, value]) => { return { denom: key, amount: _.sumBy(value, 'amount') } }),
-              })
-            }
-
-            response = await distributionCommissions(validator.data?.operator_address)
-
-            if (response && !response.error) {
-              _rewards.push({
-                ...response,
-                name: 'Distribution Commissions',
-                total: response?.commission?.commission?.map(c => {
-                  return {
-                    ...c,
-                    denom: denomer.symbol(c.denom, denoms_data),
-                    amount: c.amount && (isNaN(c.amount) ? -1 : denomer.amount(c.amount, c.denom, denoms_data)),
-                  }
-                }),
-              })
-            }
-
-            _rewards = _rewards.map(r => {
-              return {
-                ...r,
-                rewards_per_stake: r.total?.map(_denom => {
-                  const stake = _.sumBy(_delegations?.filter(d => d.denom === _denom.denom) || [], 'amount')
-
-                  return {
-                    ..._denom,
-                    stake,
-                    amount_per_stake: _denom.amount / (stake > 0 ? stake : 1),
-                  }
-                }),
-              }
-            })
-
-            setRewards({ data: _rewards, address })
-          }*/
-        }
-      }
-    }
-
-    getData()
-
-    return () => {
-      controller?.abort()
-    }
-  }, [address, validator, denoms_data])
-
-  useEffect(() => {
-    const controller = new AbortController()
-
-    const getData = async () => {
-      if (address && validator?.address === address && status_data && !status_data.is_interval) {
+      if (address && validator?.address === address && status_data && (!uptime || !validator.broadcaster_loaded)) {
         if (!controller.signal.aborted) {
           const data = validator?.data
 
@@ -371,13 +388,13 @@ export default function Validator({ address }) {
     return () => {
       controller?.abort()
     }
-  }, [address, validator, status_data])
+  }, [address, validator])
 
   useEffect(() => {
     const controller = new AbortController()
 
     const getData = async () => {
-      if (address && validator?.address === address && validator.broadcaster_loaded && status_data && !status_data.is_interval) {
+      if (address && validator?.address === address && validator.broadcaster_loaded && status_data && (!heartbeat || (validator.data && 'tss_illegibility_info' in validator.data))) {
         if (!controller.signal.aborted) {
           const data = validator.data
 
@@ -393,7 +410,7 @@ export default function Validator({ address }) {
             }
           }
 
-          if (data.broadcaster_address) {
+          if (data?.broadcaster_address) {
             let response = await getHeartbeat(beginBlock, latestBlock, data.broadcaster_address)
 
             if (response?.data) {
@@ -428,16 +445,7 @@ export default function Validator({ address }) {
     return () => {
       controller?.abort()
     }
-  }, [address, validator, status_data])
-
-  useEffect(() => {
-    if (address && validators_chains_data) {
-      setSupportedChains({
-        data: Object.entries(validators_chains_data || {}).filter(([key, value]) => value?.includes(address.toLowerCase())).map(([key, value]) => key),
-        address,
-      })
-    }
-  }, [address, validators_chains_data])
+  }, [address, validator])
 
   useEffect(() => {
     const controller = new AbortController()
@@ -543,13 +551,22 @@ export default function Validator({ address }) {
     }
   }, [address])
 
+  useEffect(() => {
+    if (address && validators_chains_data) {
+      setSupportedChains({
+        data: Object.entries(validators_chains_data || {}).filter(([key, value]) => value?.includes(address.toLowerCase())).map(([key, value]) => key),
+        address,
+      })
+    }
+  }, [address, validators_chains_data])
+
   return (
     <>
       <div className="my-4">
         <Information data={validator?.address === address && validator?.data} />
       </div>
       <div className="grid grid-flow-row grid-cols-1 sm:grid-cols-2 gap-4 my-4">
-        <VotingPower data={validator?.address === address && validator?.data} />
+        <VotingPower data={votingPower?.address === address && votingPower?.data} />
         <Widget
           title={<span className="text-lg font-medium">Delegations</span>}
           className="dark:border-gray-900"
