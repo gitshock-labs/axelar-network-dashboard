@@ -73,7 +73,7 @@ export default function Heartbeat({ data, validator_data }) {
                       <span>Key IDs</span>
                     </span>
                     {block.key_ids.length > 0 ?
-                      <div className="max-h-48 overflow-y-auto">
+                      <div className="max-h-24 overflow-y-auto">
                         {block.key_ids.map((key_id, i) => (
                           <span key={i} className="flex items-center space-x-1">
                             <FiKey size={16} className="text-gray-600 dark:text-gray-400" />

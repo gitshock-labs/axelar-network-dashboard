@@ -1,84 +1,47 @@
 import { useState, useEffect } from 'react'
+import { useSelector, shallowEqual } from 'react-redux'
 
-import StackGrid from 'react-stack-grid'
 import _ from 'lodash'
 import moment from 'moment'
+import Web3 from 'web3'
+import { Img } from 'react-image'
+import Loader from 'react-loader-spinner'
+import StackGrid from 'react-stack-grid'
+import { BsFileEarmarkCode } from 'react-icons/bs'
+import { TiArrowRight } from 'react-icons/ti'
 
-import Widget from '../widget'
+import Popover from '../popover'
 import Copy from '../copy'
+import Widget from '../widget'
 
-import { bridgeAccounts as getBridgeAccounts } from '../../lib/api/query'
-import { axelard } from '../../lib/api/executor'
-import { randImage } from '../../lib/utils'
+import { ellipseAddress } from '../../lib/utils'
 
 export default function BridgeAccounts() {
-  const [bridgeAccounts, setBridgeAccounts] = useState(null)
+  const { chains, cosmos_chains, assets } = useSelector(state => ({ chains: state.chains, cosmos_chains: state.cosmos_chains, assets: state.assets }), shallowEqual)
+  const { chains_data } = { ...chains }
+  const { cosmos_chains_data } = {...cosmos_chains }
+  const { assets_data } = { ...assets }
+
+  const [web3, setWeb3] = useState(null)
+  const [chainId, setChainId] = useState(null)
   const [timer, setTimer] = useState(null)
 
+  const axelarChain = cosmos_chains_data?.find(_chain => _chain.id === 'axelarnet')
+
   useEffect(() => {
-    const controller = new AbortController()
-
-    const getData = async () => {
-      if (!controller.signal.aborted) {
-        const response = await getBridgeAccounts()
-
-        let data = (response || []).map((bridgeAccount, i) => {
-          return {
-            ...bridgeAccount,
-            image: bridgeAccount.image || randImage(i),
-            exec_cmds: bridgeAccount.cmds?.filter(cmd => cmd).map((cmd, j) => {
-              return {
-                cmd,
-                result: bridgeAccounts?.data?.findIndex(_bridgeAccount => _bridgeAccount.id === bridgeAccount.id) > -1 ?
-                  bridgeAccounts.data.find(_bridgeAccount => _bridgeAccount.id === bridgeAccount.id).exec_cmds?.[j]?.result
-                  :
-                  null,
-              }
-            }),
-          }
-        })
-
-        setBridgeAccounts({ data })
-
-        for (let i = 0; i < data.length; i++) {
-          if (!controller.signal.aborted) {
-            const bridgeAccount = data[i]
-
-            if (bridgeAccount?.exec_cmds) {
-              for (let j = 0; j < bridgeAccount.exec_cmds.length; j++) {
-                const exec_cmd = bridgeAccount.exec_cmds[j]
-
-                const execResponse = await axelard({ cmd: exec_cmd.cmd, cache: true })
-
-                if (execResponse?.data?.stdout) {
-                  exec_cmd.result = execResponse.data.stdout
-                }
-                else if (execResponse?.data?.stderr) {
-                  exec_cmd.result = execResponse.data.stderr
-                }
-                else {
-                  exec_cmd.result = ''
-                }
-
-                bridgeAccount.exec_cmds[j] = exec_cmd
-                data[i] = bridgeAccount
-
-                setBridgeAccounts({ data })
-              }
-            }
-          }
+    if (!web3) {
+      setWeb3(new Web3(Web3.givenProvider))
+    }
+    else {
+      try {
+        web3.currentProvider._handleChainChanged = e => {
+          try {
+            setChainId(Web3.utils.hexToNumber(e?.chainId))
+          } catch (error) {}
         }
-      }
+      } catch (error) {}
     }
-
-    getData()
-
-    const interval = setInterval(() => getData(), 5 * 60 * 1000)
-    return () => {
-      controller?.abort()
-      clearInterval(interval)
-    }
-  }, [])
+  }, [web3])
 
   useEffect(() => {
     const run = async () => setTimer(moment().unix())
@@ -87,82 +50,183 @@ export default function BridgeAccounts() {
       run()
     }
 
-    const interval = setInterval(() => run(), 0.5 * 1000)
+    const interval = setInterval(() => run(), 15 * 1000)
     return () => clearInterval(interval)
   }, [timer])
 
-  const widgets = (bridgeAccounts ?
-    bridgeAccounts.data?.map((bridgeAccount, i) => { return { ...bridgeAccount, i } })
-    :
-    [...Array(15).keys()].map(i => { return { i, skeleton: true } })
-  ).map((bridgeAccount, i) => (
-    <Widget key={i} className="dark:border-gray-900">
-      {!bridgeAccount.skeleton ?
-        <div className="space-y-2 mb-1.5">
-          <div className="flex items-center space-x-2">
-            <img
-              src={bridgeAccount.image}
-              alt=""
-              className="w-8 h-8 rounded-full"
-            />
-            <span className={`${bridgeAccount.name ? 'capitalize' : 'uppercase'} text-lg font-semibold my-0.5`}>{bridgeAccount.name || bridgeAccount.id}</span>
-          </div>
-          <div className="flex flex-col space-y-2">
-            {bridgeAccount.exec_cmds?.map((exec_cmd, j) => (
-              <div key={j} className="bg-gray-50 dark:bg-gray-800 rounded-lg flex flex-col space-y-2 p-3">
-                <div className="flex items-start text-gray-400 text-xs font-light space-x-1">
-                  <span>>_</span>
-                  <span>{exec_cmd.cmd}</span>
-                </div>
-                {typeof exec_cmd.result === 'string' ?
-                  exec_cmd.result?.includes('\n') ?
-                    <div>
-                      {exec_cmd.result.split('\n').filter((result, k) => exec_cmd.result.toLowerCase().includes('error') ? k < 1 : true).map((result, k) => (
-                        <div key={k} className="break-all text-gray-500 dark:text-white text-xs font-medium">{result}</div>
-                      ))}
-                    </div>
+  const addTokenToMetaMask = async (chain_id, contract) => {
+    if (web3 && chain_id === chainId && contract) {
+      try {
+        const response = await web3.currentProvider.request({
+          method: 'wallet_watchAsset',
+          params: {
+            type: 'ERC20',
+            options: {
+              address: contract.contract_address,
+              symbol: contract.symbol,
+              decimals: contract.contract_decimals,
+              image: `${contract.image?.startsWith('/') ? process.env.NEXT_PUBLIC_SITE_URL : ''}${contract.image}`,
+            },
+          },
+        })
+      } catch (error) {}
+    }
+  }
+
+  const chainsComponent = chains_data?.map((chain, i) => (
+    <Widget
+      key={i}
+      title={<div className="flex items-center space-x-2">
+        <Img
+          src={chain.image}
+          alt=""
+          className="w-6 h-6 rounded-full"
+        />
+        <span className="text-gray-900 dark:text-white font-semibold">{chain.title}</span>
+      </div>}
+      className="border-0 shadow-md rounded-2xl"
+    >
+      <div className="flex items-center text-gray-400 dark:text-gray-500 space-x-1.5 mt-2">
+        <Popover
+          placement="top"
+          title={chain.title}
+          content={<div className="w-56">{axelarChain?.short_name} Gateway contract address</div>}
+        >
+          <BsFileEarmarkCode size={16} className="mb-0.5" />
+        </Popover>
+        <div className="flex items-center space-x-1">
+          {chain.gateway_address ?
+            <>
+              <Copy
+                text={chain.gateway_address}
+                copyTitle={<span className="text-xs font-normal">
+                  {ellipseAddress(chain.gateway_address, 10)}
+                </span>}
+              />
+              {chain.explorer?.url && (
+                <a
+                  href={`${chain.explorer.url}${chain.explorer.address_path?.replace('{address}', chain.gateway_address)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-600 dark:text-white"
+                >
+                  {chain.explorer.icon ?
+                    <img
+                      src={chain.explorer.icon}
+                      alt=""
+                      className="w-4 h-4 rounded-full opacity-60 hover:opacity-100"
+                    />
                     :
-                    <span className="break-all text-gray-500 dark:text-white text-xs font-medium">{exec_cmd.result || 'N/A'}</span>
+                    <TiArrowRight size={16} className="transform -rotate-45" />
+                  }
+                </a>
+              )}
+            </>
+            :
+            '-'
+          }
+        </div>
+      </div>
+      <div className="mt-4">
+        <div className="uppercase text-xs font-semibold">Tokens</div>
+        <div className="space-y-2 mt-2">
+          {assets_data?.filter(_asset => _asset?.contracts?.find(_contract => _contract.chain_id === chain.chain_id)).map((_asset, j) => {
+            const contract = _asset.contracts.find(_contract => _contract.chain_id === chain.chain_id)
+            const addToMetaMaskButton = (
+              <button
+                onClick={() => addTokenToMetaMask(chain.chain_id, { ..._asset, ...contract })}
+                className="w-auto bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 rounded-lg flex items-center justify-center py-1.5 px-2"
+              >
+                <Img
+                  src="/logos/wallets/metamask.png"
+                  alt=""
+                  className="w-4 h-4"
+                />
+              </button>
+            )
+
+            return (
+              <div key={j} className="flex items-start justify-between">
+                <div className="flex items-start space-x-1.5">
+                  <Img
+                    src={_asset.image}
+                    alt=""
+                    className="w-6 h-6 rounded-full"
+                  />
+                  <div className="flex flex-col">
+                    <span className="text-gray-600 dark:text-white font-medium">{_asset.symbol}</span>
+                    <div className="flex items-center space-x-1">
+                      {contract.contract_address ?
+                        <>
+                          <Copy
+                            text={contract.contract_address}
+                            copyTitle={<span className="text-xs font-normal">
+                              {ellipseAddress(contract.contract_address, 6)}
+                            </span>}
+                          />
+                          {chain.explorer?.url && (
+                            <a
+                              href={`${chain.explorer.url}${chain.explorer.contract_path?.replace('{address}', contract.contract_address)}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-blue-600 dark:text-white"
+                            >
+                              {chain.explorer.icon ?
+                                <img
+                                  src={chain.explorer.icon}
+                                  alt=""
+                                  className="w-3.5 h-3.5 rounded-full opacity-60 hover:opacity-100"
+                                />
+                                :
+                                <TiArrowRight size={16} className="transform -rotate-45" />
+                              }
+                            </a>
+                          )}
+                        </>
+                        :
+                        '-'
+                      }
+                    </div>
+                  </div>
+                </div>
+                {chain.chain_id === chainId ?
+                  <Popover
+                    placement="left"
+                    title={<span className="normal-case text-xs">Add token</span>}
+                    content={<div className="w-36 text-xs">Add <span className="font-semibold">{_asset?.symbol}</span> to MetaMask</div>}
+                  >
+                    {addToMetaMaskButton}
+                  </Popover>
                   :
-                  <div className="skeleton w-60 h-4" />
+                  <Popover
+                    placement="left"
+                    title={<span className="normal-case text-xs">Please change the wallet network</span>}
+                    content={<div className="w-52 text-xs">Change the wallet network in the MetaMask Application to add this contract.</div>}
+                  >
+                    {addToMetaMaskButton}
+                  </Popover>
                 }
               </div>
-            ))}
-          </div>
+            )
+          })}
         </div>
-        :
-        <div className="space-y-2 mb-1.5">
-          <div className="flex items-center space-x-2">
-            <div className="skeleton w-8 h-8 rounded-full" />
-            <div className="skeleton w-28 h-5 my-1.5" />
-          </div>
-          <div className="flex flex-col space-y-2">
-            <div className="space-y-2">
-              <div className="skeleton w-60 h-4" />
-              <div className="skeleton w-48 h-4" />
-            </div>
-            <div className="space-y-2">
-              <div className="skeleton w-60 h-4" />
-              <div className="skeleton w-48 h-4" />
-            </div>
-          </div>
-        </div>}
+      </div>
     </Widget>
   ))
 
   return (
-    <>
+    <div className="max-w-8xl mx-auto py-4">
       <StackGrid
-        columnWidth={460}
-        gutterWidth={12}
-        gutterHeight={12}
+        columnWidth={267}
+        gutterWidth={16}
+        gutterHeight={16}
         className="hidden sm:block"
       >
-        {widgets}
+        {chainsComponent}
       </StackGrid>
       <div className="block sm:hidden space-y-3">
-        {widgets}
+        {chainsComponent}
       </div>
-    </>
+    </div>
   )
 }

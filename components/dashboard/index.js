@@ -15,7 +15,7 @@ import { allValidators, validatorProfile, allDelegations } from '../../lib/api/c
 import { transfers } from '../../lib/api/opensearch'
 import { hexToBech32 } from '../../lib/object/key'
 import { denomSymbol, denomName, denomAmount, denomImage } from '../../lib/object/denom'
-import { chainName, chainImage, idFromMaintainerId, chainDenomDivider } from '../../lib/object/chain'
+import { chainName, chainImage, idFromMaintainerId } from '../../lib/object/chain'
 import { numberFormat, randImage } from '../../lib/utils'
 
 import { STATUS_DATA, VALIDATORS_DATA } from '../../reducers/types'

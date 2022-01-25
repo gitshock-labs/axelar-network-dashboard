@@ -6,7 +6,7 @@ import _ from 'lodash'
 import { status as getStatus } from '../../lib/api/rpc'
 import { transfers } from '../../lib/api/opensearch'
 import { denomSymbol, denomName, denomAmount, denomImage } from '../../lib/object/denom'
-import { chainName, chainImage, idFromMaintainerId, chainDenomDivider } from '../../lib/object/chain'
+import { chainName, chainImage, idFromMaintainerId } from '../../lib/object/chain'
 import { numberFormat } from '../../lib/utils'
 
 import { STATUS_DATA } from '../../reducers/types'
