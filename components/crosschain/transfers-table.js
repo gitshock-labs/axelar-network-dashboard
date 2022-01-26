@@ -182,14 +182,46 @@ export default function TransfersTable({ data, className = '' }) {
             headerClassName: 'justify-end text-right',
           },
           {
-            Header: 'First Seen',
+            Header: 'Highest',
+            accessor: 'max_amount',
+            sortType: (rowA, rowB) => rowA.original.max_value > rowB.original.max_value ? 1 : rowA.original.max_value < rowB.original.max_value ? -1 : rowA.original.max_amount > rowB.original.max_amount ? 1 : -1,
+            Cell: props => (
+              !props.row.original.skeleton ?
+                <div className="text-right my-1.5">
+                  {props.value ?
+                    <div className="flex flex-col space-y-1.5">
+                      <span className="text-xs space-x-1.5">
+                        <span className="font-mono font-semibold">{numberFormat(props.value, props.value >= 100000 ? '0,0.00a' : '0,0.000')}</span>
+                        <span className="text-gray-400 dark:text-gray-600">{props.row.original.asset?.symbol}</span>
+                      </span>
+                      {props.row.original.max_value > 0 && (
+                        <span className="font-mono text-gray-400 dark:text-gray-600 text-2xs font-medium">
+                          {currency_symbol}{numberFormat(props.row.original.max_value, '0,0.00')}
+                        </span>
+                      )}
+                    </div>
+                    :
+                    '-'
+                  }
+                </div>
+                :
+                <div className="flex flex-col items-end space-y-2 my-1">
+                  <div className="skeleton w-24 h-5" />
+                  <div className="skeleton w-16 h-4" />
+                </div>
+                
+            ),
+            headerClassName: 'justify-end text-right',
+          },
+          {
+            Header: 'Since',
             accessor: 'since',
             sortType: (rowA, rowB) => rowA.original.since > rowB.original.since ? 1 : -1,
             Cell: props => (
               !props.row.original.skeleton ?
                 <div className="text-right my-1">
                   {props.value > -1 ?
-                    <span className="text-gray-400 dark:text-gray-500 text-xs">
+                    <span className="text-gray-400 dark:text-gray-500 text-2xs">
                       {moment(props.value).format('MMM D, YYYY h:mm:ss A z')}
                     </span>
                     :

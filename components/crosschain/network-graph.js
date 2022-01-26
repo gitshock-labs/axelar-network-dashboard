@@ -15,6 +15,8 @@ export default function NetworkGraph({ data }) {
   const [rendered, setRendered] = useState(null)
   const [graph, setGraph] = useState(null)
 
+  const axelarChain = getChain('axelarnet', cosmos_chains_data)
+
   useEffect(() => {
     if (rendered && !graph) {
       const tooltip = new G6.Tooltip({
@@ -95,46 +97,8 @@ export default function NetworkGraph({ data }) {
         fill: theme === 'dark' ? '#000' : '#fff',
       }
 
-      const axelarChain = getChain('axelarnet', cosmos_chains_data)
-      let _data = []
-
       for (let i = 0; i < data.length; i++) {
         const transfer = data[i]
-
-        if (!is_cosmos(transfer?.from_chain?.id) && !is_cosmos(transfer?.to_chain?.id)) {
-          const from_transfer = _.cloneDeep(transfer)
-          from_transfer.to_chain = axelarChain
-          from_transfer.id = `${from_transfer.from_chain?.id}_${from_transfer.to_chain?.id}_${from_transfer.asset?.id}`
-          _data.push(from_transfer)
-
-          const to_transfer = _.cloneDeep(transfer)
-          to_transfer.from_chain = axelarChain
-          to_transfer.id = `${to_transfer.from_chain?.id}_${to_transfer.to_chain?.id}_${to_transfer.asset?.id}`
-          _data.push(to_transfer)
-        }
-        else {
-          transfer.id = `${transfer.from_chain?.id}_${transfer.to_chain?.id}_${transfer.asset?.id}`
-          _data.push(transfer)
-        }
-      }
-
-      _data = Object.entries(_.groupBy(_data, 'id')).map(([key, value]) => {
-        return {
-          id: key,
-          ..._.head(value),
-          tx: _.sumBy(value, 'tx'),
-          amount: _.sumBy(value, 'amount'),
-          value: _.sumBy(value, 'value'),
-          avg_amount: _.mean(value.map(v => v.tx * v.avg_amount)),
-          avg_value: _.mean(value.map(v => v.tx * v.avg_value)),
-          max_amount: _.maxBy(value, 'max_amount'),
-          max_value: _.maxBy(value, 'max_value'),
-          since: _.minBy(value, 'since'),
-        }
-      })
-
-      for (let i = 0; i < _data.length; i++) {
-        const transfer = _data[i]
 
         if (nodes.findIndex(n => n.id === transfer.from_chain?.id) < 0) {
           nodes.push({
@@ -160,7 +124,7 @@ export default function NetworkGraph({ data }) {
           })
         }
 
-        const assets = _data.filter(t => t.from_chain?.id === transfer.from_chain?.id && t.to_chain?.id === transfer.to_chain?.id)
+        const assets = data.filter(t => t.from_chain?.id === transfer.from_chain?.id && t.to_chain?.id === transfer.to_chain?.id)
         const index = assets.findIndex(a => a.asset?.id === transfer.asset?.id)
 
         edges.push({
@@ -226,8 +190,6 @@ export default function NetworkGraph({ data }) {
       graph.render()
     }
   }, [data, graph, theme])
-
-  const is_cosmos = id => !!getChain(id, cosmos_chains_data)
 
   return (
     <div className="w-full mb-6">

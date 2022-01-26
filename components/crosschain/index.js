@@ -27,6 +27,9 @@ export default function Crosschain() {
   const [chartData, setChartData] = useState(null)
   const [timeFocus, setTimeFocus] = useState(moment().utc().startOf('day').valueOf())
 
+  const is_cosmos = id => !!getChain(id, cosmos_chains_data)
+  const axelarChain = getChain('axelarnet', cosmos_chains_data)
+
   useEffect(() => {
     const controller = new AbortController()
 
@@ -56,6 +59,11 @@ export default function Crosschain() {
                               field: 'send.amount',
                             },
                           },
+                          max_amounts: {
+                            max: {
+                              field: 'send.amount',
+                            },
+                          },
                           since: {
                             min: {
                               field: 'send.created_at.ms',
@@ -81,14 +89,55 @@ export default function Crosschain() {
             asset,
             amount: denomer.amount(t?.amount, asset?.id, denoms_data),
             avg_amount: denomer.amount(t?.avg_amount, asset?.id, denoms_data),
+            max_amount: denomer.amount(t?.max_amount, asset?.id, denoms_data),
           }
         }).map(t => {
           return {
             ...t,
             value: (t?.asset?.token_data?.[currency] && (t.asset.token_data[currency] * t.amount)) || 0,
             avg_value: (t?.asset?.token_data?.[currency] && (t.asset.token_data[currency] * t.avg_amount)) || 0,
+            max_value: (t?.asset?.token_data?.[currency] && (t.asset.token_data[currency] * t.max_amount)) || 0,
           }
         }), ['tx'], ['desc'])
+
+        let _data = []
+
+        for (let i = 0; i < data.length; i++) {
+          const transfer = data[i]
+
+          if (!is_cosmos(transfer?.from_chain?.id) && !is_cosmos(transfer?.to_chain?.id)) {
+            const from_transfer = _.cloneDeep(transfer)
+            from_transfer.to_chain = axelarChain
+            from_transfer.id = `${from_transfer.from_chain?.id}_${from_transfer.to_chain?.id}_${from_transfer.asset?.id}`
+            _data.push(from_transfer)
+
+            const to_transfer = _.cloneDeep(transfer)
+            to_transfer.from_chain = axelarChain
+            to_transfer.id = `${to_transfer.from_chain?.id}_${to_transfer.to_chain?.id}_${to_transfer.asset?.id}`
+            _data.push(to_transfer)
+          }
+          else {
+            transfer.id = `${transfer.from_chain?.id}_${transfer.to_chain?.id}_${transfer.asset?.id}`
+            _data.push(transfer)
+          }
+        }
+
+        _data = Object.entries(_.groupBy(_data, 'id')).map(([key, value]) => {
+          return {
+            id: key,
+            ..._.head(value),
+            tx: _.sumBy(value, 'tx'),
+            amount: _.sumBy(value, 'amount'),
+            value: _.sumBy(value, 'value'),
+            avg_amount: _.mean(value.map(v => v.tx * v.avg_amount)),
+            avg_value: _.mean(value.map(v => v.tx * v.avg_value)),
+            max_amount: _.maxBy(value, 'max_amount')?.max_amount,
+            max_value: _.maxBy(value, 'max_value')?.max_value,
+            since: _.minBy(value, 'since')?.since,
+          }
+        })
+
+        data = _data
 
         setTransfersData({ data })
       }
@@ -109,141 +158,94 @@ export default function Crosschain() {
   //   }
   // }, [crosschainSummaryData, chainAssetSelect])
 
-  // useEffect(() => {
-  //   const controller = new AbortController()
+  useEffect(() => {
+    const controller = new AbortController()
 
-  //   const getData = async () => {
-  //     if (denoms_data && chainAssetSelect) {
-  //       const today = moment().utc().startOf('day')
-  //       const daily_time_range = 30
-  //       const day_ms = 24 * 60 * 60 * 1000
+    const getData = async () => {
+      if (chains_data && cosmos_chains_data && denoms_data) {
+        const today = moment().utc().startOf('day')
+        const daily_time_range = 30
+        const day_ms = 24 * 60 * 60 * 1000
 
-  //       let response
+        let response
 
-  //       if (!controller.signal.aborted) {
-  //         response = await crosschainTxs({
-  //           aggs: {
-  //             transfers: {
-  //               terms: { field: 'chain.keyword', size: 10000 },
-  //               aggs: {
-  //                 assets: {
-  //                   terms: { field: 'contract.name.keyword', size: 10000 },
-  //                   aggs: {
-  //                     times: {
-  //                       terms: { field: 'created_at.day', size: 10000 },
-  //                       aggs: {
-  //                         amounts: {
-  //                           sum: {
-  //                             field: 'amount',
-  //                           },
-  //                         },
-  //                       },
-  //                     },
-  //                   },
-  //                 },
-  //               },
-  //             },
-  //           },
-  //         })
-  //       }
+        if (!controller.signal.aborted) {
+          response = await crosschainTxs({
+            aggs: {
+              assets: {
+                terms: { field: 'send.denom.keyword', size: 10000 },
+                aggs: {
+                  from_chains: {
+                    terms: { field: 'send.sender_chain.keyword', size: 10000 },
+                    aggs: {
+                      to_chains: {
+                        terms: { field: 'send.recipient_chain.keyword', size: 10000 },
+                        aggs: {
+                          times: {
+                            terms: { field: 'send.created_at.day', size: 10000 },
+                            aggs: {
+                              amounts: {
+                                sum: {
+                                  field: 'send.amount',
+                                },
+                              },
+                            },
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          })
+        }
+console.log(response)
+        // const total_transfers = _.orderBy(response?.data?.map(transfer => {
+        //   const times = []
 
-  //       const total_transfers = _.orderBy(response?.data?.map(transfer => {
-  //         const times = []
+        //   for (let time = moment(today).subtract(daily_time_range, 'days').valueOf(); time <= today.valueOf(); time += day_ms) {
+        //     let timeData = transfer.times?.find(_time => _time.time === time) || { time, tx: 0, amount: 0 }
 
-  //         for (let time = moment(today).subtract(daily_time_range, 'days').valueOf(); time <= today.valueOf(); time += day_ms) {
-  //           let timeData = transfer.times?.find(_time => _time.time === time) || { time, tx: 0, amount: 0 }
+        //     timeData = {
+        //       ...timeData,
+        //       amount: denomAmount(timeData.amount, transfer.asset, denoms_data),
+        //     }
 
-  //           timeData = {
-  //             ...timeData,
-  //             amount: denomAmount(timeData.amount, transfer.asset, denoms_data),
-  //           }
+        //     times.push(timeData)
+        //   }
 
-  //           times.push(timeData)
-  //         }
+        //   return {
+        //     ...transfer,
+        //     times,
+        //     chain_name: chainName(idFromMaintainerId(transfer.chain)),
+        //     chain_image: chainImage(idFromMaintainerId(transfer.chain)),
+        //     asset_name: denomName(transfer.asset, denoms_data),
+        //     asset_image: denomImage(transfer.asset, denoms_data),
+        //     asset_symbol: denomSymbol(transfer.asset, denoms_data),
+        //     amount: denomAmount(transfer.amount, transfer.asset, denoms_data),
+        //   }
+        // }), ['tx'], ['desc'])
 
-  //         return {
-  //           ...transfer,
-  //           times,
-  //           chain_name: chainName(idFromMaintainerId(transfer.chain)),
-  //           chain_image: chainImage(idFromMaintainerId(transfer.chain)),
-  //           asset_name: denomName(transfer.asset, denoms_data),
-  //           asset_image: denomImage(transfer.asset, denoms_data),
-  //           asset_symbol: denomSymbol(transfer.asset, denoms_data),
-  //           amount: denomAmount(transfer.amount, transfer.asset, denoms_data),
-  //         }
-  //       }), ['tx'], ['desc'])
+        // setCrosschainChartData({
+        //   total_transfers,
+        //   highest_transfer_24h,
+        // })
+      }
+    }
 
-  //       if (!controller.signal.aborted) {
-  //         response = await transfers({
-  //           aggs: {
-  //             transfers: {
-  //               terms: { field: 'chain.keyword', size: 10000 },
-  //               aggs: {
-  //                 assets: {
-  //                   terms: { field: 'contract.name.keyword', size: 10000 },
-  //                   aggs: {
-  //                     times: {
-  //                       terms: { field: 'created_at.day', size: 10000 },
-  //                       aggs: {
-  //                         amounts: {
-  //                           max: {
-  //                             field: 'amount',
-  //                           },
-  //                         },
-  //                       },
-  //                     },
-  //                   },
-  //                 },
-  //               },
-  //             },
-  //           },
-  //         })
-  //       }
+    getData()
 
-  //       const highest_transfer_24h = _.orderBy(response?.data?.map(transfer => {
-  //         const times = []
-
-  //         for (let time = moment(today).subtract(daily_time_range, 'days').valueOf(); time <= today.valueOf(); time += day_ms) {
-  //           let timeData = transfer.times?.find(_time => _time.time === time) || { time, tx: 0, amount: 0 }
-
-  //           timeData = {
-  //             ...timeData,
-  //             amount: denomAmount(timeData.amount, transfer.asset, denoms_data),
-  //           }
-
-  //           times.push(timeData)
-  //         }
-
-  //         return {
-  //           ...transfer,
-  //           times,
-  //           chain_name: chainName(idFromMaintainerId(transfer.chain)),
-  //           chain_image: chainImage(idFromMaintainerId(transfer.chain)),
-  //           asset_name: denomName(transfer.asset, denoms_data),
-  //           asset_image: denomImage(transfer.asset, denoms_data),
-  //           asset_symbol: denomSymbol(transfer.asset, denoms_data),
-  //           amount: denomAmount(transfer.amount, transfer.asset, denoms_data),
-  //         }
-  //       }), ['tx'], ['desc'])
-
-  //       setCrosschainChartData({
-  //         total_transfers,
-  //         highest_transfer_24h,
-  //       })
-  //     }
-  //   }
-
-  //   getData()
-
-  //   const interval = setInterval(() => getData(), 30 * 1000)
-  //   return () => {
-  //     controller?.abort()
-  //     clearInterval(interval)
-  //   }
-  // }, [denoms_data, chainAssetSelect])
+    const interval = setInterval(() => getData(), 30 * 1000)
+    return () => {
+      controller?.abort()
+      clearInterval(interval)
+    }
+  }, [chains_data && cosmos_chains_data && denoms_data])
 
   return (
     <div className="max-w-full mx-auto">
+      <NetworkGraph data={transfersData?.data} />
       {chartData && (
         <>
           <div className="text-gray-900 dark:text-gray-100 text-base font-semibold mt-8 sm:mt-4 sm:mx-2">
@@ -326,7 +328,6 @@ export default function Crosschain() {
           </div>
         </>
       )}
-      <NetworkGraph data={transfersData?.data} />
       <TransfersTable data={transfersData} />
     </div>
   )
