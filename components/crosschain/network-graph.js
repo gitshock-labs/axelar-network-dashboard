@@ -4,12 +4,13 @@ import { useSelector, shallowEqual } from 'react-redux'
 import _ from 'lodash'
 import G6 from '@antv/g6'
 
-import { chainTitle } from '../../lib/object/chain'
+import { chainTitle, getChain } from '../../lib/object/chain'
 import { numberFormat } from '../../lib/utils'
 
 export default function NetworkGraph({ data }) {
-  const { preferences } = useSelector(state => ({ preferences: state.preferences }), shallowEqual)
+  const { preferences, cosmos_chains } = useSelector(state => ({ preferences: state.preferences, cosmos_chains: state.cosmos_chains }), shallowEqual)
   const { theme } = { ...preferences }
+  const { cosmos_chains_data } = { ...cosmos_chains }
 
   const [rendered, setRendered] = useState(null)
   const [graph, setGraph] = useState(null)
@@ -46,7 +47,7 @@ export default function NetworkGraph({ data }) {
       })
 
       setGraph(new G6.Graph({
-        container: 'crosschain',
+        container: 'cross-chain',
         width: 992,
         height: 560,
         fitView: true,
@@ -94,8 +95,46 @@ export default function NetworkGraph({ data }) {
         fill: theme === 'dark' ? '#000' : '#fff',
       }
 
+      const axelarChain = getChain('axelarnet', cosmos_chains_data)
+      let _data = []
+
       for (let i = 0; i < data.length; i++) {
         const transfer = data[i]
+
+        if (!is_cosmos(transfer?.from_chain?.id) && !is_cosmos(transfer?.to_chain?.id)) {
+          const from_transfer = _.cloneDeep(transfer)
+          from_transfer.to_chain = axelarChain
+          from_transfer.id = `${from_transfer.from_chain?.id}_${from_transfer.to_chain?.id}_${from_transfer.asset?.id}`
+          _data.push(from_transfer)
+
+          const to_transfer = _.cloneDeep(transfer)
+          to_transfer.from_chain = axelarChain
+          to_transfer.id = `${to_transfer.from_chain?.id}_${to_transfer.to_chain?.id}_${to_transfer.asset?.id}`
+          _data.push(to_transfer)
+        }
+        else {
+          transfer.id = `${transfer.from_chain?.id}_${transfer.to_chain?.id}_${transfer.asset?.id}`
+          _data.push(transfer)
+        }
+      }
+
+      _data = Object.entries(_.groupBy(_data, 'id')).map(([key, value]) => {
+        return {
+          id: key,
+          ..._.head(value),
+          tx: _.sumBy(value, 'tx'),
+          amount: _.sumBy(value, 'amount'),
+          value: _.sumBy(value, 'value'),
+          avg_amount: _.mean(value.map(v => v.tx * v.avg_amount)),
+          avg_value: _.mean(value.map(v => v.tx * v.avg_value)),
+          max_amount: _.maxBy(value, 'max_amount'),
+          max_value: _.maxBy(value, 'max_value'),
+          since: _.minBy(value, 'since'),
+        }
+      })
+
+      for (let i = 0; i < _data.length; i++) {
+        const transfer = _data[i]
 
         if (nodes.findIndex(n => n.id === transfer.from_chain?.id) < 0) {
           nodes.push({
@@ -119,7 +158,7 @@ export default function NetworkGraph({ data }) {
           })
         }
 
-        const assets = data.filter(t => t.from_chain?.id === transfer.from_chain?.id && t.to_chain?.id === transfer.to_chain?.id)
+        const assets = _data.filter(t => t.from_chain?.id === transfer.from_chain?.id && t.to_chain?.id === transfer.to_chain?.id)
         const index = assets.findIndex(a => a.asset?.id === transfer.asset?.id)
 
         edges.push({
@@ -132,7 +171,8 @@ export default function NetworkGraph({ data }) {
           labelCfg: {
             style: {
               ...labelCfg?.style,
-              fontWeight: 500,
+              fontFamily: 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace',
+              fontWeight: 600,
               fontSize: 10,
               textBaseline: 'bottom',
             },
@@ -155,7 +195,7 @@ export default function NetworkGraph({ data }) {
               attrs: {
                 x: startPoint.x,
                 y: startPoint.y,
-                fill: '#1890ff',
+                fill: cfg?.transfer?.from_chain?.color || '#4f46e5',
                 r: 3,
               },
               name: 'circle-shape',
@@ -185,9 +225,11 @@ export default function NetworkGraph({ data }) {
     }
   }, [data, graph, theme])
 
+  const is_cosmos = id => !!getChain(id, cosmos_chains_data)
+
   return (
     <div className="w-full mb-6">
-      <div id="crosschain" className={`${data?.length > 0 ? 'flex' : 'hidden'} items-center justify-start`} />
+      <div id="cross-chain" className={`${data?.length > 0 ? 'flex' : 'hidden'} items-center justify-start`} />
     </div>
   )
 }

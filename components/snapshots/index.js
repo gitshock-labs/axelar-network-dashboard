@@ -62,7 +62,7 @@ export default function Snapshots({ n = 100 }) {
           while (!(data[0]?.snapshot_block >= latestBlock)) {
             data = _.concat({ snapshot_block: (data[0]?.snapshot_block || 0) + snapshot_block_size, processing: !((data[0]?.snapshot_block || 0) + snapshot_block_size >= latestBlock) ? true : undefined }, data)
           }
-console.log(data)
+
           setSnapshots({ data })
 
           for (let i = 0; i < data.length; i++) {

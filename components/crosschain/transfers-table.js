@@ -128,7 +128,7 @@ export default function TransfersTable({ data, className = '' }) {
                     <div className="flex flex-col space-y-1.5">
                       <span className="text-xs space-x-1.5">
                         <span className="font-mono font-semibold">{numberFormat(props.value, props.value >= 100000 ? '0,0.00a' : '0,0.000')}</span>
-                        <span className="text-gray-400 dark:text-gray-600">{props.row.original.asset?.symbol?.replace('axelar', '')}</span>
+                        <span className="text-gray-400 dark:text-gray-600">{props.row.original.asset?.symbol}</span>
                       </span>
                       {props.row.original.value > 0 && (
                         <span className="font-mono text-gray-400 dark:text-gray-600 text-2xs font-medium">
@@ -160,7 +160,7 @@ export default function TransfersTable({ data, className = '' }) {
                     <div className="flex flex-col space-y-1.5">
                       <span className="text-xs space-x-1.5">
                         <span className="font-mono font-semibold">{numberFormat(props.value, props.value >= 100000 ? '0,0.00a' : '0,0.000')}</span>
-                        <span className="text-gray-400 dark:text-gray-600">{props.row.original.asset?.symbol?.replace('axelar', '')}</span>
+                        <span className="text-gray-400 dark:text-gray-600">{props.row.original.asset?.symbol}</span>
                       </span>
                       {props.row.original.avg_value > 0 && (
                         <span className="font-mono text-gray-400 dark:text-gray-600 text-2xs font-medium">

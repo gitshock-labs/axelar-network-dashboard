@@ -118,7 +118,7 @@ export default function Navbar() {
 
         dispatch({
           type: DENOMS_DATA,
-          value: response,
+          value: _.cloneDeep(response),
         })
       }
     }

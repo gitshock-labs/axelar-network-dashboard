@@ -108,7 +108,7 @@ export default function PageTitle() {
       )
       break
     case '/crosschain':
-      title = 'Traffic'
+      title = 'Overview'
       subtitle = 'Cross-chain'
       break
     case '/participations':

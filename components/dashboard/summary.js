@@ -312,7 +312,7 @@ const Summary = ({ data, crosschainData, tvlData, assetSelect, setAssetSelect, c
                     <div className="flex flex-col items-end space-y-1.5">
                       <span className="text-2xs space-x-1">
                         <span className="font-mono font-semibold">{numberFormat(t.amount, t.amount >= 100000 ? '0,0.00a' : '0,0.000')}</span>
-                        <span className="text-gray-400 dark:text-gray-600">{t.asset?.symbol?.replace('axelar', '')}</span>
+                        <span className="text-gray-400 dark:text-gray-600">{t.asset?.symbol}</span>
                       </span>
                       {t.value > 0 && (
                         <span className="font-mono text-gray-400 dark:text-gray-600 text-3xs font-medium">
@@ -435,7 +435,7 @@ const Summary = ({ data, crosschainData, tvlData, assetSelect, setAssetSelect, c
                             <div className="flex flex-col items-end space-y-1.5">
                               <span className="text-2xs space-x-1">
                                 <span className="font-mono font-semibold">{numberFormat(c.amount, c.amount >= 100000 ? '0,0.00a' : '0,0.000')}</span>
-                                <span className="text-gray-400 dark:text-gray-600">{c.denom?.symbol?.replace('axelar', '')}</span>
+                                <span className="text-gray-400 dark:text-gray-600">{c.denom?.symbol}</span>
                               </span>
                               {c.value > 0 && (
                                 <span className="font-mono text-gray-400 dark:text-gray-600 text-3xs font-medium">
@@ -450,7 +450,7 @@ const Summary = ({ data, crosschainData, tvlData, assetSelect, setAssetSelect, c
                       <div className="flex flex-col items-end space-y-1.5">
                         <span className="text-2xs space-x-1">
                           <span className="font-mono font-semibold">{numberFormat(t.amount, t.amount >= 100000 ? '0,0.00a' : '0,0.000')}</span>
-                          <span className="text-gray-400 dark:text-gray-600">{t.asset?.symbol?.replace('axelar', '')}</span>
+                          <span className="text-gray-400 dark:text-gray-600">{t.asset?.symbol}</span>
                         </span>
                         {t.value > 0 && (
                           <span className="font-mono text-gray-400 dark:text-gray-600 text-3xs font-medium">
@@ -518,7 +518,7 @@ const Summary = ({ data, crosschainData, tvlData, assetSelect, setAssetSelect, c
                     <div className="flex flex-col items-end space-y-1.5">
                       <span className="text-2xs space-x-1">
                         <span className="font-mono font-semibold">{numberFormat(t.avg_amount, t.avg_amount >= 100000 ? '0,0.00a' : '0,0.000')}</span>
-                        <span className="text-gray-400 dark:text-gray-600">{t.asset?.symbol?.replace('axelar', '')}</span>
+                        <span className="text-gray-400 dark:text-gray-600">{t.asset?.symbol}</span>
                       </span>
                       {t.avg_value > 0 && (
                         <span className="font-mono text-gray-400 dark:text-gray-600 text-3xs font-medium">
@@ -595,7 +595,7 @@ const Summary = ({ data, crosschainData, tvlData, assetSelect, setAssetSelect, c
                     <div className="flex flex-col items-end space-y-1.5">
                       <span className="text-2xs space-x-1">
                         <span className="font-mono font-semibold">{numberFormat(t.max_amount, t.max_amount >= 100000 ? '0,0.00a' : '0,0.000')}</span>
-                        <span className="text-gray-400 dark:text-gray-600">{t.asset?.symbol?.replace('axelar', '')}</span>
+                        <span className="text-gray-400 dark:text-gray-600">{t.asset?.symbol}</span>
                       </span>
                       {t.max_value > 0 && (
                         <span className="font-mono text-gray-400 dark:text-gray-600 text-3xs font-medium">

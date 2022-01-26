@@ -64,19 +64,21 @@ export default function Crosschain() {
         }
 
         data = _.orderBy(response?.data?.map(t => {
+          const asset = getDenom(t?.asset, denoms_data)
+
           return {
             ...t,
             from_chain: getChain(t?.from_chain, chains_data) || getChain(t?.from_chain, cosmos_chains_data),
             to_chain: getChain(t?.to_chain, chains_data) || getChain(t?.to_chain, cosmos_chains_data),
-            asset: getDenom(t?.asset, denoms_data),
-            amount: denomer.amount(t?.amount, t?.asset, denoms_data),
-            avg_amount: denomer.amount(t?.avg_amount, t?.asset, denoms_data),
+            asset,
+            amount: denomer.amount(t?.amount, asset?.id, denoms_data),
+            avg_amount: denomer.amount(t?.avg_amount, asset?.id, denoms_data),
           }
         }).map(t => {
           return {
             ...t,
-            value: (t?.asset?.token_data?.[currency] && (t.asset.token_data[currency] * t.amount)) || -1,
-            avg_value: (t?.asset?.token_data?.[currency] && (t.asset.token_data[currency] * t.avg_amount)) || -1,
+            value: (t?.asset?.token_data?.[currency] && (t.asset.token_data[currency] * t.amount)) || 0,
+            avg_value: (t?.asset?.token_data?.[currency] && (t.asset.token_data[currency] * t.avg_amount)) || 0,
           }
         }), ['tx'], ['desc'])
 
@@ -94,7 +96,7 @@ export default function Crosschain() {
   }, [chains_data, cosmos_chains_data, denoms_data])
 
   return (
-    <div className="max-w-full my-4 xl:my-6 mx-auto">
+    <div className="max-w-full my-2 xl:mt-2 xl:mb-4 mx-auto">
       <NetworkGraph data={transfersData?.data} />
       <TransfersTable data={transfersData} />
     </div>

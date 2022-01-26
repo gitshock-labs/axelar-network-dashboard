@@ -145,19 +145,21 @@ export default function Dashboard() {
         }
 
         const total_transfers = _.orderBy(response?.data?.map(t => {
+          const asset = getDenom(t?.asset, denoms_data)
+
           return {
             ...t,
             from_chain: getChain(t?.from_chain, chains_data) || getChain(t?.from_chain, cosmos_chains_data),
             to_chain: getChain(t?.to_chain, chains_data) || getChain(t?.to_chain, cosmos_chains_data),
-            asset: getDenom(t?.asset, denoms_data),
-            amount: denomer.amount(t?.amount, t?.asset, denoms_data),
-            avg_amount: denomer.amount(t?.avg_amount, t?.asset, denoms_data),
+            asset,
+            amount: denomer.amount(t?.amount, asset?.id, denoms_data),
+            avg_amount: denomer.amount(t?.avg_amount, asset?.id, denoms_data),
           }
         }).map(t => {
           return {
             ...t,
-            value: (t?.asset?.token_data?.[currency] && (t.asset.token_data[currency] * t.amount)) || -1,
-            avg_value: (t?.asset?.token_data?.[currency] && (t.asset.token_data[currency] * t.avg_amount)) || -1,
+            value: (t?.asset?.token_data?.[currency] && (t.asset.token_data[currency] * t.amount)) || 0,
+            avg_value: (t?.asset?.token_data?.[currency] && (t.asset.token_data[currency] * t.avg_amount)) || 0,
           }
         }), ['tx'], ['desc'])
 
@@ -190,17 +192,19 @@ export default function Dashboard() {
         }
 
         const highest_transfer_24h = _.orderBy(response?.data?.map(t => {
+          const asset = getDenom(t?.asset, denoms_data)
+
           return {
             ...t,
             from_chain: getChain(t?.from_chain, chains_data) || getChain(t?.from_chain, cosmos_chains_data),
             to_chain: getChain(t?.to_chain, chains_data) || getChain(t?.to_chain, cosmos_chains_data),
-            asset: getDenom(t?.asset, denoms_data),
-            max_amount: denomer.amount(t?.max_amount, t?.asset, denoms_data),
+            asset,
+            max_amount: denomer.amount(t?.max_amount, asset?.id, denoms_data),
           }
         }).map(t => {
           return {
             ...t,
-            max_value: (t?.asset?.token_data?.[currency] && (t.asset.token_data[currency] * t.max_amount)) || -1,
+            max_value: (t?.asset?.token_data?.[currency] && (t.asset.token_data[currency] * t.max_amount)) || 0,
           }
         }), ['max_value', 'max_amount'], ['desc', 'desc'])
 
