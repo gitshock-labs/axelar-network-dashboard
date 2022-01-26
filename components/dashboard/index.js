@@ -41,8 +41,6 @@ export default function Dashboard() {
 
   const [crosschainSummaryData, setCrosschainSummaryData] = useState(null)
   const [crosschainTVLData, setCrosschainTVLData] = useState(null)
-  const [assetSelect, setAssetSelect] = useState(null)
-  const [crosschainChartData, setCrosschainChartData] = useState(null)
 
   useEffect(() => {
     const controller = new AbortController()
@@ -298,157 +296,15 @@ export default function Dashboard() {
     }
   }, [denoms_data, tvl_data])
 
-  // useEffect(() => {
-  //   if (!chainAssetSelect && crosschainSummaryData?.total_transfers?.[0]?.id) {
-  //     setChainAssetSelect(crosschainSummaryData.total_transfers[0].id)
-  //   }
-  // }, [crosschainSummaryData, chainAssetSelect])
-
-  // useEffect(() => {
-  //   const controller = new AbortController()
-
-  //   const getData = async () => {
-  //     if (denoms_data && chainAssetSelect) {
-  //       const today = moment().utc().startOf('day')
-  //       const daily_time_range = 30
-  //       const day_ms = 24 * 60 * 60 * 1000
-
-  //       let response
-
-  //       if (!controller.signal.aborted) {
-  //         response = await crosschainTxs({
-  //           aggs: {
-  //             transfers: {
-  //               terms: { field: 'chain.keyword', size: 10000 },
-  //               aggs: {
-  //                 assets: {
-  //                   terms: { field: 'contract.name.keyword', size: 10000 },
-  //                   aggs: {
-  //                     times: {
-  //                       terms: { field: 'created_at.day', size: 10000 },
-  //                       aggs: {
-  //                         amounts: {
-  //                           sum: {
-  //                             field: 'amount',
-  //                           },
-  //                         },
-  //                       },
-  //                     },
-  //                   },
-  //                 },
-  //               },
-  //             },
-  //           },
-  //         })
-  //       }
-
-  //       const total_transfers = _.orderBy(response?.data?.map(transfer => {
-  //         const times = []
-
-  //         for (let time = moment(today).subtract(daily_time_range, 'days').valueOf(); time <= today.valueOf(); time += day_ms) {
-  //           let timeData = transfer.times?.find(_time => _time.time === time) || { time, tx: 0, amount: 0 }
-
-  //           timeData = {
-  //             ...timeData,
-  //             amount: denomAmount(timeData.amount, transfer.asset, denoms_data),
-  //           }
-
-  //           times.push(timeData)
-  //         }
-
-  //         return {
-  //           ...transfer,
-  //           times,
-  //           chain_name: chainName(idFromMaintainerId(transfer.chain)),
-  //           chain_image: chainImage(idFromMaintainerId(transfer.chain)),
-  //           asset_name: denomName(transfer.asset, denoms_data),
-  //           asset_image: denomImage(transfer.asset, denoms_data),
-  //           asset_symbol: denomSymbol(transfer.asset, denoms_data),
-  //           amount: denomAmount(transfer.amount, transfer.asset, denoms_data),
-  //         }
-  //       }), ['tx'], ['desc'])
-
-  //       if (!controller.signal.aborted) {
-  //         response = await transfers({
-  //           aggs: {
-  //             transfers: {
-  //               terms: { field: 'chain.keyword', size: 10000 },
-  //               aggs: {
-  //                 assets: {
-  //                   terms: { field: 'contract.name.keyword', size: 10000 },
-  //                   aggs: {
-  //                     times: {
-  //                       terms: { field: 'created_at.day', size: 10000 },
-  //                       aggs: {
-  //                         amounts: {
-  //                           max: {
-  //                             field: 'amount',
-  //                           },
-  //                         },
-  //                       },
-  //                     },
-  //                   },
-  //                 },
-  //               },
-  //             },
-  //           },
-  //         })
-  //       }
-
-  //       const highest_transfer_24h = _.orderBy(response?.data?.map(transfer => {
-  //         const times = []
-
-  //         for (let time = moment(today).subtract(daily_time_range, 'days').valueOf(); time <= today.valueOf(); time += day_ms) {
-  //           let timeData = transfer.times?.find(_time => _time.time === time) || { time, tx: 0, amount: 0 }
-
-  //           timeData = {
-  //             ...timeData,
-  //             amount: denomAmount(timeData.amount, transfer.asset, denoms_data),
-  //           }
-
-  //           times.push(timeData)
-  //         }
-
-  //         return {
-  //           ...transfer,
-  //           times,
-  //           chain_name: chainName(idFromMaintainerId(transfer.chain)),
-  //           chain_image: chainImage(idFromMaintainerId(transfer.chain)),
-  //           asset_name: denomName(transfer.asset, denoms_data),
-  //           asset_image: denomImage(transfer.asset, denoms_data),
-  //           asset_symbol: denomSymbol(transfer.asset, denoms_data),
-  //           amount: denomAmount(transfer.amount, transfer.asset, denoms_data),
-  //         }
-  //       }), ['tx'], ['desc'])
-
-  //       setCrosschainChartData({
-  //         total_transfers,
-  //         highest_transfer_24h,
-  //       })
-  //     }
-  //   }
-
-  //   getData()
-
-  //   const interval = setInterval(() => getData(), 30 * 1000)
-  //   return () => {
-  //     controller?.abort()
-  //     clearInterval(interval)
-  //   }
-  // }, [denoms_data, chainAssetSelect])
-
   return (
-    <div className="mb-4 mx-auto pb-2">
+    <div className="sm:mb-4 mx-auto pb-2">
       <Summary
         data={summaryData}
         crosschainData={crosschainSummaryData}
         tvlData={crosschainTVLData}
-        assetSelect={assetSelect || crosschainSummaryData?.total_transfers?.[0]?.chain}
-        setAssetSelect={chain => setAssetSelect(chain)}
-        chartData={crosschainChartData}
       />
-      <div className="w-full grid grid-flow-row grid-cols-1 lg:grid-cols-2 gap-5 mt-6 mb-4">
-        <div className="mt-3">
+      <div className="w-full grid grid-flow-row grid-cols-1 lg:grid-cols-2 gap-5 my-0 md:my-4">
+        <div className="mt-8 md:mt-4">
           <Link href="/blocks">
             <a className="text-gray-900 dark:text-gray-100 text-base font-semibold mx-3">Latest Blocks</a>
           </Link>
@@ -460,7 +316,7 @@ export default function Dashboard() {
             />
           </Widget>
         </div>
-        <div className="mt-8 md:mt-3">
+        <div className="mt-8 md:mt-4">
           <Link href="/transactions">
             <a className="text-gray-900 dark:text-gray-100 text-base font-semibold mx-3">Latest Transactions</a>
           </Link>
