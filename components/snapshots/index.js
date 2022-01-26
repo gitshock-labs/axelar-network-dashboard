@@ -178,7 +178,7 @@ export default function Snapshots({ n = 100 }) {
   ))
 
   return (
-    <>
+    <div className="my-2 sm:my-4">
       <StackGrid
         columnWidth={336}
         gutterWidth={12}
@@ -190,6 +190,6 @@ export default function Snapshots({ n = 100 }) {
       <div className="block sm:hidden space-y-3">
         {widgets}
       </div>
-    </>
+    </div>
   )
 }
