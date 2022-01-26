@@ -96,7 +96,7 @@ export default function Crosschain() {
   }, [chains_data, cosmos_chains_data, denoms_data])
 
   return (
-    <div className="max-w-full my-2 xl:mt-2 xl:mb-4 mx-auto">
+    <div className="max-w-full mx-auto">
       <NetworkGraph data={transfersData?.data} />
       <TransfersTable data={transfersData} />
     </div>
