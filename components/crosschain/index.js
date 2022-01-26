@@ -28,7 +28,6 @@ export default function Crosschain() {
   const [timeFocus, setTimeFocus] = useState(moment().utc().startOf('day').valueOf())
   const [transfersData, setTransfersData] = useState(null)
 
-  const is_cosmos = id => !!getChain(id, cosmos_chains_data)
   const axelarChain = getChain('axelarnet', cosmos_chains_data)
 
   useEffect(() => {
@@ -108,7 +107,7 @@ export default function Crosschain() {
         for (let i = 0; i < data.length; i++) {
           const transfer = data[i]
 
-          if (!is_cosmos(transfer?.from_chain?.id) && !is_cosmos(transfer?.to_chain?.id)) {
+          if (transfer?.from_chain?.id !== axelarChain?.id && transfer?.to_chain?.id !== axelarChain?.id) {
             const from_transfer = _.cloneDeep(transfer)
             from_transfer.to_chain = axelarChain
             from_transfer.id = `${from_transfer.from_chain?.id}_${from_transfer.to_chain?.id}_${from_transfer.asset?.id}`
