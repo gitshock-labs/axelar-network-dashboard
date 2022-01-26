@@ -98,6 +98,8 @@ export default function NetworkGraph({ data }) {
         fill: theme === 'dark' ? '#000' : '#fff',
       }
 
+      data = _.orderBy(data, ['value', 'amount'], ['asc', 'asc'])
+
       for (let i = 0; i < data.length; i++) {
         const transfer = data[i]
 
