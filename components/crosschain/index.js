@@ -18,15 +18,18 @@ import { currency } from '../../lib/object/currency'
 import { numberFormat } from '../../lib/utils'
 
 export default function Crosschain() {
-  const { chains, cosmos_chains, denoms } = useSelector(state => ({ chains: state.chains, cosmos_chains: state.cosmos_chains, denoms: state.denoms }), shallowEqual)
+  const { chains, cosmos_chains, assets, denoms, tvl } = useSelector(state => ({ chains: state.chains, cosmos_chains: state.cosmos_chains, assets: state.assets, denoms: state.denoms, tvl: state.tvl }), shallowEqual)
   const { chains_data } = { ...chains }
   const { cosmos_chains_data } = { ...cosmos_chains }
+  const { assets_data } = { ...assets }
   const { denoms_data } = { ...denoms }
+  const { tvl_data } = { ...tvl }
 
   const [assetSelect, setAssetSelect] = useState(null)
   const [chartData, setChartData] = useState(null)
   const [timeFocus, setTimeFocus] = useState(moment().utc().startOf('day').valueOf())
   const [transfersData, setTransfersData] = useState(null)
+  const [crosschainTVLData, setCrosschainTVLData] = useState(null)
 
   const axelarChain = getChain('axelarnet', cosmos_chains_data)
 
@@ -335,6 +338,29 @@ export default function Crosschain() {
       setAssetSelect(chartData.data[0].id)
     }
   }, [assetSelect, chartData])
+
+  useEffect(() => {
+    if (tvl_data) {
+      const data = Object.entries(tvl_data).map(([key, value]) => {
+        const chain = chains_data?.find(c => c?.id === _.head(key.split('_')))
+        const asset = assets_data?.find(a => a?.contracts?.findIndex(c => c?.chain_id === chain?.chain_id && c.contract_address === _.last(key.split('_'))) > -1)
+        const denom = denoms_data?.find(d => d?.id === asset?.id)
+        const amount = value
+        const price = denom?.token_data?.[currency] || 0
+        const _value = (price * amount) || 0
+
+        return {
+          chain,
+          asset,
+          denom,
+          amount,
+          value: _value,
+        }
+      })
+
+      setCrosschainTVLData({ data, updated_at: moment().valueOf() })
+    }
+  }, [denoms_data, tvl_data])
 
   return (
     <div className="max-w-full mx-auto">

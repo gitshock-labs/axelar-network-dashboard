@@ -4,6 +4,8 @@ import { useSelector, useDispatch, shallowEqual } from 'react-redux'
 
 import _ from 'lodash'
 import moment from 'moment'
+import { providers, constants, Contract } from 'ethers'
+import BigNumber from 'bignumber.js'
 import { FiMoon, FiSun } from 'react-icons/fi'
 
 import Logo from './logo'
@@ -14,7 +16,7 @@ import Network from './network'
 import SubNavbar from './sub-navbar'
 import PageTitle from './page-title'
 
-import { chains as getChains, cosmosChains, assets } from '../../lib/api/crosschain_config'
+import { chains as getChains, cosmosChains, assets as getAssets } from '../../lib/api/crosschain_config'
 import { denoms as getDenoms } from '../../lib/api/query'
 import { status as getStatus } from '../../lib/api/rpc'
 import { stakingParams, stakingPool, bankSupply, slashingParams, distributionParams, mintInflation, communityPool, allValidators, validatorProfile, allValidatorsStatus, allValidatorsBroadcaster, chainMaintainer } from '../../lib/api/cosmos'
@@ -24,13 +26,16 @@ import { currency } from '../../lib/object/currency'
 import { denomer } from '../../lib/object/denom'
 import { lastHeartbeatBlock, firstHeartbeatBlock } from '../../lib/object/hb'
 
-import { THEME, CHAINS_DATA, COSMOS_CHAINS_DATA, ASSETS_DATA, DENOMS_DATA, STATUS_DATA, ENV_DATA, VALIDATORS_DATA, VALIDATORS_CHAINS_DATA } from '../../reducers/types'
+import { THEME, CHAINS_DATA, COSMOS_CHAINS_DATA, ASSETS_DATA, DENOMS_DATA, TVL_DATA, STATUS_DATA, ENV_DATA, VALIDATORS_DATA, VALIDATORS_CHAINS_DATA } from '../../reducers/types'
+
+BigNumber.config({ DECIMAL_PLACES: Number(process.env.NEXT_PUBLIC_MAX_BIGNUMBER_EXPONENTIAL_AT), EXPONENTIAL_AT: [-7, Number(process.env.NEXT_PUBLIC_MAX_BIGNUMBER_EXPONENTIAL_AT)] })
 
 export default function Navbar() {
   const dispatch = useDispatch()
-  const { preferences, chains, denoms, status, validators } = useSelector(state => ({ preferences: state.preferences, chains: state.chains, denoms: state.denoms, status: state.status, validators: state.validators }), shallowEqual)
+  const { preferences, chains, assets, denoms, status, validators } = useSelector(state => ({ preferences: state.preferences, chains: state.chains, assets: state.assets, denoms: state.denoms, status: state.status, validators: state.validators }), shallowEqual)
   const { theme } = { ...preferences }
   const { chains_data } = { ...chains }
+  const { assets_data } = { ...assets }
   const { denoms_data } = { ...denoms }
   const { status_data } = { ...status }
   const { validators_data } = { ...validators }
@@ -69,7 +74,7 @@ export default function Navbar() {
 
   useEffect(() => {
     const getData = async () => {
-      const response = await assets()
+      const response = await getAssets()
 
       dispatch({
         type: ASSETS_DATA,
@@ -268,7 +273,7 @@ export default function Navbar() {
                 value: response?.data || [],
               })
 
-              if (!['participations'].includes(pathname)) {
+              if (!['/participations'].includes(pathname)) {
                 response = await allValidatorsBroadcaster(response?.data, null, denoms_data)
 
                 if (response?.data?.length > 0) {
@@ -431,6 +436,60 @@ export default function Navbar() {
       controller?.abort()
     }
   }, [loadProfileTrigger])
+
+  useEffect(() => {
+    const controller = new AbortController()
+
+    const getContractSupply = async (chain, contract) => {
+      let supply
+
+      if (chain && contract) {
+        const provider_urls = chain.provider_params?.[0]?.rpcUrls?.filter(rpc => rpc && !rpc.startsWith('wss://') && !rpc.startsWith('ws://')).map(rpc => new providers.JsonRpcProvider(rpc)) || []
+        const provider = new providers.FallbackProvider(provider_urls)
+
+        const _contract = new Contract(contract.contract_address, ['function totalSupply() view returns (uint256)'], provider)
+        supply = await _contract.totalSupply()
+      }
+
+      return supply && BigNumber(supply.toString()).shiftedBy(-contract.contract_decimals).toNumber()
+    }
+
+    const getData = async (chain, assets) => {
+      if (!controller.signal.aborted) {
+        if (assets) {
+          for (let i = 0; i < assets.length; i++) {
+
+            const contract = assets[i]?.contracts?.find(contract => contract?.chain_id === chain.chain_id)
+
+            if (contract) {
+              const supply = await getContractSupply(chain, contract)
+
+              dispatch({
+                type: TVL_DATA,
+                value: { [`${chain.id}_${contract.contract_address}`]: supply },
+              })
+            }
+          }
+        }
+      }
+    }
+
+    const getTVLData = () => {
+      if (chains_data && assets_data) {
+        if (['/', '/crosschain'].includes(pathname)) {
+          chains_data.forEach(c => getData(c, assets_data))
+        }
+      }
+    }
+
+    getTVLData()
+
+    const interval = setInterval(() => getTVLData(), 60 * 1000)
+    return () => {
+      controller?.abort()
+      clearInterval(interval)
+    }
+  }, [chains_data, assets_data, pathname])
 
   return (
     <>

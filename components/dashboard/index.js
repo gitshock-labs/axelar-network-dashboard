@@ -1,11 +1,9 @@
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
-import { useSelector, useDispatch, shallowEqual } from 'react-redux'
+import { useSelector, shallowEqual } from 'react-redux'
 
 import _ from 'lodash'
 import moment from 'moment'
-import { providers, constants, Contract } from 'ethers'
-import BigNumber from 'bignumber.js'
 
 import Summary from './summary'
 import BlocksTable from '../blocks/blocks-table'
@@ -20,12 +18,7 @@ import { getChain } from '../../lib/object/chain'
 import { currency } from '../../lib/object/currency'
 import { numberFormat } from '../../lib/utils'
 
-import { TVL_DATA } from '../../reducers/types'
-
-BigNumber.config({ DECIMAL_PLACES: Number(process.env.NEXT_PUBLIC_MAX_BIGNUMBER_EXPONENTIAL_AT), EXPONENTIAL_AT: [-7, Number(process.env.NEXT_PUBLIC_MAX_BIGNUMBER_EXPONENTIAL_AT)] })
-
 export default function Dashboard() {
-  const dispatch = useDispatch()
   const { chains, cosmos_chains, assets, denoms, tvl, status, env, validators } = useSelector(state => ({ chains: state.chains, cosmos_chains: state.cosmos_chains, assets: state.assets, denoms: state.denoms, tvl: state.tvl, status: state.status, env: state.env, validators: state.validators }), shallowEqual)
   const { chains_data } = { ...chains }
   const { cosmos_chains_data } = { ...cosmos_chains }
@@ -225,58 +218,6 @@ export default function Dashboard() {
       clearInterval(interval)
     }
   }, [chains_data, cosmos_chains_data, denoms_data])
-
-  useEffect(() => {
-    const controller = new AbortController()
-
-    const getContractSupply = async (chain, contract) => {
-      let supply
-
-      if (chain && contract) {
-        const provider_urls = chain.provider_params?.[0]?.rpcUrls?.filter(rpc => rpc && !rpc.startsWith('wss://') && !rpc.startsWith('ws://')).map(rpc => new providers.JsonRpcProvider(rpc)) || []
-        const provider = new providers.FallbackProvider(provider_urls)
-
-        const _contract = new Contract(contract.contract_address, ['function totalSupply() view returns (uint256)'], provider)
-        supply = await _contract.totalSupply()
-      }
-
-      return supply && BigNumber(supply.toString()).shiftedBy(-contract.contract_decimals).toNumber()
-    }
-
-    const getData = async (chain, assets) => {
-      if (!controller.signal.aborted) {
-        if (assets) {
-          for (let i = 0; i < assets.length; i++) {
-
-            const contract = assets[i]?.contracts?.find(contract => contract?.chain_id === chain.chain_id)
-
-            if (contract) {
-              const supply = await getContractSupply(chain, contract)
-
-              dispatch({
-                type: TVL_DATA,
-                value: { [`${chain.id}_${contract.contract_address}`]: supply },
-              })
-            }
-          }
-        }
-      }
-    }
-
-    const getTVLData = () => {
-      if (chains_data && assets_data) {
-        chains_data.forEach(c => getData(c, assets_data))
-      }
-    }
-
-    getTVLData()
-
-    const interval = setInterval(() => getTVLData(), 30 * 1000)
-    return () => {
-      controller?.abort()
-      clearInterval(interval)
-    }
-  }, [chains_data, assets_data])
 
   useEffect(() => {
     if (tvl_data) {
