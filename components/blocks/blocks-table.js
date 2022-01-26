@@ -150,7 +150,7 @@ export default function BlocksTable({ n, className = '' }) {
             ),
           },
           {
-            Header: 'Txs',
+            Header: 'TXs',
             accessor: 'txs',
             disableSortBy: true,
             Cell: props => (

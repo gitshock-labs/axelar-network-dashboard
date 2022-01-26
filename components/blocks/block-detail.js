@@ -52,7 +52,7 @@ export default function BlockDetail({ data, validator_data }) {
           }
         </div>
         <div className="flex flex-col lg:flex-row items-start lg:items-center space-x-0 lg:space-x-2">
-          <span className="font-semibold">No. of Txs:</span>
+          <span className="font-semibold">No. of TXs:</span>
           {data ?
             data.txs > -1 ?
               <span>{numberFormat(data.txs, '0,0')}</span>

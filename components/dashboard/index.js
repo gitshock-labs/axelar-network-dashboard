@@ -154,10 +154,12 @@ export default function Dashboard() {
             avg_amount: denomer.amount(t?.avg_amount, asset?.id, denoms_data),
           }
         }).map(t => {
+          const price = t?.asset?.token_data?.[currency] || 0
+
           return {
             ...t,
-            value: (t?.asset?.token_data?.[currency] && (t.asset.token_data[currency] * t.amount)) || 0,
-            avg_value: (t?.asset?.token_data?.[currency] && (t.asset.token_data[currency] * t.avg_amount)) || 0,
+            value: (price * t.amount) || 0,
+            avg_value: (price * t.avg_amount) || 0,
           }
         }), ['tx'], ['desc'])
 
@@ -200,9 +202,11 @@ export default function Dashboard() {
             max_amount: denomer.amount(t?.max_amount, asset?.id, denoms_data),
           }
         }).map(t => {
+          const price = t?.asset?.token_data?.[currency] || 0
+
           return {
             ...t,
-            max_value: (t?.asset?.token_data?.[currency] && (t.asset.token_data[currency] * t.max_amount)) || 0,
+            max_value: (price * t.max_amount) || 0,
           }
         }), ['max_value', 'max_amount'], ['desc', 'desc'])
 
@@ -281,7 +285,8 @@ export default function Dashboard() {
         const asset = assets_data?.find(a => a?.contracts?.findIndex(c => c?.chain_id === chain?.chain_id && c.contract_address === _.last(key.split('_'))) > -1)
         const denom = denoms_data?.find(d => d?.id === asset?.id)
         const amount = value
-        const _value = (denom?.token_data?.[currency] * amount) || 0
+        const price = denom?.token_data?.[currency] || 0
+        const _value = (price * amount) || 0
 
         return {
           chain,

@@ -100,7 +100,7 @@ export default function TransfersTable({ data, className = '' }) {
             ),
           },
           {
-            Header: 'Txs',
+            Header: 'TXs',
             accessor: 'tx',
             sortType: (rowA, rowB) => rowA.original.tx > rowB.original.tx ? 1 : -1,
             Cell: props => (

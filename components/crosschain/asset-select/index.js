@@ -1,13 +1,12 @@
 import { useState, useEffect, useRef } from 'react'
 
+import { Img } from 'react-image'
 import { MdExpandMore, MdExpandLess } from 'react-icons/md'
 
 import Assets from './assets'
 
-import { randImage } from '../../../lib/utils'
-
-export default function DropdownChainAsset({ chainAssets, chainAssetSelect, setChainAssetSelect }) {
-  const chainAsset = chainAssets?.find(_chainAsset => _chainAsset.id === chainAssetSelect) || chainAssets?.[0]
+export default function DropdownAsset({ assets, assetSelect, setAssetSelect }) {
+  const asset = assets?.find(a => a?.id === assetSelect) || assets?.[0]
 
   const [hidden, setHidden] = useState(true)
 
@@ -33,30 +32,24 @@ export default function DropdownChainAsset({ chainAssets, chainAssetSelect, setC
   const handleDropdownClick = () => setHidden(!hidden)
 
   return (
-    <div className="relative">
+    <div className="relative ml-auto">
       <button
         ref={buttonRef}
         onClick={handleDropdownClick}
-        className="flex items-center justify-start space-x-1.5 mx-1"
+        className="flex items-center justify-start space-x-2"
       >
-        {chainAsset && (
+        {asset?.asset && (
           <>
-            {/*<img
-              src={chainAsset.asset_image || randImage(i)}
+            <Img
+              src={asset.asset.image}
               alt=""
-              className="w-6 h-6 rounded-full"
-            />*/}
-            <span className="uppercase text-gray-900 dark:text-gray-100 text-xs font-semibold">
-              ${chainAsset.asset_symbol}
-            </span>
-            <span className="text-gray-400 dark:text-gray-600 text-xs font-normal">on</span>
-            <img
-              src={chainAsset.chain_image || randImage(i)}
-              alt=""
-              className="w-6 h-6 rounded-full"
+              className="w-7 h-7 rounded-full"
             />
-            <span className="text-gray-600 dark:text-gray-400 text-xs font-semibold">
-              {chainAsset.chain_name}
+            <span className="text-base font-semibold">
+              {asset.asset.title}
+            </span>
+            <span className="text-gray-400 dark:text-gray-600 text-base">
+              {asset.asset.symbol}
             </span>
             {hidden ?
               <MdExpandMore className="bg-gray-200 dark:bg-gray-800 rounded text-gray-600 dark:text-gray-400 -ml-0.5 mb-0.5" />
@@ -68,13 +61,13 @@ export default function DropdownChainAsset({ chainAssets, chainAssetSelect, setC
       </button>
       <div
         ref={dropdownRef} 
-        className={`dropdown ${hidden ? '' : 'open'} absolute top-0 left-0 mt-6`}
+        className={`dropdown ${hidden ? '' : 'open'} absolute top-0 right-0 mt-7`}
       >
-        <div className="dropdown-content w-48 bottom-start">
-          <ChainAssets
-            chainAssets={chainAssets}
-            handleDropdownClick={chainAsset => {
-              setChainAssetSelect(chainAsset)
+        <div className="dropdown-content w-40 bottom-start">
+          <Assets
+            assets={assets}
+            handleDropdownClick={a => {
+              setAssetSelect(a)
               handleDropdownClick()
             }}
           />

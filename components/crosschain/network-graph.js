@@ -192,7 +192,7 @@ export default function NetworkGraph({ data }) {
   }, [data, graph, theme])
 
   return (
-    <div className="w-full mb-6">
+    <div className="w-full">
       <div id="cross-chain" className={`${data?.length > 0 ? 'flex' : 'hidden'} items-center justify-start`} />
     </div>
   )
