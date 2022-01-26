@@ -54,9 +54,9 @@ export default function NetworkGraph({ data }) {
         fitViewPadding: [10, 10, 10, 10],
         fitCenter: true,
         layout: {
-          type: 'circular',
+          type: 'radial',
           preventOverlap: true,
-          linkDistance: 160,
+          linkDistance: 496,
           nodeSpacing: 16,
         },
         defaultNode: {
@@ -139,6 +139,7 @@ export default function NetworkGraph({ data }) {
         if (nodes.findIndex(n => n.id === transfer.from_chain?.id) < 0) {
           nodes.push({
             id: transfer.from_chain?.id,
+            size: transfer.from_chain?.id === axelarChain?.id ? 72 : 48,
             type: 'image',
             img: transfer.from_chain?.image,
             label: chainTitle(transfer.from_chain),
@@ -150,6 +151,7 @@ export default function NetworkGraph({ data }) {
         if (nodes.findIndex(n => n.id === transfer.to_chain?.id) < 0) {
           nodes.push({
             id: transfer.to_chain?.id,
+            size: transfer.to_chain?.id === axelarChain?.id ? 72 : 48,
             type: 'image',
             img: transfer.to_chain?.image,
             label: chainTitle(transfer.to_chain),
@@ -173,11 +175,11 @@ export default function NetworkGraph({ data }) {
               ...labelCfg?.style,
               fontFamily: 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace',
               fontWeight: 600,
-              fontSize: 10,
+              fontSize: 8,
               textBaseline: 'bottom',
             },
           },
-          curveOffset: (index % 2 === 0 ? -1 : 1) * Math.ceil((index + 1) / 2) * 35,
+          curveOffset: (index + 1) * 28,
           style: {
             stroke: theme === 'dark' ? '#333' : '#ddd',
           },
@@ -196,7 +198,7 @@ export default function NetworkGraph({ data }) {
                 x: startPoint.x,
                 y: startPoint.y,
                 fill: cfg?.transfer?.from_chain?.color || '#4f46e5',
-                r: 3,
+                r: 3.5,
               },
               name: 'circle-shape',
             })
