@@ -59,6 +59,7 @@ export default function KeysTable({ data, corruption_signing_threshold, page, cl
                 :
                 <div className="skeleton w-40 h-5 my-1" />
             ),
+            headerClassName: 'whitespace-nowrap',
           },
           {
             Header: 'Key Chain',
@@ -81,6 +82,7 @@ export default function KeysTable({ data, corruption_signing_threshold, page, cl
                 :
                 <div className="skeleton w-12 h-5 my-1" />
             ),
+            headerClassName: 'whitespace-nowrap',
           },
           {
             Header: 'Key Role',
@@ -98,7 +100,7 @@ export default function KeysTable({ data, corruption_signing_threshold, page, cl
                   }
                 </div>
                 :
-                <div className="skeleton w-12 h-5 my-1" />
+                <div className="whitespace-nowrap skeleton w-12 h-5 my-1" />
             ),
           },
           {
@@ -193,7 +195,7 @@ export default function KeysTable({ data, corruption_signing_threshold, page, cl
                 :
                 <div className="skeleton w-12 h-5 my-1 ml-auto" />
             ),
-            headerClassName: 'justify-end text-right',
+            headerClassName: 'whitespace-nowrap justify-end text-right',
           },
           {
             Header: 'Participated Validators',
@@ -295,6 +297,7 @@ export default function KeysTable({ data, corruption_signing_threshold, page, cl
                   ))}
                 </div>
             ),
+            headerClassName: 'whitespace-nowrap',
           },
           {
             Header: 'Non-Participated Validators',
@@ -405,6 +408,7 @@ export default function KeysTable({ data, corruption_signing_threshold, page, cl
                   ))}
                 </div>
             ),
+            headerClassName: 'whitespace-nowrap',
           },
           {
             Header: 'Result',
