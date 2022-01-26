@@ -220,14 +220,14 @@ const Summary = ({ data, crosschainData, tvlData, assetSelect, setAssetSelect, c
         >
           <div className="flex flex-col space-y-2 mt-1">
             {crosschainData ?
-              <div className="max-h-48 sm:max-h-56 flex flex-col overflow-y-auto space-y-3">
+              <div className="max-h-48 sm:max-h-52 flex flex-col overflow-y-auto space-y-3">
                 {crosschainData.total_transfers?.map((t, i) => (
                   <div key={i} className="flex items-center justify-between my-1">
                     <div className="flex items-center space-x-2">
                       <img
                         src={t.from_chain?.image}
                         alt=""
-                        className="w-8 h-8 rounded-full"
+                        className="w-7 h-7 rounded-full"
                       />
                       <div className="flex items-center space-x-0.5">
                         <BiCode size={20} />
@@ -240,7 +240,7 @@ const Summary = ({ data, crosschainData, tvlData, assetSelect, setAssetSelect, c
                       <img
                         src={t.to_chain?.image}
                         alt=""
-                        className="w-8 h-8 rounded-full"
+                        className="w-7 h-7 rounded-full"
                       />
                     </div>
                     <div className="flex items-center space-x-1">
@@ -256,12 +256,12 @@ const Summary = ({ data, crosschainData, tvlData, assetSelect, setAssetSelect, c
                 {[...Array(5).keys()].map(i => (
                   <div key={i} className="flex items-center justify-between my-1">
                     <div className="flex items-center space-x-2">
-                      <div className="skeleton w-8 h-8 rounded-full" />
+                      <div className="skeleton w-7 h-7 rounded-full" />
                       <div className="flex items-center space-x-0.5">
                         <BiCode size={20} />
                         <div className="skeleton w-4 h-4 rounded-full" />
                       </div>
-                      <div className="skeleton w-8 h-8 rounded-full" />
+                      <div className="skeleton w-7 h-7 rounded-full" />
                     </div>
                     <div className="skeleton w-16 h-5 ml-auto" />
                   </div>
@@ -286,14 +286,14 @@ const Summary = ({ data, crosschainData, tvlData, assetSelect, setAssetSelect, c
         >
           <div className="flex flex-col space-y-2 mt-1">
             {crosschainData ?
-              <div className="max-h-48 sm:max-h-56 flex flex-col overflow-y-auto space-y-3">
+              <div className="max-h-48 sm:max-h-52 flex flex-col overflow-y-auto space-y-3">
                 {_.orderBy(crosschainData.total_transfers || [], ['value', 'amount', 'tx'], ['desc', 'desc', 'desc']).map((t, i) => (
                   <div key={i} className="flex items-center justify-between my-1">
                     <div className="flex items-center space-x-2">
                       <img
                         src={t.from_chain?.image}
                         alt=""
-                        className="w-8 h-8 rounded-full"
+                        className="w-7 h-7 rounded-full"
                       />
                       <div className="flex items-center space-x-0.5">
                         <BiCode size={20} />
@@ -306,7 +306,7 @@ const Summary = ({ data, crosschainData, tvlData, assetSelect, setAssetSelect, c
                       <img
                         src={t.to_chain?.image}
                         alt=""
-                        className="w-8 h-8 rounded-full"
+                        className="w-7 h-7 rounded-full"
                       />
                     </div>
                     <div className="flex flex-col items-end space-y-1.5">
@@ -328,12 +328,12 @@ const Summary = ({ data, crosschainData, tvlData, assetSelect, setAssetSelect, c
                 {[...Array(5).keys()].map(i => (
                   <div key={i} className="flex items-center justify-between my-1">
                     <div className="flex items-center space-x-2">
-                      <div className="skeleton w-8 h-8 rounded-full" />
+                      <div className="skeleton w-7 h-7 rounded-full" />
                       <div className="flex items-center space-x-0.5">
                         <BiCode size={20} />
                         <div className="skeleton w-4 h-4 rounded-full" />
                       </div>
-                      <div className="skeleton w-8 h-8 rounded-full" />
+                      <div className="skeleton w-7 h-7 rounded-full" />
                     </div>
                     <div className="skeleton w-16 h-5 ml-auto" />
                   </div>
@@ -357,7 +357,7 @@ const Summary = ({ data, crosschainData, tvlData, assetSelect, setAssetSelect, c
         >
           <div className="flex flex-col space-y-2 mt-1">
             {tvlData ?
-              <div className="max-h-48 sm:max-h-56 flex flex-col overflow-y-auto space-y-3">
+              <div className="max-h-48 sm:max-h-52 flex flex-col overflow-y-auto space-y-3">
                 {_.orderBy(Object.entries(_.groupBy(tvlData.data || [], 'asset.id')).map(([key, value]) => {
                   return {
                     asset: _.head(value)?.asset,
@@ -380,7 +380,7 @@ const Summary = ({ data, crosschainData, tvlData, assetSelect, setAssetSelect, c
                       <img
                         src={t.asset?.image}
                         alt=""
-                        className="w-8 h-8 rounded-full"
+                        className="w-7 h-7 rounded-full"
                       />
                       <div className="flex flex-col space-y-1.5">
                         <span className="text-2xs font-semibold">
@@ -467,7 +467,7 @@ const Summary = ({ data, crosschainData, tvlData, assetSelect, setAssetSelect, c
                 {[...Array(5).keys()].map(i => (
                   <div key={i} className="flex items-center justify-between my-1">
                     <div className="flex items-center space-x-2">
-                      <div className="skeleton w-8 h-8 rounded-full" />
+                      <div className="skeleton w-7 h-7 rounded-full" />
                       <div className="skeleton w-16 h-5" />
                     </div>
                     <div className="skeleton w-16 h-5 ml-auto" />
@@ -478,7 +478,7 @@ const Summary = ({ data, crosschainData, tvlData, assetSelect, setAssetSelect, c
             <span className="flex items-center justify-between text-gray-400 dark:text-gray-600 text-sm font-normal space-x-1.5">
               <span>last updated on</span>
               {tvlData ?
-                <span className="text-gray-700 dark:text-gray-300 font-medium">{moment(tvlData.updated_at).format('MMM D, h:mm:ss A')}</span>
+                <span className="text-gray-700 dark:text-gray-300 text-xs font-medium">{moment(tvlData.updated_at).format('MMM D, h:mm:ss A')}</span>
                 :
                 <div className="skeleton w-20 h-4" />
               }
@@ -492,14 +492,14 @@ const Summary = ({ data, crosschainData, tvlData, assetSelect, setAssetSelect, c
         >
           <div className="flex flex-col space-y-2 mt-1">
             {crosschainData ?
-              <div className="max-h-48 sm:max-h-56 flex flex-col overflow-y-auto space-y-3">
+              <div className="max-h-48 sm:max-h-52 flex flex-col overflow-y-auto space-y-3">
                 {_.orderBy(crosschainData.total_transfers || [], ['avg_value', 'avg_amount', 'tx'], ['desc', 'desc', 'desc']).map((t, i) => (
                   <div key={i} className="flex items-center justify-between my-1">
                     <div className="flex items-center space-x-2">
                       <img
                         src={t.from_chain?.image}
                         alt=""
-                        className="w-8 h-8 rounded-full"
+                        className="w-7 h-7 rounded-full"
                       />
                       <div className="flex items-center space-x-0.5">
                         <BiCode size={20} />
@@ -512,7 +512,7 @@ const Summary = ({ data, crosschainData, tvlData, assetSelect, setAssetSelect, c
                       <img
                         src={t.to_chain?.image}
                         alt=""
-                        className="w-8 h-8 rounded-full"
+                        className="w-7 h-7 rounded-full"
                       />
                     </div>
                     <div className="flex flex-col items-end space-y-1.5">
@@ -534,12 +534,12 @@ const Summary = ({ data, crosschainData, tvlData, assetSelect, setAssetSelect, c
                 {[...Array(5).keys()].map(i => (
                   <div key={i} className="flex items-center justify-between my-1">
                     <div className="flex items-center space-x-2">
-                      <div className="skeleton w-8 h-8 rounded-full" />
+                      <div className="skeleton w-7 h-7 rounded-full" />
                       <div className="flex items-center space-x-0.5">
                         <BiCode size={20} />
                         <div className="skeleton w-4 h-4 rounded-full" />
                       </div>
-                      <div className="skeleton w-8 h-8 rounded-full" />
+                      <div className="skeleton w-7 h-7 rounded-full" />
                     </div>
                     <div className="skeleton w-16 h-5 ml-auto" />
                   </div>
@@ -569,14 +569,14 @@ const Summary = ({ data, crosschainData, tvlData, assetSelect, setAssetSelect, c
         >
           <div className="flex flex-col space-y-2 mt-1">
             {crosschainData ?
-              <div className="max-h-48 sm:max-h-56 flex flex-col overflow-y-auto space-y-3">
+              <div className="max-h-48 sm:max-h-52 flex flex-col overflow-y-auto space-y-3">
                 {_.orderBy(crosschainData.highest_transfer_24h || [], ['max_value', 'max_amount', 'tx'], ['desc', 'desc', 'desc']).map((t, i) => (
                   <div key={i} className="flex items-center justify-between my-1">
                     <div className="flex items-center space-x-2">
                       <img
                         src={t.from_chain?.image}
                         alt=""
-                        className="w-8 h-8 rounded-full"
+                        className="w-7 h-7 rounded-full"
                       />
                       <div className="flex items-center space-x-0.5">
                         <BiCode size={20} />
@@ -589,7 +589,7 @@ const Summary = ({ data, crosschainData, tvlData, assetSelect, setAssetSelect, c
                       <img
                         src={t.to_chain?.image}
                         alt=""
-                        className="w-8 h-8 rounded-full"
+                        className="w-7 h-7 rounded-full"
                       />
                     </div>
                     <div className="flex flex-col items-end space-y-1.5">
@@ -611,12 +611,12 @@ const Summary = ({ data, crosschainData, tvlData, assetSelect, setAssetSelect, c
                 {[...Array(5).keys()].map(i => (
                   <div key={i} className="flex items-center justify-between my-1">
                     <div className="flex items-center space-x-2">
-                      <div className="skeleton w-8 h-8 rounded-full" />
+                      <div className="skeleton w-7 h-7 rounded-full" />
                       <div className="flex items-center space-x-0.5">
                         <BiCode size={20} />
                         <div className="skeleton w-4 h-4 rounded-full" />
                       </div>
-                      <div className="skeleton w-8 h-8 rounded-full" />
+                      <div className="skeleton w-7 h-7 rounded-full" />
                     </div>
                     <div className="skeleton w-16 h-5 ml-auto" />
                   </div>

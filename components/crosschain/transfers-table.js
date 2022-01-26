@@ -67,13 +67,13 @@ export default function TransfersTable({ data, className = '' }) {
                   <Img
                     src={props.row.original.from_chain?.image || randImage(props.row.original.i)}
                     alt=""
-                    className="w-8 h-8 rounded-full"
+                    className="w-7 h-7 rounded-full"
                   />
                   <span className="font-semibold">{props.value}</span>
                 </div>
                 :
                 <div className="flex items-center space-x-2 -my-1">
-                  <div className="skeleton w-8 h-8 rounded-full" />
+                  <div className="skeleton w-7 h-7 rounded-full" />
                   <div className="skeleton w-20 h-5" />
                 </div>
             ),
@@ -88,13 +88,13 @@ export default function TransfersTable({ data, className = '' }) {
                   <Img
                     src={props.row.original.to_chain?.image || randImage(props.row.original.i)}
                     alt=""
-                    className="w-8 h-8 rounded-full"
+                    className="w-7 h-7 rounded-full"
                   />
                   <span className="font-semibold">{props.value}</span>
                 </div>
                 :
                 <div className="flex items-center space-x-2 -my-1">
-                  <div className="skeleton w-8 h-8 rounded-full" />
+                  <div className="skeleton w-7 h-7 rounded-full" />
                   <div className="skeleton w-20 h-5" />
                 </div>
             ),
