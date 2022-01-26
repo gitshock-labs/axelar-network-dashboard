@@ -339,67 +339,65 @@ export default function Crosschain() {
 
   return (
     <div className="max-w-full mx-auto">
-      {chartData && (
-        <div className="mb-4">
-          {assetSelect ?
-            <div className="flex justify-start">
-              <AssetSelect
-                assets={chartData.data}
-                assetSelect={assetSelect}
-                setAssetSelect={a => setAssetSelect(a)}
-              />
-            </div>
-            :
-            <div className="skeleton w-24 h-6 ml-auto" />
-          }
-          <div className="w-full grid grid-flow-row grid-cols-1 sm:grid-cols-2 gap-4 mt-2">
-            <Widget
-              title={<span className="text-black dark:text-white text-base font-semibold">Transactions</span>}
-              description={<span className="text-gray-400 dark:text-gray-500 text-xs font-normal">Number of transactions by day</span>}
-              right={[assetSelect && chartData.data?.find(t => t?.id === assetSelect)?.times?.find(t => t.time === timeFocus)].filter(t => t).map((t, i) => (
-                <div key={i} className="min-w-max text-right space-y-1">
-                  <div className="flex items-center justify-end space-x-1.5">
-                    <span className="font-mono text-base font-semibold">
-                      {typeof t.tx === 'number' ? numberFormat(t.tx, '0,0') : '- '}
-                    </span>
-                    <span className="text-gray-400 dark:text-gray-600 text-base">TXs</span>
-                  </div>
-                  <div className="text-gray-400 dark:text-gray-500 text-2xs font-medium">{moment(t.time).utc().format('MMM, D YYYY [(UTC)]')}</div>
-                </div>
-              ))}
-              contentClassName="items-start"
-              className="shadow border-0 pb-0 px-2 sm:px-4"
-            >
-              <TimelyTransactions
-                txsData={chartData.data?.find(t => t?.id === assetSelect) || {}}
-                setTimeFocus={t => setTimeFocus(t)}
-              />
-            </Widget>
-            <Widget
-              title={<span className="text-black dark:text-white text-base font-semibold">Volume</span>}
-              description={<span className="text-gray-400 dark:text-gray-500 text-xs font-normal">Transfer volume by day</span>}
-              right={[assetSelect && chartData?.data?.find(t => t?.id === assetSelect)?.times?.find(t => t.time === timeFocus)].filter(t => t).map((t, i) => (
-                <div key={i} className="min-w-max text-right space-y-1">
-                  <div className="flex items-center justify-end space-x-1.5">
-                    <span className="font-mono text-base font-semibold">
-                      {typeof t.amount === 'number' ? numberFormat(t.amount, '0,0.00000000') : '- '}
-                    </span>
-                    <span className="text-gray-400 dark:text-gray-600 text-base">{chartData.data.find(_t => _t?.id === assetSelect)?.asset?.symbol}</span>
-                  </div>
-                  <div className="text-gray-400 dark:text-gray-500 text-2xs font-medium">{moment(t.time).utc().format('MMM, D YYYY [(UTC)]')}</div>
-                </div>
-              ))}
-              contentClassName="items-start"
-              className="shadow border-0 pb-0 px-2 sm:px-4"
-            >
-              <TimelyVolume
-                volumeData={chartData.data?.find(t => t?.id === assetSelect) || {}}
-                setTimeFocus={t => setTimeFocus(t)}
-              />
-            </Widget>
+      <div className="mb-4">
+        {assetSelect ?
+          <div className="flex justify-start">
+            <AssetSelect
+              assets={chartData?.data}
+              assetSelect={assetSelect}
+              setAssetSelect={a => setAssetSelect(a)}
+            />
           </div>
+          :
+          <div className="skeleton w-28 h-7 mb-3 ml-auto" />
+        }
+        <div className="w-full grid grid-flow-row grid-cols-1 sm:grid-cols-2 gap-4 mt-2">
+          <Widget
+            title={<span className="text-black dark:text-white text-base font-semibold">Transactions</span>}
+            description={<span className="text-gray-400 dark:text-gray-500 text-xs font-normal">Number of transactions by day</span>}
+            right={[assetSelect && chartData?.data?.find(t => t?.id === assetSelect)?.times?.find(t => t.time === timeFocus)].filter(t => t).map((t, i) => (
+              <div key={i} className="min-w-max text-right space-y-1">
+                <div className="flex items-center justify-end space-x-1.5">
+                  <span className="font-mono text-base font-semibold">
+                    {typeof t.tx === 'number' ? numberFormat(t.tx, '0,0') : '- '}
+                  </span>
+                  <span className="text-gray-400 dark:text-gray-600 text-base">TXs</span>
+                </div>
+                <div className="text-gray-400 dark:text-gray-500 text-2xs font-medium">{moment(t.time).utc().format('MMM, D YYYY [(UTC)]')}</div>
+              </div>
+            ))}
+            contentClassName="items-start"
+            className="shadow border-0 pb-0 px-2 sm:px-4"
+          >
+            <TimelyTransactions
+              txsData={chartData?.data?.find(t => t?.id === assetSelect)}
+              setTimeFocus={t => setTimeFocus(t)}
+            />
+          </Widget>
+          <Widget
+            title={<span className="text-black dark:text-white text-base font-semibold">Volume</span>}
+            description={<span className="text-gray-400 dark:text-gray-500 text-xs font-normal">Transfer volume by day</span>}
+            right={[assetSelect && chartData?.data?.find(t => t?.id === assetSelect)?.times?.find(t => t.time === timeFocus)].filter(t => t).map((t, i) => (
+              <div key={i} className="min-w-max text-right space-y-1">
+                <div className="flex items-center justify-end space-x-1.5">
+                  <span className="font-mono text-base font-semibold">
+                    {typeof t.amount === 'number' ? numberFormat(t.amount, '0,0.00000000') : '- '}
+                  </span>
+                  <span className="text-gray-400 dark:text-gray-600 text-base">{chartData.data.find(_t => _t?.id === assetSelect)?.asset?.symbol}</span>
+                </div>
+                <div className="text-gray-400 dark:text-gray-500 text-2xs font-medium">{moment(t.time).utc().format('MMM, D YYYY [(UTC)]')}</div>
+              </div>
+            ))}
+            contentClassName="items-start"
+            className="shadow border-0 pb-0 px-2 sm:px-4"
+          >
+            <TimelyVolume
+              volumeData={chartData?.data?.find(t => t?.id === assetSelect)}
+              setTimeFocus={t => setTimeFocus(t)}
+            />
+          </Widget>
         </div>
-      )}
+      </div>
       <Widget
         title={<span className="text-black dark:text-white text-base font-semibold">Traffics</span>}
         description={<span className="text-gray-400 dark:text-gray-500 text-xs font-normal">Cross-chain on Axelar Network</span>}

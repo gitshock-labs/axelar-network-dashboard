@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useSelector, shallowEqual } from 'react-redux'
 
 import _ from 'lodash'
+import Loader from 'react-loader-spinner'
 import G6 from '@antv/g6'
 
 import { chainTitle, getChain } from '../../lib/object/chain'
@@ -194,6 +195,13 @@ export default function NetworkGraph({ data }) {
   return (
     <div className="w-full">
       <div id="cross-chain" className={`${data?.length > 0 ? 'flex' : 'hidden'} items-center justify-start`} />
+      {!data && (
+        <div className="h-96">
+          <div className="w-full h-5/6 flex items-center justify-center">
+            <Loader type="BallTriangle" color={theme === 'dark' ? 'white' : '#acacac'} width="56" height="56" />
+          </div>
+        </div>
+      )}
     </div>
   )
 }

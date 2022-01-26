@@ -77,7 +77,9 @@ export default function TimelyTransactions({ txsData, setTimeFocus }) {
           </BarChart>
         </ResponsiveContainer>
         :
-        <Loader type="BallTriangle" color={theme === 'dark' ? 'white' : '#acacac'} width="36" height="36" />
+        <div className="w-full h-4/5 flex items-center justify-center">
+          <Loader type="Triangle" color={theme === 'dark' ? 'white' : '#acacac'} width="48" height="48" />
+        </div>
       }
     </div>
   )
