@@ -3,7 +3,7 @@ import PropTypes from 'prop-types'
 import { useSelector, shallowEqual } from 'react-redux'
 
 import _ from 'lodash'
-import { FiServer } from 'react-icons/fi'
+import { BiServer } from 'react-icons/bi'
 
 import Widget from '../widget'
 
@@ -242,7 +242,7 @@ const Summary = ({ data, successKeygens, failedKeygens, successSignAttempts, fai
                         <span className="flex items-center text-gray-400 dark:text-gray-600 text-2xs space-x-1 pt-2">
                           (
                           <span>{numberFormat(c.num_maintain_validators, '0,0')} / {numberFormat(activeValidators?.length, '0,0')}</span>
-                          <FiServer size={12} className="stroke-current" />
+                          <BiServer size={12} className="stroke-current" className="mb-0.5" />
                           )
                         </span>
                       </span>

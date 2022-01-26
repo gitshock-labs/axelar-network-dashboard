@@ -3,7 +3,8 @@ import { useRouter } from 'next/router'
 import { useSelector, shallowEqual } from 'react-redux'
 
 import { Img } from 'react-image'
-import { FiBox, FiServer, FiGift, FiClock } from 'react-icons/fi'
+import { BiServer } from 'react-icons/bi'
+import { FiBox, FiGift, FiClock } from 'react-icons/fi'
 import { AiOutlineNumber } from 'react-icons/ai'
 import { FaSignature } from 'react-icons/fa'
 import { HiOutlineExternalLink } from 'react-icons/hi'
@@ -46,7 +47,7 @@ export default function SubNavbar() {
       <div className="flex items-center space-x-1.5 mr-4">
         <div className="flex items-center text-gray-500 dark:text-gray-500 space-x-1">
           <span>Max</span>
-          <FiServer size={14} className="mb-0.5" />
+          <BiServer size={16} className="mb-0.5" />
           :
         </div>
         {env_data?.staking_params ?

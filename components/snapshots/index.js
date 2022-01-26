@@ -6,7 +6,7 @@ import StackGrid from 'react-stack-grid'
 import _ from 'lodash'
 import moment from 'moment'
 import Loader from 'react-loader-spinner'
-import { FiServer } from 'react-icons/fi'
+import { BiServer } from 'react-icons/bi'
 
 import Widget from '../widget'
 
@@ -62,7 +62,7 @@ export default function Snapshots({ n = 100 }) {
           while (!(data[0]?.snapshot_block >= latestBlock)) {
             data = _.concat({ snapshot_block: (data[0]?.snapshot_block || 0) + snapshot_block_size, processing: !((data[0]?.snapshot_block || 0) + snapshot_block_size >= latestBlock) ? true : undefined }, data)
           }
-
+console.log(data)
           setSnapshots({ data })
 
           for (let i = 0; i < data.length; i++) {
@@ -120,7 +120,7 @@ export default function Snapshots({ n = 100 }) {
             {typeof snapshot?.num_validators === 'number' ?
               <span className="flex items-center text-gray-400 dark:text-gray-600 text-xs space-x-1 ml-auto">
                 <span>{numberFormat(snapshot.num_validators, '0,0')}</span>
-                <FiServer size={14} className="stroke-current" />
+                <BiServer size={16} className="stroke-current" className="mb-0.5" />
               </span>
               :
               snapshot.processing ?
