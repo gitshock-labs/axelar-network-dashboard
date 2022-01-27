@@ -77,6 +77,7 @@ export default function TransfersTable({ data, className = '' }) {
                   <div className="skeleton w-20 h-5" />
                 </div>
             ),
+            headerClassName: 'whitespace-nowrap',
           },
           {
             Header: 'To Chain',
@@ -98,6 +99,7 @@ export default function TransfersTable({ data, className = '' }) {
                   <div className="skeleton w-20 h-5" />
                 </div>
             ),
+            headerClassName: 'whitespace-nowrap',
           },
           {
             Header: 'TXs',
@@ -145,7 +147,6 @@ export default function TransfersTable({ data, className = '' }) {
                   <div className="skeleton w-24 h-5" />
                   <div className="skeleton w-16 h-4" />
                 </div>
-                
             ),
             headerClassName: 'justify-end text-right',
           },
@@ -177,9 +178,8 @@ export default function TransfersTable({ data, className = '' }) {
                   <div className="skeleton w-24 h-5" />
                   <div className="skeleton w-16 h-4" />
                 </div>
-                
             ),
-            headerClassName: 'justify-end text-right',
+            headerClassName: 'whitespace-nowrap justify-end text-right',
           },
           {
             Header: 'Highest',
@@ -209,7 +209,6 @@ export default function TransfersTable({ data, className = '' }) {
                   <div className="skeleton w-24 h-5" />
                   <div className="skeleton w-16 h-4" />
                 </div>
-                
             ),
             headerClassName: 'justify-end text-right',
           },
