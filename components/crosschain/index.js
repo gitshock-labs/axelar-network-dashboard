@@ -144,7 +144,7 @@ export default function Crosschain() {
           }
         })
 
-        data = _data
+        data = _.orderBy(_data, ['tx'], ['desc'])
 
         setTransfersData({ data })
       }
