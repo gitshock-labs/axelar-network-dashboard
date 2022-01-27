@@ -54,7 +54,7 @@ const CustomTooltip = ({ active, payload, label }) => {
                       <span className="text-gray-400 dark:text-gray-500 text-2xs">{data.asset?.symbol}</span>
                     </div>
                     {e.time.value > 0 && (
-                      <span className="font-mono text-gray-400 dark:text-gray-600 text-3xs font-medium">
+                      <span className="font-mono text-gray-400 dark:text-gray-500 text-3xs font-medium">
                         ({currency_symbol}{numberFormat(e.time.value, '0,0.00')})
                       </span>
                     )}
@@ -69,7 +69,7 @@ const CustomTooltip = ({ active, payload, label }) => {
                 <div className="flex items-center space-x-1.5">
                   <div className="flex items-center space-x-1">
                     <span className="font-mono text-xs font-semibold">{numberFormat(data.amount, '0,0.00000000')}</span>
-                    <span className="text-gray-400 dark:text-gray-600 text-xs">{data.asset?.symbol}</span>
+                    <span className="text-gray-400 dark:text-gray-500 text-xs">{data.asset?.symbol}</span>
                   </div>
                   {data.value > 0 && (
                     <span className="font-mono text-gray-600 dark:text-gray-400 text-3xs font-medium">

@@ -7,6 +7,7 @@ import moment from 'moment'
 import AssetSelect from './asset-select'
 import TimelyTransactions from './charts/timely-transactions'
 import TimelyVolume from './charts/timely-volume'
+import TVLByChain from './charts/tvl-by-chain'
 import NetworkGraph from './network-graph'
 import TransfersTable from './transfers-table'
 import Widget from '../widget'
@@ -361,7 +362,7 @@ export default function Crosschain() {
       setCrosschainTVLData({ data, updated_at: moment().valueOf() })
     }
   }, [denoms_data, tvl_data])
-console.log(crosschainTVLData)
+
   return (
     <div className="max-w-full mx-auto">
       <div className="mb-4">
@@ -419,6 +420,21 @@ console.log(crosschainTVLData)
             <TimelyVolume
               volumeData={chartData?.data?.find(t => t?.id === assetSelect)}
               setTimeFocus={t => setTimeFocus(t)}
+            />
+          </Widget>
+          <Widget
+            title={<span className="text-black dark:text-white text-base font-semibold">TVL</span>}
+            description={<span className="text-gray-400 dark:text-gray-500 text-xs font-normal">Total Value Locked on Axelar Network</span>}
+            right={assetSelect && crosschainTVLData?.updated_at && (
+              <div className="min-w-max text-right space-y-1.5 -mt-0.5">
+                <span className="text-sm font-semibold">Last updated on</span>
+                <div className="text-gray-400 dark:text-gray-500 text-2xs font-medium">{moment(crosschainTVLData.updated_at).format('MMM, D YYYY h:mm:ss A')}</div>
+              </div>
+            )}
+            className="shadow border-0 pb-0 px-2 sm:px-4"
+          >
+            <TVLByChain
+              tvlData={crosschainTVLData?.data?.filter(d => d?.asset?.id === assetSelect)}
             />
           </Widget>
         </div>

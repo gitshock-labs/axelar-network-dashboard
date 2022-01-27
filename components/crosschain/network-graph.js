@@ -51,8 +51,8 @@ export default function NetworkGraph({ data }) {
 
       setGraph(new G6.Graph({
         container: 'cross-chain',
-        width: 992,
-        height: 560,
+        width: 960,
+        height: 540,
         fitView: true,
         fitViewPadding: [10, 10, 10, 10],
         fitCenter: true,
