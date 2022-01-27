@@ -161,7 +161,7 @@ export default function BridgeAccounts() {
                           <Copy
                             text={contract.contract_address}
                             copyTitle={<span className="text-xs font-normal">
-                              {ellipseAddress(contract.contract_address, 6)}
+                              {ellipseAddress(contract.contract_address, 8)}
                             </span>}
                           />
                           {chain.explorer?.url && (

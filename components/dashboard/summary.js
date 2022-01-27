@@ -208,7 +208,7 @@ export default function Summary({ data, crosschainData, tvlData }) {
         >
           <div className="flex flex-col space-y-2 mt-1">
             {crosschainData ?
-              <div className="h-48 sm:h-52 flex flex-col overflow-y-auto space-y-3">
+              <div className="h-52  flex flex-col overflow-y-auto space-y-3">
                 {crosschainData.total_transfers?.map((t, i) => (
                   <div key={i} className="flex items-center justify-between my-1">
                     <div className="flex items-center space-x-2">
@@ -274,7 +274,7 @@ export default function Summary({ data, crosschainData, tvlData }) {
         >
           <div className="flex flex-col space-y-2 mt-1">
             {crosschainData ?
-              <div className="h-48 sm:h-52 flex flex-col overflow-y-auto space-y-3">
+              <div className="h-52  flex flex-col overflow-y-auto space-y-3">
                 {_.orderBy(crosschainData.total_transfers || [], ['value', 'amount', 'tx'], ['desc', 'desc', 'desc']).map((t, i) => (
                   <div key={i} className="flex items-center justify-between my-1">
                     <div className="flex items-center space-x-2">
@@ -345,7 +345,7 @@ export default function Summary({ data, crosschainData, tvlData }) {
         >
           <div className="flex flex-col space-y-2 mt-1">
             {tvlData ?
-              <div className="h-48 sm:h-52 flex flex-col overflow-y-auto space-y-3">
+              <div className="h-52  flex flex-col overflow-y-auto space-y-3">
                 {_.orderBy(Object.entries(_.groupBy(tvlData.data || [], 'asset.id')).map(([key, value]) => {
                   return {
                     asset: _.head(value)?.asset,
@@ -480,7 +480,7 @@ export default function Summary({ data, crosschainData, tvlData }) {
         >
           <div className="flex flex-col space-y-2 mt-1">
             {crosschainData ?
-              <div className="h-48 sm:h-52 flex flex-col overflow-y-auto space-y-3">
+              <div className="h-52  flex flex-col overflow-y-auto space-y-3">
                 {_.orderBy(crosschainData.total_transfers || [], ['avg_value', 'avg_amount', 'tx'], ['desc', 'desc', 'desc']).map((t, i) => (
                   <div key={i} className="flex items-center justify-between my-1">
                     <div className="flex items-center space-x-2">
@@ -557,7 +557,7 @@ export default function Summary({ data, crosschainData, tvlData }) {
         >
           <div className="flex flex-col space-y-2 mt-1">
             {crosschainData ?
-              <div className="h-48 sm:h-52 flex flex-col overflow-y-auto space-y-3">
+              <div className="h-52  flex flex-col overflow-y-auto space-y-3">
                 {_.orderBy(crosschainData.highest_transfer_24h || [], ['max_value', 'max_amount', 'tx'], ['desc', 'desc', 'desc']).map((t, i) => (
                   <div key={i} className="flex items-center justify-between my-1">
                     <div className="flex items-center space-x-2">
