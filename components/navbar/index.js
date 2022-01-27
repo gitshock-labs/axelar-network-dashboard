@@ -89,23 +89,23 @@ export default function Navbar() {
     const getData = async () => {
       const response = await getDenoms()
 
-      dispatch({
-        type: DENOMS_DATA,
-        value: response || [],
-      })
+      // dispatch({
+      //   type: DENOMS_DATA,
+      //   value: response || [],
+      // })
 
       if (response) {
+        const resPrice = await simplePrice({
+          ids: response.map(d => d?.coingecko_id).filter(id => id).join(','),
+          vs_currencies: currency,
+          include_market_cap: true,
+          include_24hr_vol: true,
+          include_24hr_change: true,
+          include_last_updated_at: true,
+        })
+
         for (let i = 0; i < response.length; i++) {
           const denom = response[i]
-
-          const resPrice = await simplePrice({
-            ids: denom.coingecko_id,
-            vs_currencies: currency,
-            include_market_cap: true,
-            include_24hr_vol: true,
-            include_24hr_change: true,
-            include_last_updated_at: true,
-          })
 
           if (resPrice?.[denom.coingecko_id]) {
             denom.token_data = resPrice[denom.coingecko_id]
@@ -123,7 +123,7 @@ export default function Navbar() {
 
         dispatch({
           type: DENOMS_DATA,
-          value: _.cloneDeep(response),
+          value: response,
         })
       }
     }

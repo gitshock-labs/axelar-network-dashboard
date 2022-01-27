@@ -361,7 +361,7 @@ export default function Crosschain() {
       setCrosschainTVLData({ data, updated_at: moment().valueOf() })
     }
   }, [denoms_data, tvl_data])
-
+console.log(crosschainTVLData)
   return (
     <div className="max-w-full mx-auto">
       <div className="mb-4">
