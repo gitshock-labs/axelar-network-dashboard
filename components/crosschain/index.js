@@ -7,6 +7,7 @@ import moment from 'moment'
 import AssetSelect from './asset-select'
 import TimelyTransactions from './charts/timely-transactions'
 import TimelyVolume from './charts/timely-volume'
+import TransactionsByChain from './charts/transactions-by-chain'
 import TVLByChain from './charts/tvl-by-chain'
 import NetworkGraph from './network-graph'
 import TransfersTable from './transfers-table'
@@ -420,6 +421,25 @@ export default function Crosschain() {
             <TimelyVolume
               volumeData={chartData?.data?.find(t => t?.id === assetSelect)}
               setTimeFocus={t => setTimeFocus(t)}
+            />
+          </Widget>
+          <Widget
+            title={<span className="text-black dark:text-white text-base font-semibold">Transactions</span>}
+            description={<span className="text-gray-400 dark:text-gray-500 text-xs font-normal">Number of transactions by chain</span>}
+            right={[assetSelect && chartData?.data?.find(t => t?.id === assetSelect)].filter(t => t).map((t, i) => (
+              <div key={i} className="min-w-max text-right space-y-1">
+                <div className="flex items-center justify-end space-x-1.5">
+                  <span className="font-mono text-base font-semibold">
+                    {typeof _.sumBy(t.data, 'tx') === 'number' ? numberFormat(_.sumBy(t.data, 'tx'), '0,0') : '- '}
+                  </span>
+                  <span className="text-gray-400 dark:text-gray-600 text-base">TXs</span>
+                </div>
+              </div>
+            ))}
+            className="shadow border-0 pb-0 px-2 sm:px-4"
+          >
+            <TransactionsByChain
+              txsData={chartData?.data?.find(t => t?.id === assetSelect)}
             />
           </Widget>
           <Widget
