@@ -61,7 +61,7 @@ export default function KeysTable({ data, corruption_signing_threshold, page, cl
             ),
             headerClassName: 'whitespace-nowrap',
           },
-          {
+          /*{
             Header: 'Key Chain',
             accessor: 'key_chain',
             sortType: (rowA, rowB) => rowA.original.key_chain > rowB.original.key_chain ? 1 : -1,
@@ -83,7 +83,7 @@ export default function KeysTable({ data, corruption_signing_threshold, page, cl
                 <div className="skeleton w-12 h-5 my-1" />
             ),
             headerClassName: 'whitespace-nowrap',
-          },
+          },*/
           {
             Header: 'Key Role',
             accessor: 'key_role',
