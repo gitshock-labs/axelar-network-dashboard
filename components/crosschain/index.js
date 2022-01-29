@@ -33,6 +33,7 @@ export default function Crosschain() {
   const [transfersData, setTransfersData] = useState(null)
   const [crosschainTVLData, setCrosschainTVLData] = useState(null)
 
+  const staging = process.env.NEXT_PUBLIC_SITE_URL?.includes('staging')
   const axelarChain = getChain('axelarnet', cosmos_chains_data)
 
   useEffect(() => {
@@ -105,7 +106,7 @@ export default function Crosschain() {
             avg_value: (price * t.avg_amount) || 0,
             max_value: (price * t.max_amount) || 0,
           }
-        }), ['tx'], ['desc'])
+        }), ['tx'], ['desc']).filter(t => assets_data?.findIndex(a => a?.id === t?.asset?.id && (!a.is_staging || staging)) > -1)
 
         let _data = []
 
@@ -249,7 +250,7 @@ export default function Crosschain() {
               }
             }),
           }
-        }), ['tx'], ['desc'])
+        }), ['tx'], ['desc']).filter(t => assets_data?.findIndex(a => a?.id === t?.asset?.id && (!a.is_staging || staging)) > -1)
 
         let _data = []
 

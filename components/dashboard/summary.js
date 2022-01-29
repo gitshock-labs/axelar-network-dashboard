@@ -464,9 +464,9 @@ export default function Summary({ data, crosschainData, tvlData }) {
               </div>
             }
             <span className="flex items-center justify-between text-gray-400 dark:text-gray-600 text-sm font-normal space-x-1">
-              <span>last updated on</span>
+              <span className="whitespace-nowrap">last updated on</span>
               {tvlData ?
-                <span className="leading-4 text-gray-700 dark:text-gray-300 text-2xs font-medium">{moment(tvlData.updated_at).format('MMM D, h:mm:ss A')}</span>
+                <span className="whitespace-nowrap leading-4 text-gray-700 dark:text-gray-300 text-2xs font-medium">{moment(tvlData.updated_at).format('MMM D, h:mm:ss A')}</span>
                 :
                 <div className="skeleton w-20 h-4" />
               }

@@ -29,6 +29,8 @@ export default function Dashboard() {
   const { env_data } = { ...env }
   const { validators_data } = { ...validators }
 
+  const staging = process.env.NEXT_PUBLIC_SITE_URL?.includes('staging')
+
   const [consensusStateData, setConsensusStateData] = useState(null)
   const [summaryData, setSummaryData] = useState(null)
 
@@ -154,7 +156,7 @@ export default function Dashboard() {
             value: (price * t.amount) || 0,
             avg_value: (price * t.avg_amount) || 0,
           }
-        }), ['tx'], ['desc'])
+        }) || [], ['tx'], ['desc']).filter(t => assets_data?.findIndex(a => a?.id === t?.asset?.id && (!a.is_staging || staging)) > -1)
 
         if (!controller.signal.aborted) {
           response = await crosschainTxs({
@@ -201,7 +203,7 @@ export default function Dashboard() {
             ...t,
             max_value: (price * t.max_amount) || 0,
           }
-        }), ['max_value', 'max_amount'], ['desc', 'desc'])
+        }) || [], ['max_value', 'max_amount'], ['desc', 'desc']).filter(t => assets_data?.findIndex(a => a?.id === t?.asset?.id && (!a.is_staging || staging)) > -1)
 
         setCrosschainSummaryData({
           total_transfers,

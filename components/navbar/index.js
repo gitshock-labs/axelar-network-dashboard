@@ -43,6 +43,8 @@ export default function Navbar() {
   const router = useRouter()
   const { pathname, query } = { ...router }
 
+  const staging = process.env.NEXT_PUBLIC_SITE_URL?.includes('staging')
+
   const [loadValidatorsTrigger, setLoadValidatorsTrigger] = useState(null)
   const [loadProfileTrigger, setLoadProfileTrigger] = useState(null)
 
@@ -458,8 +460,7 @@ export default function Navbar() {
       if (!controller.signal.aborted) {
         if (assets) {
           for (let i = 0; i < assets.length; i++) {
-
-            const contract = assets[i]?.contracts?.find(contract => contract?.chain_id === chain.chain_id)
+            const contract = (!assets[i]?.is_staging || staging) && assets[i]?.contracts?.find(contract => contract?.chain_id === chain.chain_id)
 
             if (contract) {
               const supply = await getContractSupply(chain, contract)
