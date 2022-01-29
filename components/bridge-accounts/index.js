@@ -27,6 +27,7 @@ export default function BridgeAccounts() {
   const [chainId, setChainId] = useState(null)
   const [timer, setTimer] = useState(null)
 
+  const staging = process.env.NEXT_PUBLIC_SITE_URL?.includes('staging')
   const axelarChain = cosmos_chains_data?.find(_chain => _chain.id === 'axelarnet')
 
   useEffect(() => {
@@ -156,7 +157,7 @@ export default function BridgeAccounts() {
       <div className="mt-4">
         <div className="uppercase text-xs font-semibold">Tokens</div>
         <div className="space-y-2 mt-2">
-          {assets_data?.filter(_asset => _asset?.contracts?.find(_contract => _contract.chain_id === chain.chain_id)).map((_asset, j) => {
+          {assets_data?.filter(_asset => (!_asset?.is_staging || staging) && _asset?.contracts?.find(_contract => _contract.chain_id === chain.chain_id)).map((_asset, j) => {
             const contract = _asset.contracts.find(_contract => _contract.chain_id === chain.chain_id)
             const addToMetaMaskButton = (
               <button
