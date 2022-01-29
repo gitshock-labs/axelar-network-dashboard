@@ -25,6 +25,7 @@ export default function BridgeAccounts() {
 
   const [web3, setWeb3] = useState(null)
   const [chainId, setChainId] = useState(null)
+  const [addTokenData, setAddTokenData] = useState(null)
   const [timer, setTimer] = useState(null)
 
   const staging = process.env.NEXT_PUBLIC_SITE_URL?.includes('staging')
@@ -44,6 +45,12 @@ export default function BridgeAccounts() {
       } catch (error) {}
     }
   }, [web3])
+
+  useEffect(() => {
+    if (addTokenData?.chain_id === chainId && addTokenData?.contract) {
+      addTokenToMetaMask(addTokenData.chain_id, addTokenData.contract)
+    }
+  }, [chainId, addTokenData])
 
   useEffect(() => {
     const run = async () => setTimer(moment().unix())
@@ -73,14 +80,16 @@ export default function BridgeAccounts() {
             },
           })
         } catch (error) {}
+
+        setAddTokenData(null)
       }
       else {
-        switchNetwork(chain_id)
+        switchNetwork(chain_id, contract)
       }
     }
   }
 
-  const switchNetwork = async chain_id => {
+  const switchNetwork = async (chain_id, contract) => {
     try {
       await web3.currentProvider.request({
         method: 'wallet_switchEthereumChain',
@@ -97,6 +106,10 @@ export default function BridgeAccounts() {
           console.log(error)
         }
       }
+    }
+
+    if (contract) {
+      setAddTokenData({ chain_id, contract })
     }
   }
 
@@ -216,23 +229,13 @@ export default function BridgeAccounts() {
                     </div>
                   </div>
                 </div>
-                {chain.chain_id === chainId ?
-                  <Popover
-                    placement="left"
-                    title={<span className="normal-case text-xs">Add token</span>}
-                    content={<div className="w-36 text-xs">Add <span className="font-semibold">{_asset?.symbol}</span> to MetaMask</div>}
-                  >
-                    {addToMetaMaskButton}
-                  </Popover>
-                  :
-                  <Popover
-                    placement="left"
-                    title={<span className="normal-case text-xs">Change wallet network</span>}
-                    content={<div className="w-40 text-xs">Click to switch your wallet network to <span className="font-semibold">{chain.title}</span>.</div>}
-                  >
-                    {addToMetaMaskButton}
-                  </Popover>
-                }
+                <Popover
+                  placement="left"
+                  title={<span className="normal-case text-xs">Add token</span>}
+                  content={<div className="w-36 text-xs">Add <span className="font-semibold">{_asset?.symbol}</span> to MetaMask</div>}
+                >
+                  {addToMetaMaskButton}
+                </Popover>
               </div>
             )
           })}
