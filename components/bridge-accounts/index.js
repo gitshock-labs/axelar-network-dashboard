@@ -82,14 +82,14 @@ export default function BridgeAccounts() {
 
   const switchNetwork = async chain_id => {
     try {
-      await Web3.givenProvider.request({
+      await web3.currentProvider.request({
         method: 'wallet_switchEthereumChain',
         params: [{ chainId: utils.hexValue(chain_id) }],
       })
     } catch (error) {
       if (error.code === 4902) {
         try {
-          await Web3.givenProvider.request({
+          await web3.currentProvider.request({
             method: 'wallet_addEthereumChain',
             params: chains_data?.find(c => c.chain_id === chain_id)?.provider_params,
           })
