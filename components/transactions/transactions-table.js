@@ -83,7 +83,7 @@ export default function TransactionsTable({ data, noLoad, hasVote, location, cla
   return (
     <>
       {!noLoad && !location && (
-        <div className="block sm:flex items-center justify-end overflow-x-auto space-x-1 mb-2">
+        <div className="block sm:flex sm:flex-wrap items-center justify-end overflow-x-auto space-x-1 mb-2">
           {Object.entries(actions).map(([key, value]) => (
             <div
               key={key}
