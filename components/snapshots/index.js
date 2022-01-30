@@ -124,7 +124,7 @@ export default function Snapshots({ n = 100 }) {
               </span>
               :
               snapshot.processing ?
-                <Loader type="BallTriangle" color={theme === 'dark' ? 'white' : '#acacac'} width="24" height="24" className="ml-auto" />
+                <Loader type="BallTriangle" color={theme === 'dark' ? 'white' : '#acacac'} width="20" height="20" className="ml-auto" />
                 :
                 null
             }
