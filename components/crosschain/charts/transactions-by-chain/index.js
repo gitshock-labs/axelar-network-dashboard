@@ -79,7 +79,7 @@ export default function TransactionsByChain({ txsData }) {
         return {
           ...d,
           chain: d?.chain || d?.to_chain,
-          tx_string: `${numberFormat(d?.tx, d?.tx >= 1000000 ? '0,0.00a' : '0,0')}`,
+          tx_string: `${numberFormat(d?.tx, d?.tx >= 1000000 ? '0,0.00a' : '0,0')}`.toUpperCase(),
         }
       })
 

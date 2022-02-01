@@ -256,9 +256,9 @@ const Summary = ({ data, successKeygens, failedKeygens, successSignAttempts, fai
                 <div className="col-span-1">
                   {typeof c.staking_percentage === 'number' ?
                     <span className="text-gray-400 dark:text-gray-600 text-xs font-normal mt-1">
-                      <span className="mr-1">{numberFormat(c.maintain_staking, '0,0.00a')}</span>
+                      <span className="uppercase mr-1">{numberFormat(c.maintain_staking, '0,0.00a')}</span>
                       <span className="mr-1">/</span>
-                      <span className="mr-1">{numberFormat(c.total_staking, '0,0.00a')}</span>
+                      <span className="uppercase mr-1">{numberFormat(c.total_staking, '0,0.00a')}</span>
                       <span className="uppercase font-medium mr-1">{c.denom}</span>
                     </span>
                     :

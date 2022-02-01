@@ -74,8 +74,8 @@ export default function TVLByChain({ tvlData }) {
       _data = _data.map(d => {
         return {
           ...d,
-          amount_string: `${numberFormat(d?.amount, d?.amount >= 1000000 ? '0,0.00a' : '0,0')}`,
-          value_string: `${currency_symbol}${numberFormat(d?.value, d?.value >= 1000000 ? '0,0.00a' : '0,0')}`
+          amount_string: `${numberFormat(d?.amount, d?.amount >= 1000000 ? '0,0.00a' : '0,0')}`.toUpperCase(),
+          value_string: `${currency_symbol}${numberFormat(d?.value, d?.value >= 1000000 ? '0,0.00a' : '0,0')}`.toUpperCase(),
         }
       })
 

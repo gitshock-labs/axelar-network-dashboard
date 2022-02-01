@@ -162,7 +162,7 @@ export default function Summary({ data, crosschainData, tvlData }) {
         >
           <div className="flex flex-col space-y-1 mt-1">
             {data?.online_voting_power_now ?
-              <span className="h-8 font-mono text-3xl font-semibold">
+              <span className="h-8 font-mono uppercase text-3xl font-semibold">
                 {data.online_voting_power_now}
               </span>
               :
@@ -178,7 +178,7 @@ export default function Summary({ data, crosschainData, tvlData }) {
               }
               <span>from</span>
               {data?.total_voting_power ?
-                <span className="text-gray-600 dark:text-gray-200 font-medium">
+                <span className="uppercase text-gray-600 dark:text-gray-200 font-medium">
                   {data.total_voting_power}
                 </span>
                 :
@@ -232,7 +232,7 @@ export default function Summary({ data, crosschainData, tvlData }) {
                       />
                     </div>
                     <div className="flex items-center space-x-1">
-                      <span className="font-mono text-gray-800 dark:text-gray-100 text-base font-semibold">
+                      <span className="font-mono uppercase text-gray-800 dark:text-gray-100 text-base font-semibold">
                         {numberFormat(t.tx, t.tx >= 100000 ? '0,0.00a' : '0,0')}
                       </span>
                     </div>
@@ -299,7 +299,7 @@ export default function Summary({ data, crosschainData, tvlData }) {
                     </div>
                     <div className="flex flex-col items-end space-y-1.5">
                       <span className="text-2xs space-x-1">
-                        <span className="font-mono font-semibold">{numberFormat(t.amount, t.amount >= 100000 ? '0,0.00a' : '0,0.000')}</span>
+                        <span className="font-mono uppercase font-semibold">{numberFormat(t.amount, t.amount >= 100000 ? '0,0.00a' : '0,0.000')}</span>
                         <span className="text-gray-400 dark:text-gray-600">{t.asset?.symbol}</span>
                       </span>
                       {t.value > 0 && (
@@ -422,7 +422,7 @@ export default function Summary({ data, crosschainData, tvlData }) {
                             </div>
                             <div className="flex flex-col items-end space-y-1.5">
                               <span className="text-2xs space-x-1">
-                                <span className="font-mono font-semibold">{numberFormat(c.amount, c.amount >= 100000 ? '0,0.00a' : '0,0.000')}</span>
+                                <span className="font-mono uppercase font-semibold">{numberFormat(c.amount, c.amount >= 100000 ? '0,0.00a' : '0,0.000')}</span>
                                 <span className="text-gray-400 dark:text-gray-600">{c.denom?.symbol}</span>
                               </span>
                               {c.value > 0 && (
@@ -437,7 +437,7 @@ export default function Summary({ data, crosschainData, tvlData }) {
                     >
                       <div className="flex flex-col items-end space-y-1.5">
                         <span className="text-2xs space-x-1">
-                          <span className="font-mono font-semibold">{numberFormat(t.amount, t.amount >= 100000 ? '0,0.00a' : '0,0.000')}</span>
+                          <span className="font-mono uppercase font-semibold">{numberFormat(t.amount, t.amount >= 100000 ? '0,0.00a' : '0,0.000')}</span>
                           <span className="text-gray-400 dark:text-gray-600">{t.asset?.symbol}</span>
                         </span>
                         {t.value > 0 && (
@@ -505,7 +505,7 @@ export default function Summary({ data, crosschainData, tvlData }) {
                     </div>
                     <div className="flex flex-col items-end space-y-1.5">
                       <span className="text-2xs space-x-1">
-                        <span className="font-mono font-semibold">{numberFormat(t.avg_amount, t.avg_amount >= 100000 ? '0,0.00a' : '0,0.000')}</span>
+                        <span className="font-mono uppercase font-semibold">{numberFormat(t.avg_amount, t.avg_amount >= 100000 ? '0,0.00a' : '0,0.000')}</span>
                         <span className="text-gray-400 dark:text-gray-600">{t.asset?.symbol}</span>
                       </span>
                       {t.avg_value > 0 && (
@@ -582,7 +582,7 @@ export default function Summary({ data, crosschainData, tvlData }) {
                     </div>
                     <div className="flex flex-col items-end space-y-1.5">
                       <span className="text-2xs space-x-1">
-                        <span className="font-mono font-semibold">{numberFormat(t.max_amount, t.max_amount >= 100000 ? '0,0.00a' : '0,0.000')}</span>
+                        <span className="font-mono uppercase font-semibold">{numberFormat(t.max_amount, t.max_amount >= 100000 ? '0,0.00a' : '0,0.000')}</span>
                         <span className="text-gray-400 dark:text-gray-600">{t.asset?.symbol}</span>
                       </span>
                       {t.max_value > 0 && (

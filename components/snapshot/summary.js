@@ -71,14 +71,14 @@ const Summary = ({ data }) => {
       >
         <span className="flex flex-col space-y-1 mt-1">
           {data ?
-            <span className="h-8 text-3xl font-semibold">{numberFormat(_.sumBy(data.filter(v => ['BOND_STATUS_BONDED'].includes(v?.status)), 'tokens'), '0,0.00a')}</span>
+            <span className="h-8 uppercase text-3xl font-semibold">{numberFormat(_.sumBy(data.filter(v => ['BOND_STATUS_BONDED'].includes(v?.status)), 'tokens'), '0,0.00a')}</span>
             :
             <div className="skeleton w-24 h-7 mt-1" />
           }
           <span className="flex items-center text-gray-400 dark:text-gray-600 text-sm font-normal space-x-1">
             <span>Avg. Power:</span>
             {data ?
-              <span className="text-gray-600 dark:text-gray-400 font-medium">{numberFormat(_.meanBy(data.filter(v => ['BOND_STATUS_BONDED'].includes(v?.status)), 'tokens'), '0,0.00a')}</span>
+              <span className="uppercase text-gray-600 dark:text-gray-400 font-medium">{numberFormat(_.meanBy(data.filter(v => ['BOND_STATUS_BONDED'].includes(v?.status)), 'tokens'), '0,0.00a')}</span>
               :
               <div className="skeleton w-8 h-3.5" />
             }
