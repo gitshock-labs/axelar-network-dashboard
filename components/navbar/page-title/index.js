@@ -99,7 +99,7 @@ export default function PageTitle() {
           <span className="hidden xl:block uppercase text-sm xl:text-lg xl:pr-2">
             {ellipseAddress(tx, 24)}
           </span>
-          <Copy size={20} text={address} />
+          <Copy size={20} text={tx} />
         </div>
       )
       break
