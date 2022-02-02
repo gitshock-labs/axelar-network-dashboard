@@ -15,8 +15,8 @@ export default function TransactionDetail({ data }) {
         <div className="flex flex-col md:flex-row items-start space-y-2 md:space-y-0 space-x-0 md:space-x-2">
           <span className="w-40 lg:w-64 text-xs lg:text-base font-semibold">Tx Hash:</span>
           {data ?
-            <div className="flex flex-wrap items-center text-xs lg:text-base space-x-1">
-              <span className="break-all uppercase">{data.txhash}</span>
+            <div className="flex items-start sm:items-center text-xs lg:text-base">
+              <span className="break-all uppercase sm:pr-1.5">{data.txhash}</span>
               {data.txhash && (<Copy text={data.txhash} />)}
             </div>
             :
