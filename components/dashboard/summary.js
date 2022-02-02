@@ -548,7 +548,7 @@ export default function Summary({ data, crosschainData, tvlData }) {
               <span className="flex items-center text-gray-400 dark:text-gray-600 text-sm font-normal space-x-1.5">
                 <span>from</span>
                 {crosschainData ?
-                  <span className="font-mono text-gray-700 dark:text-gray-300 text-2xs font-semibold mt-0.5">{numberFormat(_.sumBy(crosschainData.total_transfers, 'tx'), '0,0')}</span>
+                  <span className="font-mono uppercase text-gray-700 dark:text-gray-300 text-2xs font-semibold mt-0.5">{numberFormat(_.sumBy(crosschainData.total_transfers, 'tx'), _.sumBy(crosschainData.total_transfers, 'tx') >= 100000 ? '0,0.00a' : '0,0')}</span>
                   :
                   <div className="skeleton w-8 h-4" />
                 }
