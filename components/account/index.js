@@ -167,10 +167,10 @@ export default function Account({ address }) {
         const data = (transactions?.address === address && transactions?.data) || {}
 
         setLoading(true)
-        setTransactions({ data, address })
+        setTransactions(Object.keys(data).length > 0 ? { data, address } : null)
 
         if (!controller.signal.aborted) {
-          const response = await transactionsByEvents(`message.sender='${address}'`, null, null, null, denoms_data)
+          const response = await transactionsByEvents(`transfer.sender='${address}'`, null, null, null, denoms_data)
 
           if (response?.data?.length > 0) {
             data[0] = response
@@ -178,7 +178,7 @@ export default function Account({ address }) {
           }
         }
         if (!controller.signal.aborted) {
-          const response = await transactionsByEvents(`message.address='${address}'`, null, null, null, denoms_data)
+          const response = await transactionsByEvents(`transfer.recipient='${address}'`, null, null, null, denoms_data)
 
           if (response?.data?.length > 0) {
             data[1] = response
@@ -186,7 +186,7 @@ export default function Account({ address }) {
           }
         }
         if (!controller.signal.aborted) {
-          const response = await transactionsByEvents(`message.destinationAddress='${address}'`, null, null, null, denoms_data)
+          const response = await transactionsByEvents(`message.sender='${address}'`, null, null, null, denoms_data)
 
           if (response?.data?.length > 0) {
             data[2] = response
@@ -194,7 +194,7 @@ export default function Account({ address }) {
           }
         }
         if (!controller.signal.aborted) {
-          const response = await transactionsByEvents(`transfer.sender='${address}'`, null, null, null, denoms_data)
+          const response = await transactionsByEvents(`message.address='${address}'`, null, null, null, denoms_data)
 
           if (response?.data?.length > 0) {
             data[3] = response
@@ -202,7 +202,7 @@ export default function Account({ address }) {
           }
         }
         if (!controller.signal.aborted) {
-          const response = await transactionsByEvents(`transfer.recipient='${address}'`, null, null, null, denoms_data)
+          const response = await transactionsByEvents(`message.destinationAddress='${address}'`, null, null, null, denoms_data)
 
           if (response?.data?.length > 0) {
             data[4] = response
@@ -250,8 +250,8 @@ export default function Account({ address }) {
 
           if (value?.data) {
             if (Number(key) === 0) {
-              if (value.offset > 0 || (value.total - value.data.length) > 0) {
-                const response = await transactionsByEventsPaging(`message.sender='${address}'`, value.data, value.offset || (value.total - value.data.length), denoms_data)
+              if (value.offset > 0/* || (value.total - value.data.length) > 0*/) {
+                const response = await transactionsByEventsPaging(`transfer.sender='${address}'`, value.data, value.offset || (value.total - value.data.length), denoms_data)
 
                 if (response?.data?.length > 0) {
                   data[0] = response
@@ -260,8 +260,8 @@ export default function Account({ address }) {
               }
             }
             else if (Number(key) === 1) {
-              if (value.offset > 0 || (value.total - value.data.length) > 0) {
-                const response = await transactionsByEventsPaging(`message.address='${address}'`, value.data, value.offset || (value.total - value.data.length), denoms_data)
+              if (value.offset > 0/* || (value.total - value.data.length) > 0*/) {
+                const response = await transactionsByEventsPaging(`transfer.recipient='${address}'`, value.data, value.offset || (value.total - value.data.length), denoms_data)
 
                 if (response?.data?.length > 0) {
                   data[1] = response
@@ -271,7 +271,7 @@ export default function Account({ address }) {
             }
             else if (Number(key) === 2) {
               if (value.offset > 0/* || (value.total - value.data.length) > 0*/) {
-                const response = await transactionsByEventsPaging(`message.destinationAddress='${address}'`, value.data, value.offset || (value.total - value.data.length), denoms_data)
+                const response = await transactionsByEventsPaging(`message.sender='${address}'`, value.data, value.offset || (value.total - value.data.length), denoms_data)
 
                 if (response?.data?.length > 0) {
                   data[2] = response
@@ -281,7 +281,7 @@ export default function Account({ address }) {
             }
             else if (Number(key) === 3) {
               if (value.offset > 0/* || (value.total - value.data.length) > 0*/) {
-                const response = await transactionsByEventsPaging(`transfer.sender='${address}'`, value.data, value.offset || (value.total - value.data.length), denoms_data)
+                const response = await transactionsByEventsPaging(`message.address='${address}'`, value.data, value.offset || (value.total - value.data.length), denoms_data)
 
                 if (response?.data?.length > 0) {
                   data[3] = response
@@ -291,7 +291,7 @@ export default function Account({ address }) {
             }
             else if (Number(key) === 4) {
               if (value.offset > 0/* || (value.total - value.data.length) > 0*/) {
-                const response = await transactionsByEventsPaging(`transfer.recipient='${address}'`, value.data, value.offset || (value.total - value.data.length), denoms_data)
+                const response = await transactionsByEventsPaging(`message.destinationAddress='${address}'`, value.data, value.offset || (value.total - value.data.length), denoms_data)
 
                 if (response?.data?.length > 0) {
                   data[4] = response
