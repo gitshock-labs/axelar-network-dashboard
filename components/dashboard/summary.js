@@ -261,7 +261,7 @@ export default function Summary({ data, crosschainData, tvlData }) {
               {crosschainData ?
                 <span className="font-mono text-gray-700 dark:text-gray-300 font-semibold">{numberFormat(_.sumBy(crosschainData.total_transfers, 'tx'), '0,0')}</span>
                 :
-                <div className="skeleton w-6 h-4" />
+                <div className="skeleton w-12 h-4" />
               }
               <span>transactions</span>
             </span>
@@ -328,14 +328,24 @@ export default function Summary({ data, crosschainData, tvlData }) {
                 ))}
               </div>
             }
-            <span className="flex items-center text-gray-400 dark:text-gray-600 text-sm font-normal space-x-1.5">
-              <span>since</span>
-              {crosschainData ?
-                <span className="text-gray-700 dark:text-gray-300 font-medium">{moment(_.minBy(crosschainData.total_transfers, 'since')?.since).format('MMM D, YYYY')}</span>
-                :
-                <div className="skeleton w-20 h-4" />
-              }
-            </span>
+            <div className="flex items-center justify-between space-x-1.5">
+              <span className="flex items-center text-gray-400 dark:text-gray-600 text-sm font-normal space-x-1.5">
+                <span>since</span>
+                {crosschainData ?
+                  <span className="leading-4 text-gray-700 dark:text-gray-300 text-2xs font-medium">{moment(_.minBy(crosschainData.total_transfers, 'since')?.since).format('MMM D, YYYY')}</span>
+                  :
+                  <div className="skeleton w-20 h-4" />
+                }
+              </span>
+              <span className="flex items-center text-gray-400 dark:text-gray-600 text-sm font-normal space-x-1.5 ml-auto">
+                <span>total</span>
+                {crosschainData ?
+                  <span className="font-mono uppercase text-gray-700 dark:text-gray-300 font-semibold">{currency_symbol}{numberFormat(_.sumBy(crosschainData.total_transfers || [], 'value'), _.sumBy(crosschainData.total_transfers || [], 'value') >= 100000 ? '0,0.00a' : '0,0.000')}</span>
+                  :
+                  <div className="skeleton w-12 h-4" />
+                }
+              </span>
+            </div>
           </div>
         </Widget>
         <Widget
@@ -534,15 +544,25 @@ export default function Summary({ data, crosschainData, tvlData }) {
                 ))}
               </div>
             }
-            <span className="flex items-center text-gray-400 dark:text-gray-600 text-sm font-normal space-x-1.5 ml-auto">
-              <span>from</span>
-              {crosschainData ?
-                <span className="font-mono text-gray-700 dark:text-gray-300 font-semibold">{numberFormat(_.sumBy(crosschainData.total_transfers, 'tx'), '0,0')}</span>
-                :
-                <div className="skeleton w-6 h-4" />
-              }
-              <span>transactions</span>
-            </span>
+            <div className="flex items-center justify-between space-x-1.5">
+              <span className="flex items-center text-gray-400 dark:text-gray-600 text-sm font-normal space-x-1.5">
+                <span>from</span>
+                {crosschainData ?
+                  <span className="font-mono text-gray-700 dark:text-gray-300 text-2xs font-semibold mt-0.5">{numberFormat(_.sumBy(crosschainData.total_transfers, 'tx'), '0,0')}</span>
+                  :
+                  <div className="skeleton w-8 h-4" />
+                }
+                <span className="leading-4 text-2xs">TXs</span>
+              </span>
+              <span className="flex items-center text-gray-400 dark:text-gray-600 text-sm font-normal space-x-1.5 ml-auto">
+                <span>Avg.</span>
+                {crosschainData ?
+                  <span className="font-mono uppercase text-gray-700 dark:text-gray-300 font-semibold">{currency_symbol}{numberFormat(_.sumBy(crosschainData.total_transfers || [], 'value') / _.sumBy(crosschainData.total_transfers || [], 'tx'), _.sumBy(crosschainData.total_transfers || [], 'value') / _.sumBy(crosschainData.total_transfers || [], 'tx') >= 100000 ? '0,0.00a' : '0,0.000')}</span>
+                  :
+                  <div className="skeleton w-12 h-4" />
+                }
+              </span>
+            </div>
           </div>
         </Widget>
         <Widget
@@ -616,7 +636,7 @@ export default function Summary({ data, crosschainData, tvlData }) {
               {crosschainData ?
                 <span className="font-mono text-gray-700 dark:text-gray-300 font-semibold">{numberFormat(_.sumBy(crosschainData.highest_transfer_24h, 'tx'), '0,0')}</span>
                 :
-                <div className="skeleton w-6 h-4" />
+                <div className="skeleton w-12 h-4" />
               }
               <span>transactions</span>
             </span>
