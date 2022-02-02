@@ -426,7 +426,7 @@ export default function Crosschain() {
           </Widget>
           <Widget
             title={<span className="text-black dark:text-white text-base font-semibold">Transactions</span>}
-            description={<span className="text-gray-400 dark:text-gray-500 text-xs font-normal">Number of transactions by chain</span>}
+            description={<span className="text-gray-400 dark:text-gray-500 text-xs font-normal">Number of transactions by destination chain</span>}
             right={[assetSelect && chartData?.data?.find(t => t?.id === assetSelect)].filter(t => t).map((t, i) => (
               <div key={i} className="min-w-max text-right space-y-0.5">
                 <div className="flex items-center justify-end space-x-1.5">
