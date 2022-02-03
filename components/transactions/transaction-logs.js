@@ -15,39 +15,42 @@ export default function TransactionLogs({ data }) {
 
   const ReactJson = typeof window !== 'undefined' && dynamic(import('react-json-view'))
 
+  const getHasActivities = a => a && !a.failed && !(['update_client'].includes(a.type)) && !(['KeygenTraffic', 'SignPendingTransfers', 'ExecutePendingTransfers', 'VoteConfirmDeposit', 'VoteSig'].includes(a.action))
+  const alreadyShowBody = data?.activities?.findIndex(a => !getHasActivities(a)) > -1
+
   return (
     <div className="flex flex-col space-y-4 mt-3">
       {(data ?
-        (data.activities || []).map((activity, i) => { return { ...activity, i, outPointInfo: convertToJson(activity.outPointInfo) } })
+        (data.activities || []).map((a, i) => { return { ...a, i, outPointInfo: convertToJson(a.outPointInfo) } })
         :
         [...Array(1).keys()].map(i => { return { i, skeleton: true } })
-      ).map((activity, i) => {
-        const body = !activity.skeleton && data?.tx && (
+      ).map((a, i) => {
+        const body = !a.skeleton && data?.tx && (
           <div className="max-w-3xl">
             <ReactJson src={data.tx.body?.messages || data.tx} theme={theme === 'dark' ? 'harmonic' : 'rjv-default'} />
           </div>
         )
 
-        const hasActivities = !activity.failed && !(['update_client'].includes(activity.type)) && !(['KeygenTraffic', 'SignPendingTransfers', 'ExecutePendingTransfers', 'VoteConfirmDeposit', 'VoteSig'].includes(activity.action))
+        const hasActivities = getHasActivities(a)
 
         return (
           <div key={i}>
             <div className="md:min-w-max max-w-3xl bg-white dark:bg-gray-900 overflow-x-auto rounded-xl shadow-lg flex items-center space-x-4 p-4">
-              {activity.skeleton || hasActivities ?
+              {a.skeleton || hasActivities ?
                 <>
-                  {(activity.skeleton || (activity.sender && !activity.depositor)) && (
+                  {(a.skeleton || (a.sender && !a.depositor)) && (
                     <div className="flex flex-col">
-                      {!activity.skeleton ?
+                      {!a.skeleton ?
                         <>
                           <div className="flex items-center text-2xs lg:text-base space-x-1">
-                            <Link href={`/${type(activity.sender)}/${activity.sender}`}>
+                            <Link href={`/${type(a.sender)}/${a.sender}`}>
                               <a className="uppercase text-blue-600 dark:text-white font-medium">
-                                {ellipseAddress(activity.sender, 16)}
+                                {ellipseAddress(a.sender, 16)}
                               </a>
                             </Link>
-                            <Copy text={activity.sender} />
+                            <Copy text={a.sender} />
                           </div>
-                          <span className="text-xs">{activity.sender_name || 'Sender'}</span>
+                          <span className="text-xs">{a.sender_name || 'Sender'}</span>
                         </>
                         :
                         <>
@@ -57,19 +60,19 @@ export default function TransactionLogs({ data }) {
                       }
                     </div>
                   )}
-                  {activity.depositor && (
+                  {a.depositor && (
                     <div className="flex flex-col">
-                      {!activity.skeleton ?
+                      {!a.skeleton ?
                         <>
                           <div className="flex items-center text-2xs lg:text-base space-x-1">
-                            <Link href={`/${type(activity.depositor)}/${activity.depositor}`}>
+                            <Link href={`/${type(a.depositor)}/${a.depositor}`}>
                               <a className="uppercase text-blue-600 dark:text-white font-medium">
-                                {ellipseAddress(activity.depositor, 16)}
+                                {ellipseAddress(a.depositor, 16)}
                               </a>
                             </Link>
-                            <Copy text={activity.depositor} />
+                            <Copy text={a.depositor} />
                           </div>
-                          <span className="text-xs">{activity.depositor_name || 'Depositor'}</span>
+                          <span className="text-xs">{a.depositor_name || 'Depositor'}</span>
                         </>
                         :
                         <>
@@ -79,12 +82,12 @@ export default function TransactionLogs({ data }) {
                       }
                     </div>
                   )}
-                  {activity.module && (
+                  {a.module && (
                     <div className="flex flex-col">
-                      {!activity.skeleton ?
+                      {!a.skeleton ?
                         <>
                           <span className="h-6 text-xs mt-0.5 pt-1">Module</span>
-                          <span className="uppercase font-semibold mt-1.5">{activity.module}</span>
+                          <span className="uppercase font-semibold mt-1.5">{a.module}</span>
                         </>
                         :
                         <>
@@ -94,34 +97,34 @@ export default function TransactionLogs({ data }) {
                       }
                     </div>
                   )}
-                  {(activity.skeleton || activity.action) && (
+                  {(a.skeleton || a.action) && (
                     <div className="flex flex-col items-start space-y-1">
-                      {!activity.skeleton ?
+                      {!a.skeleton ?
                         <>
-                          {activity.action ?
+                          {a.action ?
                             <span className="bg-gray-100 dark:bg-gray-800 rounded-lg capitalize text-gray-900 dark:text-gray-100 font-semibold px-2 py-1">
-                              {getName(activity.action)}
+                              {getName(a.action)}
                             </span>
                             :
                             <BsArrowRight size={24} />
                           }
-                          {activity.market_id && activity.market_price ?
+                          {a.market_id && a.market_price ?
                             <>
-                              <span className="uppercase">{activity.market_id}</span>
-                              <span>{numberFormat(activity.market_price, '0,0.00000000')}</span>
+                              <span className="uppercase">{a.market_id}</span>
+                              <span>{numberFormat(a.market_price, '0,0.00000000')}</span>
                             </>
                             :
-                            activity.value ?
-                              <span className="capitalize">{activity.value}</span>
+                            a.value ?
+                              <span className="capitalize">{a.value}</span>
                               :
-                              /*typeof activity.amount === 'number'*/activity.amount > 0 ?
+                              /*typeof a.amount === 'number'*/a.amount > 0 ?
                                 <span className="w-full max-w-sm break-all flex items-start justify-end space-x-1">
-                                  <span className="whitespace-nowrap">{numberFormat(activity.amount, '0,0.00000000')}</span>
-                                  <span className="whitespace-nowrap font-medium">{activity.symbol || ellipseAddress(activity.denom)}</span>
+                                  <span className="whitespace-nowrap">{numberFormat(a.amount, '0,0.00000000')}</span>
+                                  <span className="whitespace-nowrap font-medium">{a.symbol || ellipseAddress(a.denom)}</span>
                                 </span>
                                 :
-                                activity.log ?
-                                  <span className="max-w-md text-gray-400 dark:text-gray-600 text-xs">{activity.log}</span>
+                                a.log ?
+                                  <span className="max-w-md text-gray-400 dark:text-gray-600 text-xs">{a.log}</span>
                                   :
                                   <span className="h-3" />
                           }
@@ -135,12 +138,12 @@ export default function TransactionLogs({ data }) {
                       }
                     </div>
                   )}
-                  {activity.chain && (
+                  {a.chain && (
                     <div className="flex flex-col">
-                      {!activity.skeleton ?
+                      {!a.skeleton ?
                         <>
                           <span className="h-6 text-xs mt-0.5 pt-1">Chain</span>
-                          <span className="uppercase font-semibold mt-1.5">{activity.chain}</span>
+                          <span className="uppercase font-semibold mt-1.5">{a.chain}</span>
                         </>
                         :
                         <>
@@ -150,28 +153,28 @@ export default function TransactionLogs({ data }) {
                       }
                     </div>
                   )}
-                  {activity.outPointInfo && (
+                  {a.outPointInfo && (
                     <div className="flex flex-col space-y-1">
-                      {!activity.skeleton ?
+                      {!a.skeleton ?
                         <>
-                          {activity.outPointInfo.out_point && (
+                          {a.outPointInfo.out_point && (
                             <div className="flex items-center text-xs space-x-1">
                               <span className="font-semibold">Out Point:</span>
-                              <span className="text-gray-400 dark:text-gray-600">{ellipseAddress(activity.outPointInfo.out_point)}</span>
-                              <Copy text={activity.outPointInfo.out_point} />
+                              <span className="text-gray-400 dark:text-gray-600">{ellipseAddress(a.outPointInfo.out_point)}</span>
+                              <Copy text={a.outPointInfo.out_point} />
                             </div>
                           )}
-                          {activity.outPointInfo.amount && (
+                          {a.outPointInfo.amount && (
                             <div className="flex items-center text-xs space-x-1">
                               <span className="font-semibold">Amount:</span>
-                              <span className="text-gray-400 dark:text-gray-600">{activity.outPointInfo.amount}</span>
+                              <span className="text-gray-400 dark:text-gray-600">{a.outPointInfo.amount}</span>
                             </div>
                           )}
-                          {activity.outPointInfo.address && (
+                          {a.outPointInfo.address && (
                             <div className="flex items-center text-xs space-x-1">
                               <span className="font-semibold">Address:</span>
-                              <span className="text-gray-400 dark:text-gray-600">{ellipseAddress(activity.outPointInfo.address)}</span>
-                              <Copy text={activity.outPointInfo.address} />
+                              <span className="text-gray-400 dark:text-gray-600">{ellipseAddress(a.outPointInfo.address)}</span>
+                              <Copy text={a.outPointInfo.address} />
                             </div>
                           )}
                         </>
@@ -183,12 +186,12 @@ export default function TransactionLogs({ data }) {
                       }
                     </div>
                   )}
-                  {(activity.skeleton || (activity.recipient?.length > 0 && !activity.validator)) && (
+                  {(a.skeleton || (a.recipient?.length > 0 && !a.validator)) && (
                     <div className="flex flex-col">
-                      {!activity.skeleton ?
+                      {!a.skeleton ?
                         <>
-                          {Array.isArray(activity.recipient) ?
-                            activity.recipient.map((recipient, i) => (
+                          {Array.isArray(a.recipient) ?
+                            a.recipient.map((recipient, i) => (
                               <div key={i} className="flex items-center text-2xs lg:text-base space-x-1">
                                 <Link href={`/${type(recipient)}/${recipient}`}>
                                   <a className="uppercase text-blue-600 dark:text-white font-medium">
@@ -200,15 +203,15 @@ export default function TransactionLogs({ data }) {
                             ))
                             :
                             <div className="flex items-center text-2xs lg:text-base space-x-1">
-                              <Link href={`/${type(activity.recipient)}/${activity.recipient}`}>
+                              <Link href={`/${type(a.recipient)}/${a.recipient}`}>
                                 <a className="uppercase text-blue-600 dark:text-white font-medium">
-                                  {ellipseAddress(activity.recipient, 16)}
+                                  {ellipseAddress(a.recipient, 16)}
                                 </a>
                               </Link>
-                              <Copy text={activity.recipient} />
+                              <Copy text={a.recipient} />
                             </div>
                           }
-                          <span className="text-xs">{activity.recipient_name || 'Recipient'}</span>
+                          <span className="text-xs">{a.recipient_name || 'Recipient'}</span>
                         </>
                         :
                         <>
@@ -218,19 +221,19 @@ export default function TransactionLogs({ data }) {
                       }
                     </div>
                   )}
-                  {activity.validator && (
+                  {a.validator && (
                     <div className="flex flex-col">
-                      {!activity.skeleton ?
+                      {!a.skeleton ?
                         <>
                           <div className="flex items-center text-2xs lg:text-base space-x-1">
-                            <Link href={`/${type(activity.validator)}/${activity.validator}`}>
+                            <Link href={`/${type(a.validator)}/${a.validator}`}>
                               <a className="uppercase text-blue-600 dark:text-white font-medium">
-                                {ellipseAddress(activity.validator, 16)}
+                                {ellipseAddress(a.validator, 16)}
                               </a>
                             </Link>
-                            <Copy text={activity.validator} />
+                            <Copy text={a.validator} />
                           </div>
-                          <span className="text-xs">{activity.validator_name || 'Validator'}</span>
+                          <span className="text-xs">{a.validator_name || 'Validator'}</span>
                         </>
                         :
                         <>
@@ -245,7 +248,7 @@ export default function TransactionLogs({ data }) {
                 body
               }
             </div>
-            {hasActivities && body && (
+            {body && !alreadyShowBody && i === data.activities?.length - 1 && (
               <div className="mt-4">
                 {body}
               </div>
