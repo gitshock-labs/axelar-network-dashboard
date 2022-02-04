@@ -115,7 +115,7 @@ export default function TransactionsByChain({ txsData }) {
         </ResponsiveContainer>
         :
         <div className="w-full h-4/5 flex items-center justify-center">
-          <Loader type="Triangle" color={theme === 'dark' ? 'white' : '#acacac'} width="48" height="48" />
+          <Loader type="Oval" color={theme === 'dark' ? 'white' : '#acacac'} width="48" height="48" />
         </div>
       }
     </div>
