@@ -74,7 +74,7 @@ export default function KeysTable({ data, corruption_signing_threshold, page, cl
                     </span>
                     :
                     props.row.original.key_chain_loading ?
-                      <Loader type="Oval" color={theme === 'dark' ? 'white' : '#acacac'} width="20" height="20" />
+                      <Loader type="Oval" color={theme === 'dark' ? 'white' : '#3B82F6'} width="20" height="20" />
                       :
                       '-'
                   }

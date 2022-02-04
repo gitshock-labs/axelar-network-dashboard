@@ -379,7 +379,7 @@ export default function Account({ address }) {
           </div>
           :
           <div className="flex justify-center mt-4">
-            <Loader type="ThreeDots" color={theme === 'dark' ? 'white' : '#D1D5DB'} width="32" height="32" />
+            <Loader type="ThreeDots" color={theme === 'dark' ? 'white' : '#3B82F6'} width="32" height="32" />
           </div>
         }
       </Widget>

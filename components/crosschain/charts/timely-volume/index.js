@@ -154,7 +154,7 @@ export default function TimelyVolume({ volumeData, setTimeFocus }) {
         </ResponsiveContainer>
         :
         <div className="w-full h-4/5 flex items-center justify-center">
-          <Loader type="Oval" color={theme === 'dark' ? 'white' : '#acacac'} width="48" height="48" />
+          <Loader type="Oval" color={theme === 'dark' ? 'white' : '#3B82F6'} width="24" height="24" />
         </div>
       }
     </div>

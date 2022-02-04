@@ -384,7 +384,7 @@ export default function Leaderboard({ n = 100 }) {
               />
             )}
             {loading && (
-              <Loader type="Puff" color={theme === 'dark' ? 'white' : '#D1D5DB'} width="20" height="20" />
+              <Loader type="Puff" color={theme === 'dark' ? 'white' : '#3B82F6'} width="20" height="20" />
             )}
           </div>
         </>

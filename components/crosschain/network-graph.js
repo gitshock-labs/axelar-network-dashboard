@@ -200,7 +200,7 @@ export default function NetworkGraph({ data }) {
       {!data && (
         <div className="h-96">
           <div className="w-full h-5/6 flex items-center justify-center">
-            <Loader type="BallTriangle" color={theme === 'dark' ? 'white' : '#acacac'} width="56" height="56" />
+            <Loader type="BallTriangle" color={theme === 'dark' ? 'white' : '#3B82F6'} width="56" height="56" />
           </div>
         </div>
       )}
