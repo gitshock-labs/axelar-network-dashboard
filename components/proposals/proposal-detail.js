@@ -29,6 +29,18 @@ export default function ProposalDetail({ data }) {
             <div className="skeleton w-96 h-6 mt-1" />
           }
         </div>
+        <div className="flex flex-col md:flex-row items-start space-y-2 md:space-y-0 space-x-0 md:space-x-2">
+          <span className="w-40 lg:w-64 text-xs lg:text-base font-semibold">Status:</span>
+          {data ?
+            data.status && (
+              <span className={`bg-${['UNSPECIFIED', 'DEPOSIT_PERIOD'].includes(data.status) ? 'gray-400 dark:bg-gray-900' : ['VOTING_PERIOD', 'DEPOSIT_PERIOD'].includes(data.status) ? 'yellow-400 dark:bg-yellow-500' : ['REJECTED', 'FAILED'].includes(data.status) ? 'red-600 dark:bg-red-700' : 'green-600 dark:bg-green-700'} rounded capitalize text-white text-xs lg:text-base font-semibold px-2 py-0.5`}>
+                {data.status?.replace('_', ' ')}
+              </span>
+            )
+            :
+            <div className="skeleton w-24 h-6 mt-1" />
+          }
+        </div>
         {(!data || data.type) && (
           <div className="flex flex-col md:flex-row items-start space-y-2 md:space-y-0 space-x-0 md:space-x-2">
             <span className="w-40 lg:w-64 text-xs lg:text-base font-semibold">Type:</span>
@@ -47,40 +59,46 @@ export default function ProposalDetail({ data }) {
             }
           </div>
         )}
-        <div className="flex flex-col md:flex-row items-start space-y-2 md:space-y-0 space-x-0 md:space-x-2">
-          <span className="w-40 lg:w-64 text-xs lg:text-base font-semibold">Status:</span>
-          {data ?
-            data.status && (
-              <span className={`bg-${['UNSPECIFIED', 'DEPOSIT_PERIOD'].includes(data.status) ? 'gray-400 dark:bg-gray-900' : ['VOTING_PERIOD', 'DEPOSIT_PERIOD'].includes(data.status) ? 'yellow-400 dark:bg-yellow-500' : ['REJECTED', 'FAILED'].includes(data.status) ? 'red-600 dark:bg-red-700' : 'green-600 dark:bg-green-700'} rounded capitalize text-white text-xs lg:text-base font-semibold px-2 py-0.5`}>
-                {data.status?.replace('_', ' ')}
-              </span>
-            )
-            :
-            <div className="skeleton w-24 h-6 mt-1" />
-          }
-        </div>
-        <div className="flex flex-col md:flex-row items-start space-y-2 md:space-y-0 space-x-0 md:space-x-2">
-          <span className="w-40 lg:w-64 text-xs lg:text-base font-semibold">Plan:</span>
-          {data ?
-            <div className="flex flex-wrap items-center text-xs lg:text-base font-medium space-x-1">
-              <span>{data.content?.plan?.name}</span>
+        {data?.content?.plan && (
+          <>
+            <div className="flex flex-col md:flex-row items-start space-y-2 md:space-y-0 space-x-0 md:space-x-2">
+              <span className="w-40 lg:w-64 text-xs lg:text-base font-semibold">Plan:</span>
+              {data ?
+                <div className="flex flex-wrap items-center text-xs lg:text-base font-medium space-x-1">
+                  <span>{data.content?.plan?.name}</span>
+                </div>
+                :
+                <div className="skeleton w-60 h-6 mt-1" />
+              }
             </div>
-            :
-            <div className="skeleton w-60 h-6 mt-1" />
-          }
-        </div>
-        <div className="flex flex-col md:flex-row items-start space-y-2 md:space-y-0 space-x-0 md:space-x-2">
-          <span className="w-40 lg:w-64 text-xs lg:text-base font-semibold">Block:</span>
-          {data ?
-            data.content?.plan && (
-              <div className="text-xs lg:text-base font-medium">
-                {numberFormat(data.content.plan.height, '0,0')}
-              </div>
-            )
-            :
-            <div className="skeleton w-24 h-6 mt-1" />
-          }
-        </div>
+            <div className="flex flex-col md:flex-row items-start space-y-2 md:space-y-0 space-x-0 md:space-x-2">
+              <span className="w-40 lg:w-64 text-xs lg:text-base font-semibold">Block:</span>
+              {data ?
+                data.content?.plan && (
+                  <div className="text-xs lg:text-base font-medium">
+                    {numberFormat(data.content.plan.height, '0,0')}
+                  </div>
+                )
+                :
+                <div className="skeleton w-24 h-6 mt-1" />
+              }
+            </div>
+          </>
+        )}
+        {data?.content?.changes.map((c, i) => (
+          <div key={i} className="flex flex-col md:flex-row items-start space-y-2 md:space-y-0 space-x-0 md:space-x-2">
+            <span className="w-40 lg:w-64 text-xs lg:text-base font-semibold">{c.key}:</span>
+            <div className="text-xs lg:text-base">
+              {c.subspace ?
+                <span className="bg-gray-100 dark:bg-gray-800 rounded capitalize text-gray-900 dark:text-gray-100 font-semibold px-2 py-1">
+                  {getName(c.subspace)} = {c.value}
+                </span>
+                :
+                '-'
+              }
+            </div>
+          </div>
+        ))}
         <div className="flex flex-col md:flex-row items-start space-y-2 md:space-y-0 space-x-0 md:space-x-2">
           <span className="w-40 lg:w-64 text-xs lg:text-base font-semibold">Submit Time:</span>
           {data ?

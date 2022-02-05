@@ -70,7 +70,7 @@ export default function Proposal({ id }) {
         setProfilesSet(true)
       }
     }
-  }, [proposal, validators_data])
+  }, [validators_data])
 
   const votes = proposal?.id === id && Object.entries(_.groupBy(proposal?.data?.votes || [], 'option')).map(([key, value]) => { return { option: key, value: value?.length || 0 } })
   const end = proposal?.data?.voting_end_time && proposal.data.voting_end_time < moment().valueOf()
@@ -90,7 +90,7 @@ export default function Proposal({ id }) {
               ))
               :
               Array.isArray(votes) && votes.map((vote, i) => (
-                <span className={`bg-${['YES'].includes(vote?.option) ? 'green-600 dark:bg-green-700' : ['NO'].includes(vote?.option) ? 'red-600 dark:bg-red-700' : 'gray-400 dark:bg-gray-900'} rounded-xl capitalize whitespace-nowrap text-white text-sm font-semibold px-2 py-1`}>
+                <span key={i} className={`bg-${['YES'].includes(vote?.option) ? 'green-600 dark:bg-green-700' : ['NO'].includes(vote?.option) ? 'red-600 dark:bg-red-700' : 'gray-400 dark:bg-gray-900'} rounded-xl capitalize whitespace-nowrap text-white text-sm font-semibold px-2 py-1`}>
                   {numberFormat(vote.value, '0,0')} {vote?.option?.replace('_', ' ')}
                 </span>
               ))
