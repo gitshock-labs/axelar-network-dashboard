@@ -154,7 +154,7 @@ export default function VotesTable({ data, className = '' }) {
           },
         ]}
         data={data ?
-          data.map((vote, i) => { return { ...vote, i } })
+          data?.map((vote, i) => { return { ...vote, i } }) || []
           :
           [...Array(25).keys()].map(i => { return { i, skeleton: true } })
         }

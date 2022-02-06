@@ -83,7 +83,7 @@ export default function Proposal({ id }) {
           <span>{end ? 'Final Tally' : 'Votes'}</span>
           <div className="flex items-center space-x-1.5">
             {end ?
-              proposal?.id === id && Object.entries(proposal?.data?.final_tally_result).map(([key, value]) => (
+              proposal?.id === id && Object.entries(proposal?.data?.final_tally_result || {}).map(([key, value]) => (
                 <span key={key} className="max-w-min bg-gray-100 dark:bg-gray-900 rounded-xl capitalize whitespace-nowrap text-gray-900 dark:text-gray-200 text-xs font-semibold px-2 py-1">
                   {getName(key)}: {numberFormat(value, '0,0')}
                 </span>

@@ -92,7 +92,7 @@ export default function ProposalDetail({ data }) {
             </div>
           </>
         )}
-        {data?.content?.changes.map((c, i) => (
+        {data?.content?.changes?.map((c, i) => (
           <div key={i} className="flex flex-col md:flex-row items-start space-y-2 md:space-y-0 space-x-0 md:space-x-2">
             <span className="w-40 lg:w-64 text-xs lg:text-base font-semibold">{c.key}:</span>
             <div className="text-xs lg:text-base">
@@ -102,7 +102,9 @@ export default function ProposalDetail({ data }) {
                     <span className="bg-gray-100 dark:bg-gray-800 rounded capitalize text-gray-900 dark:text-gray-100 font-semibold px-2 py-1">
                       {getName(c.subspace)}
                     </span>
-                    <ReactJson src={convertToJson(c.value)} theme={theme === 'dark' ? 'harmonic' : 'rjv-default'} />
+                    <div className="max-h-96 overflow-y-auto">
+                      <ReactJson src={convertToJson(c.value)} theme={theme === 'dark' ? 'harmonic' : 'rjv-default'} />
+                    </div>
                   </div>
                   :
                   <span className="bg-gray-100 dark:bg-gray-800 rounded capitalize text-gray-900 dark:text-gray-100 font-semibold px-2 py-1">
