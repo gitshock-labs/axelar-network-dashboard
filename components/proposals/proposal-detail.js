@@ -1,11 +1,18 @@
+import dynamic from 'next/dynamic'
 import Link from 'next/link'
+import { useSelector, shallowEqual } from 'react-redux'
 
 import moment from 'moment'
 import Widget from '../widget'
 
-import { numberFormat, getName } from '../../lib/utils'
+import { numberFormat, getName, convertToJson } from '../../lib/utils'
 
 export default function ProposalDetail({ data }) {
+  const { preferences } = useSelector(state => ({ preferences: state.preferences }), shallowEqual)
+  const { theme } = { ...preferences }
+
+  const ReactJson = typeof window !== 'undefined' && dynamic(import('react-json-view'))
+
   return (
     <Widget className="dark:border-gray-900 p-4 md:p-8">
       <div className="w-full flex flex-col space-y-4">
@@ -90,9 +97,17 @@ export default function ProposalDetail({ data }) {
             <span className="w-40 lg:w-64 text-xs lg:text-base font-semibold">{c.key}:</span>
             <div className="text-xs lg:text-base">
               {c.subspace ?
-                <span className="bg-gray-100 dark:bg-gray-800 rounded capitalize text-gray-900 dark:text-gray-100 font-semibold px-2 py-1">
-                  {getName(c.subspace)} = {c.value}
-                </span>
+                convertToJson(c.value) ?
+                  <div className="space-y-2">
+                    <span className="bg-gray-100 dark:bg-gray-800 rounded capitalize text-gray-900 dark:text-gray-100 font-semibold px-2 py-1">
+                      {getName(c.subspace)}
+                    </span>
+                    <ReactJson src={convertToJson(c.value)} theme={theme === 'dark' ? 'harmonic' : 'rjv-default'} />
+                  </div>
+                  :
+                  <span className="bg-gray-100 dark:bg-gray-800 rounded capitalize text-gray-900 dark:text-gray-100 font-semibold px-2 py-1">
+                    {getName(c.subspace)} = {c.value}
+                  </span>
                 :
                 '-'
               }

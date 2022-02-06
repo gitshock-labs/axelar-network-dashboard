@@ -9,7 +9,7 @@ import VotesTable from './votes-table'
 import Widget from '../widget'
 
 import { proposal as getProposal, allProposalVotes } from '../../lib/api/cosmos'
-import { numberFormat, randImage, getName } from '../../lib/utils'
+import { numberFormat, getName } from '../../lib/utils'
 
 export default function Proposal({ id }) {
   const { denoms, validators } = useSelector(state => ({ denoms: state.denoms, validators: state.validators }), shallowEqual)
