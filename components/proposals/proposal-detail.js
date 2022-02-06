@@ -97,7 +97,7 @@ export default function ProposalDetail({ data }) {
             <span className="w-40 lg:w-64 text-xs lg:text-base font-semibold">{c.key}:</span>
             <div className="text-xs lg:text-base">
               {c.subspace ?
-                convertToJson(c.value) ?
+                typeof convertToJson(c.value) === 'object' ?
                   <div className="space-y-2">
                     <span className="bg-gray-100 dark:bg-gray-800 rounded capitalize text-gray-900 dark:text-gray-100 font-semibold px-2 py-1">
                       {getName(c.subspace)}
