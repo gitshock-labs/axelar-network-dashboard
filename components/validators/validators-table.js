@@ -116,7 +116,7 @@ export default function ValidatorsTable({ status }) {
                 <div className="flex flex-col justify-center text-left sm:text-right">
                   {props.value > 0 ?
                     <>
-                      <span className="font-medium">{numberFormat(Math.floor(denomer.amount(props.value, 'uaxl', denoms_data)), '0,0.00')}</span>
+                      <span className="font-medium">{numberFormat(Math.floor(denomer.amount(props.value, denoms_data?.[0]?.denom, denoms_data)), '0,0.00')}</span>
                       <span className="text-gray-400 dark:text-gray-600">{numberFormat(props.value * 100 / _.sumBy(validatorsData.filter(v => !v.jailed && ['BOND_STATUS_BONDED'].includes(v.status)), 'tokens'), '0,0.000')}%</span>
                     </>
                     :

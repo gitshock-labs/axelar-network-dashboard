@@ -91,8 +91,8 @@ export default function Account({ address }) {
                   entries: undefined,
                   ...e,
                   creation_height: Number(e?.creation_height),
-                  initial_balance: denom.amount(Number(e?.initial_balance), 'uaxl', denoms_data),
-                  balance: denom.amount(Number(e?.balance), 'uaxl', denoms_data),
+                  initial_balance: denom.amount(Number(e?.initial_balance), denoms_data?.[0]?.denom, denoms_data),
+                  balance: denom.amount(Number(e?.balance), denoms_data?.[0]?.denom, denoms_data),
                 }
               })),
             }

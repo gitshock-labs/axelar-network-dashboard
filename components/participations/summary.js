@@ -45,7 +45,7 @@ const Summary = ({ data, successKeygens, failedKeygens, successSignAttempts, fai
       num_maintain_validators: maintainValidators?.length,
       maintain_staking: denoms_data && maintainValidators && denomer.amount(_.sumBy(maintainValidators, 'tokens'), 'uaxl', denoms_data),
       total_staking: denoms_data && activeValidators && denomer.amount(_.sumBy(activeValidators, 'tokens'), 'uaxl', denoms_data),
-      denom: denoms_data && denomer.symbol('uaxl', denoms_data),
+      denom: denoms_data && denomer.symbol(denoms_data?.[0]?.denom, denoms_data),
     }
   }).map(c => {
     return {
