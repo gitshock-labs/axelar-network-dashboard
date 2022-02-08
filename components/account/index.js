@@ -10,12 +10,15 @@ import TransactionsTable from '../transactions/transactions-table'
 import Widget from '../widget'
 
 import { allBankBalances, allStakingDelegations, allStakingUnbonding, distributionRewards, distributionCommissions, transactionsByEvents, transactionsByEventsPaging } from '../../lib/api/cosmos'
+import { linkedAddresses } from '../../lib/api/opensearch'
 import { denomer } from '../../lib/object/denom'
 import { numberFormat, randImage, sleep } from '../../lib/utils'
 
 export default function Account({ address }) {
-  const { preferences, denoms, env, validators } = useSelector(state => ({ preferences: state.preferences, denoms: state.denoms, env: state.env, validators: state.validators }), shallowEqual)
+  const { preferences, chains, cosmos_chains, denoms, env, validators } = useSelector(state => ({ preferences: state.preferences, chains: state.chains, cosmos_chains: state.cosmos_chains, denoms: state.denoms, env: state.env, validators: state.validators }), shallowEqual)
   const { theme } = { ...preferences }
+  const { chains_data } = { ...chains }
+  const { cosmos_chains_data } = { ...cosmos_chains }
   const { denoms_data } = { ...denoms }
   const { env_data } = { ...env }
   const { validators_data } = { ...validators }
@@ -31,7 +34,7 @@ export default function Account({ address }) {
     const controller = new AbortController()
 
     const getData = async () => {
-      if (address && denoms_data && validators_data) {
+      if (address && chains_data && denoms_data && validators_data) {
         let account_data, response
 
         const validator_data = validators_data?.find(v => v?.delegator_address?.toLowerCase() === address.toLowerCase())
@@ -58,74 +61,104 @@ export default function Account({ address }) {
           }
         }
 
-        if (!controller.signal.aborted) {
-          response = await allStakingDelegations(address)
-
-          if (response) {
-            account_data = {
-              ...account_data,
-              stakingDelegations: response.data?.map(d => {
-                return {
-                  ...d?.delegation,
-                  validator_data: d?.delegation && (validators_data?.find(v => v.operator_address === d.delegation.validator_address) || {}),
-                  shares: d.delegation?.shares && (isNaN(d.delegation.shares) ? -1 : denomer.amount(d.delegation.shares, d.balance?.denom, denoms_data)),
-                  ...d.balance,
-                  denom: denomer.symbol(d?.balance?.denom, denoms_data),
-                  amount: d.balance?.amount && (isNaN(d.balance.amount) ? -1 : denomer.amount(d.balance.amount, d.balance.denom, denoms_data)),
-                }
-              }),
-            }
-          }
-        }
-
-        if (!controller.signal.aborted) {
-          response = await allStakingUnbonding(address)
-
-          if (response) {
-            account_data = {
-              ...account_data,
-              stakingUnbonding: response.data?.flatMap(u => !u?.entries ? [] : u.entries.map(e => {
-                return {
-                  ...u,
-                  validator_data: u && (validators_data?.find(v => v.operator_address === u.validator_address)?.description || {}),
-                  entries: undefined,
-                  ...e,
-                  creation_height: Number(e?.creation_height),
-                  initial_balance: denom.amount(Number(e?.initial_balance), denoms_data?.[0]?.denom, denoms_data),
-                  balance: denom.amount(Number(e?.balance), denoms_data?.[0]?.denom, denoms_data),
-                }
-              })),
-            }
-          }
-        }
-
-        if (!controller.signal.aborted) {
-          response = await distributionRewards(address)
-
-          if (response) {
-            account_data = {
-              ...account_data,
-              rewards: {
-                ...response,
-                rewards: response.rewards && Object.entries(_.groupBy(response.rewards.flatMap(r => r.reward).map(r => { return { ...r, denom: denomer.symbol(r.denom, denoms_data), amount: r.amount && (isNaN(r.amount) ? -1 : denomer.amount(r.amount, r.denom, denoms_data)) } }), 'denom')).map(([key, value]) => { return { denom: key, amount: _.sumBy(value, 'amount') } }),
-                total: response.total && Object.entries(_.groupBy(response.total.map(t => { return { ...t, denom: denomer.symbol(t.denom, denoms_data), amount: t.amount && denomer.amount(t.amount, t.denom, denoms_data) } }), 'denom')).map(([key, value]) => { return { denom: key, amount: _.sumBy(value, 'amount') } }),
-              },
-            }
-          }
-        }
-
-        if (!controller.signal.aborted) {
-          if (operator_address) {
-            response = await distributionCommissions(operator_address)
+        if (address.length < 65) {
+          if (!controller.signal.aborted) {
+            response = await allStakingDelegations(address)
 
             if (response) {
               account_data = {
                 ...account_data,
-                commission: response?.commission?.commission?.map(c => {
+                stakingDelegations: response.data?.map(d => {
                   return {
-                    ...c,
-                    denom: denomer.symbol(c.denom, denoms_data),
-                    amount: c.amount && (isNaN(c.amount) ? -1 : denomer.amount(c.amount, c.denom, denoms_data)),
+                    ...d?.delegation,
+                    validator_data: d?.delegation && (validators_data?.find(v => v.operator_address === d.delegation.validator_address) || {}),
+                    shares: d.delegation?.shares && (isNaN(d.delegation.shares) ? -1 : denomer.amount(d.delegation.shares, d.balance?.denom, denoms_data)),
+                    ...d.balance,
+                    denom: denomer.symbol(d?.balance?.denom, denoms_data),
+                    amount: d.balance?.amount && (isNaN(d.balance.amount) ? -1 : denomer.amount(d.balance.amount, d.balance.denom, denoms_data)),
+                  }
+                }),
+              }
+            }
+          }
+
+          if (!controller.signal.aborted) {
+            response = await allStakingUnbonding(address)
+
+            if (response) {
+              account_data = {
+                ...account_data,
+                stakingUnbonding: response.data?.flatMap(u => !u?.entries ? [] : u.entries.map(e => {
+                  return {
+                    ...u,
+                    validator_data: u && (validators_data?.find(v => v.operator_address === u.validator_address)?.description || {}),
+                    entries: undefined,
+                    ...e,
+                    creation_height: Number(e?.creation_height),
+                    initial_balance: denom.amount(Number(e?.initial_balance), denoms_data?.[0]?.denom, denoms_data),
+                    balance: denom.amount(Number(e?.balance), denoms_data?.[0]?.denom, denoms_data),
+                  }
+                })),
+              }
+            }
+          }
+
+          if (!controller.signal.aborted) {
+            response = await distributionRewards(address)
+
+            if (response) {
+              account_data = {
+                ...account_data,
+                rewards: {
+                  ...response,
+                  rewards: response.rewards && Object.entries(_.groupBy(response.rewards.flatMap(r => r.reward).map(r => { return { ...r, denom: denomer.symbol(r.denom, denoms_data), amount: r.amount && (isNaN(r.amount) ? -1 : denomer.amount(r.amount, r.denom, denoms_data)) } }), 'denom')).map(([key, value]) => { return { denom: key, amount: _.sumBy(value, 'amount') } }),
+                  total: response.total && Object.entries(_.groupBy(response.total.map(t => { return { ...t, denom: denomer.symbol(t.denom, denoms_data), amount: t.amount && denomer.amount(t.amount, t.denom, denoms_data) } }), 'denom')).map(([key, value]) => { return { denom: key, amount: _.sumBy(value, 'amount') } }),
+                },
+              }
+            }
+          }
+
+          if (!controller.signal.aborted) {
+            if (operator_address) {
+              response = await distributionCommissions(operator_address)
+
+              if (response) {
+                account_data = {
+                  ...account_data,
+                  commission: response?.commission?.commission?.map(c => {
+                    return {
+                      ...c,
+                      denom: denomer.symbol(c.denom, denoms_data),
+                      amount: c.amount && (isNaN(c.amount) ? -1 : denomer.amount(c.amount, c.denom, denoms_data)),
+                    }
+                  }),
+                }
+              }
+            }
+          }
+        }
+        else {
+          if (!controller.signal.aborted) {
+            const response = await linkedAddresses({
+              query: {
+                match: { deposit_address: address.toLowerCase() },
+              },
+              sort: [
+                { height: 'desc' },
+              ],
+              size: 1000,
+            })
+
+            if (response) {
+              account_data = {
+                ...account_data,
+                linked_addresses: response?.data?.map(l => {
+                  return {
+                    ...l,
+                    denom: denomer.symbol(l.asset, denoms_data),
+                    asset: denoms_data?.find(d => d?.id === l.asset),
+                    from_chain: chains_data?.find(c => c?.id === l.sender_chain) || cosmos_chains_data?.find(c => c?.id === l.sender_chain),
+                    to_chain: chains_data?.find(c => c?.id === l.recipient_chain) || cosmos_chains_data?.find(c => c?.id === l.recipient_chain),
                   }
                 }),
               }
@@ -157,7 +190,7 @@ export default function Account({ address }) {
       controller?.abort()
       clearInterval(interval)
     }
-  }, [address, denoms_data, validators_data])
+  }, [address, chains_data, denoms_data, validators_data])
 
   useEffect(() => {
     const controller = new AbortController()
@@ -343,7 +376,10 @@ export default function Account({ address }) {
 
   return (
     <div className="max-w-6xl my-2 xl:my-4 mx-auto">
-      <AccountDetail data={account?.address === address && account?.data} />
+      <AccountDetail
+        address={address}
+        data={account?.address === address && account?.data}
+      />
       <Widget
         title={<div className="flex sm:items-center overflow-x-auto text-gray-900 dark:text-white text-lg font-semibold">
           <span className="mr-4">Transactions</span>
