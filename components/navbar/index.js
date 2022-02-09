@@ -149,13 +149,15 @@ export default function Navbar() {
       if (!status_data || is_interval) {
         const response = await getStatus(null, is_interval && status_data)
 
-        dispatch({
-          type: STATUS_DATA,
-          value: response,
-        })
+        if (response) {
+          dispatch({
+            type: STATUS_DATA,
+            value: response,
+          })
 
-        if (!is_interval) {
-          setLoadValidatorsTrigger(moment().valueOf())
+          if (!is_interval) {
+            setLoadValidatorsTrigger(moment().valueOf())
+          }
         }
       }
     }
@@ -175,34 +177,38 @@ export default function Navbar() {
 
         response = await stakingParams()
 
-        dispatch({
-          type: ENV_DATA,
-          value: { staking_params: response?.params || {} },
-        })
-
-        if (response?.params?.bond_denom) {
-          response = await bankSupply(response.params.bond_denom)
-
+        if (response) {
           dispatch({
             type: ENV_DATA,
-            value: {
-              bank_supply: Object.fromEntries(Object.entries(response?.amount || {}).map(([key, value]) => {
-                return [key, key === 'denom' ? denomer.symbol(value, denoms_data) : denomer.amount(value, response.amount.denom, denoms_data)]
-              })),
-            },
+            value: { staking_params: response?.params || {} },
           })
+
+          if (response?.params?.bond_denom) {
+            response = await bankSupply(response.params.bond_denom)
+
+            dispatch({
+              type: ENV_DATA,
+              value: {
+                bank_supply: Object.fromEntries(Object.entries(response?.amount || {}).map(([key, value]) => {
+                  return [key, key === 'denom' ? denomer.symbol(value, denoms_data) : denomer.amount(value, response.amount.denom, denoms_data)]
+                })),
+              },
+            })
+          }
         }
 
         response = await stakingPool()
 
-        dispatch({
-          type: ENV_DATA,
-          value: {
-            staking_pool: Object.fromEntries(Object.entries(response?.pool || {}).map(([key, value]) => {
-              return [key, denomer.amount(value, denoms_data?.[0]?.denom, denoms_data)]
-            })),
-          },
-        })
+        if (response) {
+          dispatch({
+            type: ENV_DATA,
+            value: {
+              staking_pool: Object.fromEntries(Object.entries(response?.pool || {}).map(([key, value]) => {
+                return [key, denomer.amount(value, denoms_data?.[0]?.denom, denoms_data)]
+              })),
+            },
+          })
+        }
 
         const res = await fetch(process.env.NEXT_PUBLIC_NETWORK_RELEASES_URL)
         response = await res.text()
@@ -224,37 +230,45 @@ export default function Navbar() {
 
         response = await slashingParams()
 
-        dispatch({
-          type: ENV_DATA,
-          value: { slashing_params: response?.params || {} },
-        })
+        if (response) {
+          dispatch({
+            type: ENV_DATA,
+            value: { slashing_params: response?.params || {} },
+          })
+        }
 
         response = await distributionParams()
 
-        dispatch({
-          type: ENV_DATA,
-          value: { distribution_params: response?.params || {} },
-        })
+        if (response) {
+          dispatch({
+            type: ENV_DATA,
+            value: { distribution_params: response?.params || {} },
+          })
+        }
 
         response = await mintInflation()
 
-        dispatch({
-          type: ENV_DATA,
-          value: { inflation: Number(response?.inflation || 0) },
-        })
+        if (response) {
+          dispatch({
+            type: ENV_DATA,
+            value: { inflation: Number(response?.inflation || 0) },
+          })
+        }
 
         response = await communityPool()
 
-        dispatch({
-          type: ENV_DATA,
-          value: {
-            community_pool: response?.pool?.map(_pool => {
-              return Object.fromEntries(Object.entries(_pool || {}).map(([key, value]) => {
-                return [key, key === 'denom' ? denomer.symbol(value, denoms_data) : denomer.amount(value, _pool.denom, denoms_data)]
-              }))
-            }) || [],
-          },
-        })
+        if (response) {
+          dispatch({
+            type: ENV_DATA,
+            value: {
+              community_pool: response?.pool?.map(_pool => {
+                return Object.fromEntries(Object.entries(_pool || {}).map(([key, value]) => {
+                  return [key, key === 'denom' ? denomer.symbol(value, denoms_data) : denomer.amount(value, _pool.denom, denoms_data)]
+                }))
+              }) || [],
+            },
+          })
+        }
       }
     }
 
@@ -276,82 +290,86 @@ export default function Navbar() {
             case '/participations':
               response = await allValidators(null, validators_data, query.status || (query.address ? null : 'active'), query.address, Number(status_data.latest_block_height), denoms_data)
               
-              dispatch({
-                type: VALIDATORS_DATA,
-                value: response?.data || [],
-              })
+              if (response) {
+                dispatch({
+                  type: VALIDATORS_DATA,
+                  value: response?.data || [],
+                })
 
-              if (!['/participations'].includes(pathname)) {
-                response = await allValidatorsBroadcaster(response?.data, null, denoms_data)
+                if (!['/participations'].includes(pathname)) {
+                  response = await allValidatorsBroadcaster(response?.data, null, denoms_data)
 
-                if (response?.data?.length > 0) {
-                  const vs = response.data
+                  if (response?.data?.length > 0) {
+                    const vs = response.data
 
-                  response = await getHeartbeats({
-                    _source: false,
-                    aggs: {
-                      heartbeats: {
-                        terms: { field: 'sender.keyword', size: 10000 },
-                        aggs: {
-                          heightgroup: {
-                            terms: { field: 'height_group', size: 100000 },
+                    response = await getHeartbeats({
+                      _source: false,
+                      aggs: {
+                        heartbeats: {
+                          terms: { field: 'sender.keyword', size: 10000 },
+                          aggs: {
+                            heightgroup: {
+                              terms: { field: 'height_group', size: 100000 },
+                            },
                           },
                         },
                       },
-                    },
-                    query: {
-                      bool: {
-                        must: [
-                          { range: { height: { gte: firstHeartbeatBlock(Number(status_data.latest_block_height) - Number(process.env.NEXT_PUBLIC_NUM_HEARTBEAT_BLOCKS)), lte: Number(status_data.latest_block_height) } } },
-                        ],
+                      query: {
+                        bool: {
+                          must: [
+                            { range: { height: { gte: firstHeartbeatBlock(Number(status_data.latest_block_height) - Number(process.env.NEXT_PUBLIC_NUM_HEARTBEAT_BLOCKS)), lte: Number(status_data.latest_block_height) } } },
+                          ],
+                        },
                       },
-                    },
-                  })
+                    })
 
-                  for (let i = 0; i < vs.length; i++) {
-                    const v = vs[i]
+                    for (let i = 0; i < vs.length; i++) {
+                      const v = vs[i]
 
-                    const _last = lastHeartbeatBlock(Number(status_data.latest_block_height))
-                    // const _first = firstHeartbeatBlock(v?.start_proxy_height || v?.start_height)
-                    let _first = Number(status_data.latest_block_height) - Number(process.env.NEXT_PUBLIC_NUM_HEARTBEAT_BLOCKS)
-                    _first = _first >= 0 ? firstHeartbeatBlock(_first) : firstHeartbeatBlock(_first)
+                      const _last = lastHeartbeatBlock(Number(status_data.latest_block_height))
+                      // const _first = firstHeartbeatBlock(v?.start_proxy_height || v?.start_height)
+                      let _first = Number(status_data.latest_block_height) - Number(process.env.NEXT_PUBLIC_NUM_HEARTBEAT_BLOCKS)
+                      _first = _first >= 0 ? firstHeartbeatBlock(_first) : firstHeartbeatBlock(_first)
 
-                    const totalHeartbeats = Math.floor((_last - _first) / Number(process.env.NEXT_PUBLIC_NUM_BLOCKS_PER_HEARTBEAT)) + 1
-                    const up_heartbeats = response?.data?.[v?.broadcaster_address] || 0
+                      const totalHeartbeats = Math.floor((_last - _first) / Number(process.env.NEXT_PUBLIC_NUM_BLOCKS_PER_HEARTBEAT)) + 1
+                      const up_heartbeats = response?.data?.[v?.broadcaster_address] || 0
 
-                    let missed_heartbeats = totalHeartbeats - up_heartbeats
-                    missed_heartbeats = missed_heartbeats < 0 ? 0 : missed_heartbeats
+                      let missed_heartbeats = totalHeartbeats - up_heartbeats
+                      missed_heartbeats = missed_heartbeats < 0 ? 0 : missed_heartbeats
 
-                    let heartbeats_uptime = totalHeartbeats > 0 ? up_heartbeats * 100 / totalHeartbeats : 0
-                    heartbeats_uptime = heartbeats_uptime > 100 ? 100 : heartbeats_uptime
+                      let heartbeats_uptime = totalHeartbeats > 0 ? up_heartbeats * 100 / totalHeartbeats : 0
+                      heartbeats_uptime = heartbeats_uptime > 100 ? 100 : heartbeats_uptime
 
-                    v.heartbeats_uptime = heartbeats_uptime
+                      v.heartbeats_uptime = heartbeats_uptime
 
-                    vs[i] = v
+                      vs[i] = v
+                    }
+
+                    response.data = vs
+
+                    dispatch({
+                      type: VALIDATORS_DATA,
+                      value: response.data,
+                    })
                   }
-
-                  response.data = vs
-
-                  dispatch({
-                    type: VALIDATORS_DATA,
-                    value: response.data,
-                  })
                 }
-              }
 
-              response = await allValidatorsStatus(response?.data || [])
+                response = await allValidatorsStatus(response?.data || [])
+              }
               break
             default:
               response = await allValidators(null, validators_data, null, null, null, denoms_data)
               break
           }
 
-          dispatch({
-            type: VALIDATORS_DATA,
-            value: response?.data || [],
-          })
+          if (response) {
+            dispatch({
+              type: VALIDATORS_DATA,
+              value: response?.data || [],
+            })
 
-          setLoadProfileTrigger(moment().valueOf())
+            setLoadProfileTrigger(moment().valueOf())
+          }
         }
       }
     }
