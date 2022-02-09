@@ -226,6 +226,14 @@ export default function Account({ address }) {
             setTransactions({ data, address })
           }
         }
+        if (!controller.signal.aborted && address.length >= 65) {
+          const response = await transactionsByEvents(`link.depositAddress='${address}'`, null, null, null, denoms_data)
+
+          if (response?.data?.length > 0) {
+            data[3] = response
+            setTransactions({ data, address })
+          }
+        }
 
         setTransactions({ data, address })
         setLoading(false)
@@ -251,7 +259,7 @@ export default function Account({ address }) {
 
           if (value?.data) {
             if (Number(key) === 0) {
-              if (value.offset > 0/* || (value.total - value.data.length) > 0*/) {
+              if (value.offset > 0) {
                 const response = await transactionsByEventsPaging(`transfer.sender='${address}'`, value.data, value.offset || (value.total - value.data.length), denoms_data)
 
                 if (response?.data?.length > 0) {
@@ -261,7 +269,7 @@ export default function Account({ address }) {
               }
             }
             else if (Number(key) === 1) {
-              if (value.offset > 0/* || (value.total - value.data.length) > 0*/) {
+              if (value.offset > 0) {
                 const response = await transactionsByEventsPaging(`transfer.recipient='${address}'`, value.data, value.offset || (value.total - value.data.length), denoms_data)
 
                 if (response?.data?.length > 0) {
@@ -271,11 +279,21 @@ export default function Account({ address }) {
               }
             }
             else if (Number(key) === 2) {
-              if (value.offset > 0/* || (value.total - value.data.length) > 0*/) {
+              if (value.offset > 0) {
                 const response = await transactionsByEventsPaging(`message.sender='${address}'`, value.data, value.offset || (value.total - value.data.length), denoms_data)
 
                 if (response?.data?.length > 0) {
                   data[2] = response
+                  setTransactions({ data, address })
+                }
+              }
+            }
+            else if (Number(key) === 3) {
+              if (value.offset > 0 && address.length >= 65) {
+                const response = await transactionsByEventsPaging(`link.depositAddress='${address}'`, value.data, value.offset || (value.total - value.data.length), denoms_data)
+
+                if (response?.data?.length > 0) {
+                  data[3] = response
                   setTransactions({ data, address })
                 }
               }
