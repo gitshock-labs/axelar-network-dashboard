@@ -68,7 +68,7 @@ export default function Participations() {
   //               if (!controller.signal.aborted) {
   //                 const key_role = keyRoles[k]
 
-  //                 const response = await axelard({ cmd: `axelard q tss ${tssType} ${key_chain} ${key_role} -oj`, cache: true })
+  //                 const response = await axelard({ cmd: `axelard q tss ${tssType} ${key_chain} ${key_role} -oj`, cache: true, cache_timeout: 15 })
 
   //                 if (convertToJson(response?.data?.stdout)) {
   //                   let keyIds = convertToJson(response.data.stdout)
