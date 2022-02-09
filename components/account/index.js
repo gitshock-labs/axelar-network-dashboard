@@ -226,38 +226,6 @@ export default function Account({ address }) {
             setTransactions({ data, address })
           }
         }
-        if (!controller.signal.aborted) {
-          const response = await transactionsByEvents(`message.address='${address}'`, null, null, null, denoms_data)
-
-          if (response?.data?.length > 0) {
-            data[3] = response
-            setTransactions({ data, address })
-          }
-        }
-        if (!controller.signal.aborted) {
-          const response = await transactionsByEvents(`message.destinationAddress='${address}'`, null, null, null, denoms_data)
-
-          if (response?.data?.length > 0) {
-            data[4] = response
-            setTransactions({ data, address })
-          }
-        }
-        // if (!controller.signal.aborted) {
-        //   const response = await transactionsByEvents(`outpointConfirmation.destinationAddress='${address}'`, null, null, null, denoms_data)
-
-        //   if (response?.data?.length > 0) {
-        //     data[5] = response
-        //     setTransactions({ data, address })
-        //   }
-        // }
-        // if (!controller.signal.aborted) {
-        //   const response = await transactionsByEvents(`depositConfirmation.destinationAddress='${address}'`, null, null, null, denoms_data)
-
-        //   if (response?.data?.length > 0) {
-        //     data[6] = response
-        //     setTransactions({ data, address })
-        //   }
-        // }
 
         setTransactions({ data, address })
         setLoading(false)
@@ -312,46 +280,6 @@ export default function Account({ address }) {
                 }
               }
             }
-            else if (Number(key) === 3) {
-              if (value.offset > 0/* || (value.total - value.data.length) > 0*/) {
-                const response = await transactionsByEventsPaging(`message.address='${address}'`, value.data, value.offset || (value.total - value.data.length), denoms_data)
-
-                if (response?.data?.length > 0) {
-                  data[3] = response
-                  setTransactions({ data, address })
-                }
-              }
-            }
-            else if (Number(key) === 4) {
-              if (value.offset > 0/* || (value.total - value.data.length) > 0*/) {
-                const response = await transactionsByEventsPaging(`message.destinationAddress='${address}'`, value.data, value.offset || (value.total - value.data.length), denoms_data)
-
-                if (response?.data?.length > 0) {
-                  data[4] = response
-                  setTransactions({ data, address })
-                }
-              }
-            }
-            // else if (Number(key) === 5) {
-            //   if (value.offset > 0/* || (value.total - value.data.length) > 0*/) {
-            //     const response = await transactionsByEventsPaging(`outpointConfirmation.destinationAddress='${address}'`, value.data, value.offset || (value.total - value.data.length), denoms_data)
-
-            //     if (response?.data?.length > 0) {
-            //       data[5] = response
-            //       setTransactions({ data, address })
-            //     }
-            //   }
-            // }
-            // else if (Number(key) === 6) {
-            //   if (value.offset > 0/* || (value.total - value.data.length) > 0*/) {
-            //     const response = await transactionsByEventsPaging(`depositConfirmation.destinationAddress='${address}'`, value.data, value.offset || (value.total - value.data.length), denoms_data)
-
-            //     if (response?.data?.length > 0) {
-            //       data[6] = response
-            //       setTransactions({ data, address })
-            //     }
-            //   }
-            // }
           }
         }
 
