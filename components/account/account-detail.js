@@ -567,10 +567,10 @@ export default function AccountDetail({ address, data }) {
                   Cell: props => (
                     !props.row.original.skeleton ?
                       <div className={`min-w-max flex items-${props.value ? 'start' : 'center'} space-x-2`}>
-                        {props.row.original.validator_data && (
+                        {props.row.original.validator_data?.description && (
                           <Link href={`/validator/${props.row.original.validator_address}`}>
                             <a>
-                              {props.row.original.validator_data.description?.image ?
+                              {props.row.original.validator_data.description.image ?
                                 <Img
                                   src={props.row.original.validator_data.description.image}
                                   alt=""
@@ -712,17 +712,17 @@ export default function AccountDetail({ address, data }) {
                 },
                 {
                   Header: 'Validator',
-                  accessor: 'validator_data?.description?.moniker',
+                  accessor: 'validator_data.description.moniker',
                   sortType: (rowA, rowB) => (rowA.original.validator_data?.description?.moniker || rowA.original.i) > (rowB.original.validator_data?.description?.moniker || rowB.original.i) ? 1 : -1,
                   Cell: props => (
                     !props.row.original.skeleton ?
                       <div className={`min-w-max flex items-${props.value ? 'start' : 'center'} space-x-2`}>
-                        {props.row.original.validator_data && (
+                        {props.row.original.validator_data?.description && (
                           <Link href={`/validator/${props.row.original.validator_address}`}>
                             <a>
-                              {props.row.original.validator_data.description?.image || true ?
+                              {props.row.original.validator_data.description.image ?
                                 <Img
-                                  src={props.row.original.validator_data.description?.image || randImage()}
+                                  src={props.row.original.validator_data.description.image}
                                   alt=""
                                   className="w-6 h-6 rounded-full"
                                 />
@@ -781,7 +781,7 @@ export default function AccountDetail({ address, data }) {
                   sortType: (rowA, rowB) => rowA.original.balance > rowB.original.balance ? 1 : -1,
                   Cell: props => (
                     !props.row.original.skeleton ?
-                      <div className="flex justify-center text-left sm:text-right">
+                      <div className="text-left sm:text-right">
                         <span className="font-medium">
                           {props.value > -1 ?
                             numberFormat(props.value, '0,0.00000000')

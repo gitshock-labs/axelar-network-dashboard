@@ -46,7 +46,7 @@ export default function ProposalsTable({ className = '' }) {
 
 
   useEffect(() => {
-    const getData = async (heightRange, direction = 'asc') => {
+    const getData = async (heightRange, direction = 'desc') => {
       let from = 0
       const size = 10
 
@@ -82,22 +82,23 @@ export default function ProposalsTable({ className = '' }) {
       }
     }
 
-    // getData({ gte: 1, lt: 384000 })
-    // getData({ gte: 384000, lt: 450000 })
-    // getData({ gte: 450000, lt: 650000 })
-    // getData({ gte: 650000, lt: 660000 })
-    // getData({ gte: 660000, lt: 670000 })
-    // getData({ gte: 670000, lt: 680000 })
-    // getData({ gte: 680000, lt: 690000 })
-    // getData({ gte: 690000, lt: 700000 })
-    // getData({ gte: 700000, lt: 710000 })
-    // getData({ gte: 710000, lt: 720000 })
-    // getData({ gte: 720000, lt: 730000 })
-    // getData({ gte: 730000, lt: 740000 })
-    // getData({ gte: 740000, lt: 750000 })
-    // getData({ gte: 750000, lt: 760000 })
-    // getData({ gte: 760000, lt: 770000 })
-    // getData({ gte: 770000 })
+    getData({ gte: 1, lt: 384000 })
+    getData({ gte: 384000, lt: 450000 })
+    getData({ gte: 450000, lt: 650000 })
+    getData({ gte: 650000, lt: 660000 })
+    getData({ gte: 660000, lt: 670000 })
+    getData({ gte: 670000, lt: 680000 })
+    getData({ gte: 680000, lt: 690000 })
+    getData({ gte: 690000, lt: 700000 })
+    getData({ gte: 700000, lt: 710000 })
+    getData({ gte: 710000, lt: 720000 })
+    getData({ gte: 720000, lt: 730000 })
+    getData({ gte: 730000, lt: 740000 })
+    getData({ gte: 740000, lt: 750000 })
+    getData({ gte: 750000, lt: 760000 })
+    getData({ gte: 760000, lt: 770000 })
+    getData({ gte: 770000, lt: 780000 })
+    getData({ gte: 780000 })
   }, [])
 
 

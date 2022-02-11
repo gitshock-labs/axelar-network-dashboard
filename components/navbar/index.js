@@ -435,7 +435,7 @@ export default function Navbar() {
                 if (responseProfile?.them?.[0]?.pictures?.primary?.url) {
                   v.description.image = responseProfile.them[0].pictures.primary?.url
 
-                  if (!query.address || (['/validator/[address]'].includes(pathname) && query.address?.toLowerCase() === v.operator_address?.toLowerCase())) {
+                  if (!query.address || (['/validator/[address]'].includes(pathname) && query.address?.toLowerCase() === v.operator_address?.toLowerCase()) || ['/account/[address]'].includes(pathname)) {
                     updated = true
                   }
                 }

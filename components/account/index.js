@@ -91,7 +91,7 @@ export default function Account({ address }) {
                 stakingUnbonding: response.data?.flatMap(u => !u?.entries ? [] : u.entries.map(e => {
                   return {
                     ...u,
-                    validator_data: u && (validators_data?.find(v => v.operator_address === u.validator_address)?.description || {}),
+                    validator_data: u && (validators_data?.find(v => v.operator_address === u.validator_address) || {}),
                     entries: undefined,
                     ...e,
                     creation_height: Number(e?.creation_height),
