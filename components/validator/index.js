@@ -503,7 +503,7 @@ export default function Validator({ address }) {
         }
 
         if (!controller.signal.aborted) {
-          response = await getSignAttempts({ size: 1000, query: { match: { result: true } }, sort: [{ height: 'desc' }] })
+          response = await getSignAttempts({ size: 10000, query: { match: { result: true } }, sort: [{ height: 'desc' }] })
           let data = Array.isArray(response?.data) ? response.data : []
 
           for (let i = 0; i < data.length; i++) {
