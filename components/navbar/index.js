@@ -25,6 +25,7 @@ import { simplePrice } from '../../lib/api/coingecko'
 import { currency } from '../../lib/object/currency'
 import { denomer } from '../../lib/object/denom'
 import { lastHeartbeatBlock, firstHeartbeatBlock } from '../../lib/object/hb'
+import { randImage } from '../../lib/utils'
 
 import { THEME, CHAINS_DATA, COSMOS_CHAINS_DATA, ASSETS_DATA, DENOMS_DATA, TVL_DATA, STATUS_DATA, ENV_DATA, VALIDATORS_DATA, VALIDATORS_CHAINS_DATA } from '../../reducers/types'
 

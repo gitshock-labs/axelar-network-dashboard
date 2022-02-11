@@ -11,7 +11,7 @@ import Datatable from '../datatable'
 import Copy from '../copy'
 
 import { blocks as getBlocks } from '../../lib/api/opensearch'
-import { numberFormat, ellipseAddress, randImage } from '../../lib/utils'
+import { numberFormat, ellipseAddress } from '../../lib/utils'
 
 const LATEST_SIZE = 100
 const MAX_PAGE = 10

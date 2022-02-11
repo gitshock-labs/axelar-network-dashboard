@@ -12,7 +12,7 @@ import Widget from '../widget'
 import { allBankBalances, allStakingDelegations, allStakingUnbonding, distributionRewards, distributionCommissions, transactionsByEvents, transactionsByEventsPaging } from '../../lib/api/cosmos'
 import { linkedAddresses } from '../../lib/api/opensearch'
 import { denomer } from '../../lib/object/denom'
-import { numberFormat, randImage, sleep } from '../../lib/utils'
+import { numberFormat, sleep } from '../../lib/utils'
 
 export default function Account({ address }) {
   const { preferences, chains, cosmos_chains, denoms, env, validators } = useSelector(state => ({ preferences: state.preferences, chains: state.chains, cosmos_chains: state.cosmos_chains, denoms: state.denoms, env: state.env, validators: state.validators }), shallowEqual)

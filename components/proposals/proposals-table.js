@@ -10,6 +10,13 @@ import Datatable from '../datatable'
 import { allProposals } from '../../lib/api/cosmos'
 import { numberFormat, getName } from '../../lib/utils'
 
+
+
+import { transaction } from '../../lib/api/cosmos'
+import { transactions } from '../../lib/api/opensearch'
+
+
+
 export default function ProposalsTable({ className = '' }) {
   const { denoms } = useSelector(state => ({ denoms: state.denoms }), shallowEqual)
   const { denoms_data } = { ...denoms }
@@ -35,6 +42,65 @@ export default function ProposalsTable({ className = '' }) {
       controller?.abort()
     }
   }, [denoms_data])
+
+
+
+  useEffect(() => {
+    const getData = async (heightRange, direction = 'asc') => {
+      let from = 0
+      const size = 10
+
+      while (true) {
+        const response = await transactions({
+          "query": {
+            "bool": {
+              must: [
+                {"match": { "tx.body.messages.@type": "/ibc.core.channel.v1.MsgRecvPackcet" }},
+                {range: { 'height': heightRange }},
+              ]
+            }
+          },
+          "sort": [{ "height": direction }],
+          "_source": ["txhash", "height"],
+          size,
+          from,
+        })
+        console.log('MsgRecvPackcet', direction, heightRange, from)
+        if (response?.data) {
+          if (response.data.length > 0) {
+            for (let i = 0; i < response.data.length; i++) {
+              const tx = response.data[i]
+              console.log(direction, heightRange, tx.height, tx.txhash)
+              await transaction(tx.txhash)
+            }
+            from += size
+          }
+          else {
+            break
+          }
+        }
+      }
+    }
+
+    // getData({ gte: 1, lt: 384000 })
+    // getData({ gte: 384000, lt: 450000 })
+    // getData({ gte: 450000, lt: 650000 })
+    // getData({ gte: 650000, lt: 660000 })
+    // getData({ gte: 660000, lt: 670000 })
+    // getData({ gte: 670000, lt: 680000 })
+    // getData({ gte: 680000, lt: 690000 })
+    // getData({ gte: 690000, lt: 700000 })
+    // getData({ gte: 700000, lt: 710000 })
+    // getData({ gte: 710000, lt: 720000 })
+    // getData({ gte: 720000, lt: 730000 })
+    // getData({ gte: 730000, lt: 740000 })
+    // getData({ gte: 740000, lt: 750000 })
+    // getData({ gte: 750000, lt: 760000 })
+    // getData({ gte: 760000, lt: 770000 })
+    // getData({ gte: 770000 })
+  }, [])
+
+
 
   return (
     <>
