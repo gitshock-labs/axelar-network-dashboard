@@ -441,7 +441,12 @@ export default function Crosschain() {
             description={<span className="text-gray-400 dark:text-gray-500 text-xs font-normal">Total Value Locked on Axelar Network</span>}
             right={assetSelect && crosschainTVLData?.updated_at && (
               <div className="min-w-max text-right space-y-1.5 -mt-0.5">
-                <span className="text-sm font-semibold">Last updated on</span>
+                <div className="flex items-center justify-end space-x-1.5">
+                  <span className="font-mono text-base font-semibold">
+                    {typeof _.sumBy(crosschainTVLData.data?.filter(d => d?.asset?.id === assetSelect), 'amount') === 'number' ? numberFormat(_.sumBy(crosschainTVLData.data?.filter(d => d?.asset?.id === assetSelect), 'amount'), '0,0.00000000') : '- '}
+                  </span>
+                  <span className="text-gray-400 dark:text-gray-600 text-base">{crosschainTVLData.data?.find(_t => _t?.asset?.id === assetSelect)?.asset?.symbol}</span>
+                </div>
                 <div className="text-gray-400 dark:text-gray-500 text-2xs font-medium">{moment(crosschainTVLData.updated_at).format('MMM, D YYYY h:mm:ss A')}</div>
               </div>
             )}

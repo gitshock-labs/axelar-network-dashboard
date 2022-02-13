@@ -259,7 +259,9 @@ export default function Summary({ data, crosschainData, tvlData }) {
             <span className="flex items-center text-gray-400 dark:text-gray-600 text-sm font-normal space-x-1.5 ml-auto">
               <span>total</span>
               {crosschainData ?
-                <span className="font-mono text-gray-700 dark:text-gray-300 font-semibold">{numberFormat(_.sumBy(crosschainData.total_transfers, 'tx'), '0,0')}</span>
+                <div className="bg-blue-600 dark:bg-blue-700 rounded-lg font-mono text-white font-semibold py-0.5 px-1.5">
+                  {numberFormat(_.sumBy(crosschainData.total_transfers, 'tx'), '0,0')}
+                </div>
                 :
                 <div className="skeleton w-12 h-4" />
               }
@@ -340,7 +342,9 @@ export default function Summary({ data, crosschainData, tvlData }) {
               <span className="flex items-center text-gray-400 dark:text-gray-600 text-sm font-normal space-x-1.5 ml-auto">
                 <span>total</span>
                 {crosschainData ?
-                  <span className="font-mono uppercase text-gray-700 dark:text-gray-300 font-semibold">{currency_symbol}{numberFormat(_.sumBy(crosschainData.total_transfers || [], 'value'), _.sumBy(crosschainData.total_transfers || [], 'value') >= 100000 ? '0,0.00a' : '0,0.000')}</span>
+                  <div className="bg-blue-600 dark:bg-blue-700 rounded-lg font-mono uppercase text-white font-semibold py-0.5 px-1.5">
+                    {currency_symbol}{numberFormat(_.sumBy(crosschainData.total_transfers || [], 'value'), _.sumBy(crosschainData.total_transfers || [], 'value') >= 100000 ? '0,0.00a' : '0,0.000')}
+                  </div>
                   :
                   <div className="skeleton w-12 h-4" />
                 }
@@ -433,7 +437,7 @@ export default function Summary({ data, crosschainData, tvlData }) {
                             <div className="flex flex-col items-end space-y-1.5">
                               <span className="text-2xs space-x-1">
                                 <span className="font-mono uppercase font-semibold">{numberFormat(c.amount, c.amount >= 100000 ? '0,0.00a' : '0,0.000')}</span>
-                                <span className="text-gray-400 dark:text-gray-600 font-normal">{c.denom?.symbol}</span>
+                                <span className="text-gray-400 dark:text-gray-600">{c.denom?.symbol}</span>
                               </span>
                               {c.value > 0 && (
                                 <span className="font-mono text-gray-400 dark:text-gray-600 text-3xs font-medium">
@@ -448,7 +452,7 @@ export default function Summary({ data, crosschainData, tvlData }) {
                       <div className="flex flex-col items-end space-y-1.5">
                         <span className="text-2xs space-x-1">
                           <span className="font-mono uppercase font-semibold">{numberFormat(t.amount, t.amount >= 100000 ? '0,0.00a' : '0,0.000')}</span>
-                          <span className="text-gray-400 dark:text-gray-600">{t.asset?.symbol}</span>
+                          <span className="text-gray-400 dark:text-gray-600 font-normal">{t.asset?.symbol}</span>
                         </span>
                         {t.value > 0 && (
                           <span className="font-mono text-gray-400 dark:text-gray-600 text-3xs font-medium">
@@ -473,14 +477,26 @@ export default function Summary({ data, crosschainData, tvlData }) {
                 ))}
               </div>
             }
-            <span className="flex items-center justify-between text-gray-400 dark:text-gray-600 text-sm font-normal space-x-1">
-              <span className="whitespace-nowrap">last updated on</span>
-              {tvlData ?
-                <span className="whitespace-nowrap leading-4 text-gray-700 dark:text-gray-300 text-2xs font-medium">{moment(tvlData.updated_at).format('MMM D, h:mm:ss A')}</span>
-                :
-                <div className="skeleton w-20 h-4" />
-              }
-            </span>
+            <div className="flex items-center justify-between space-x-1.5">
+              <span className="flex items-center text-gray-400 dark:text-gray-600 text-sm font-normal space-x-1.5">
+                <span>on</span>
+                {tvlData ?
+                  <span className="whitespace-nowrap leading-4 text-gray-700 dark:text-gray-300 text-2xs font-medium">{moment(tvlData.updated_at).format('MMM D, h:mm A')}</span>
+                  :
+                  <div className="skeleton w-20 h-4" />
+                }
+              </span>
+              <span className="flex items-center text-gray-400 dark:text-gray-600 text-sm font-normal space-x-1.5 ml-auto">
+                <span>total</span>
+                {tvlData ?
+                  <div className="bg-blue-600 dark:bg-blue-700 rounded-lg font-mono uppercase text-white font-semibold py-0.5 px-1.5">
+                    {currency_symbol}{numberFormat(_.sumBy(tvlData.data || [], 'value'), _.sumBy(tvlData.data || [], 'value') >= 100000 ? '0,0.00a' : '0,0.000')}
+                  </div>
+                  :
+                  <div className="skeleton w-12 h-4" />
+                }
+              </span>
+            </div>
           </div>
         </Widget>
         <Widget
@@ -557,7 +573,9 @@ export default function Summary({ data, crosschainData, tvlData }) {
               <span className="flex items-center text-gray-400 dark:text-gray-600 text-sm font-normal space-x-1.5 ml-auto">
                 <span>Avg.</span>
                 {crosschainData ?
-                  <span className="font-mono uppercase text-gray-700 dark:text-gray-300 font-semibold">{currency_symbol}{numberFormat(_.sumBy(crosschainData.total_transfers || [], 'value') / _.sumBy(crosschainData.total_transfers || [], 'tx'), _.sumBy(crosschainData.total_transfers || [], 'value') / _.sumBy(crosschainData.total_transfers || [], 'tx') >= 100000 ? '0,0.00a' : '0,0.000')}</span>
+                  <div className="bg-blue-600 dark:bg-blue-700 rounded-lg font-mono uppercase text-white font-semibold py-0.5 px-1.5">
+                    {currency_symbol}{numberFormat(_.sumBy(crosschainData.total_transfers || [], 'value') / _.sumBy(crosschainData.total_transfers || [], 'tx'), _.sumBy(crosschainData.total_transfers || [], 'value') / _.sumBy(crosschainData.total_transfers || [], 'tx') >= 100000 ? '0,0.00a' : '0,0.000')}
+                  </div>
                   :
                   <div className="skeleton w-12 h-4" />
                 }
@@ -634,7 +652,9 @@ export default function Summary({ data, crosschainData, tvlData }) {
             <span className="flex items-center text-gray-400 dark:text-gray-600 text-sm font-normal space-x-1.5 ml-auto">
               <span>from</span>
               {crosschainData ?
-                <span className="font-mono text-gray-700 dark:text-gray-300 font-semibold">{numberFormat(_.sumBy(crosschainData.highest_transfer_24h, 'tx'), '0,0')}</span>
+                <div className="bg-blue-600 dark:bg-blue-700 rounded-lg font-mono text-white font-semibold py-0.5 px-1.5">
+                  {numberFormat(_.sumBy(crosschainData.highest_transfer_24h, 'tx'), '0,0')}
+                </div>
                 :
                 <div className="skeleton w-12 h-4" />
               }

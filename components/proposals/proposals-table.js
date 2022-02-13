@@ -13,7 +13,7 @@ import { numberFormat, getName } from '../../lib/utils'
 
 
 import { transaction } from '../../lib/api/cosmos'
-import { transactions } from '../../lib/api/opensearch'
+import { transactions, crosschainTxs } from '../../lib/api/opensearch'
 
 
 
@@ -45,95 +45,163 @@ export default function ProposalsTable({ className = '' }) {
 
 
 
-  useEffect(() => {
-    const getData = async (heightRange, direction = 'desc') => {
-      let from = 0
-      const size = 100
+  // useEffect(() => {
+  //   const getData = async (heightRange, direction = 'desc') => {
+  //     let from = 0
+  //     const size = 100
 
-      while (true) {
-        const response = await transactions({
-          "query": {
-            "bool": {
-              must: [
-                {"match": { "tx.body.messages.@type": "/ibc.core.channel.v1.MsgRecvPackcet" }},
-                {range: { 'height': heightRange }},
-              ]
-            }
-          },
-          "sort": [{ "height": direction }],
-          "_source": ["txhash", "height"],
-          size,
-          from,
-        })
-        console.log('MsgRecvPackcet', direction, heightRange, from)
-        if (response?.data) {
-          if (response.data.length > 0) {
-            for (let i = 0; i < response.data.length; i++) {
-              const tx = response.data[i]
-              console.log(direction, heightRange, tx.height, tx.txhash)
-              await transaction(tx.txhash)
-            }
-            from += size
-          }
-          else {
-            console.log('MsgRecvPackcet', direction, heightRange, 'break')
-            break
-          }
-        }
-      }
-    }
+  //     while (true) {
+  //       const response = await transactions({
+  //         "query": {
+  //           "bool": {
+  //             must: [
+  //               {"match": { "tx.body.messages.@type": "/ibc.core.channel.v1.MsgRecvPackcet" }},
+  //               {range: { 'height': heightRange }},
+  //             ]
+  //           }
+  //         },
+  //         "sort": [{ "height": direction }],
+  //         "_source": ["txhash", "height"],
+  //         size,
+  //         from,
+  //       })
+  //       console.log('MsgRecvPackcet', direction, heightRange, from)
+  //       if (response?.data) {
+  //         if (response.data.length > 0) {
+  //           for (let i = 0; i < response.data.length; i++) {
+  //             const tx = response.data[i]
+  //             console.log(direction, heightRange, tx.height, tx.txhash)
+  //             await transaction(tx.txhash)
+  //           }
+  //           from += size
+  //         }
+  //         else {
+  //           console.log('MsgRecvPackcet', direction, heightRange, 'break')
+  //           break
+  //         }
+  //       }
+  //     }
+  //   }
 
-    // let i = 550000
-    // while (i < 810000) {
-    //   getData({ gte: i, lt: i + 10000 })
-    //   i+=10000
-    // }
-  }, [])
+  //   let i = 50000
+  //   while (i < 820000) {
+  //     getData({ gte: i, lt: i + 25000 })
+  //     i+=25000
+  //   }
+  // }, [])
 
-  useEffect(() => {
-    const getData = async (heightRange, direction = 'desc') => {
-      let from = 0
-      const size = 100
+  // useEffect(() => {
+  //   const getData = async (heightRange, direction = 'asc') => {
+  //     let from = 0
+  //     const size = 100
 
-      while (true) {
-        const response = await transactions({
-          "query": {
-            "bool": {
-              must: [
-                {"match": { "tx.body.messages.@type": "ConfirmDepositRequest" }},
-                {range: { 'height': heightRange }},
-              ]
-            }
-          },
-          "sort": [{ "height": direction }],
-          "_source": ["txhash", "height"],
-          size,
-          from,
-        })
-        console.log('ConfirmDepositRequest', direction, heightRange, from)
-        if (response?.data) {
-          if (response.data.length > 0) {
-            for (let i = 0; i < response.data.length; i++) {
-              const tx = response.data[i]
-              console.log(direction, heightRange, tx.height, tx.txhash)
-              await transaction(tx.txhash)
-            }
-            from += size
-          }
-          else {
-            console.log('ConfirmDepositRequest', direction, heightRange, 'break')
-            break
-          }
-        }
-      }
-    }
+  //     while (true) {
+  //       const response = await transactions({
+  //         "query": {
+  //           "bool": {
+  //             must: [
+  //               {
+  //                 "bool": {
+  //                   "should": [
+  //                   {"match": { "tx.body.messages.@type": "LinkRequest" }},
+  //                   {"match": { "tx.body.messages.@type": "ConfirmDepositRequest" }}
+  //                   ]
+  //                 }
+  //               },
+  //               {range: { 'height': heightRange }},
+  //             ]
+  //           }
+  //         },
+  //         // "sort": [{ "height": direction }],
+  //         "_source": ["txhash", "height"],
+  //         size,
+  //         from,
+  //       })
+  //       console.log('ConfirmDeposit/Link', direction, heightRange, from)
+  //       if (response?.data) {
+  //         if (response.data.length > 0) {
+  //           for (let i = 0; i < response.data.length; i++) {
+  //             const tx = response.data[i]
+  //             console.log(direction, heightRange, tx.height, tx.txhash)
+  //             await transaction(tx.txhash)
+  //           }
+  //           from += size
+  //         }
+  //         else {
+  //           console.log('ConfirmDeposit/Link', direction, heightRange, 'break')
+  //           break
+  //         }
+  //       }
+  //     }
+  //   }
 
-    // let i = 0
-    // while (i < 810000) {
-    //   getData({ gte: i, lt: i + 100000 })
-    //   i+=100000
-    // }
-  }, [])
+  //   let i = 250000
+  //   while (i < 820000) {
+  //     getData({ gte: i, lt: i + 2500 })
+  //     i+=2500
+  //   }
+  // }, [])
+
+  // useEffect(() => {
+  //   const getData = async (heightRange, direction = 'desc') => {
+  //     let from = 0
+  //     const size = 100
+
+  //     while (true) {
+  //       const response = await crosschainTxs({
+  //         "query": {
+  //           "bool": {
+  //             must: [
+  //               {range: { 'vote_confirm_deposit.height': heightRange }},
+  //             ],
+  //             "should": [
+  //               {"bool":{
+  //               "must_not": [
+  //                 {"exists": {"field": "send.recipient_chain"}}
+  //               ]}},
+  //               {"bool":{
+  //               "must_not": [
+  //                 {"exists": {"field": "send.sender_chain"}}
+  //               ]}},
+  //               {"bool":{
+  //               "must_not": [
+  //                 {"exists": {"field": "send.denom"}}
+  //               ]}}
+  //             ],
+  //           },
+  //         },
+  //         "sort": [{ "vote_confirm_deposit.height": direction }],
+  //         "_source": ["vote_confirm_deposit.id", "vote_confirm_deposit.height"],
+  //         size,
+  //         from,
+  //       })
+  //       console.log('vote_confirm_deposit', direction, heightRange, from)
+  //       response = {
+  //         data: response?.hits?.hits?.map(h => h?._source?.vote_confirm_deposit)
+  //       }
+  //       if (response?.data) {
+  //         if (response.data.length > 0) {
+  //           for (let i = 0; i < response.data.length; i++) {
+  //             const tx = response.data[i]
+  //             console.log(direction, heightRange, tx.height, tx.id)
+  //             await transaction(tx.id)
+  //           }
+  //           from += size
+  //         }
+  //         else {
+  //           console.log('vote_confirm_deposit', direction, heightRange, 'break')
+  //           break
+  //         }
+  //       }
+  //     }
+  //   }
+
+  //   let i = 500000
+  //   while (i < 790000) {
+  //     getData({ gte: i, lt: i + 2500 })
+  //     i+=2500
+  //   }
+  // }, [])
 
 
 
