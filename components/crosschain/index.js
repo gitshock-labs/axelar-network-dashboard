@@ -109,10 +109,8 @@ export default function Crosschain() {
         }), ['tx'], ['desc']).filter(t => assets_data?.findIndex(a => a?.id === t?.asset?.id && (!a.is_staging || staging)) > -1)
 
         let _data = []
-
         for (let i = 0; i < data.length; i++) {
           const transfer = data[i]
-
           if (transfer?.from_chain?.id !== axelarChain?.id && transfer?.to_chain?.id !== axelarChain?.id) {
             const from_transfer = _.cloneDeep(transfer)
             from_transfer.to_chain = axelarChain
@@ -129,7 +127,6 @@ export default function Crosschain() {
             _data.push(transfer)
           }
         }
-
         _data = Object.entries(_.groupBy(_data, 'id')).map(([key, value]) => {
           return {
             id: key,
@@ -144,7 +141,6 @@ export default function Crosschain() {
             since: _.minBy(value, 'since')?.since,
           }
         })
-
         data = _.orderBy(_data, ['tx'], ['desc'])
 
         setTransfersData({ data })
@@ -253,14 +249,11 @@ export default function Crosschain() {
         }), ['tx'], ['desc']).filter(t => assets_data?.findIndex(a => a?.id === t?.asset?.id && (!a.is_staging || staging)) > -1)
 
         let _data = []
-
         for (let i = 0; i < data.length; i++) {
           const transfer = data[i]
-
           transfer.id = `${transfer.asset?.id}_${transfer.to_chain?.id}`
           _data.push(transfer)
         }
-
         _data = Object.entries(_.groupBy(_data, 'id')).map(([key, value]) => {
           return {
             id: key,
@@ -289,7 +282,6 @@ export default function Crosschain() {
         })
 
         data = _data
-
         data = Object.entries(_.groupBy(_.orderBy(data.map(t => {
           const times = []
 

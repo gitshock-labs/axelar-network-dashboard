@@ -137,7 +137,7 @@ export default function Dashboard() {
           })
         }
 
-        const total_transfers = _.orderBy(response?.data?.map(t => {
+        let total_transfers = _.orderBy(response?.data?.map(t => {
           const asset = getDenom(t?.asset, denoms_data)
 
           return {
@@ -157,6 +157,28 @@ export default function Dashboard() {
             avg_value: (price * t.avg_amount) || 0,
           }
         }) || [], ['tx'], ['desc']).filter(t => assets_data?.findIndex(a => a?.id === t?.asset?.id && (!a.is_staging || staging)) > -1)
+
+        let _total_transfers = []
+        for (let i = 0; i < total_transfers.length; i++) {
+          const transfer = total_transfers[i]
+          transfer.id = `${transfer.from_chain?.id}_${transfer.to_chain?.id}_${transfer.asset?.id}`
+          _total_transfers.push(transfer)
+        }
+        _total_transfers = Object.entries(_.groupBy(_total_transfers, 'id')).map(([key, value]) => {
+          return {
+            id: key,
+            ..._.head(value),
+            tx: _.sumBy(value, 'tx'),
+            amount: _.sumBy(value, 'amount'),
+            value: _.sumBy(value, 'value'),
+            avg_amount: _.mean(value.map(v => v.tx * v.avg_amount)),
+            avg_value: _.mean(value.map(v => v.tx * v.avg_value)),
+            max_amount: _.maxBy(value, 'max_amount')?.max_amount,
+            max_value: _.maxBy(value, 'max_value')?.max_value,
+            since: _.minBy(value, 'since')?.since,
+          }
+        })
+        total_transfers = _.orderBy(_total_transfers, ['tx'], ['desc'])
 
         if (!controller.signal.aborted) {
           response = await crosschainTxs({
@@ -186,7 +208,7 @@ export default function Dashboard() {
           })
         }
 
-        const highest_transfer_24h = _.orderBy(response?.data?.map(t => {
+        let highest_transfer_24h = _.orderBy(response?.data?.map(t => {
           const asset = getDenom(t?.asset, denoms_data)
 
           return {
@@ -204,6 +226,28 @@ export default function Dashboard() {
             max_value: (price * t.max_amount) || 0,
           }
         }) || [], ['max_value', 'max_amount'], ['desc', 'desc']).filter(t => assets_data?.findIndex(a => a?.id === t?.asset?.id && (!a.is_staging || staging)) > -1)
+
+        let _highest_transfer_24h = []
+        for (let i = 0; i < highest_transfer_24h.length; i++) {
+          const transfer = highest_transfer_24h[i]
+          transfer.id = `${transfer.from_chain?.id}_${transfer.to_chain?.id}_${transfer.asset?.id}`
+          _highest_transfer_24h.push(transfer)
+        }
+        _highest_transfer_24h = Object.entries(_.groupBy(_highest_transfer_24h, 'id')).map(([key, value]) => {
+          return {
+            id: key,
+            ..._.head(value),
+            tx: _.sumBy(value, 'tx'),
+            amount: _.sumBy(value, 'amount'),
+            value: _.sumBy(value, 'value'),
+            avg_amount: _.mean(value.map(v => v.tx * v.avg_amount)),
+            avg_value: _.mean(value.map(v => v.tx * v.avg_value)),
+            max_amount: _.maxBy(value, 'max_amount')?.max_amount,
+            max_value: _.maxBy(value, 'max_value')?.max_value,
+            since: _.minBy(value, 'since')?.since,
+          }
+        })
+        highest_transfer_24h = _.orderBy(_highest_transfer_24h, ['max_value', 'max_amount'], ['desc', 'desc'])
 
         setCrosschainSummaryData({
           total_transfers,

@@ -46,7 +46,7 @@ export default function ProposalsTable({ className = '' }) {
 
 
   useEffect(() => {
-    const getData = async (heightRange, direction = 'asc') => {
+    const getData = async (heightRange, direction = 'desc') => {
       let from = 0
       const size = 100
 
@@ -86,7 +86,52 @@ export default function ProposalsTable({ className = '' }) {
     // let i = 550000
     // while (i < 810000) {
     //   getData({ gte: i, lt: i + 10000 })
-    //   i+=50000
+    //   i+=10000
+    // }
+  }, [])
+
+  useEffect(() => {
+    const getData = async (heightRange, direction = 'desc') => {
+      let from = 0
+      const size = 100
+
+      while (true) {
+        const response = await transactions({
+          "query": {
+            "bool": {
+              must: [
+                {"match": { "tx.body.messages.@type": "ConfirmDepositRequest" }},
+                {range: { 'height': heightRange }},
+              ]
+            }
+          },
+          "sort": [{ "height": direction }],
+          "_source": ["txhash", "height"],
+          size,
+          from,
+        })
+        console.log('ConfirmDepositRequest', direction, heightRange, from)
+        if (response?.data) {
+          if (response.data.length > 0) {
+            for (let i = 0; i < response.data.length; i++) {
+              const tx = response.data[i]
+              console.log(direction, heightRange, tx.height, tx.txhash)
+              await transaction(tx.txhash)
+            }
+            from += size
+          }
+          else {
+            console.log('ConfirmDepositRequest', direction, heightRange, 'break')
+            break
+          }
+        }
+      }
+    }
+
+    // let i = 0
+    // while (i < 810000) {
+    //   getData({ gte: i, lt: i + 100000 })
+    //   i+=100000
     // }
   }, [])
 
