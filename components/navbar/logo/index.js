@@ -22,7 +22,7 @@ export default function Logo() {
           <div className="hidden sm:block lg:block xl:block">
             <div className="normal-case text-sm font-bold">{process.env.NEXT_PUBLIC_APP_NAME}</div>
             {status_data?.chain_id && (
-              <div className="font-mono text-gray-400 dark:text-gray-600 text-xs">{status_data.chain_id}</div>
+              <div className="font-mono text-gray-400 dark:text-gray-500 text-xs">{status_data.chain_id}</div>
             )}
           </div>
         </a>

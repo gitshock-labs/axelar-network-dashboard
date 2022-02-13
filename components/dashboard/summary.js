@@ -433,7 +433,7 @@ export default function Summary({ data, crosschainData, tvlData }) {
                             <div className="flex flex-col items-end space-y-1.5">
                               <span className="text-2xs space-x-1">
                                 <span className="font-mono uppercase font-semibold">{numberFormat(c.amount, c.amount >= 100000 ? '0,0.00a' : '0,0.000')}</span>
-                                <span className="text-gray-400 dark:text-gray-600">{c.denom?.symbol}</span>
+                                <span className="text-gray-400 dark:text-gray-600 font-normal">{c.denom?.symbol}</span>
                               </span>
                               {c.value > 0 && (
                                 <span className="font-mono text-gray-400 dark:text-gray-600 text-3xs font-medium">

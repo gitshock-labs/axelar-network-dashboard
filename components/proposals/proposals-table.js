@@ -46,9 +46,9 @@ export default function ProposalsTable({ className = '' }) {
 
 
   useEffect(() => {
-    const getData = async (heightRange, direction = 'desc') => {
+    const getData = async (heightRange, direction = 'asc') => {
       let from = 0
-      const size = 10
+      const size = 100
 
       while (true) {
         const response = await transactions({
@@ -76,29 +76,18 @@ export default function ProposalsTable({ className = '' }) {
             from += size
           }
           else {
+            console.log('MsgRecvPackcet', direction, heightRange, 'break')
             break
           }
         }
       }
     }
 
-    getData({ gte: 1, lt: 384000 })
-    getData({ gte: 384000, lt: 450000 })
-    getData({ gte: 450000, lt: 650000 })
-    getData({ gte: 650000, lt: 660000 })
-    getData({ gte: 660000, lt: 670000 })
-    getData({ gte: 670000, lt: 680000 })
-    getData({ gte: 680000, lt: 690000 })
-    getData({ gte: 690000, lt: 700000 })
-    getData({ gte: 700000, lt: 710000 })
-    getData({ gte: 710000, lt: 720000 })
-    getData({ gte: 720000, lt: 730000 })
-    getData({ gte: 730000, lt: 740000 })
-    getData({ gte: 740000, lt: 750000 })
-    getData({ gte: 750000, lt: 760000 })
-    getData({ gte: 760000, lt: 770000 })
-    getData({ gte: 770000, lt: 780000 })
-    getData({ gte: 780000 })
+    // let i = 550000
+    // while (i < 810000) {
+    //   getData({ gte: i, lt: i + 10000 })
+    //   i+=50000
+    // }
   }, [])
 
 
