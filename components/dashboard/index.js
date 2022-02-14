@@ -12,9 +12,9 @@ import Widget from '../widget'
 
 import { consensusState } from '../../lib/api/rpc'
 import { crosschainTxs } from '../../lib/api/opensearch'
-import { hexToBech32 } from '../../lib/object/key'
+import { getChain, chain_manager } from '../../lib/object/chain'
 import { getDenom, denomer } from '../../lib/object/denom'
-import { getChain } from '../../lib/object/chain'
+import { hexToBech32 } from '../../lib/object/key'
 import { currency } from '../../lib/object/currency'
 import { numberFormat } from '../../lib/utils'
 
@@ -145,8 +145,8 @@ export default function Dashboard() {
             from_chain: getChain(t?.from_chain, chains_data) || getChain(t?.from_chain, cosmos_chains_data),
             to_chain: getChain(t?.to_chain, chains_data) || getChain(t?.to_chain, cosmos_chains_data),
             asset,
-            amount: denomer.amount(t?.amount, asset?.id, denoms_data),
-            avg_amount: denomer.amount(t?.avg_amount, asset?.id, denoms_data),
+            amount: denomer.amount(t?.amount, asset?.id, assets_data, chain_manager.chain_id(t?.from_chain, chains_data)),
+            avg_amount: denomer.amount(t?.avg_amount, asset?.id, assets_data, chain_manager.chain_id(t?.from_chain, chains_data)),
           }
         }).map(t => {
           const price = t?.asset?.token_data?.[currency] || 0
@@ -216,7 +216,7 @@ export default function Dashboard() {
             from_chain: getChain(t?.from_chain, chains_data) || getChain(t?.from_chain, cosmos_chains_data),
             to_chain: getChain(t?.to_chain, chains_data) || getChain(t?.to_chain, cosmos_chains_data),
             asset,
-            max_amount: denomer.amount(t?.max_amount, asset?.id, denoms_data),
+            max_amount: denomer.amount(t?.max_amount, asset?.id, assets_data, chain_manager.chain_id(t?.from_chain, chains_data)),
           }
         }).map(t => {
           const price = t?.asset?.token_data?.[currency] || 0
