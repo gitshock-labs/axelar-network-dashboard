@@ -45,50 +45,50 @@ export default function ProposalsTable({ className = '' }) {
 
 
 
-  // useEffect(() => {
-  //   const getData = async (heightRange, direction = 'asc') => {
-  //     let from = 0
-  //     const size = 100
+  useEffect(() => {
+    const getData = async (heightRange, direction = 'asc') => {
+      let from = 0
+      const size = 100
 
-  //     while (true) {
-  //       const response = await transactions({
-  //         "query": {
-  //           "bool": {
-  //             must: [
-  //               {"match": { "tx.body.messages.@type": "/ibc.core.channel.v1.MsgRecvPackcet" }},
-  //               {range: { 'height': heightRange }},
-  //             ]
-  //           }
-  //         },
-  //         "sort": [{ "height": direction }],
-  //         "_source": ["txhash", "height"],
-  //         size,
-  //         from,
-  //       })
-  //       console.log('MsgRecvPackcet', direction, heightRange, from)
-  //       if (response?.data) {
-  //         if (response.data.length > 0) {
-  //           for (let i = 0; i < response.data.length; i++) {
-  //             const tx = response.data[i]
-  //             console.log(direction, heightRange, tx.height, tx.txhash)
-  //             await transaction(tx.txhash)
-  //           }
-  //           from += size
-  //         }
-  //         else {
-  //           console.log('MsgRecvPackcet', direction, heightRange, 'break')
-  //           break
-  //         }
-  //       }
-  //     }
-  //   }
+      while (true) {
+        const response = await transactions({
+          "query": {
+            "bool": {
+              must: [
+                {"match": { "tx.body.messages.@type": "/ibc.core.channel.v1.MsgRecvPackcet" }},
+                {range: { 'height': heightRange }},
+              ]
+            }
+          },
+          "sort": [{ "height": direction }],
+          "_source": ["txhash", "height"],
+          size,
+          from,
+        })
+        console.log('MsgRecvPackcet', direction, heightRange, from)
+        if (response?.data) {
+          if (response.data.length > 0) {
+            for (let i = 0; i < response.data.length; i++) {
+              const tx = response.data[i]
+              console.log(direction, heightRange, tx.height, tx.txhash)
+              await transaction(tx.txhash)
+            }
+            from += size
+          }
+          else {
+            console.log('MsgRecvPackcet', direction, heightRange, 'break')
+            break
+          }
+        }
+      }
+    }
 
-  //   let i = 800000
-  //   while (i < 850000) {
-  //     getData({ gte: i, lt: i + 5000 })
-  //     i+=5000
-  //   }
-  // }, [])
+    let i = 800000
+    while (i < 850000) {
+      getData({ gte: i, lt: i + 5000 })
+      i+=5000
+    }
+  }, [])
 
   // useEffect(() => {
   //   const getData = async (heightRange, direction = 'asc') => {

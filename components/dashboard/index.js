@@ -204,7 +204,7 @@ export default function Dashboard() {
                 },
               },
             },
-            query: { range: { 'send.created_at.ms': { gt: moment().subtract(24, 'hours').valueOf() } } },
+            query: { range: { 'send.created_at.ms': { gt: moment().utc().subtract(24, 'hours').valueOf() } } },
           })
         }
 
