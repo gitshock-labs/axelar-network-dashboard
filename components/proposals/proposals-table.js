@@ -46,7 +46,7 @@ export default function ProposalsTable({ className = '' }) {
 
 
   // useEffect(() => {
-  //   const getData = async (heightRange, direction = 'desc') => {
+  //   const getData = async (heightRange, direction = 'asc') => {
   //     let from = 0
   //     const size = 100
 
@@ -83,10 +83,10 @@ export default function ProposalsTable({ className = '' }) {
   //     }
   //   }
 
-  //   let i = 730000
-  //   while (i < 750000) {
-  //     getData({ gte: i, lt: i + 25000 })
-  //     i+=25000
+  //   let i = 800000
+  //   while (i < 850000) {
+  //     getData({ gte: i, lt: i + 5000 })
+  //     i+=5000
   //   }
   // }, [])
 
@@ -103,7 +103,7 @@ export default function ProposalsTable({ className = '' }) {
   //               {
   //                 "bool": {
   //                   "should": [
-  //                   {"match": { "tx.body.messages.@type": "LinkRequest" }},
+  //                   // {"match": { "tx.body.messages.@type": "LinkRequest" }},
   //                   {"match": { "tx.body.messages.@type": "ConfirmDepositRequest" }}
   //                   ]
   //                 }
@@ -135,15 +135,15 @@ export default function ProposalsTable({ className = '' }) {
   //     }
   //   }
 
-  //   let i = 250000
-  //   while (i < 820000) {
-  //     getData({ gte: i, lt: i + 2500 })
-  //     i+=2500
+  //   let i = 660000
+  //   while (i < 850000) {
+  //     getData({ gte: i, lt: i + 10000 })
+  //     i+=10000
   //   }
   // }, [])
 
   // useEffect(() => {
-  //   const getData = async (heightRange, direction = 'asc') => {
+  //   const getData = async (heightRange, direction = 'desc') => {
   //     let from = 0
   //     const size = 100
 
@@ -152,7 +152,7 @@ export default function ProposalsTable({ className = '' }) {
   //         "query": {
   //           "bool": {
   //             must: [
-  //               {range: { 'vote_confirm_deposit.height': heightRange }},
+  //               {range: { 'confirm_deposit.height': heightRange }},
   //             ],
   //             "should": [
   //               {"bool":{
@@ -170,14 +170,14 @@ export default function ProposalsTable({ className = '' }) {
   //             ],
   //           },
   //         },
-  //         "sort": [{ "vote_confirm_deposit.height": direction }],
-  //         "_source": ["vote_confirm_deposit.id", "vote_confirm_deposit.height"],
+  //         "sort": [{ "confirm_deposit.height": direction }],
+  //         "_source": ["confirm_deposit.id", "confirm_deposit.height"],
   //         size,
   //         from,
   //       })
-  //       console.log('vote_confirm_deposit', direction, heightRange, from)
+  //       console.log('confirm_deposit', direction, heightRange, from)
   //       response = {
-  //         data: response?.hits?.hits?.map(h => h?._source?.vote_confirm_deposit)
+  //         data: response?.hits?.hits?.map(h => h?._source?.confirm_deposit)
   //       }
   //       if (response?.data) {
   //         if (response.data.length > 0) {
@@ -189,15 +189,15 @@ export default function ProposalsTable({ className = '' }) {
   //           from += size
   //         }
   //         else {
-  //           console.log('vote_confirm_deposit', direction, heightRange, 'break')
+  //           console.log('confirm_deposit', direction, heightRange, 'break')
   //           break
   //         }
   //       }
   //     }
   //   }
 
-  //   let i = 730000
-  //   while (i < 749200) {
+  //   let i = 500000
+  //   while (i < 850000) {
   //     getData({ gte: i, lt: i + 5000 })
   //     i+=5000
   //   }
