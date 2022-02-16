@@ -184,6 +184,18 @@ export default function Information({ data }) {
           <div className="skeleton w-60 h-6" />
         }
         {data ?
+          data.min_self_delegation && (
+            <div className="flex flex-col xl:flex-row items-start space-x-0 xl:space-x-2">
+              <span className="font-semibold">Min Self Delegation:</span>
+              <span className="text-gray-600 dark:text-gray-400">
+                {numberFormat(Number(data.min_self_delegation), '0,0')}
+              </span>
+            </div>
+          )
+          :
+          <div className="skeleton w-60 h-6" />
+        }
+        {data ?
           typeof data.start_height === 'number' && (
             <div className="flex flex-col xl:flex-row items-start space-x-0 xl:space-x-2">
               <span className="font-semibold">Validator Since Block:</span>

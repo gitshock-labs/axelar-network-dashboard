@@ -205,7 +205,7 @@ export default function Navbar() {
             type: ENV_DATA,
             value: {
               staking_pool: Object.fromEntries(Object.entries(response?.pool || {}).map(([key, value]) => {
-                return [key, denomer.amount(value, denoms_data?.[0]?.denom, denoms_data)]
+                return [key, denomer.amount(value, denoms_data?.[0]?.id, denoms_data)]
               })),
             },
           })
