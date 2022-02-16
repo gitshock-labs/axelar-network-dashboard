@@ -9,6 +9,7 @@ import Loader from 'react-loader-spinner'
 
 import Datatable from '../datatable'
 import Copy from '../copy'
+import Popover from '../popover'
 
 import { blocks as getBlocks } from '../../lib/api/opensearch'
 import { numberFormat, ellipseAddress } from '../../lib/utils'
@@ -173,15 +174,26 @@ export default function BlocksTable({ n, className = '' }) {
             disableSortBy: true,
             Cell: props => (
               !props.row.original.skeleton ?
-                <div className="text-right">
-                  <span className="text-gray-400 dark:text-gray-600">
-                    {Number(moment().diff(moment(props.value), 'second')) > 59 ?
-                      moment(props.value).fromNow()
-                      :
-                      <>{moment().diff(moment(props.value), 'second')}s ago</>
-                    }
-                  </span>
-                </div>
+                <Popover
+                  placement="top"
+                  title={<div className="flex items-center space-x-1">
+                    <span>Block:</span>
+                    <span className="font-mono">{numberFormat(props.row.original.height, '0,0')}</span>
+                  </div>}
+                  content={<div className="w-36 text-xs">{moment(props.value).format('MMM D, YYYY h:mm:ss A')}</div>}
+                  titleClassName="h-8"
+                  className="ml-auto"
+                >
+                  <div className="text-right">
+                    <span className="normal-case text-gray-400 dark:text-gray-600 font-normal">
+                      {Number(moment().diff(moment(props.value), 'second')) > 59 ?
+                        moment(props.value).fromNow()
+                        :
+                        <>{moment().diff(moment(props.value), 'second')}s ago</>
+                      }
+                    </span>
+                  </div>
+                </Popover>
                 :
                 <div className={`skeleton w-${n ? 16 : 24} h-4 ml-auto`} />
             ),

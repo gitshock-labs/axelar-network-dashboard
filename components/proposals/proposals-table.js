@@ -103,8 +103,8 @@ export default function ProposalsTable({ className = '' }) {
   //               {
   //                 "bool": {
   //                   "should": [
-  //                   // {"match": { "tx.body.messages.@type": "LinkRequest" }},
-  //                   {"match": { "tx.body.messages.@type": "ConfirmDepositRequest" }}
+  //                   {"match": { "tx.body.messages.@type": "LinkRequest" }},
+  //                   // {"match": { "tx.body.messages.@type": "ConfirmDepositRequest" }}
   //                   ]
   //                 }
   //               },
@@ -137,8 +137,8 @@ export default function ProposalsTable({ className = '' }) {
 
   //   let i = 660000
   //   while (i < 850000) {
-  //     getData({ gte: i, lt: i + 10000 })
-  //     i+=10000
+  //     getData({ gte: i, lt: i + 5000 })
+  //     i+=5000
   //   }
   // }, [])
 
@@ -152,7 +152,7 @@ export default function ProposalsTable({ className = '' }) {
   //         "query": {
   //           "bool": {
   //             must: [
-  //               {range: { 'confirm_deposit.height': heightRange }},
+  //               {range: { 'vote_confirm_deposit.height': heightRange }},
   //             ],
   //             "should": [
   //               {"bool":{
@@ -170,14 +170,14 @@ export default function ProposalsTable({ className = '' }) {
   //             ],
   //           },
   //         },
-  //         "sort": [{ "confirm_deposit.height": direction }],
-  //         "_source": ["confirm_deposit.id", "confirm_deposit.height"],
+  //         "sort": [{ "vote_confirm_deposit.height": direction }],
+  //         "_source": ["vote_confirm_deposit.id", "vote_confirm_deposit.height"],
   //         size,
   //         from,
   //       })
-  //       console.log('confirm_deposit', direction, heightRange, from)
+  //       console.log('vote_confirm_deposit', direction, heightRange, from)
   //       response = {
-  //         data: response?.hits?.hits?.map(h => h?._source?.confirm_deposit)
+  //         data: response?.hits?.hits?.map(h => h?._source?.vote_confirm_deposit)
   //       }
   //       if (response?.data) {
   //         if (response.data.length > 0) {
@@ -189,14 +189,14 @@ export default function ProposalsTable({ className = '' }) {
   //           from += size
   //         }
   //         else {
-  //           console.log('confirm_deposit', direction, heightRange, 'break')
+  //           console.log('vote_confirm_deposit', direction, heightRange, 'break')
   //           break
   //         }
   //       }
   //     }
   //   }
 
-  //   let i = 500000
+  //   let i = 400000
   //   while (i < 850000) {
   //     getData({ gte: i, lt: i + 5000 })
   //     i+=5000

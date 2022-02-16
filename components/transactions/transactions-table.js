@@ -9,6 +9,7 @@ import { FaCheckCircle, FaClock, FaTimesCircle } from 'react-icons/fa'
 
 import Datatable from '../datatable'
 import Copy from '../copy'
+import Popover from '../popover'
 
 import { transactions as getTransactions } from '../../lib/api/opensearch'
 import { numberFormat, getName, ellipseAddress } from '../../lib/utils'
@@ -243,15 +244,23 @@ export default function TransactionsTable({ data, noLoad, hasVote, location, cla
             disableSortBy: true,
             Cell: props => (
               !props.row.original.skeleton ?
-                <div className="text-right">
-                  <span className="text-gray-400 dark:text-gray-600">
-                    {Number(moment().diff(moment(props.value), 'second')) > 59 ?
-                      moment(props.value).fromNow()
-                      :
-                      <>{moment().diff(moment(props.value), 'second')}s ago</>
-                    }
-                  </span>
-                </div>
+                <Popover
+                  placement="top"
+                  title={<span className="normal-case">TX Time</span>}
+                  content={<div className="w-36 text-xs">{moment(props.value).format('MMM D, YYYY h:mm:ss A')}</div>}
+                  titleClassName="h-8"
+                  className="ml-auto"
+                >
+                  <div className="text-right">
+                    <span className="normal-case text-gray-400 dark:text-gray-600 font-normal">
+                      {Number(moment().diff(moment(props.value), 'second')) > 59 ?
+                        moment(props.value).fromNow()
+                        :
+                        <>{moment().diff(moment(props.value), 'second')}s ago</>
+                      }
+                    </span>
+                  </div>
+                </Popover>
                 :
                 <div className="skeleton w-24 h-4 ml-auto" />
             ),
