@@ -177,6 +177,9 @@ export default function Information({ data }) {
                 {!isNaN(data.commission.commission_rates?.max_rate) && (
                   <span>(Max: {numberFormat(data.commission.commission_rates.max_rate * 100, '0,0.00')}%)</span>
                 )}
+                {!isNaN(data.commission.commission_rates?.max_change_rate) && (
+                  <span>(Max Change: {numberFormat(data.commission.commission_rates.max_change_rate * 100, '0,0.00')}%)</span>
+                )}
               </span>
             </div>
           )

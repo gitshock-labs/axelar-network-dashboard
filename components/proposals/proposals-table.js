@@ -46,7 +46,7 @@ export default function ProposalsTable({ className = '' }) {
 
 
   // useEffect(() => {
-  //   const getData = async (heightRange, direction = 'asc') => {
+  //   const getData = async (heightRange, direction = 'desc') => {
   //     let from = 0
   //     const size = 100
 
@@ -83,7 +83,7 @@ export default function ProposalsTable({ className = '' }) {
   //     }
   //   }
 
-  //   let i = 800000
+  //   let i = 750000
   //   while (i < 870000) {
   //     getData({ gte: i, lt: i + 5000 })
   //     i+=5000
