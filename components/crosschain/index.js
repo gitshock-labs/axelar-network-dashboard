@@ -108,25 +108,30 @@ export default function Crosschain() {
           }
         }), ['tx'], ['desc']).filter(t => assets_data?.findIndex(a => a?.id === t?.asset?.id && (!a.is_staging || staging)) > -1)
 
-        let _data = []
+        let _data = [], ng_data = []
         for (let i = 0; i < data.length; i++) {
           const transfer = data[i]
           if (transfer?.from_chain?.id !== axelarChain?.id && transfer?.to_chain?.id !== axelarChain?.id) {
             const from_transfer = _.cloneDeep(transfer)
             from_transfer.to_chain = axelarChain
             from_transfer.id = `${from_transfer.from_chain?.id}_${from_transfer.to_chain?.id}_${from_transfer.asset?.id}`
-            _data.push(from_transfer)
+            ng_data.push(from_transfer)
 
             const to_transfer = _.cloneDeep(transfer)
             to_transfer.from_chain = axelarChain
             to_transfer.id = `${to_transfer.from_chain?.id}_${to_transfer.to_chain?.id}_${to_transfer.asset?.id}`
-            _data.push(to_transfer)
-          }
-          else {
+            ng_data.push(to_transfer)
+
             transfer.id = `${transfer.from_chain?.id}_${transfer.to_chain?.id}_${transfer.asset?.id}`
             _data.push(transfer)
           }
+          else {
+            transfer.id = `${transfer.from_chain?.id}_${transfer.to_chain?.id}_${transfer.asset?.id}`
+            ng_data.push(transfer)
+            _data.push(transfer)
+          }
         }
+
         _data = Object.entries(_.groupBy(_data, 'id')).map(([key, value]) => {
           return {
             id: key,
@@ -143,7 +148,23 @@ export default function Crosschain() {
         })
         data = _.orderBy(_data, ['tx'], ['desc'])
 
-        setTransfersData({ data })
+        ng_data = Object.entries(_.groupBy(ng_data, 'id')).map(([key, value]) => {
+          return {
+            id: key,
+            ..._.head(value),
+            tx: _.sumBy(value, 'tx'),
+            amount: _.sumBy(value, 'amount'),
+            value: _.sumBy(value, 'value'),
+            avg_amount: _.sumBy(value, 'amount') / _.sumBy(value, 'tx'),
+            avg_value: _.sumBy(value, 'value') / _.sumBy(value, 'tx'),
+            max_amount: _.maxBy(value, 'max_amount')?.max_amount,
+            max_value: _.maxBy(value, 'max_value')?.max_value,
+            since: _.minBy(value, 'since')?.since,
+          }
+        })
+        ng_data = _.orderBy(ng_data, ['tx'], ['desc'])
+
+        setTransfersData({ data, ng_data })
       }
     }
 
@@ -463,7 +484,7 @@ export default function Crosschain() {
         description={<span className="text-gray-400 dark:text-gray-500 text-xs font-normal">Cross-chain on Axelar Network</span>}
         className="shadow border-0 my-6 px-4 sm:py-4"
       >
-        <NetworkGraph data={transfersData?.data} />
+        <NetworkGraph data={transfersData?.ng_data} />
       </Widget>
       <TransfersTable data={transfersData} />
     </div>
