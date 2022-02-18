@@ -168,11 +168,11 @@ export default function BridgeAccounts() {
       <div className="mt-4">
         <div className="uppercase text-xs font-semibold">Tokens</div>
         <div className="space-y-2 mt-2">
-          {assets_data?.filter(_asset => (!_asset?.is_staging || staging) && _asset?.contracts?.find(_contract => _contract.chain_id === chain.chain_id)).map((_asset, j) => {
-            const contract = _asset.contracts.find(_contract => _contract.chain_id === chain.chain_id)
+          {assets_data?.filter(a => (!a?.is_staging || staging) && a?.contracts?.find(_contract => _contract.chain_id === chain.chain_id)).map((a, j) => {
+            const contract = a.contracts.find(_contract => _contract.chain_id === chain.chain_id)
             const addToMetaMaskButton = (
               <button
-                onClick={() => addTokenToMetaMask(chain.chain_id, { ..._asset, ...contract })}
+                onClick={() => addTokenToMetaMask(chain.chain_id, { ...a, ...contract })}
                 className="w-auto bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 rounded-lg flex items-center justify-center py-1.5 px-2"
               >
                 <Img
@@ -187,12 +187,12 @@ export default function BridgeAccounts() {
               <div key={j} className="flex items-start justify-between">
                 <div className="flex items-start space-x-1.5">
                   <Img
-                    src={_asset.image}
+                    src={a.image}
                     alt=""
                     className="w-6 h-6 rounded-full"
                   />
                   <div className="flex flex-col">
-                    <span className="text-gray-600 dark:text-white font-medium">{_asset.symbol}</span>
+                    <span className="text-gray-600 dark:text-white font-medium">{a.symbol}</span>
                     <div className="flex items-center space-x-1">
                       {contract.contract_address ?
                         <>
@@ -230,7 +230,7 @@ export default function BridgeAccounts() {
                 <Popover
                   placement="left"
                   title={<span className="normal-case text-xs">Add token</span>}
-                  content={<div className="w-36 text-xs">Add <span className="font-semibold">{_asset?.symbol}</span> to MetaMask</div>}
+                  content={<div className="w-36 text-xs">Add <span className="font-semibold">{a?.symbol}</span> to MetaMask</div>}
                 >
                   {addToMetaMaskButton}
                 </Popover>
