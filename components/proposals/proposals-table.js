@@ -83,7 +83,7 @@ export default function ProposalsTable({ className = '' }) {
   //     }
   //   }
 
-  //   let i = 620000
+  //   let i = 500000
   //   while (i < 870000) {
   //     getData({ gte: i, lt: i + 5000 })
   //     i+=5000
@@ -91,7 +91,7 @@ export default function ProposalsTable({ className = '' }) {
   // }, [])
 
   // useEffect(() => {
-  //   const getData = async (heightRange, direction = 'desc') => {
+  //   const getData = async (heightRange, direction = 'asc') => {
   //     let from = 0
   //     const size = 100
 
@@ -112,7 +112,7 @@ export default function ProposalsTable({ className = '' }) {
   //             ]
   //           }
   //         },
-  //         // "sort": [{ "height": direction }],
+  //         "sort": [{ "height": direction }],
   //         "_source": ["txhash", "height"],
   //         size,
   //         from,
@@ -135,8 +135,8 @@ export default function ProposalsTable({ className = '' }) {
   //     }
   //   }
 
-  //   let i = 652000
-  //   while (i < 700000) {
+  //   let i = 500000
+  //   while (i < 870000) {
   //     getData({ gte: i, lt: i + 3000 })
   //     i+=3000
   //   }

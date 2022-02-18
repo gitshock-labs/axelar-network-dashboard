@@ -1,5 +1,7 @@
 import { useRouter } from 'next/router'
 
+import { MdOutlineScreenSearchDesktop } from 'react-icons/md'
+
 import SectionTitle from '../../section-title'
 import Copy from '../../copy'
 import LeaderboardNav from '../../leaderboard-nav'
@@ -106,6 +108,17 @@ export default function PageTitle() {
     case '/crosschain':
       title = 'Overview'
       subtitle = 'Cross-chain'
+      right = process.env.NEXT_PUBLIC_CROSSCHAIN_URL && (
+        <a
+          href={process.env.NEXT_PUBLIC_CROSSCHAIN_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center text-blue-400 dark:text-white text-sm font-medium space-x-1.5"
+        >
+          <MdOutlineScreenSearchDesktop size={20} />
+          <span>Search your TX</span>
+        </a>
+      )
       break
     case '/participations':
       title = 'Latest'
