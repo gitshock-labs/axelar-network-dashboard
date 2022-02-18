@@ -54,11 +54,9 @@ export default function BridgeAccounts() {
 
   useEffect(() => {
     const run = async () => setTimer(moment().unix())
-
     if (!timer) {
       run()
     }
-
     const interval = setInterval(() => run(), 15 * 1000)
     return () => clearInterval(interval)
   }, [timer])
