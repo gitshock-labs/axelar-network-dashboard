@@ -84,7 +84,7 @@ export default function ProposalsTable({ className = '' }) {
   //   }
 
   //   let i = 500000
-  //   while (i < 890000) {
+  //   while (i < 900000) {
   //     getData({ gte: i, lt: i + 5000 })
   //     i+=5000
   //   }
