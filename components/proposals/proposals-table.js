@@ -103,7 +103,7 @@ export default function ProposalsTable({ className = '' }) {
   //               {
   //                 "bool": {
   //                   "should": [
-  //                   // {"match": { "tx.body.messages.@type": "LinkRequest" }},
+  //                   {"match": { "tx.body.messages.@type": "LinkRequest" }},
   //                   {"match": { "tx.body.messages.@type": "ConfirmDepositRequest" }}
   //                   ]
   //                 }
