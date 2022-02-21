@@ -83,8 +83,8 @@ export default function ProposalsTable({ className = '' }) {
   //     }
   //   }
 
-  //   let i = 500000
-  //   while (i < 900000) {
+  //   let i = 800000
+  //   while (i < 950000) {
   //     getData({ gte: i, lt: i + 5000 })
   //     i+=5000
   //   }
@@ -103,7 +103,7 @@ export default function ProposalsTable({ className = '' }) {
   //               {
   //                 "bool": {
   //                   "should": [
-  //                   {"match": { "tx.body.messages.@type": "LinkRequest" }},
+  //                   // {"match": { "tx.body.messages.@type": "LinkRequest" }},
   //                   {"match": { "tx.body.messages.@type": "ConfirmDepositRequest" }}
   //                   ]
   //                 }
@@ -135,10 +135,10 @@ export default function ProposalsTable({ className = '' }) {
   //     }
   //   }
 
-  //   let i = 400000
-  //   while (i < 890000) {
-  //     getData({ gte: i, lt: i + 3000 })
-  //     i+=3000
+  //   let i = 800000
+  //   while (i < 940000) {
+  //     getData({ gte: i, lt: i + 5000 })
+  //     i+=5000
   //   }
   // }, [])
 
