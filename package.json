@@ -7,12 +7,12 @@
     "start": "next start",
     "build": "next build && next export",
     "deploy": "aws s3 sync out/ s3://mainnet.dashboard.axelar.network --acl public-read",
-    "dev-testnet": "NODE_ENV=test next dev",
-    "build-testnet": "NODE_ENV=test next build && next export",
-    "deploy-testnet": "aws s3 sync out/ s3://dashboard.axelar.network --acl public-read",
     "dev-dev": "env-cmd -f .env.staging next dev",
     "build-dev": "env-cmd -f .env.staging next build && next export",
-    "deploy-dev": "aws s3 sync out/ s3://staging.dashboard.axelar.network --acl public-read"
+    "deploy-dev": "aws s3 sync out/ s3://staging.dashboard.axelar.network --acl public-read",
+    "dev-testnet": "NODE_ENV=test next dev",
+    "build-testnet": "NODE_ENV=test next build && next export",
+    "deploy-testnet": "aws s3 sync out/ s3://dashboard.axelar.network --acl public-read"
   },
   "dependencies": {
     "@antv/g6": "^4.5.1",
