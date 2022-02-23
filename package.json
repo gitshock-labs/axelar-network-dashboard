@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "dev": "next dev --port 3001",
+    "dev": "next dev",
     "start": "next start",
     "build": "next build && next export",
     "deploy": "aws s3 sync out/ s3://mainnet.dashboard.axelar.network --acl public-read",
