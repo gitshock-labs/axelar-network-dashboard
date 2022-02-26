@@ -10,7 +10,7 @@ import TransactionsTable from '../transactions/transactions-table'
 import Widget from '../widget'
 
 import { allBankBalances, allStakingDelegations, allStakingUnbonding, distributionRewards, distributionCommissions, transactionsByEvents, transactionsByEventsPaging } from '../../lib/api/cosmos'
-import { linkedAddresses } from '../../lib/api/opensearch'
+import { transactions as getTransactions, linkedAddresses } from '../../lib/api/opensearch'
 import { denomer } from '../../lib/object/denom'
 import { numberFormat, sleep } from '../../lib/utils'
 
@@ -203,36 +203,52 @@ export default function Account({ address }) {
         setLoading(true)
         setTransactions(Object.keys(data).length > 0 ? { data, address } : null)
 
-        if (!controller.signal.aborted) {
-          const response = await transactionsByEvents(`transfer.sender='${address}'`, null, null, null, denoms_data)
+        if (address.length >= 65) {
+          if (!controller.signal.aborted) {
+            const response = await transactionsByEvents(`transfer.sender='${address}'`, null, null, null, denoms_data)
 
-          if (response?.data?.length > 0) {
-            data[0] = response
-            setTransactions({ data, address })
+            if (response?.data?.length > 0) {
+              data[0] = response
+              setTransactions({ data, address })
+            }
+          }
+          if (!controller.signal.aborted) {
+            const response = await transactionsByEvents(`transfer.recipient='${address}'`, null, null, null, denoms_data)
+
+            if (response?.data?.length > 0) {
+              data[1] = response
+              setTransactions({ data, address })
+            }
+          }
+          if (!controller.signal.aborted) {
+            const response = await transactionsByEvents(`message.sender='${address}'`, null, null, null, denoms_data)
+
+            if (response?.data?.length > 0) {
+              data[2] = response
+              setTransactions({ data, address })
+            }
+          }
+          if (!controller.signal.aborted && address.length >= 65) {
+            const response = await transactionsByEvents(`link.depositAddress='${address}'`, null, null, null, denoms_data)
+
+            if (response?.data?.length > 0) {
+              data[3] = response
+              setTransactions({ data, address })
+            }
           }
         }
-        if (!controller.signal.aborted) {
-          const response = await transactionsByEvents(`transfer.recipient='${address}'`, null, null, null, denoms_data)
+        else {
+          if (!controller.signal.aborted) {
+            const response = await getTransactions({
+              size: 1000,
+              from: 0,
+              sort: [{ timestamp: 'desc' }],
+            }, denoms_data)
 
-          if (response?.data?.length > 0) {
-            data[1] = response
-            setTransactions({ data, address })
-          }
-        }
-        if (!controller.signal.aborted) {
-          const response = await transactionsByEvents(`message.sender='${address}'`, null, null, null, denoms_data)
-
-          if (response?.data?.length > 0) {
-            data[2] = response
-            setTransactions({ data, address })
-          }
-        }
-        if (!controller.signal.aborted && address.length >= 65) {
-          const response = await transactionsByEvents(`link.depositAddress='${address}'`, null, null, null, denoms_data)
-
-          if (response?.data?.length > 0) {
-            data[3] = response
-            setTransactions({ data, address })
+            if (response?.data?.length > 0) {
+              data[0] = response
+              setTransactions({ data, address })
+            }
           }
         }
 
@@ -259,43 +275,61 @@ export default function Account({ address }) {
           const [key, value] = Object.entries(transactions.data)[i]
 
           if (value?.data) {
-            if (Number(key) === 0) {
-              if (value.offset > 0) {
-                const response = await transactionsByEventsPaging(`transfer.sender='${address}'`, value.data, value.offset || (value.total - value.data.length), denoms_data)
+            if (address.length >= 65) {
+              if (Number(key) === 0) {
+                if (value.offset > 0) {
+                  const response = await transactionsByEventsPaging(`transfer.sender='${address}'`, value.data, value.offset || (value.total - value.data.length), denoms_data)
 
-                if (response?.data?.length > 0) {
-                  data[0] = response
-                  setTransactions({ data, address })
+                  if (response?.data?.length > 0) {
+                    data[0] = response
+                    setTransactions({ data, address })
+                  }
+                }
+              }
+              else if (Number(key) === 1) {
+                if (value.offset > 0) {
+                  const response = await transactionsByEventsPaging(`transfer.recipient='${address}'`, value.data, value.offset || (value.total - value.data.length), denoms_data)
+
+                  if (response?.data?.length > 0) {
+                    data[1] = response
+                    setTransactions({ data, address })
+                  }
+                }
+              }
+              else if (Number(key) === 2) {
+                if (value.offset > 0) {
+                  const response = await transactionsByEventsPaging(`message.sender='${address}'`, value.data, value.offset || (value.total - value.data.length), denoms_data)
+
+                  if (response?.data?.length > 0) {
+                    data[2] = response
+                    setTransactions({ data, address })
+                  }
+                }
+              }
+              else if (Number(key) === 3) {
+                if (value.offset > 0 && address.length >= 65) {
+                  const response = await transactionsByEventsPaging(`link.depositAddress='${address}'`, value.data, value.offset || (value.total - value.data.length), denoms_data)
+
+                  if (response?.data?.length > 0) {
+                    data[3] = response
+                    setTransactions({ data, address })
+                  }
                 }
               }
             }
-            else if (Number(key) === 1) {
-              if (value.offset > 0) {
-                const response = await transactionsByEventsPaging(`transfer.recipient='${address}'`, value.data, value.offset || (value.total - value.data.length), denoms_data)
+            else {
+              if (Number(key) === 0) {
+                if (value.total > value.data.length) {
+                  const response = await getTransactions({
+                    size: 1000,
+                    from: value.data.length - 1,
+                    sort: [{ timestamp: 'desc' }],
+                  }, denoms_data)
 
-                if (response?.data?.length > 0) {
-                  data[1] = response
-                  setTransactions({ data, address })
-                }
-              }
-            }
-            else if (Number(key) === 2) {
-              if (value.offset > 0) {
-                const response = await transactionsByEventsPaging(`message.sender='${address}'`, value.data, value.offset || (value.total - value.data.length), denoms_data)
-
-                if (response?.data?.length > 0) {
-                  data[2] = response
-                  setTransactions({ data, address })
-                }
-              }
-            }
-            else if (Number(key) === 3) {
-              if (value.offset > 0 && address.length >= 65) {
-                const response = await transactionsByEventsPaging(`link.depositAddress='${address}'`, value.data, value.offset || (value.total - value.data.length), denoms_data)
-
-                if (response?.data?.length > 0) {
-                  data[3] = response
-                  setTransactions({ data, address })
+                  if (response?.data?.length > 0) {
+                    data[0] = { ...response, data: _.uniqBy(_.concat(value.data, response.data), 'txhash') }
+                    setTransactions({ data, address })
+                  }
                 }
               }
             }
