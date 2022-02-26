@@ -242,6 +242,13 @@ export default function Account({ address }) {
             const response = await getTransactions({
               size: 1000,
               from: 0,
+              query: {
+                bool: {
+                  must: [
+                    { match: { addresses: address } },
+                  ],
+                },
+              },
               sort: [{ timestamp: 'desc' }],
             }, denoms_data)
 
@@ -323,6 +330,13 @@ export default function Account({ address }) {
                   const response = await getTransactions({
                     size: 1000,
                     from: value.data.length - 1,
+                    query: {
+                      bool: {
+                        must: [
+                          { match: { addresses: address } },
+                        ],
+                      },
+                    },
                     sort: [{ timestamp: 'desc' }],
                   }, denoms_data)
 
