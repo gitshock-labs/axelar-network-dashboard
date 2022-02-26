@@ -185,7 +185,12 @@ export default function Participations() {
       }
 
       if (!controller.signal.aborted) {
-        response = await getSignAttempts({ size: 1000, query: { match: { result: true } }, sort: [{ height: 'desc' }] })
+        response = await getSignAttempts({
+          size: 1000,
+          query: { match: { result: true } },
+          sort: [{ height: 'desc' }],
+          aggs: { total: { terms: { field: 'result' } } },
+        })
         data = response?.data || []
 
         for (let i = 0; i < data.length; i++) {
@@ -219,7 +224,12 @@ export default function Participations() {
       }
 
       if (!controller.signal.aborted) {
-        response = await getSignAttempts({ size: 1000, query: { match: { result: false } }, sort: [{ height: 'desc' }] })
+        response = await getSignAttempts({
+          size: 1000,
+          query: { match: { result: false } },
+          sort: [{ height: 'desc' }],
+          aggs: { total: { terms: { field: 'result' } } },
+        })
         data = response?.data || []
 
         for (let i = 0; i < data.length; i++) {

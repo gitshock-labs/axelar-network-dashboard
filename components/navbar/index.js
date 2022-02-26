@@ -20,7 +20,7 @@ import { chains as getChains, cosmosChains, assets as getAssets } from '../../li
 import { denoms as getDenoms } from '../../lib/api/query'
 import { status as getStatus } from '../../lib/api/rpc'
 import { stakingParams, stakingPool, bankSupply, slashingParams, distributionParams, mintInflation, communityPool, allValidators, validatorProfile, allValidatorsStatus, allValidatorsBroadcaster, chainMaintainer } from '../../lib/api/cosmos'
-import { heartbeats as getHeartbeats } from '../../lib/api/opensearch'
+import { heartbeats as getHeartbeats, evmVotes as getEvmVotes } from '../../lib/api/opensearch'
 import { simplePrice } from '../../lib/api/coingecko'
 import { currency } from '../../lib/object/currency'
 import { denomer } from '../../lib/object/denom'
@@ -343,6 +343,34 @@ export default function Navbar() {
 
                       v.heartbeats_uptime = heartbeats_uptime
 
+                      vs[i] = v
+                    }
+
+                    response = await getEvmVotes({
+                      aggs: {
+                        votes: {
+                          terms: { field: 'sender.keyword', size: 10000 },
+                          aggs: {
+                            chains: {
+                              terms: { field: 'sender_chain.keyword', size: 1000 },
+                              aggs: {
+                                confirms: {
+                                  terms: { field: 'confirmed' },
+                                },
+                              },
+                            },
+                          },
+                        },
+                      },
+                      // query: { range: { height: { gte: Number(status_data.latest_block_height) - Number(process.env.NEXT_PUBLIC_NUM_EVM_VOTES_BLOCKS) } } },
+                    })
+
+                    for (let i = 0; i < vs.length; i++) {
+                      const v = vs[i]
+                      v.votes = response?.data?.[v?.broadcaster_address] || {}
+                      v.total_votes = v.votes?.total || 0
+                      v.total_yes_votes = _.sum(Object.entries(v.votes?.chains || {}).map(c => Object.entries(c[1]?.confirms || {}).find(cf => cf[0] === 'true')?.[1] || 0))
+                      v.total_no_votes = _.sum(Object.entries(v.votes?.chains || {}).map(c => Object.entries(c[1]?.confirms || {}).find(cf => cf[0] === 'false')?.[1] || 0))
                       vs[i] = v
                     }
 

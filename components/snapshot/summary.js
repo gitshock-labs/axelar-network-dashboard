@@ -226,9 +226,14 @@ const Summary = ({ data }) => {
             <div className="skeleton w-24 h-7 mt-1" />
           }
           <span className="flex items-center text-gray-400 dark:text-gray-600 text-sm font-normal space-x-1">
-            <span># Chains:</span>
+            <span># {typeof data?.total_votes === 'number' ? 'Total Votes' : 'Chains'}:</span>
             {data ?
-              <span className="text-gray-600 dark:text-gray-400 font-medium">{numberFormat(supportedChains.length, '0,0')}</span>
+              typeof data.total_votes === 'number' ?
+                <span className="text-gray-600 dark:text-gray-400 font-medium">
+                  {numberFormat(data.total_yes_votes, '0,0')} Y / {numberFormat(data.total_no_votes, '0,0')} N
+                </span>
+                :
+                <span className="text-gray-600 dark:text-gray-400 font-medium">{numberFormat(supportedChains.length, '0,0')}</span>
               :
               <div className="skeleton w-8 h-3.5" />
             }

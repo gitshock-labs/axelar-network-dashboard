@@ -141,6 +141,7 @@ export default function Account({ address }) {
           if (!controller.signal.aborted) {
             const response = await linkedAddresses({
               query: {
+                // match: { _id: address.toLowerCase() },
                 match: { deposit_address: address.toLowerCase() },
               },
               sort: [

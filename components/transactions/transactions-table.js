@@ -17,7 +17,7 @@ import { numberFormat, getName, ellipseAddress } from '../../lib/utils'
 const LATEST_SIZE = 100
 const MAX_PAGE = 10
 
-export default function TransactionsTable({ data, noLoad, hasVote, location, className = '' }) {
+export default function TransactionsTable({ data, noLoad, location, className = '' }) {
   const { preferences, denoms } = useSelector(state => ({  preferences: state.preferences, denoms: state.denoms }), shallowEqual)
   const { theme } = { ...preferences }
   const { denoms_data } = { ...denoms }
@@ -43,10 +43,8 @@ export default function TransactionsTable({ data, noLoad, hasVote, location, cla
           while (_page <= page) {
             if (!controller.signal.aborted) {
               const response = await getTransactions({ size: location === 'index' ? 10 : LATEST_SIZE, from: _page * (location === 'index' ? 10 : LATEST_SIZE), sort: [{ timestamp: 'desc' }] }, denoms_data)
-
               _data = _.uniqBy(_.concat(_data || [], response?.data || []), 'txhash')
             }
-
             _page++
           }
 
@@ -223,22 +221,6 @@ export default function TransactionsTable({ data, noLoad, hasVote, location, cla
             headerClassName: 'justify-end text-right',
           },
           {
-            Header: 'Vote',
-            accessor: 'vote',
-            disableSortBy: true,
-            Cell: props => (
-              !props.row.original.skeleton ?
-                props.value ?
-                  <span className={`${props.value === 'approved' ? 'bg-green-500' : 'bg-red-500'} rounded-lg capitalize text-white font-semibold px-2 py-1`}>
-                    {props.value}
-                  </span>
-                  :
-                  '-'
-                :
-                <div className="skeleton w-12 h-4" />
-            ),
-          },
-          {
             Header: 'Time',
             accessor: 'timestamp',
             disableSortBy: true,
@@ -266,7 +248,7 @@ export default function TransactionsTable({ data, noLoad, hasVote, location, cla
             ),
             headerClassName: 'justify-end text-right',
           },
-        ].filter(column => ['blocks'].includes(location) ? !(['height', 'vote'].includes(column.accessor)) : ['index'].includes(location) ? !(['height', 'value', 'fee', 'vote'].includes(column.accessor)) : ['validator'].includes(location) ? !((hasVote ? ['value', 'fee'] : ['value', 'fee', 'vote']).includes(column.accessor)) : !(['vote'].includes(column.accessor)))}
+        ].filter(column => ['blocks'].includes(location) ? !['height'].includes(column.accessor) : ['index'].includes(location) ? !['height', 'value', 'fee'].includes(column.accessor) : ['validator'].includes(location) ? !['value', 'fee'].includes(column.accessor) : true)}
         data={transactions ?
           transactions.data?.filter(tx => !(!noLoad && !location) || !(filterActions?.length > 0) || filterActions.includes(tx.type) || (filterActions.includes('undefined') && !tx.type)).map((transaction, i) => { return { ...transaction, i } }) || []
           :

@@ -441,6 +441,59 @@ export default function Snapshot({ height }) {
             headerClassName: 'justify-end text-right',
           },
           {
+            Header: 'EVM Votes',
+            accessor: 'total_yes_votes',
+            sortType: (rowA, rowB) => rowA.original.total_yes_votes > rowB.original.total_yes_votes ? 1 : rowA.original.total_yes_votes < rowB.original.total_yes_votes ? -1 : rowA.original.total_no_votes <= rowB.original.total_no_votes ? 1 : -1,
+            Cell: props => (
+              !props.row.original.skeleton ?
+                typeof props.value === 'number' ?
+                  <>
+                    <div className="w-36 mt-0.5 ml-auto">
+                      <ProgressBarWithText
+                        width={(props.value / props.row.original.total_yes_votes) * 100}
+                        text={<div className="text-white mx-1" style={{ fontSize: '.55rem' }}>
+                          {numberFormat((props.value / props.row.original.total_votes) * 100, '0,0.00')}%
+                        </div>}
+                        color="bg-blue-500 dark:bg-blue-600 rounded"
+                        backgroundClassName="h-4 bg-red-400 dark:bg-red-700 rounded"
+                        className={`h-4 flex items-center justify-${(props.value / props.row.original.total_votes) * 100 < 20 ? 'start' : 'end'}`}
+                      />
+                    </div>
+                    <div className="text-xs mt-1.5">
+                      <span className="text-gray-400 dark:text-gray-500 font-medium">Vote Yes:</span>
+                      <div className="flex items-center">
+                        <span className="text-gray-600 dark:text-gray-400 font-semibold">{numberFormat(props.value, '0,0')}</span>
+                        <span className="text-2xs ml-auto">{numberFormat((props.value / props.row.original.total_votes) * 100, '0,0.00')}%</span>
+                      </div>
+                    </div>
+                    <div className="text-xs mt-1.5">
+                      <span className="text-gray-400 dark:text-gray-500 font-medium">Vote No:</span>
+                      <div className="flex items-center">
+                        <span className="text-gray-600 dark:text-gray-400 font-semibold">{numberFormat(props.row.original.total_no_votes, '0,0')}</span>
+                        <span className="text-2xs ml-auto">{numberFormat((props.row.original.total_no_votes / props.row.original.total_votes) * 100, '0,0.00')}%</span>
+                      </div>
+                    </div>
+                  </>
+                  :
+                  <div className="w-full font-mono text-gray-400 dark:text-gray-600 text-right">n/a</div>
+                :
+                <>
+                  <div className="skeleton w-36 h-4 mt-0.5 ml-auto" />
+                  <div className="skeleton w-20 h-3.5 mt-2" />
+                  <div className="flex items-center mt-1">
+                    <div className="skeleton w-6 h-3" />
+                    <div className="skeleton w-6 h-3 ml-auto" />
+                  </div>
+                  <div className="skeleton w-20 h-3.5 mt-2" />
+                  <div className="flex items-center mt-1">
+                    <div className="skeleton w-6 h-3" />
+                    <div className="skeleton w-6 h-3 ml-auto" />
+                  </div>
+                </>
+            ),
+            headerClassName: 'whitespace-nowrap justify-end text-right',
+          },
+          {
             Header: 'Supported',
             accessor: 'supported_chains',
             sortType: (rowA, rowB) => rowA.original.supported_chains?.length > rowB.original.supported_chains?.length ? 1 : -1,

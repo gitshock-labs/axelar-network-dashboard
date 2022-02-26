@@ -19,7 +19,7 @@ import Widget from '../widget'
 import { getUptime, uptimeForJailedInfoSync, jailedInfo, getHeartbeat, getIneligibilities } from '../../lib/api/query'
 import { validatorSets, allBankBalances, allDelegations, distributionRewards, distributionCommissions } from '../../lib/api/cosmos'
 import { getKeygensByValidator } from '../../lib/api/executor'
-import { heartbeats as getHeartbeats, successKeygens as getSuccessKeygens, failedKeygens as getFailedKeygens, signAttempts as getSignAttempts } from '../../lib/api/opensearch'
+import { heartbeats as getHeartbeats, evmVotes as getEvmVotes, successKeygens as getSuccessKeygens, failedKeygens as getFailedKeygens, signAttempts as getSignAttempts } from '../../lib/api/opensearch'
 import { chain_manager } from '../../lib/object/chain'
 import { denomer } from '../../lib/object/denom'
 import { blocksPerHeartbeat, blockFraction, lastHeartbeatBlock, firstHeartbeatBlock } from '../../lib/object/hb'
@@ -46,6 +46,7 @@ export default function Validator({ address }) {
   const [jailed, setJailed] = useState(null)
   const [heartbeat, setHeartbeat] = useState(null)
   const [health, setHealth] = useState(null)
+  const [evmVotes, setEvmVotes] = useState(null)
 
   const [tab, setTab] = useState('key_share')
   const [keyShares, setKeyShares] = useState(null)
@@ -451,6 +452,53 @@ export default function Validator({ address }) {
     const controller = new AbortController()
 
     const getData = async () => {
+      if (address && validator?.address === address && validator.broadcaster_loaded && status_data) {
+        if (!controller.signal.aborted) {
+          const v = validator.data
+          let data
+
+          if (v?.broadcaster_address) {
+            const response = await getEvmVotes({
+              aggs: {
+                votes: {
+                  terms: { field: 'sender.keyword', size: 10000 },
+                  aggs: {
+                    chains: {
+                      terms: { field: 'sender_chain.keyword', size: 1000 },
+                      aggs: {
+                        confirms: {
+                          terms: { field: 'confirmed' },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+              query: { match: { sender: v.broadcaster_address } },
+            })
+
+            data = response?.data?.[v?.broadcaster_address] || {}
+          }
+          else {
+            data = {}
+          }
+
+          setEvmVotes({ data, address })
+        }
+      }
+    }
+
+    getData()
+
+    return () => {
+      controller?.abort()
+    }
+  }, [address, validator])
+
+  useEffect(() => {
+    const controller = new AbortController()
+
+    const getData = async () => {
       if (address) {
         let response, keygens_data, signs_data
 
@@ -503,7 +551,12 @@ export default function Validator({ address }) {
         }
 
         if (!controller.signal.aborted) {
-          response = await getSignAttempts({ size: 1000, query: { match: { result: true } }, sort: [{ height: 'desc' }] })
+          response = await getSignAttempts({
+            size: 1000,
+            query: { match: { result: true } },
+            sort: [{ height: 'desc' }],
+            aggs: { total: { terms: { field: 'result' } } },
+          })
           let data = Array.isArray(response?.data) ? response.data : []
 
           for (let i = 0; i < data.length; i++) {
@@ -521,7 +574,12 @@ export default function Validator({ address }) {
 
           signs_data = _.orderBy(_.concat(signs_data || [], data.filter(s => s.participated || s.not_participated)), ['height'], ['desc'])
 
-          response = await getSignAttempts({ size: 1000, query: { match: { result: false } }, sort: [{ height: 'desc' }] })
+          response = await getSignAttempts({
+            size: 1000,
+            query: { match: { result: false } },
+            sort: [{ height: 'desc' }],
+            aggs: { total: { terms: { field: 'result' } } },
+          })
           data = Array.isArray(response?.data) ? response.data : []
 
           for (let i = 0; i < data.length; i++) {
@@ -602,6 +660,7 @@ export default function Validator({ address }) {
             data={validator?.address === address && validator?.data}
             keygens={keygens?.address === address && keygens?.data}
             signs={signs?.address === address && signs?.data}
+            evmVotes={evmVotes?.address === address && evmVotes?.data}
             supportedChains={supportedChains?.address === address && supportedChains?.data}
             rewards={rewards?.address === address && rewards?.data}
           />

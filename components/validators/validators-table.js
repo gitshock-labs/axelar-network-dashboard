@@ -35,7 +35,7 @@ export default function ValidatorsTable({ status }) {
   }, [validators_data, validators_chains_data])
 
   return (
-    <div className="max-w-7xl my-2 xl:my-4 mx-auto">
+    <div className="max-w-8xl my-2 xl:my-4 mx-auto">
       <div className="flex flex-row items-center overflow-x-auto space-x-1 my-2">
         {['active', 'inactive'/*, 'illegible'*/, 'deregistering'].map((_status, i) => (
           <Link key={i} href={`/validators${i > 0 ? `/${_status}` : ''}`}>
@@ -256,6 +256,48 @@ export default function ValidatorsTable({ status }) {
             headerClassName: 'justify-end text-right',
           },
           {
+            Header: (
+              <span className="flex items-center space-x-1">
+                <span className="whitespace-nowrap">EVM Votes</span>
+                {/*<span>{numberFormat(Number(process.env.NEXT_PUBLIC_NUM_EVM_VOTES_BLOCKS), '0,0')}</span>
+                <FiBox size={16} className="stroke-current" />*/}
+              </span>
+            ),
+            accessor: 'votes',
+            sortType: (rowA, rowB) => rowA.original.total_yes_votes > rowB.original.total_yes_votes ? 1 : rowA.original.total_yes_votes < rowB.original.total_yes_votes ? -1 : rowA.original.total_no_votes <= rowB.original.total_no_votes ? 1 : -1,
+            Cell: props => (
+              !props.row.original.skeleton && props.value ?
+                Object.keys(props.value.chains || {}).length > 0 ?
+                  <div className="flex flex-col space-y-0.5">
+                    {Object.entries(props.value.chains).map(([key, value]) => (
+                      <div key={key} className="flex items-center justify-between space-x-2">
+                        <img
+                          src={chain_manager.image(key, chains_data)}
+                          alt={chain_manager.title(key, chains_data)}
+                          className="w-6 h-6 rounded-full"
+                        />
+                        <div className="flex flex-col items-end">
+                          <span className="uppercase text-xs font-semibold">{numberFormat(value?.confirms?.true || 0, '0,0')} Yes</span>
+                          <span className="uppercase text-xs font-semibold">{numberFormat(value?.confirms?.false || 0, '0,0')} No</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  :
+                  <div className="w-full font-mono text-gray-400 dark:text-gray-600 text-right">-</div>
+                :
+                <div className="flex flex-col space-y-1">
+                  {[...Array(3).keys()].map(i => (
+                    <div key={i} className="flex items-center justify-between space-x-2">
+                      <div className="skeleton w-6 h-6 rounded-full" />
+                      <div className="skeleton w-12 h-4" />
+                    </div>
+                  ))}
+                </div>
+            ),
+            headerClassName: 'justify-end text-right',
+          },
+          {
             Header: 'Supported',
             accessor: 'supported_chains',
             sortType: (rowA, rowB) => rowA.original.supported_chains?.length > rowB.original.supported_chains?.length ? 1 : -1,
@@ -268,8 +310,8 @@ export default function ValidatorsTable({ status }) {
                         chain_manager.image(_chain, chains_data) ?
                           <img
                             key={i}
-                            alt={chain_manager.title(_chain, chains_data)}
                             src={chain_manager.image(_chain, chains_data)}
+                            alt={chain_manager.title(_chain, chains_data)}
                             className="w-6 h-6 rounded-full mb-1 ml-1"
                           />
                           :

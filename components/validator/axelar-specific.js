@@ -6,7 +6,7 @@ import Copy from '../copy'
 import { chain_manager } from '../../lib/object/chain'
 import { numberFormat, getName, ellipseAddress } from '../../lib/utils'
 
-export default function AxelarSpecific({ data, keygens, signs, supportedChains, rewards }) {
+export default function AxelarSpecific({ data, keygens, signs, evmVotes, supportedChains, rewards }) {
   const { chains } = useSelector(state => ({ chains: state.chains }), shallowEqual)
   const { chains_data } = { ...chains }
 
@@ -66,6 +66,36 @@ export default function AxelarSpecific({ data, keygens, signs, supportedChains, 
             </span>
             :
             <div className="skeleton w-28 h-6" />
+          }
+        </div>
+        <div className={`sm:col-span-2 flex flex-col space-y-${evmVotes ? 1 : 2}`}>
+          <span className="font-semibold space-x-2">
+            <span>EVM Votes</span>
+          </span>
+          {evmVotes ?
+            <span className="flex flex-wrap items-center text-gray-500 dark:text-gray-400">
+              {Object.keys(evmVotes.chains || {}).length > 0 ?
+                <div className="w-full grid grid-flow-row grid-cols-2 sm:grid-cols-3 gap-y-3 gap-x-6">
+                  {Object.entries(evmVotes.chains).map(([key, value]) => (
+                    <div key={key} className="flex items-center justify-between space-x-2">
+                      <img
+                        src={chain_manager.image(key, chains_data)}
+                        alt={chain_manager.title(key, chains_data)}
+                        className="w-6 h-6 rounded-full"
+                      />
+                      <div className="flex flex-col items-end">
+                        <span className="uppercase text-xs font-semibold">{numberFormat(value?.confirms?.true || 0, '0,0')} Yes</span>
+                        <span className="uppercase text-xs font-semibold">{numberFormat(value?.confirms?.false || 0, '0,0')} No</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                :
+                '-'
+              }
+            </span>
+            :
+            <div className="skeleton w-full h-6" />
           }
         </div>
         <div className={`sm:col-span-2 flex flex-col space-y-${supportedChains ? 1 : 2}`}>

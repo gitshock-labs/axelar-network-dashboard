@@ -157,12 +157,12 @@ export default function Leaderboard({ n = 100 }) {
                 },
                 vote_participated: {
                   sum: {
-                    field: 'vote_participated',
+                    field: 'total_yes_votes',
                   },
                 },
                 vote_not_participated: {
                   sum: {
-                    field: 'vote_not_participated',
+                    field: 'total_no_votes',
                   },
                 },
                 keygen_participated: {
@@ -274,7 +274,7 @@ export default function Leaderboard({ n = 100 }) {
             jailed_fraction: 1 - ((v.num_blocks_jailed / total_blocks) || 0),
             debug: {
               supported_chains_fraction: `(${supported_chains.map(chain => `(${v.supported_chains.find(_chain => _chain.chain === chain)?.count || 0} / ${supported_chains_num_snapshots[chain]} ${chain?.toUpperCase()})`).join(' +\n')})\n/ ${supported_chains.length} CHAINS`,
-              vote_participation_fraction: '-',//`${v.vote_participated} PARTICIPATED / ${vote_participations} TOTAL_VOTE`,
+              vote_participation_fraction: `${v.vote_participated} PARTICIPATED / ${vote_participations} TOTAL_VOTE`,
               keygen_participation_fraction: `${v.keygen_participated} PARTICIPATED / ${keygen_participations} TOTAL_KEYGEN`,
               sign_participation_fraction: `${v.sign_participated} PARTICIPATED / ${sign_participations} TOTAL_SIGN`,
               // heartbeats_fraction: `1 - ((${v.missed_heartbeats} MISSED +\n((${ineligibilities.map(({ key, value}) => `${value} ${''/*key?.replace('ineligibilities_', '').toUpperCase()*/}`.trim()).join(' + ')}) / ${ineligibilities.length})) / (${total_blocks} / ${Number(process.env.NEXT_PUBLIC_NUM_BLOCKS_PER_HEARTBEAT)}))`,
