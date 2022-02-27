@@ -268,17 +268,23 @@ export default function ValidatorsTable({ status }) {
             Cell: props => (
               !props.row.original.skeleton && props.value ?
                 Object.keys(props.value.chains || {}).length > 0 ?
-                  <div className="flex flex-col space-y-0.5">
+                  <div className="flex flex-col space-y-1.5">
                     {Object.entries(props.value.chains).map(([key, value]) => (
                       <div key={key} className="flex items-center justify-between space-x-2">
                         <img
                           src={chain_manager.image(key, chains_data)}
                           alt={chain_manager.title(key, chains_data)}
-                          className="w-6 h-6 rounded-full"
+                          className="w-5 h-5 rounded-full"
                         />
-                        <div className="flex flex-col items-end">
-                          <span className="uppercase text-xs font-semibold">{numberFormat(value?.confirms?.true || 0, '0,0')} Yes</span>
-                          <span className="uppercase text-xs font-semibold">{numberFormat(value?.confirms?.false || 0, '0,0')} No</span>
+                        <div className="flex flex-col items-end space-y-0.5">
+                          <span className="uppercase text-3xs font-semibold space-x-1">
+                            <span>{numberFormat(value?.confirms?.true || 0, '0,0')}</span>
+                            <span className="text-green-500 dark:text-white">Yes</span>
+                          </span>
+                          <span className="uppercase text-3xs font-semibold space-x-1">
+                            <span>{numberFormat(value?.confirms?.false || 0, '0,0')}</span>
+                            <span className="text-gray-400 dark:text-gray-500">No</span
+                          ></span>
                         </div>
                       </div>
                     ))}
@@ -286,10 +292,10 @@ export default function ValidatorsTable({ status }) {
                   :
                   <div className="w-full font-mono text-gray-400 dark:text-gray-600 text-right">-</div>
                 :
-                <div className="flex flex-col space-y-1">
+                <div className="flex flex-col space-y-1.5">
                   {[...Array(3).keys()].map(i => (
                     <div key={i} className="flex items-center justify-between space-x-2">
-                      <div className="skeleton w-6 h-6 rounded-full" />
+                      <div className="skeleton w-5 h-5 rounded-full" />
                       <div className="skeleton w-12 h-4" />
                     </div>
                   ))}
