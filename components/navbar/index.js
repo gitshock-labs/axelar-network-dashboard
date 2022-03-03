@@ -219,7 +219,7 @@ export default function Navbar() {
 
           dispatch({
             type: ENV_DATA,
-            value: { ...Object.fromEntries([_.head(response).split('|').map(s => s?.trim().split('`').join('').split(' ').join('_'))]) },
+            value: { ...Object.fromEntries([_.head(response).split('|').map(s => s?.trim().split('`').join('').split(' ').join('_')).filter(s => s)]) },
           })
         }
         else {
