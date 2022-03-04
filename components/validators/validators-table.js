@@ -152,7 +152,7 @@ export default function ValidatorsTable({ status }) {
             headerClassName: 'min-w-max justify-start sm:justify-end text-left sm:text-right',
           },
           {
-            Header: 'Commission',
+            Header: 'Comm.',
             accessor: 'commission.commission_rates.rate',
             sortType: (rowA, rowB) => Number(rowA.original.commission.commission_rates.rate) > Number(rowB.original.commission.commission_rates.rate) ? 1 : -1,
             Cell: props => (
@@ -259,8 +259,8 @@ export default function ValidatorsTable({ status }) {
             Header: (
               <span className="flex items-center space-x-1">
                 <span className="whitespace-nowrap">EVM Votes</span>
-                {/*<span>{numberFormat(Number(process.env.NEXT_PUBLIC_NUM_EVM_VOTES_BLOCKS), '0,0')}</span>
-                <FiBox size={16} className="stroke-current" />*/}
+                <span>{numberFormat(Number(process.env.NEXT_PUBLIC_NUM_EVM_VOTES_BLOCKS), '0,0')}</span>
+                <FiBox size={16} className="stroke-current" />
               </span>
             ),
             accessor: 'votes',
@@ -268,13 +268,13 @@ export default function ValidatorsTable({ status }) {
             Cell: props => (
               !props.row.original.skeleton && props.value ?
                 Object.keys(props.value.chains || {}).length > 0 ?
-                  <div className="flex flex-col space-y-1.5">
+                  <div className="min-w-max grid grid-flow-row grid-cols-2 gap-y-2 gap-x-3">
                     {Object.entries(props.value.chains).map(([key, value]) => (
                       <div key={key} className="flex items-center justify-between space-x-2">
                         <img
                           src={chain_manager.image(key, chains_data)}
                           alt={chain_manager.title(key, chains_data)}
-                          className="w-5 h-5 rounded-full"
+                          className="w-4 h-4 rounded-full"
                         />
                         <div className="flex flex-col items-end space-y-0.5">
                           <span className="uppercase text-3xs font-semibold space-x-1">
@@ -292,10 +292,10 @@ export default function ValidatorsTable({ status }) {
                   :
                   <div className="w-full font-mono text-gray-400 dark:text-gray-600 text-right">-</div>
                 :
-                <div className="flex flex-col space-y-1.5">
+                <div className="min-w-max grid grid-flow-row grid-cols-2 gap-y-2 gap-x-3">
                   {[...Array(3).keys()].map(i => (
                     <div key={i} className="flex items-center justify-between space-x-2">
-                      <div className="skeleton w-5 h-5 rounded-full" />
+                      <div className="skeleton w-4 h-4 rounded-full" />
                       <div className="skeleton w-12 h-4" />
                     </div>
                   ))}
@@ -318,7 +318,7 @@ export default function ValidatorsTable({ status }) {
                             key={i}
                             src={chain_manager.image(_chain, chains_data)}
                             alt={chain_manager.title(_chain, chains_data)}
-                            className="w-6 h-6 rounded-full mb-1 ml-1"
+                            className="w-5 h-5 rounded-full mb-1 ml-1"
                           />
                           :
                           <span key={i} className="max-w-min bg-gray-100 dark:bg-gray-900 rounded-xl text-gray-800 dark:text-gray-200 text-xs font-semibold mb-1 ml-1 px-1.5 py-0.5">
@@ -333,7 +333,7 @@ export default function ValidatorsTable({ status }) {
                 :
                 <div className="flex flex-wrap items-center justify-end">
                   {[...Array(3).keys()].map(i => (
-                    <div key={i} className="skeleton w-6 h-6 rounded-full mb-1 ml-1" />
+                    <div key={i} className="skeleton w-5 h-5 rounded-full mb-1 ml-1" />
                   ))}
                 </div>
             ),
@@ -406,7 +406,7 @@ export default function ValidatorsTable({ status }) {
             ),
             headerClassName: 'justify-end text-right',
           },
-        ].filter(column => ['inactive'].includes(status) ? !(['self_delegation'/*, 'uptime', 'heartbeats_uptime'*/, 'supported_chains'].includes(column.accessor)) : ['illegible', 'deregistering'].includes(status) ? !(['self_delegation', /*'uptime', */, 'supported_chains', 'jailed'].includes(column.accessor)) : !(['self_delegation', 'jailed'].includes(column.accessor)))}
+        ].filter(column => ['inactive'].includes(status) ? !(['self_delegation'/*, 'uptime', 'heartbeats_uptime'*/, 'supported_chains'].includes(column.accessor)) : ['illegible', 'deregistering'].includes(status) ? !(['self_delegation', /*'uptime', */, 'votes', 'supported_chains', 'jailed'].includes(column.accessor)) : !(['self_delegation', 'jailed'].includes(column.accessor)))}
         data={validatorsData ?
           validatorsData.filter(v => status === 'inactive' ? !(['BOND_STATUS_BONDED'].includes(v.status)) : status === 'illegible' ? v.illegible : status === 'deregistering' ? v.deregistering : !v.jailed && ['BOND_STATUS_BONDED'].includes(v.status)).map((v, i) => { return { ...v, i } })
           :

@@ -362,7 +362,7 @@ export default function Navbar() {
                           },
                         },
                       },
-                      // query: { range: { height: { gte: Number(status_data.latest_block_height) - Number(process.env.NEXT_PUBLIC_NUM_EVM_VOTES_BLOCKS) } } },
+                      query: { range: { height: { gte: Number(status_data.latest_block_height) - Number(process.env.NEXT_PUBLIC_NUM_EVM_VOTES_BLOCKS) } } },
                     })
 
                     for (let i = 0; i < vs.length; i++) {
