@@ -500,7 +500,7 @@ export default function Validator({ address }) {
 
     const getData = async () => {
       if (address) {
-        let response, keygens_data, signs_data
+        let response, keygens_data, signs_data, total_participated_signs, total_not_participated_signs
 
         if (!controller.signal.aborted) {
           response = await getKeygensByValidator(address)
@@ -553,11 +553,12 @@ export default function Validator({ address }) {
         if (!controller.signal.aborted) {
           response = await getSignAttempts({
             size: 1000,
-            query: { match: { result: true } },
+            query: { match: { participants: address } },
             sort: [{ height: 'desc' }],
             aggs: { total: { terms: { field: 'result' } } },
           })
           let data = Array.isArray(response?.data) ? response.data : []
+          total_participated_signs = response?.total
 
           for (let i = 0; i < data.length; i++) {
             const sign = data[i]
@@ -576,11 +577,12 @@ export default function Validator({ address }) {
 
           response = await getSignAttempts({
             size: 1000,
-            query: { match: { result: false } },
+            query: { match: { non_participants: address } },
             sort: [{ height: 'desc' }],
             aggs: { total: { terms: { field: 'result' } } },
           })
           data = Array.isArray(response?.data) ? response.data : []
+          total_not_participated_signs = response?.total
 
           for (let i = 0; i < data.length; i++) {
             const sign = data[i]
@@ -597,7 +599,7 @@ export default function Validator({ address }) {
 
           signs_data = _.orderBy(_.concat(signs_data || [], data.filter(s => s.participated || s.not_participated)), ['height'], ['desc'])
 
-          setSigns({ data: signs_data, total: signs_data.length, address })
+          setSigns({ data: signs_data, total: total_participated_signs + total_not_participated_signs, total_participated_signs, total_not_participated_signs, address })
         }
       }
     }
@@ -659,7 +661,7 @@ export default function Validator({ address }) {
           <AxelarSpecific
             data={validator?.address === address && validator?.data}
             keygens={keygens?.address === address && keygens?.data}
-            signs={signs?.address === address && signs?.data}
+            signs={signs?.address === address && signs}
             evmVotes={evmVotes?.address === address && evmVotes?.data}
             supportedChains={supportedChains?.address === address && supportedChains?.data}
             rewards={rewards?.address === address && rewards?.data}

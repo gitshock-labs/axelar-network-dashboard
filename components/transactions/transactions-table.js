@@ -15,7 +15,7 @@ import { transactions as getTransactions } from '../../lib/api/opensearch'
 import { numberFormat, getName, ellipseAddress } from '../../lib/utils'
 
 const LATEST_SIZE = 100
-const MAX_PAGE = 10
+const MAX_PAGE = 50
 
 export default function TransactionsTable({ data, noLoad, location, className = '' }) {
   const { preferences, denoms } = useSelector(state => ({  preferences: state.preferences, denoms: state.denoms }), shallowEqual)
@@ -44,8 +44,8 @@ export default function TransactionsTable({ data, noLoad, location, className = 
             if (!controller.signal.aborted) {
               const response = await getTransactions({ size: location === 'index' ? 10 : LATEST_SIZE, from: _page * (location === 'index' ? 10 : LATEST_SIZE), sort: [{ timestamp: 'desc' }] }, denoms_data)
               _data = _.uniqBy(_.concat(_data || [], response?.data || []), 'txhash')
+              _page++
             }
-            _page++
           }
 
           setTransactions({ data: _data || [] })
@@ -263,7 +263,7 @@ export default function TransactionsTable({ data, noLoad, location, className = 
           No Transactions
         </div>
       )}
-      {!location && !noLoad && transactions?.data?.length >= LATEST_SIZE * (page + 1) && page < MAX_PAGE && (
+      {!location && !noLoad && !moreLoading && /*transactions?.data?.length >= LATEST_SIZE * (page + 1) &&*/ page < MAX_PAGE && (
         <div
           onClick={() => setPage(page + 1)}
           className="btn btn-default btn-rounded max-w-max bg-trasparent bg-gray-100 dark:bg-gray-900 hover:bg-gray-200 dark:hover:bg-gray-800 cursor-pointer text-gray-900 dark:text-white font-semibold mt-4 mx-auto"

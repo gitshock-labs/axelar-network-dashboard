@@ -14,8 +14,8 @@ export default function AxelarSpecific({ data, keygens, signs, evmVotes, support
   const keygenNotParticipated = keygens && keygens.filter(k => k?.not_participated).length
   const totalKeygen = keygenParticipated + keygenNotParticipated
 
-  const signParticipated = signs && signs.filter(s => s?.participated).length
-  const signNotParticipated = signs && signs.filter(s => s?.not_participated).length
+  const signParticipated = signs && (signs.total_participated_signs || signs.data?.filter(s => s?.participated).length)
+  const signNotParticipated = signs && (signs.total_not_participated_signs || signs.data?.filter(s => s?.not_participated).length)
   const totalSign = signParticipated + signNotParticipated
 
   return (
