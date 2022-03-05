@@ -28,11 +28,11 @@
     &.form-input-invalid {
       @apply border border-red-500;
     }
+    @apply bg-gray-50 border-gray-50;
     [data-background="dark"] & {
-      @apply bg-gray-900 border-gray-800 text-white;
+      @apply bg-gray-800 border-gray-800 text-white;
       &::placeholder {
-        color: theme('colors.white');
-        @apply text-gray-600;
+        color: #6B7280;/*theme('colors.white');*/
       }
     }
   }
@@ -45,7 +45,7 @@
       @apply border border-red-500;
     }
     [data-background="dark"] & {
-      @apply bg-gray-900 border-gray-800 text-white;
+      @apply bg-gray-800 border-gray-700 text-white;
     }
   }
   .form-radio {

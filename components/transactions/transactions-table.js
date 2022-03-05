@@ -7,12 +7,13 @@ import moment from 'moment'
 import Loader from 'react-loader-spinner'
 import { FaCheckCircle, FaClock, FaTimesCircle } from 'react-icons/fa'
 
+import TransactionsFilter from './transactions-filter'
 import Datatable from '../datatable'
 import Copy from '../copy'
 import Popover from '../popover'
 
 import { transactions as getTransactions } from '../../lib/api/opensearch'
-import { numberFormat, getName, ellipseAddress } from '../../lib/utils'
+import { numberFormat, getName, ellipseAddress, sleep } from '../../lib/utils'
 
 const LATEST_SIZE = 100
 const MAX_PAGE = 50
@@ -27,6 +28,9 @@ export default function TransactionsTable({ data, noLoad, location, className = 
   const [transactions, setTransactions] = useState(null)
   const [actions, setActions] = useState({})
   const [filterActions, setFilterActions] = useState([])
+  const [types, setTypes] = useState(null)
+  const [txsTrigger, setTxsTrigger] = useState(null)
+  const [txsFilter, setTxsFilter] = useState(null)
 
   useEffect(() => {
     const controller = new AbortController()
@@ -34,23 +38,55 @@ export default function TransactionsTable({ data, noLoad, location, className = 
     const getData = async is_interval => {
       if (denoms_data) {
         if (!controller.signal.aborted) {
-          if (!location && page && !is_interval) {
+          if ((!location || location === 'search') && page && !is_interval) {
             setMoreLoading(true)
           }
 
-          let _data, _page = 0
+          if (!is_interval && txsTrigger && typeof txsTrigger !== 'boolean') {
+            setTransactions(null)
+
+            if (transactions && transactions.data?.length < 1) {
+              await sleep(0.5 * 1000)
+            }
+          }
+
+          let _data = page === 0 ? [] : _.cloneDeep(transactions?.data), _page = page
+          const size = location === 'index' ? 10 : location === 'search' ? 500 : LATEST_SIZE
+          const must = [], must_not = []
+          if (txsFilter) {
+            if (txsFilter.tx_hash) {
+              must.push({ match: { txhash: txsFilter.tx_hash } })
+            }
+            if (txsFilter.status) {
+              if (txsFilter.status === 'success') {
+                must.push({ match: { code: 0 } })
+              }
+              else {
+                must_not.push({ match: { code: 0 } })
+              }
+            }
+            if (txsFilter.type) {
+              must.push({ match: { types: txsFilter.type } })
+            }
+          }
+          const query = {
+            bool: {
+              must,
+              must_not,
+            },
+          }
 
           while (_page <= page) {
             if (!controller.signal.aborted) {
-              const response = await getTransactions({ size: location === 'index' ? 10 : LATEST_SIZE, from: _page * (location === 'index' ? 10 : LATEST_SIZE), sort: [{ timestamp: 'desc' }] }, denoms_data)
-              _data = _.uniqBy(_.concat(_data || [], response?.data || []), 'txhash')
+              const response = await getTransactions({ size, from: _page * size, sort: [{ timestamp: 'desc' }], query }, denoms_data)
+              _data = _.orderBy(_.uniqBy(_.concat(_data || [], response?.data || []), 'txhash'), ['timestamp'], ['desc'])
               _page++
             }
           }
 
           setTransactions({ data: _data || [] })
 
-          if (!location && page && !is_interval) {
+          if ((!location || location === 'search') && page && !is_interval) {
             setMoreLoading(false)
           }
         }
@@ -64,14 +100,29 @@ export default function TransactionsTable({ data, noLoad, location, className = 
       getData()
     }
 
-    if (!noLoad) {
+    if (!noLoad && !location) {
       const interval = setInterval(() => getData(true), 5 * 1000)
       return () => {
         controller?.abort()
         clearInterval(interval)
       }
     }
-  }, [data, page, denoms_data])
+  }, [data, page, denoms_data, txsTrigger])
+
+  useEffect(async () => {
+    if (location === 'search') {
+      const response = await getTransactions({
+        size: 0,
+        aggs: {
+          types: {
+            terms: { field: 'types.keyword', size: 100 },
+          },
+        },
+      })
+
+      setTypes(_.orderBy(response?.data || []))
+    }
+  }, [])
 
   useEffect(() => {
     if (!noLoad && !location && transactions?.data) {
@@ -94,6 +145,21 @@ export default function TransactionsTable({ data, noLoad, location, className = 
               <span className="text-2xs text-indigo-600 dark:text-indigo-400 font-bold mt-0.5"> {numberFormat(value, '0,0')}</span>
             </div>
           ))}
+        </div>
+      )}
+      {location === 'search' && (
+        <div className="flex items-center justify-end -mt-12 mb-4 mr-2">
+          <TransactionsFilter
+            applied={Object.values(txsFilter || {}).filter(v => v).length > 0}
+            disabled={!types}
+            types={types}
+            initialFilter={txsFilter}
+            updateFilter={f => {
+              setTxsFilter(f)
+              setTxsTrigger(moment().valueOf())
+              setPage(0)
+            }}
+          />
         </div>
       )}
       <Datatable
@@ -259,20 +325,23 @@ export default function TransactionsTable({ data, noLoad, location, className = 
         className={`${(!location && !noLoad) || ['index'].includes(location) ? 'min-h-full' : ''} ${className}`}
       />
       {transactions && !(transactions.data?.length > 0) && (
-        <div className={`bg-${!location ? 'white' : 'gray-50'} dark:bg-gray-900 rounded-xl text-gray-300 dark:text-gray-500 text-base font-medium italic text-center my-4 mx-2 py-2`}>
+        <div className={`bg-${(!location || location === 'search') ? 'white' : 'gray-50'} dark:bg-gray-900 rounded-xl text-gray-300 dark:text-gray-500 text-base font-medium italic text-center my-4 mx-2 py-2`}>
           No Transactions
         </div>
       )}
-      {!location && !noLoad && !moreLoading && /*transactions?.data?.length >= LATEST_SIZE * (page + 1) &&*/ page < MAX_PAGE && (
+      {(!location || location === 'search') && !noLoad && !moreLoading && page < MAX_PAGE && (
         <div
-          onClick={() => setPage(page + 1)}
-          className="btn btn-default btn-rounded max-w-max bg-trasparent bg-gray-100 dark:bg-gray-900 hover:bg-gray-200 dark:hover:bg-gray-800 cursor-pointer text-gray-900 dark:text-white font-semibold mt-4 mx-auto"
+          onClick={() => {
+            setPage(page + 1)
+            setTxsTrigger(true)
+          }}
+          className="btn btn-default btn-rounded max-w-max bg-trasparent bg-gray-100 dark:bg-gray-900 hover:bg-gray-200 dark:hover:bg-gray-800 cursor-pointer text-gray-900 dark:text-white font-semibold mb-8 mx-auto"
         >
           Load More
         </div>
       )}
       {moreLoading && (
-        <div className="flex justify-center mt-4">
+        <div className="flex justify-center mb-8">
           <Loader type="ThreeDots" color={theme === 'dark' ? 'white' : '#3B82F6'} width="32" height="32" />
         </div>
       )}

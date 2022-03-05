@@ -88,7 +88,20 @@ export default function PageTitle() {
       )
       break
     case '/transactions':
-      title = 'Latest'
+    case '/transactions/search':
+      title = (
+        <div className="flex items-center space-x-1">
+          {[{ title: 'Latest', path: '/transactions' }, { title: 'Search', path: '/transactions/search' }].map((mode, i) => (
+            <div
+              key={i}
+              onClick={() => router.push(mode.path)}
+              className={`${mode.path === pathname ? 'bg-blue-600 hover:shadow-lg text-white' : 'bg-gray-100 hover:bg-gray-200 dark:bg-gray-900 dark:hover:bg-gray-800 hover:shadow'} cursor-pointer rounded-xl py-1 px-2.5`}
+            >
+              <span className="text-xs font-semibold">{mode.title}</span>
+            </div>
+          ))}
+        </div>
+      )
       subtitle = 'Transactions'
       break
     case '/tx/[tx]':

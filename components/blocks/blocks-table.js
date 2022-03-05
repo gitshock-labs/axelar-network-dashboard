@@ -232,13 +232,13 @@ export default function BlocksTable({ n, className = '' }) {
       {!n && blocks?.data?.length >= LATEST_SIZE * (page + 1) && page < MAX_PAGE && (
         <div
           onClick={() => setPage(page + 1)}
-          className="btn btn-default btn-rounded max-w-max bg-trasparent bg-gray-100 dark:bg-gray-900 hover:bg-gray-200 dark:hover:bg-gray-800 cursor-pointer text-gray-900 dark:text-white font-semibold mt-4 mx-auto"
+          className="btn btn-default btn-rounded max-w-max bg-trasparent bg-gray-100 dark:bg-gray-900 hover:bg-gray-200 dark:hover:bg-gray-800 cursor-pointer text-gray-900 dark:text-white font-semibold mb-8 mx-auto"
         >
           Load More
         </div>
       )}
       {moreLoading && (
-        <div className="flex justify-center mt-4">
+        <div className="flex justify-center mb-8">
           <Loader type="ThreeDots" color={theme === 'dark' ? 'white' : '#3B82F6'} width="32" height="32" />
         </div>
       )}

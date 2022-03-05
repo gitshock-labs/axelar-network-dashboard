@@ -293,7 +293,7 @@ export default function ValidatorsTable({ status }) {
                   <div className="w-full font-mono text-gray-400 dark:text-gray-600 text-right">-</div>
                 :
                 <div className="min-w-max grid grid-flow-row grid-cols-2 gap-y-2 gap-x-3">
-                  {[...Array(3).keys()].map(i => (
+                  {[...Array(4).keys()].map(i => (
                     <div key={i} className="flex items-center justify-between space-x-2">
                       <div className="skeleton w-4 h-4 rounded-full" />
                       <div className="skeleton w-12 h-4" />
