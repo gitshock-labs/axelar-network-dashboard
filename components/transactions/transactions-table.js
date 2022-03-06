@@ -78,10 +78,19 @@ export default function TransactionsTable({ data, noLoad, location, className = 
 
           while (_page <= page) {
             if (!controller.signal.aborted) {
-              const params = { size, from: _page * size, sort: [{ timestamp: 'desc' }], query }
+              const params = {
+                size,
+                from: _page * size,
+                sort: [{ timestamp: 'desc' }],
+                query,
+                fields: ['txhash', 'height', 'types', 'code', 'tx.auth_info.fee.amount.*', 'timestamp'],
+                _source: {
+                  includes: 'logs'
+                },
+              }
               let response = await getTransactions(params, denoms_data)
-              if (response && !response.data) {
-                size = 10
+              while (response && !response.data && size >= 1) {
+                size /= 10
                 params.size = size
                 response = await getTransactions(params, denoms_data)
               }
@@ -179,7 +188,7 @@ export default function TransactionsTable({ data, noLoad, location, className = 
                 <div className="flex items-center space-x-1 mb-4">
                   <Link href={`/tx/${props.value}`}>
                     <a className="uppercase text-blue-600 dark:text-white font-medium">
-                      {ellipseAddress(props.value)}
+                      {ellipseAddress(Array.isArray(props.value) ? _.last(props.value) : props.value)}
                     </a>
                   </Link>
                   <Copy text={props.value} />
@@ -301,16 +310,16 @@ export default function TransactionsTable({ data, noLoad, location, className = 
                 <Popover
                   placement="top"
                   title={<span className="normal-case">TX Time</span>}
-                  content={<div className="w-36 text-xs">{moment(props.value).format('MMM D, YYYY h:mm:ss A')}</div>}
+                  content={<div className="w-36 text-xs">{moment(Array.isArray(props.value) ? _.last(props.value) : props.value).format('MMM D, YYYY h:mm:ss A')}</div>}
                   titleClassName="h-8"
                   className="ml-auto"
                 >
                   <div className="text-right">
                     <span className="normal-case text-gray-400 dark:text-gray-600 font-normal">
-                      {Number(moment().diff(moment(props.value), 'second')) > 59 ?
-                        moment(props.value).fromNow()
+                      {Number(moment().diff(moment(Array.isArray(props.value) ? _.last(props.value) : props.value), 'second')) > 59 ?
+                        moment(Array.isArray(props.value) ? _.last(props.value) : props.value).fromNow()
                         :
-                        <>{moment().diff(moment(props.value), 'second')}s ago</>
+                        <>{moment().diff(moment(Array.isArray(props.value) ? _.last(props.value) : props.value), 'second')}s ago</>
                       }
                     </span>
                   </div>
