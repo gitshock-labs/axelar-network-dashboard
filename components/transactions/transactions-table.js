@@ -51,7 +51,7 @@ export default function TransactionsTable({ data, noLoad, location, className = 
           }
 
           let _data = page === 0 ? [] : _.cloneDeep(transactions?.data), _page = page
-          const size = location === 'index' ? 10 : location === 'search' ? 500 : LATEST_SIZE
+          let size = location === 'index' ? 10 : location === 'search' ? 1000 : LATEST_SIZE
           const must = [], must_not = []
           if (txsFilter) {
             if (txsFilter.tx_hash) {
@@ -78,7 +78,12 @@ export default function TransactionsTable({ data, noLoad, location, className = 
 
           while (_page <= page) {
             if (!controller.signal.aborted) {
-              const response = await getTransactions({ size, from: _page * size, sort: [{ timestamp: 'desc' }], query }, denoms_data)
+              const params = { size, from: _page * size, sort: [{ timestamp: 'desc' }], query }
+              let response = await getTransactions(params, denoms_data)
+              if (response && !response.data) {
+                size = 10
+                response = await getTransactions(params, denoms_data)
+              }
               _data = _.orderBy(_.uniqBy(_.concat(_data || [], response?.data || []), 'txhash'), ['timestamp'], ['desc'])
               _page++
             }
