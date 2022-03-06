@@ -82,6 +82,7 @@ export default function TransactionsTable({ data, noLoad, location, className = 
               let response = await getTransactions(params, denoms_data)
               if (response && !response.data) {
                 size = 10
+                params.size = size
                 response = await getTransactions(params, denoms_data)
               }
               _data = _.orderBy(_.uniqBy(_.concat(_data || [], response?.data || []), 'txhash'), ['timestamp'], ['desc'])
