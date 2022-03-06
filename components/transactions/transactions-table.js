@@ -57,6 +57,9 @@ export default function TransactionsTable({ data, noLoad, location, className = 
             if (txsFilter.tx_hash) {
               must.push({ match: { txhash: txsFilter.tx_hash } })
             }
+            if (txsFilter.time?.length > 1) {
+              must.push({ range: { timestamp: { gte: txsFilter.time[0].valueOf(), lte: txsFilter.time[1].valueOf() } } })
+            }
             if (txsFilter.status) {
               if (txsFilter.status === 'success') {
                 must.push({ match: { code: 0 } })
@@ -191,7 +194,7 @@ export default function TransactionsTable({ data, noLoad, location, className = 
                       {ellipseAddress(Array.isArray(props.value) ? _.last(props.value) : props.value)}
                     </a>
                   </Link>
-                  <Copy text={props.value} />
+                  <Copy text={Array.isArray(props.value) ? _.last(props.value) : props.value} />
                 </div>
                 :
                 <div className="skeleton w-48 h-4 mb-4" />

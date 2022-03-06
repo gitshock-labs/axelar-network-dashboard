@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react'
 
 import _ from 'lodash'
+import moment from 'moment'
+import { DatePicker } from 'antd'
 import { VscFilterFilled, VscFilter } from 'react-icons/vsc'
 
 import Modal from '../modals/modal-confirm'
@@ -14,6 +16,12 @@ export default function TransactionsFilter({ applied = false, disabled = false, 
       name: 'tx_hash',
       type: 'text',
       placeholder: 'Transaction Hash',
+    },
+    {
+      label: 'Time',
+      name: 'time',
+      type: 'datetime-range',
+      placeholder: 'Select transaction time',
     },
     {
       label: 'Status',
@@ -41,6 +49,7 @@ export default function TransactionsFilter({ applied = false, disabled = false, 
 
   return (
     <Modal
+      clickOutSideDisabled={true}
       disabled={disabled}
       buttonTitle={<>
         {applied ?
@@ -79,13 +88,30 @@ export default function TransactionsFilter({ applied = false, disabled = false, 
                 ))}
               </select>
               :
-              <input
-                type={item.type}
-                placeholder={item.placeholder}
-                value={filter?.[item.name]}
-                onChange={e => setFilter({ ...filter, [`${item.name}`]: e.target.value })}
-                className="form-input dark:border-0 focus:ring-gray-200 dark:focus:ring-gray-700 rounded-lg"
-              />
+              item.type === 'datetime-range' ?
+                <DatePicker.RangePicker
+                  ranges={{
+                    Today: [moment(), moment()],
+                    'This Month': [moment().startOf('month'), moment().endOf('month')],
+                  }}
+                  showTime
+                  format="YYYY/MM/DD HH:mm:ss"
+                  value={filter?.[item.name]}
+                  onChange={value => {
+                    const _filter = { ...filter, [`${item.name}`]: value }
+                    setFilter(_filter)
+                  }}
+                  className="form-input dark:border-0 focus:ring-gray-200 dark:focus:ring-gray-700 rounded-lg"
+                  style={{ display: 'flex' }}
+                />
+                :
+                <input
+                  type={item.type}
+                  placeholder={item.placeholder}
+                  value={filter?.[item.name]}
+                  onChange={e => setFilter({ ...filter, [`${item.name}`]: e.target.value })}
+                  className="form-input dark:border-0 focus:ring-gray-200 dark:focus:ring-gray-700 rounded-lg"
+                />
             }
           </div>
         ))}

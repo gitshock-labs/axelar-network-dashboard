@@ -3,7 +3,7 @@ import { useSelector, shallowEqual } from 'react-redux'
 import Portal from '../portal'
 import { FiX } from 'react-icons/fi'
 
-export default function Modal({ id = 'portal', hidden, buttonTitle, disabled, onClick, buttonClassName, title, icon, body, cancelButtonTitle, cancelDisabled = false, onCancel, cancelButtonClassName, confirmButtonTitle, confirmDisabled = false, onConfirm, onConfirmHide = true, confirmButtonClassName, onClose, noButtons, modalClassName = '' }) {
+export default function Modal({ id = 'portal', hidden, clickOutSideDisabled, buttonTitle, disabled, onClick, buttonClassName, title, icon, body, cancelButtonTitle, cancelDisabled = false, onCancel, cancelButtonClassName, confirmButtonTitle, confirmDisabled = false, onConfirm, onConfirmHide = true, confirmButtonClassName, onClose, noButtons, modalClassName = '' }) {
   const { preferences } = useSelector(state => ({ preferences: state.preferences }), shallowEqual)
   const { theme } = { ...preferences }
 
@@ -27,14 +27,16 @@ export default function Modal({ id = 'portal', hidden, buttonTitle, disabled, on
 
   useEffect(() => {
     const handleClickOutside = event => {
-      if (!modalRef || !modalRef.current) return false
-      if (!open || modalRef.current.contains(event.target)) return false
+      if (!clickOutSideDisabled) {
+        if (!modalRef || !modalRef.current) return false
+        if (!open || modalRef.current.contains(event.target)) return false
 
-      if (!cancelDisabled) {
-        setOpen(!open)
+        if (!cancelDisabled) {
+          setOpen(!open)
 
-        if (onClose) {
-          onClose()
+          if (onClose) {
+            onClose()
+          }
         }
       }
     }
