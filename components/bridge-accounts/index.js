@@ -229,6 +229,7 @@ export default function BridgeAccounts() {
                   placement="left"
                   title={<span className="normal-case text-xs">Add token</span>}
                   content={<div className="w-36 text-xs">Add <span className="font-semibold">{a?.symbol}</span> to MetaMask</div>}
+                  titleClassName="py-1"
                 >
                   {addToMetaMaskButton}
                 </Popover>
