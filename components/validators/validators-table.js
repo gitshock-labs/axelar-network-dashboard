@@ -62,7 +62,7 @@ export default function ValidatorsTable({ status }) {
           {
             Header: 'Validator',
             accessor: 'description.moniker',
-            sortType: (rowA, rowB) => (rowA.original.description.moniker || rowA.original.i) > (rowB.original.description.moniker || rowB.original.i) ? 1 : -1,
+            sortType: (rowA, rowB) => (rowA.original.description?.moniker || rowA.original.i) > (rowB.original.description?.moniker || rowB.original.i) ? 1 : -1,
             Cell: props => (
               !props.row.original.skeleton ?
                 <div className={`min-w-max flex items-${props.value ? 'start' : 'center'} space-x-2`}>
@@ -154,7 +154,7 @@ export default function ValidatorsTable({ status }) {
           {
             Header: 'Comm.',
             accessor: 'commission.commission_rates.rate',
-            sortType: (rowA, rowB) => Number(rowA.original.commission.commission_rates.rate) > Number(rowB.original.commission.commission_rates.rate) ? 1 : -1,
+            sortType: (rowA, rowB) => Number(rowA.original.commission?.commission_rates?.rate) > Number(rowB.original.commission?.commission_rates?.rate) ? 1 : -1,
             Cell: props => (
               !props.row.original.skeleton ?
                 <div className="text-right">
