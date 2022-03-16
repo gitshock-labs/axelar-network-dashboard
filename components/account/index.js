@@ -396,7 +396,8 @@ export default function Account({ address }) {
       >
         <div className="mt-3">
           <TransactionsTable
-            data={address && transactions?.address === address && { ...transactions, data: _.orderBy(_.uniqBy(Object.values(transactions?.data || {}).flatMap(txs => txs?.data?.flatMap(_txs => _txs)), 'txhash'), ['timestamp', 'height'], ['desc', 'desc']).filter(tx => !(filterActions?.length > 0) || filterActions.includes(tx.type) || (filterActions.includes('undefined') && !tx.type)) }}
+            data={address && transactions?.address === address && { ...transactions, data: _.orderBy(_.uniqBy(Object.values(transactions?.data || {}).flatMap(txs => txs?.data?.flatMap(_txs => _txs)), 'txhash'), ['timestamp', 'height'], ['desc', 'desc']).filter(tx => !(filterActions?.length > 0) || filterActions.includes(tx.type) || (filterActions.includes('undefined') && !tx.type))?.map(tx => { return { ...tx, transfer: tx.activities?.findIndex(a => a.sender?.toLowerCase() === address?.toLowerCase()) > -1 ? 'out' : tx.activities?.findIndex(a => a.receiver?.toLowerCase() === address?.toLowerCase()) > -1 ? 'in' : null } }) }}
+            location="account"
             noLoad={true}
             className="no-border"
           />

@@ -24,10 +24,10 @@ export default function AccountDetail({ address, data }) {
         <div className="w-full flex flex-wrap items-center justify-start md:justify-end space-x-2">
           <div className="text-base font-semibold">Total:</div>
           {data ?
-            <div className="flex flex-wrap items-center justify-end text-gray-900 dark:text-gray-100 space-y-1 space-x-2">
+            <div className="flex flex-wrap items-center justify-end text-gray-900 dark:text-gray-100 space-x-2">
               {data.total?.length > 0 ?
                 data.total.map((total, i) => (
-                  <span key={i} className="bg-gray-100 dark:bg-gray-900 rounded font-medium space-x-1 px-2 py-1">
+                  <span key={i} className="bg-gray-100 dark:bg-gray-900 rounded font-medium space-x-1 my-1 px-2 py-1">
                     <span>{numberFormat(total.amount, '0,0.00000000')}</span>
                     <span className="whitespace-nowrap uppercase font-light">{ellipseAddress(total.denom, 12)}</span>
                     {env_data?.token_data && env_data.staking_params?.bond_denom === total.denom && (

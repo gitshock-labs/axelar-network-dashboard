@@ -6,6 +6,7 @@ import _ from 'lodash'
 import moment from 'moment'
 import Loader from 'react-loader-spinner'
 import { FaCheckCircle, FaClock, FaTimesCircle } from 'react-icons/fa'
+import { BsFillArrowLeftCircleFill, BsFillArrowRightCircleFill } from 'react-icons/bs'
 
 import TransactionsFilter from './transactions-filter'
 import Datatable from '../datatable'
@@ -269,7 +270,7 @@ export default function TransactionsTable({ data, noLoad, location, className = 
                       props.row.original.activities.filter(a => a.amount).map((a, i) => (
                         <div key={i} className="flex items-center justify-end space-x-1">
                           <span>{numberFormat(a.amount, '0,0.00000000')}</span>
-                          <span className="uppercase font-medium">{ellipseAddress(a.symbol || a.denom, 12)}</span>
+                          <span className="uppercase font-medium">{ellipseAddress(a.symbol || a.denom, 10)}</span>
                         </div>
                       ))
                       :
@@ -280,6 +281,27 @@ export default function TransactionsTable({ data, noLoad, location, className = 
                 <div className="skeleton w-20 h-4 ml-auto" />
             ),
             headerClassName: 'justify-end text-right',
+          },
+          {
+            Header: 'Transfer',
+            accessor: 'transfer',
+            disableSortBy: true,
+            Cell: props => (
+              !props.row.original.skeleton ?
+                <div className="flex items-center space-x-1.5">
+                  {props.value === 'in' ?
+                    <BsFillArrowLeftCircleFill size={16} className="text-green-500 dark:text-white" />
+                    :
+                    props.value === 'out' ?
+                      <BsFillArrowRightCircleFill size={16} className="text-blue-500 dark:text-white" />
+                      :
+                      null
+                  }
+                  <span className="uppercase font-medium">{props.value}</span>
+                </div>
+                :
+                <div className="skeleton w-20 h-4" />
+            ),
           },
           {
             Header: 'Fee',
@@ -332,7 +354,7 @@ export default function TransactionsTable({ data, noLoad, location, className = 
             ),
             headerClassName: 'justify-end text-right',
           },
-        ].filter(column => ['blocks'].includes(location) ? !['height'].includes(column.accessor) : ['index'].includes(location) ? !['height', 'value', 'fee'].includes(column.accessor) : ['validator'].includes(location) ? !['value', 'fee'].includes(column.accessor) : true)}
+        ].filter(column => ['blocks'].includes(location) ? !['height', 'transfer'].includes(column.accessor) : ['index'].includes(location) ? !['height', 'value', 'transfer', 'fee'].includes(column.accessor) : ['validator'].includes(location) ? !['value', 'transfer', 'fee'].includes(column.accessor) : ['account'].includes(location) ? true : !['transfer'].includes(column.accessor))}
         data={transactions ?
           transactions.data?.filter(tx => !(!noLoad && !location) || !(filterActions?.length > 0) || filterActions.includes(tx.type) || (filterActions.includes('undefined') && !tx.type)).map((transaction, i) => { return { ...transaction, i } }) || []
           :
