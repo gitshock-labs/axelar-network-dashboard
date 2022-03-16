@@ -262,14 +262,14 @@ export default function TransactionsTable({ data, noLoad, location, className = 
                   {typeof props.value === 'number' ?
                     <span className="flex items-center justify-end space-x-1">
                       <span>{numberFormat(props.value, '0,0.00000000')}</span>
-                      <span className="uppercase font-medium">{props.row.original.symbol}</span>
+                      <span className="uppercase font-medium">{ellipseAddress(props.row.original.symbol, 12)}</span>
                     </span>
                     :
                     props.row.original.activities?.findIndex(a => a.amount) > -1 ?
                       props.row.original.activities.filter(a => a.amount).map((a, i) => (
                         <div key={i} className="flex items-center justify-end space-x-1">
                           <span>{numberFormat(a.amount, '0,0.00000000')}</span>
-                          <span className="uppercase font-medium">{a.symbol || a.denom}</span>
+                          <span className="uppercase font-medium">{ellipseAddress(a.symbol || a.denom, 12)}</span>
                         </div>
                       ))
                       :

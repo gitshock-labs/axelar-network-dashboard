@@ -120,7 +120,7 @@ export default function TransactionLogs({ data }) {
                               /*typeof a.amount === 'number'*/a.amount > 0 ?
                                 <span className="w-full max-w-sm break-all flex items-start justify-end space-x-1">
                                   <span className="whitespace-nowrap">{numberFormat(a.amount, '0,0.00000000')}</span>
-                                  <span className="whitespace-nowrap font-medium">{a.symbol || ellipseAddress(a.denom)}</span>
+                                  <span className="whitespace-nowrap font-medium">{ellipseAddress(a.symbol || a.denom, 12)}</span>
                                 </span>
                                 :
                                 a.log ?
