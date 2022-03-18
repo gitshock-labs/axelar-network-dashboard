@@ -513,7 +513,7 @@ export default function Navbar() {
       if (!controller.signal.aborted) {
         if (assets) {
           for (let i = 0; i < assets.length; i++) {
-            const contract = (!assets[i]?.is_staging || staging) && assets[i]?.contracts?.find(contract => contract?.chain_id === chain.chain_id)
+            const contract = (!assets[i]?.is_staging || staging) && assets[i]?.contracts?.find(contract => contract?.chain_id === chain.chain_id && !contract?.is_native)
 
             if (contract) {
               const supply = await getContractSupply(chain, contract)

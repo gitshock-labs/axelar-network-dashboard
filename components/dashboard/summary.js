@@ -306,7 +306,7 @@ export default function Summary({ data, crosschainData, tvlData }) {
                       </span>
                       {t.value > 0 && (
                         <span className="font-mono text-gray-400 dark:text-gray-600 text-3xs font-medium">
-                          {currency_symbol}{numberFormat(t.value, '0,0.00')}
+                          {currency_symbol}{numberFormat(t.value, t.value > 100000 ? '0,0' : '0,0.00')}
                         </span>
                       )}
                     </div>
@@ -415,7 +415,7 @@ export default function Summary({ data, crosschainData, tvlData }) {
                                         href={`${c.chain.explorer.url}${c.chain.explorer.contract_path?.replace('{address}', c.contract.contract_address)}`}
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        className="text-blue-600 dark:text-white"
+                                        className="min-w-max text-blue-600 dark:text-white"
                                       >
                                         {c.chain.explorer.icon ?
                                           <img
@@ -441,7 +441,7 @@ export default function Summary({ data, crosschainData, tvlData }) {
                               </span>
                               {c.value > 0 && (
                                 <span className="font-mono text-gray-400 dark:text-gray-600 text-3xs font-medium">
-                                  {currency_symbol}{numberFormat(c.value, '0,0.00')}
+                                  {currency_symbol}{numberFormat(c.value, c.value > 100000 ? '0,0' : '0,0.00')}
                                 </span>
                               )}
                             </div>
@@ -456,7 +456,7 @@ export default function Summary({ data, crosschainData, tvlData }) {
                         </span>
                         {t.value > 0 && (
                           <span className="font-mono text-gray-400 dark:text-gray-600 text-3xs font-medium">
-                            {currency_symbol}{numberFormat(t.value, '0,0.00')}
+                            {currency_symbol}{numberFormat(t.value, t.value > 100000 ? '0,0' : '0,0.00')}
                           </span>
                         )}
                       </div>
@@ -536,7 +536,7 @@ export default function Summary({ data, crosschainData, tvlData }) {
                       </span>
                       {t.avg_value > 0 && (
                         <span className="font-mono text-gray-400 dark:text-gray-600 text-3xs font-medium">
-                          {currency_symbol}{numberFormat(t.avg_value, '0,0.00')}
+                          {currency_symbol}{numberFormat(t.avg_value, t.avg_value > 100000 ? '0,0' : '0,0.00')}
                         </span>
                       )}
                     </div>
@@ -625,7 +625,7 @@ export default function Summary({ data, crosschainData, tvlData }) {
                       </span>
                       {t.max_value > 0 && (
                         <span className="font-mono text-gray-400 dark:text-gray-600 text-3xs font-medium">
-                          {currency_symbol}{numberFormat(t.max_value, '0,0.00')}
+                          {currency_symbol}{numberFormat(t.max_value, t.max_value > 100000 ? '0,0' : '0,0.00')}
                         </span>
                       )}
                     </div>
